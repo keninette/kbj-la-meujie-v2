@@ -37,7 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ### Auto-deploy
 
-The app can be found at https://kbj-la-meujie-v2-a4hn.vercel.app/.
+The app can be found at https://kbj-la-meujie-v2.vercel.app/.
 Any push/merge to master will trigger it automatically.
 
 
