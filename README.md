@@ -16,9 +16,32 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Connect to the database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Follow [the documentation](https://supabase.com/docs/guides/local-development) to set it up.
+
+### Locally
+
+You need to have docker desktop installed on your computer.
+
+```
+# Run the docker container
+npx supabase start
+
+# Access database via Supabase Studio
+http://localhost:54323
+```
+
+### Migrations
+
+For now we have to write our migrations manually, you can use the following commands to create & run migrations:
+
+```
+npm run migration:create
+npm run migration:run
+```
+
+### On production environment
 
 ## Learn More
 
@@ -39,5 +62,3 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 The app can be found at https://kbj-la-meujie-v2-a4hn.vercel.app/.
 Any push/merge to master will trigger it automatically.
-
-
