@@ -1,0 +1,30 @@
+name: CI – Lint & Prettier
+
+# Run on pull‑request events targeting any branch
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint-prettify:
+    runs-on: ubuntu-latest
+
+    # Cache node_modules to speed up subsequent runs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.11.1'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci                     # clean install, respects lockfile
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Prettier
+        run: npx run prettier . --check
