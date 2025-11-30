@@ -26,6 +26,9 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Run Bem Lint
+        run: npm run bem-lint
+
       - name: Run Prettier
         run: npx run prettier . --check
 
