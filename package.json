@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "postcss:lint && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "bem-lint": "postcss app/**/*.scss --dir tmp --no-map",
