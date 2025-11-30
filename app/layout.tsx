@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./variables.scss";
+import { ServicesProvider } from "@hooks/services.hook";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ServicesProvider>{children}</ServicesProvider>
+      </body>
     </html>
   );
 }
