@@ -1,17 +1,20 @@
 {
   "name": "kbj-la-meujie-v2",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "postcss:lint && next build",
     "start": "next start",
     "lint": "eslint",
+    "bem-lint": "postcss app/**/*.scss --dir tmp --no-map",
     "prettify": "npx prettier . --write",
     "test": "jest"
   },
   "dependencies": {
     "next": "16.0.5",
+    "postcss-reporter": "^7.1.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
@@ -32,7 +35,11 @@
     "globals": "^16.5.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
+    "postcss": "^8.5.6",
+    "postcss-bem-linter": "^4.0.1",
+    "postcss-cli": "^11.0.1",
     "prettier": "3.7.3",
+    "sass": "^1.94.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5",
