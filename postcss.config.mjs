@@ -1,7 +1,7 @@
 import bemLinter from "postcss-bem-linter";
 import postCssReporter from "postcss-reporter";
 
-export default {
+const postcssConfig = {
   plugins: [
     bemLinter({
       preset: "bem",
@@ -17,3 +17,5 @@ export default {
     }),
   ],
 };
+
+export default postcssConfig;
