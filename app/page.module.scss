@@ -1,3 +1,4 @@
-.page {
-  background-color: var(--color-gray-dark);
+html {
+  height: 100dvh;
+  background: radial-gradient(circle, var(--color-default-white) 5%, var(--color-default-red--light) 85%)
 }

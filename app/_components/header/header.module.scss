@@ -1,3 +1,48 @@
 .header {
-  background-color: aquamarine;
+  // Display
+  align-items: flex-end;
+  display: flex;
+  justify-content: center;
+  letter-spacing: 0.4rem;
+
+  // Style
+  text-transform: uppercase;
+
+  &__logo {
+    position: relative;
+
+    &__dice {
+      position: absolute;
+      top: 140px;
+      left: -15px;
+    }
+  }
+
+  &__text {
+    // Display
+    display: flex;
+    flex-direction: column;
+    margin-left: 1rem;
+    padding-bottom: 1rem;
+
+    &__title {
+      // Display
+      margin: 0;
+
+      // Style
+      color: var(--color-default-brown);
+      font-size: var(--font-size--big);
+      font-weight: 300;
+    }
+
+    &__subtitle {
+      // Display
+      margin: 0;
+
+      // Style
+      color: var(--color-default-white);
+      font-size: var(--font-size--medium);
+      font-weight: 400;
+    }
+  }
 }
