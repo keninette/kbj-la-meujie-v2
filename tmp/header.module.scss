@@ -1,3 +1,41 @@
 .header {
-  background-color: aquamarine;
+  align-items: flex-end;
+  display: flex;
+  justify-content: center;
+  letter-spacing: var(--letter-spacing--title);
+
+  text-transform: uppercase;
+
+  &__logo {
+    position: relative;
+
+    &__dice {
+      position: absolute;
+      top: 85px;
+      left: -31px;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--spacing-layout-section-margin);
+    padding-bottom: var(--spacing-layout-section-margin);
+
+    &__title {
+      margin: 0;
+
+      color: var(--color-text--dark);
+      font-size: var(--font-size--title);
+      font-weight: var(--font-weight--title);
+    }
+
+    &__subtitle {
+      margin: 0;
+
+      color: var(--color-text--light);
+      font-size: var(--font-size--subtitle);
+      font-weight: var(--font-weight--subtitle);
+    }
+  }
 }

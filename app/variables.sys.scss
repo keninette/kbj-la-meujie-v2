@@ -1,0 +1,37 @@
+@use "variables.token";
+
+:root {
+  --color-background-gradient--borders: var(--color-default-blue--light);
+  --color-background-gradient--center: var(--color-default-pink--ultra-light);
+  --color-button--fab: var(--color-default-purple--primary);
+  --color-button-text--fab: var(--color-default-white);
+  --color-dropdown: var(--color-default-white);
+  --color-dropdown-text: var(--color-default-grey--dark);
+  --color-info: var(--color-default-purple--primary);
+  --color-info-opposite: var(--color-default-white);
+  --color-link: var(--color-default-purple--primary);
+  --color-text--dark: var(--color-default-grey--dark);
+  --color-text--light: var(--color-default-white);
+
+  --font-size--title: var(--font-size--l);
+  --font-size--subtitle: var(--font-size--m);
+  --font-size--section-title: var(--font-size--m);
+  --font-size--section-content-title: var(--font-size--s);
+
+  --font-weight--title: var(--font-weight--light);
+  --font-weight--subtitle: var(--font-weight--regular);
+
+  --letter-spacing--title: var(--letter-spacing--l);
+  --letter-spacing--section-title: var(--letter-spacing--m);
+  --letter-spacing--section-subtitle: var(--letter-spacing--s);
+
+  --radius--button: var(--radius--s);
+  --radius--chip: var(--radius--s);
+
+  --spacing-layout-section: var(--spacing--l);
+  --spacing-layout-section-margin: var(--spacing--s);
+  --spacing-layout-section-content-margin: var(--spacing--s);
+  --spacing-title: var(--font-size--s);
+  --spacing-padding--text: var(--spacing--xs);
+  --spacing-padding--button: var(--spacing--xxs);
+}

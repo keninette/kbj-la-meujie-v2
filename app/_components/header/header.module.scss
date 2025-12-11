@@ -1,11 +1,9 @@
 .header {
-  // Display
   align-items: flex-end;
   display: flex;
   justify-content: center;
-  letter-spacing: 0.4rem;
+  letter-spacing: var(--letter-spacing--title);
 
-  // Style
   text-transform: uppercase;
 
   &__logo {
@@ -13,36 +11,31 @@
 
     &__dice {
       position: absolute;
-      top: 140px;
-      left: -15px;
+      top: 85px;
+      left: -31px;
     }
   }
 
   &__text {
-    // Display
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
-    padding-bottom: 1rem;
+    margin-left: var(--spacing-layout-section-margin);
+    padding-bottom: var(--spacing-layout-section-margin);
 
     &__title {
-      // Display
       margin: 0;
 
-      // Style
-      color: var(--color-default-brown);
-      font-size: var(--font-size--big);
-      font-weight: 300;
+      color: var(--color-text--dark);
+      font-size: var(--font-size--title);
+      font-weight: var(--font-weight--title);
     }
 
     &__subtitle {
-      // Display
       margin: 0;
 
-      // Style
-      color: var(--color-default-white);
-      font-size: var(--font-size--medium);
-      font-weight: 400;
+      color: var(--color-text--light);
+      font-size: var(--font-size--subtitle);
+      font-weight: var(--font-weight--subtitle);
     }
   }
 }

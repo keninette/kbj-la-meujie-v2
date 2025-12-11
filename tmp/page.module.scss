@@ -1,3 +1,22 @@
 .page {
-  background-color: var(--color-gray-dark);
+  color: var(--color-text--dark);
+
+  &__root {
+    height: 100dvh;
+    background: radial-gradient(
+      circle,
+      var(--color-background-gradient--center) 5%,
+      var(--color-background-gradient--borders) 85%
+    );
+  }
+
+  &__section {
+    margin: var(--spacing-layout-section) var(--spacing-layout-section-margin);
+
+    &__title {
+      font-size: var(--font-size--section-title);
+      letter-spacing: var(--letter-spacing--section-title);
+      text-transform: uppercase;
+    }
+  }
 }

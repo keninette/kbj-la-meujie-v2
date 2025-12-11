@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import "./variables.scss";
 import { ServicesProvider } from "@hooks/services.hook";
 import { Montserrat } from "next/font/google";
+import styles from "./page.module.scss";
 
 export const metadata: Metadata = {
-  title: "Scratch",
+  title: "Scratchie",
   description: "Game master's best friend",
 };
 
@@ -19,7 +19,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={montserrat.className}>
+    <html
+      lang="en"
+      className={`${montserrat.className} ${styles["page__root"]}`}
+    >
+      <head title="Scratchie">
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script
+          src="https://kit.fontawesome.com/3cdc464647.js"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <body>
         <ServicesProvider>{children}</ServicesProvider>
       </body>
