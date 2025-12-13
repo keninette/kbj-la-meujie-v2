@@ -1,0 +1,11 @@
+.link-with-icon {
+  color: var(--color-link);
+
+  &--left {
+    padding-right: var(--spacing-padding--text);
+  }
+
+  &--right {
+    padding-left: var(--spacing-padding--text);
+  }
+}
