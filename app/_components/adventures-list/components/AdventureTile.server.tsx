@@ -5,6 +5,7 @@ import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
 import Image from "next/image";
 import LinkWithIcon from "@components/_basics/link-with-icon/LinkWithIcon.server";
 import { FaIconStyle } from "@lib/enums/fa-icon.style";
+import { Route } from "@lib/enums/route.enum";
 
 type AdventureTileProps = {
   adventure: AdventureListDto;
@@ -29,7 +30,7 @@ const AdventureTile = ({ adventure }: AdventureTileProps) => {
         <div className={styles["adventure-list__tile__content__name"]}>
           <LinkWithIcon
             label={""}
-            href={"#"}
+            href={Route.EDIT_ADVENTURE.replace("{{uuid}}", adventure.uuid)}
             faIcon={"pen-to-square"}
             title={translate("edit", translationsName)}
             className={styles["adventure-list__tile__content__name__action"]}

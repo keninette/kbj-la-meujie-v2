@@ -1,0 +1,11 @@
+@use './mixins';
+
+.home {
+  &__section {
+    @include mixins.section;
+
+    &__title {
+      @include mixins.section__title;
+    }
+  }
+}

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { ServicesProvider } from "@hooks/services.hook";
 import { Montserrat } from "next/font/google";
-import styles from "./page.module.scss";
+import layoutStyles from "./layout.module.scss";
+import Header from "@components/header/Header.server";
+import Nav from "@components/nav/Nav";
 
 export const metadata: Metadata = {
   title: "Scratchie",
@@ -21,7 +23,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${montserrat.className} ${styles["page__root"]}`}
+      className={`${montserrat.className} ${layoutStyles["page__root"]}`}
     >
       <head title="Scratchie">
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
@@ -31,7 +33,15 @@ export default function RootLayout({
         ></script>
       </head>
       <body>
-        <ServicesProvider>{children}</ServicesProvider>
+        <ServicesProvider>
+          <div className={layoutStyles["page"]}>
+            <main>
+              <Header />
+              <Nav />
+              {children}
+            </main>
+          </div>
+        </ServicesProvider>
       </body>
     </html>
   );

@@ -2,8 +2,8 @@ import styles from "./skeleton.module.scss";
 
 type SkeletonProps = {
   type: "rectangle" | "text";
-  width: number;
-  height: number;
+  width: string;
+  height: string;
 };
 
 const Skeleton = ({ type, width, height }: SkeletonProps) => {

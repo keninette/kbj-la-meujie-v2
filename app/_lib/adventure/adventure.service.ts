@@ -19,4 +19,10 @@ export class AdventureService {
 
     return this.mapper.toAdventureListDtos(adventures, this.universeMapper);
   });
+
+  getOne = cache(async (uuid: string) => {
+    const adventure = await this.repository.getOne(uuid);
+
+    return this.mapper.toAdventureDto(adventure, this.universeMapper);
+  });
 }
