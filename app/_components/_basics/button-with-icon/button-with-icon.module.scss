@@ -1,0 +1,27 @@
+@use "app/mixins";
+
+.button-with-icon {
+  $self: &;
+
+  @include mixins.button;
+  padding: var(--spacing-padding--button);
+  width: fit-content;
+
+  &--fab {
+    @include mixins.button--fab;
+  }
+
+  &__icon {
+    &--left {
+      margin-right: var(--spacing-padding--button);
+    }
+
+    &--right {
+      margin-left: var(--spacing-padding--button);
+    }
+  }
+
+  &__button {
+    @include mixins.button--reset-style;
+  }
+}

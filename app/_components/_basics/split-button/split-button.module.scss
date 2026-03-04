@@ -4,18 +4,14 @@
   position: relative;
   width: 15rem;
 
-  background-color: var(--color-button--fab);
-  color: var(--color-button-text--fab);
-  border-radius: var(--radius--button);
+  @include mixins.button;
+
+  &--fab {
+    @include mixins.button--fab;
+  }
 
   &__button {
-    background: none;
-    color: inherit;
-    border: none;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    outline: inherit;
+    @include mixins.button--reset-style;
   }
 
   &__buttons {

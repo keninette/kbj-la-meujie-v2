@@ -1,4 +1,4 @@
-export enum FaIconStyle {
+export enum FaIconStyleEnum {
   REGULAR = "regular",
   SOLID = "solid",
   BRANDS = "brands",

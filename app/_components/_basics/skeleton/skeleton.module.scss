@@ -4,6 +4,7 @@
   animation: skeleton-loading 1s linear infinite alternate;
   display: flex;
   border-radius: var(--border-radius--rectangle);
+  margin: 0 var(--spacing-padding--text) var(--spacing-padding--text) 0;
 }
 
 @keyframes skeleton-loading {

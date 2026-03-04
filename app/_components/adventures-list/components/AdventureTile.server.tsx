@@ -4,7 +4,7 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
 import Image from "next/image";
 import LinkWithIcon from "@components/_basics/link-with-icon/LinkWithIcon.server";
-import { FaIconStyle } from "@lib/enums/fa-icon.style";
+import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import { Route } from "@lib/enums/route.enum";
 
 type AdventureTileProps = {
@@ -56,7 +56,7 @@ const AdventureTile = ({ adventure }: AdventureTileProps) => {
               },
             ]}
             faIcon="play"
-            faIconStyle={FaIconStyle.SOLID}
+            faIconStyle={FaIconStyleEnum.SOLID}
           />
         </div>
       </div>

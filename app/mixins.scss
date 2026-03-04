@@ -1,4 +1,30 @@
+@mixin border--regular--dark {
+  border: solid 2px var(--color-default-grey--dark);
+}
+
+
+@mixin button {
+  border-radius: var(--radius--button);
+}
+
+@mixin button--reset-style {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+@mixin button--fab {
+  background-color: var(--color-button--fab);
+  color: var(--color-button-text--fab);
+}
+
 @mixin section {
+  display: flex;
+  flex-direction: column;
   margin: var(--spacing-layout-section) var(--spacing-layout-section-margin);
 }
 
@@ -6,8 +32,4 @@
   font-size: var(--font-size--section-title);
   letter-spacing: var(--letter-spacing--section-title);
   text-transform: uppercase;
-}
-
-@mixin border--regular--dark {
-  border: solid 2px var(--color-default-grey--dark);
 }

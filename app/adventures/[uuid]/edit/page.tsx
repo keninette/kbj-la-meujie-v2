@@ -4,22 +4,26 @@ import { useServices } from "@hooks/services.hook";
 import { useEffect, useState } from "react";
 import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
 import styles from "./edit-adventure-page.module.scss";
-import EditAdventure from "@/app/adventures/[uuid]/edit/components/EditAdventure";
+import EditBasicData from "@/app/adventures/[uuid]/edit/components/EditBasicData";
+import LoadingState from "@/app/adventures/[uuid]/edit/components/LoadingState";
+import { translate } from "@/app/_dictionaries/dictionnary";
 
 const EditAdventurePage = ({
   params,
 }: {
   params: Promise<{ uuid: string }>;
 }) => {
+  const translationsNamespace = "editAdventure";
+
   const [uuid, setUuid] = useState<string>();
-  const { adventureService } = useServices();
   const [isLoading, setIsLoading] = useState(true);
   const [adventure, setAdventure] = useState<AdventureDto>();
+
+  const { adventureService } = useServices();
 
   useEffect(() => {
     (async () => {
       const { uuid } = await params;
-      console.log(uuid);
       setUuid(uuid);
     })();
   }, [params]);
@@ -40,10 +44,17 @@ const EditAdventurePage = ({
     load();
   }, [adventureService, uuid]); // Only loaded once, so we're safe
 
-  console.log(uuid, adventure);
   return (
     <section className={styles["edit-adventure-page__section"]}>
-      {!isLoading && adventure && <EditAdventure adventure={adventure} />}
+      <h3 className={styles["edit-adventure-page__section__content__title"]}>
+        {translate("basicData.title", translationsNamespace)}
+      </h3>
+      <div className={styles["edit-adventure-page__section__content"]}>
+        {isLoading && <LoadingState />}
+        {!isLoading && adventure && (
+          <EditBasicData adventure={adventure} setAdventure={setAdventure} />
+        )}
+      </div>
     </section>
   );
 };

@@ -9,7 +9,7 @@ import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
 
 export default function AdventuresList() {
   const { adventureService } = useServices();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [adventures, setAdventures] = useState<AdventureListDto[]>([]);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function AdventuresList() {
       } catch (e) {
         console.error(e);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     }
     load();
@@ -28,7 +28,7 @@ export default function AdventuresList() {
 
   return (
     <ul className={styles["adventure-list"]}>
-      {loading && (
+      {isLoading && (
         <li key="li-1">
           <Skeleton
             key="skeleton-1"
@@ -38,7 +38,7 @@ export default function AdventuresList() {
           />
         </li>
       )}
-      {!loading &&
+      {!isLoading &&
         adventures.map((a) => (
           <AdventureTile key={a.uuid} adventure={a}></AdventureTile>
         ))}

@@ -20,6 +20,7 @@
     "-": "^0.0.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.6",
     "@supabase/supabase-js": "^2.86.2",
     "D": "^1.0.0",
     "i18next": "^25.7.2",

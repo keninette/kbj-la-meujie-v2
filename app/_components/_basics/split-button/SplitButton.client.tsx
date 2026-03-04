@@ -1,8 +1,9 @@
 "use client";
 
-import { FaIconStyle } from "@lib/enums/fa-icon.style";
+import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import styles from "./split-button.module.scss";
 import { useState } from "react";
+import { ButtonVariant } from "@lib/enums/button-variant.enum";
 
 type SplitButtonOption = {
   label: string;
@@ -12,21 +13,26 @@ type SplitButtonOption = {
 type SplitButtonProps = {
   options: SplitButtonOption[];
   faIcon?: string;
-  faIconStyle?: FaIconStyle;
+  faIconStyle?: FaIconStyleEnum;
+  variant?: ButtonVariant;
 };
 
 const SplitButton = ({
   options,
   faIcon,
-  faIconStyle = FaIconStyle.REGULAR,
+  faIconStyle = FaIconStyleEnum.REGULAR,
+  variant = ButtonVariant.FAB,
 }: SplitButtonProps) => {
   const [selectedOption, setSelectedOption] = useState<SplitButtonOption>(
     options?.[0],
   );
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const splitButtonVariantClass = `split-button--${variant}`;
 
   return (
-    <div className={styles["split-button"]}>
+    <div
+      className={`${styles["split-button"]} ${styles[splitButtonVariantClass]}`}
+    >
       <div className={styles["split-button__buttons"]}>
         <div>
           <i

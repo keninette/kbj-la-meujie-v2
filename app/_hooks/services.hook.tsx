@@ -2,10 +2,12 @@
 
 import { createContext, ReactNode, useContext } from "react";
 import { AdventureService } from "@lib/adventure/adventure.service";
-import { getAdventureService } from "@lib/registry";
+import { getAdventureService, getUniverseService } from "@lib/registry";
+import { UniverseService } from "@lib/universe/universe.service";
 
 type Services = {
   adventureService: AdventureService;
+  universeService: UniverseService;
 };
 
 const ServicesContext = createContext<Services | undefined>(undefined);
@@ -13,6 +15,7 @@ const ServicesContext = createContext<Services | undefined>(undefined);
 export function ServicesProvider({ children }: { children: ReactNode }) {
   const services: Services = {
     adventureService: getAdventureService(),
+    universeService: getUniverseService(),
   };
 
   return (
