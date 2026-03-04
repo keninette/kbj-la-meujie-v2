@@ -1,0 +1,6 @@
+{
+  "basicData.title": "Données de base",
+  "basicData.name": "Nom : {{name}}",
+  "basicData.universe": "Univers : {{name}}",
+  "basicData.edit": "Éditer"
+}

@@ -7,4 +7,8 @@ export class UniverseMapper {
       ...rawUniverse,
     };
   }
+
+  toUniverseDtos(rawUniverses: UniverseDto[]): UniverseDto[] {
+    return rawUniverses.map((rawUniverse) => this.toUniverseDto(rawUniverse));
+  }
 }

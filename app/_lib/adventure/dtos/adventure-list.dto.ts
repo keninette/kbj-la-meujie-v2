@@ -1,7 +1,7 @@
 import { UniverseDto } from "@lib/universe/dtos/universe.dto";
 
 export class AdventureListDto {
-  id!: number;
   name!: string;
+  uuid!: string;
   universe?: UniverseDto;
 }

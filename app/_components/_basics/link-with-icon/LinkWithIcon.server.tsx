@@ -1,13 +1,13 @@
 import Link from "next/link";
 import styles from "./link-with-icon.module.scss";
-import { FaIconStyle } from "@lib/enums/fa-icon.style";
+import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 
 type LinkWithIconProps = {
   label: string;
   href: string;
   faIcon: string;
   iconPosition?: "left" | "right";
-  faIconStyle?: FaIconStyle;
+  faIconStyle?: FaIconStyleEnum;
   className?: string;
   title?: string;
 };
@@ -17,7 +17,7 @@ const LinkWithIcon = ({
   href,
   faIcon,
   iconPosition = "left",
-  faIconStyle = FaIconStyle.REGULAR,
+  faIconStyle = FaIconStyleEnum.REGULAR,
   className,
   title,
 }: LinkWithIconProps) => {

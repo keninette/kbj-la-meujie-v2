@@ -1,0 +1,38 @@
+@use '../../../mixins';
+
+.edit-adventure-page {
+  &__section {
+    @include mixins.section;
+    width: 33%;
+
+    &__content {
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing-layout-section-content-margin) 0 var(--spacing-layout-section-content-margin) 0;
+
+      @include mixins.border--regular--dark;
+      border-bottom: 0;
+      border-left: 0;
+      border-right: 0;
+
+      &__title {
+        @include mixins.section__title;
+      }
+
+      &__p {
+        margin: 0 0 var(--spacing-layout-section-content-margin) 0;
+      }
+
+      &__button {
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+
+  }
+
+  &__form {
+    @include mixins.section;
+    width: 45vw;
+  }
+}

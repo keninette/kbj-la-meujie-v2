@@ -1,0 +1,19 @@
+{
+  "terminal.integrated.profiles.windows": {
+    "Git Bash (zsh)": {
+      "path": [
+        "C:\\Program Files\\Git\\bin\\bash.exe",
+        "C:\\Program Files\\Git\\usr\\bin\\bash.exe",
+        "C:\\Program Files\\Git\\git-bash.exe"
+      ],
+      "args": [
+        "--login",
+        "-i",
+        "-c",
+        "if command -v zsh >/dev/null 2>&1; then exec zsh -l; else exec bash -l; fi"
+      ],
+      "icon": "terminal-bash"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Git Bash (zsh)"
+}

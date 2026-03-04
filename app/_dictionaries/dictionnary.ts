@@ -8,6 +8,7 @@ const dictionaries = {
   fr: {
     layout: await import("./fr/layout.fr.json"),
     adventuresList: await import("./fr/adventures-list.fr.json"),
+    editAdventure: await import("./fr/edit-adventure.fr.json"),
   },
 };
 

@@ -43,3 +43,10 @@ next-env.d.ts
 # jetbrains
 .idea/*
 
+# tmp
+/tmp
+
+# vscode
+.vscode/*
+.history/*
+
