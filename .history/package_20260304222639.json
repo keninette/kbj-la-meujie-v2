@@ -10,7 +10,6 @@
     "build:raw": "next build",
     "start": "cross-env NODE_OPTIONS=--require=./scripts/suppress-baseline-warning.cjs BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=true next start",
     "start:raw": "next start",
-    "scripts:list": "npm run",
     "lint": "eslint",
     "bem-lint": "postcss app/**/*.scss --dir tmp --no-map",
     "prettify": "npx prettier . --write",

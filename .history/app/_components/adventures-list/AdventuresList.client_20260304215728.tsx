@@ -1,5 +1,3 @@
-"use client";
-
 import AdventureTile from "@components/adventures-list/components/AdventureTile.server";
 import styles from "./adventure-list.module.scss";
 import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
