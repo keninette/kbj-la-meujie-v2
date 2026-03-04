@@ -32,4 +32,6 @@
   font-size: var(--font-size--section-title);
   letter-spacing: var(--letter-spacing--section-title);
   text-transform: uppercase;
+}@mixin border--regular--dark {
+  border: solid 2px var(--color-default-grey--dark);
 }

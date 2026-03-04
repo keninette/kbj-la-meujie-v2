@@ -46,3 +46,7 @@ next-env.d.ts
 # tmp
 /tmp
 
+# vscode
+.vscode/*
+.history/*
+
