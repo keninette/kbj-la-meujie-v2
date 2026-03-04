@@ -2,6 +2,7 @@ import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
 import { Adventure } from "@lib/adventure/adventure.entity";
+import { AdventurePatchDto } from "@lib/adventure/dtos/adventure.patch.dto";
 
 export class AdventureRepository extends GenericRepository {
   constructor() {
@@ -24,4 +25,36 @@ export class AdventureRepository extends GenericRepository {
 
     return adventure.data?.[0] as unknown as Adventure;
   };
+
+  patchOne = async (
+    uuid: string,
+    adventurePatchDto: AdventurePatchDto,
+  ): Promise<Adventure> => {
+    const payload = this.convertDtoToPayload(adventurePatchDto);
+
+    const adventure = await this.client
+      .from(this.name)
+      .update(payload)
+      .eq("uuid", uuid)
+      .select(`id, name, uuid, universe(code, name, icon)`);
+
+    return adventure.data?.[0] as unknown as Adventure;
+  };
+
+  private convertDtoToPayload = (adventurePatchDto: AdventurePatchDto): {
+    name?: string;
+    universe_code?: string;
+  } => {
+    const payload: { name?: string; universe_code?: string } = {}; 
+
+    if (adventurePatchDto.name !== undefined) {
+      payload.name = adventurePatchDto.name;
+    }
+
+    if (adventurePatchDto.universeCode !== undefined) {
+      payload.universe_code = adventurePatchDto.universeCode;
+    }
+
+    return payload;
+  }
 }

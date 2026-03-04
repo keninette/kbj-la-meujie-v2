@@ -4,26 +4,42 @@ import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
 import { UniverseDto } from "@lib/universe/dtos/universe.dto";
 import styles from "../edit-adventure-page.module.scss";
 import { useState } from "react";
-import BasicDataForm from "@/app/adventures/[uuid]/edit/components/BasicDataForm";
+import BasicInfoForm from "@/app/adventures/[uuid]/edit/components/BasicInfoForm";
 import CustomDrawer from "@components/drawer/CustomDrawer";
-import BasicDataDisplay from "@/app/adventures/[uuid]/edit/components/BasicDataDisplay";
+import BasicInfoDisplay from "@/app/adventures/[uuid]/edit/components/BasicInfoDisplay";
+import LoadingState from "@/app/adventures/[uuid]/edit/components/LoadingState";
 
 type EditAdventureProps = {
-  adventure: AdventureDto;
+  adventure: AdventureDto | null;
   universes: UniverseDto[];
+  isLoading: boolean;
+  onAdventureUpdated: (updatedAdventure: AdventureDto) => void;
 };
 
 export enum EditAdventureForm {
   BASIC_DATA = "BASIC_DATA",
 }
 
-const EditBasicData = ({ adventure, universes }: EditAdventureProps) => {
+const EditBasicInfo = ({
+  adventure,
+  universes,
+  isLoading,
+  onAdventureUpdated,
+}: EditAdventureProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
   const [formToDisplay, setFormToDisplay] = useState<EditAdventureForm>();
 
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  if (!adventure) {
+    return null;
+  }
+
   return (
     <>
-      <BasicDataDisplay
+      <BasicInfoDisplay
         adventure={adventure}
         setFormToDisplay={setFormToDisplay}
         setIsDrawerOpened={setIsDrawerOpened}
@@ -33,10 +49,14 @@ const EditBasicData = ({ adventure, universes }: EditAdventureProps) => {
         onClose={() => setIsDrawerOpened(false)}
       >
         {formToDisplay === EditAdventureForm.BASIC_DATA && (
-          <BasicDataForm
+          <BasicInfoForm
             adventure={adventure}
             universes={universes}
             className={styles["edit-adventure-page__form"]}
+            onAdventureUpdated={(updatedAdventure) => {
+              onAdventureUpdated(updatedAdventure);
+              setIsDrawerOpened(false);
+            }}
           />
         )}
       </CustomDrawer>
@@ -44,4 +64,4 @@ const EditBasicData = ({ adventure, universes }: EditAdventureProps) => {
   );
 };
 
-export default EditBasicData;
+export default EditBasicInfo;

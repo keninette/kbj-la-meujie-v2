@@ -1,5 +1,5 @@
 import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
-import { EditAdventureForm } from "@/app/adventures/[uuid]/edit/components/EditBasicData";
+import { EditAdventureForm } from "@/app/adventures/[uuid]/edit/components/EditBasicInfo";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import ButtonWithIcon from "@components/_basics/button-with-icon/ButtonWithIcon";
 import styles from "@/app/adventures/[uuid]/edit/edit-adventure-page.module.scss";
@@ -10,7 +10,7 @@ type BasicDataDisplayProps = {
   setFormToDisplay: (form: EditAdventureForm) => void;
 };
 
-const BasicDataDisplay = ({
+const BasicInfoDisplay = ({
   adventure,
   setIsDrawerOpened,
   setFormToDisplay,
@@ -46,4 +46,4 @@ const BasicDataDisplay = ({
   );
 };
 
-export default BasicDataDisplay;
+export default BasicInfoDisplay;
