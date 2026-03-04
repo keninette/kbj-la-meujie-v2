@@ -6,6 +6,15 @@
 
   text-transform: uppercase;
 
+  &__link {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
   &__logo {
     position: relative;
 

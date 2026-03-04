@@ -1,12 +1,13 @@
 import styles from "./header.module.scss";
 import Image from "next/image";
+import Link from "next/link";
 import dog from "@/public/assets/themes/default/dog.png";
 import dice from "@/public/assets/themes/default/dice.png";
 import { translate } from "@/app/_dictionaries/dictionnary";
 
 export default function Header() {
   return (
-    <div className={styles["header"]}>
+    <Link href="/" className={[styles["header"], styles["header__link"]].join(" ")}>
       <div className={styles["header__logo"]}>
         <Image
           src={dog}
@@ -29,6 +30,6 @@ export default function Header() {
           {translate("subtitle", "layout")}
         </h2>
       </div>
-    </div>
+    </Link>
   );
 }
