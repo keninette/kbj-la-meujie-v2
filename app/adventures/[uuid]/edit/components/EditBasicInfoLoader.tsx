@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
-import { UniverseDto } from "@lib/universe/dtos/universe.dto";
+import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
+import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
 import EditBasicInfo from "@/app/adventures/[uuid]/edit/components/EditBasicInfo";
 
 type EditBasicInfoLoaderProps = {

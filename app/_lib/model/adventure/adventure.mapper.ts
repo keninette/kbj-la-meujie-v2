@@ -1,7 +1,7 @@
-import { Adventure } from "@/app/_lib/adventure/adventure.entity";
-import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
-import { UniverseMapper } from "@lib/universe/universe.mapper";
-import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
+import { Adventure } from "@/app/_lib/model/adventure/adventure.entity";
+import { AdventureListDto } from "@/app/_lib/model/adventure/dtos/adventure-list.dto";
+import { UniverseMapper } from "@/app/_lib/model/universe/universe.mapper";
+import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
 
 export class AdventureMapper {
   toAdventureListDto(

@@ -1,5 +1,5 @@
-import { UniverseDto } from "@lib/universe/dtos/universe.dto";
-import { Universe } from "@lib/universe/universe.entity";
+import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
+import { Universe } from "@/app/_lib/model/universe/universe.entity";
 
 export class UniverseMapper {
   toUniverseDto(rawUniverse: Universe): UniverseDto {

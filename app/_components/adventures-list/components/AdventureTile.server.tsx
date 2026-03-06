@@ -1,7 +1,7 @@
 import styles from "./../adventure-list.module.scss";
 import SplitButton from "@components/_basics/split-button/SplitButton.client";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
+import { AdventureListDto } from "@/app/_lib/model/adventure/dtos/adventure-list.dto";
 import Image from "next/image";
 import LinkWithIcon from "@components/_basics/link-with-icon/LinkWithIcon.server";
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";

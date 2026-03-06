@@ -1,9 +1,9 @@
 import "server-only";
 
-import { AdventureRepository } from "@lib/adventure/adventure.repository";
-import { AdventureService } from "@lib/adventure/adventure.service";
-import { UniverseRepository } from "@lib/universe/universe.repository";
-import { UniverseService } from "@lib/universe/universe.service";
+import { AdventureRepository } from "@/app/_lib/model/adventure/adventure.repository";
+import { AdventureService } from "@/app/_lib/model/adventure/adventure.service";
+import { UniverseRepository } from "@/app/_lib/model/universe/universe.repository";
+import { UniverseService } from "@/app/_lib/model/universe/universe.service";
 
 let adventureRepositoryInstance: AdventureRepository | null = null;
 let adventureServiceInstance: AdventureService | null = null;

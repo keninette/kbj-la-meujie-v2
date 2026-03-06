@@ -1,7 +1,7 @@
 "use client";
 
-import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
-import { UniverseDto } from "@lib/universe/dtos/universe.dto";
+import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
+import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
 import styles from "../edit-adventure-page.module.scss";
 import { useState } from "react";
 import BasicInfoForm from "@/app/adventures/[uuid]/edit/components/BasicInfoForm";

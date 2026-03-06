@@ -1,4 +1,4 @@
-import { UniverseDto } from "@lib/universe/dtos/universe.dto";
+import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
 
 type UniverseServiceLike = {
   getAll: () => Promise<Array<UniverseDto>>;
@@ -8,7 +8,9 @@ export class AdventurePatchDto {
   name?: string;
   universeCode?: string;
 
-  validate = async (universeService: UniverseServiceLike): Promise<Array<string>> => {
+  validate = async (
+    universeService: UniverseServiceLike,
+  ): Promise<Array<string>> => {
     const errors: Array<string> = [];
 
     if (!this.name && !this.universeCode) {

@@ -1,8 +1,8 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { Adventure } from "@lib/adventure/adventure.entity";
-import { AdventurePatchDto } from "@lib/adventure/dtos/adventure.patch.dto";
+import { Adventure } from "@/app/_lib/model/adventure/adventure.entity";
+import { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.patch.dto";
 
 export class AdventureRepository extends GenericRepository {
   constructor() {
@@ -41,11 +41,13 @@ export class AdventureRepository extends GenericRepository {
     return adventure.data?.[0] as unknown as Adventure;
   };
 
-  private convertDtoToPayload = (adventurePatchDto: AdventurePatchDto): {
+  private convertDtoToPayload = (
+    adventurePatchDto: AdventurePatchDto,
+  ): {
     name?: string;
     universe_code?: string;
   } => {
-    const payload: { name?: string; universe_code?: string } = {}; 
+    const payload: { name?: string; universe_code?: string } = {};
 
     if (adventurePatchDto.name !== undefined) {
       payload.name = adventurePatchDto.name;
@@ -56,5 +58,5 @@ export class AdventureRepository extends GenericRepository {
     }
 
     return payload;
-  }
+  };
 }

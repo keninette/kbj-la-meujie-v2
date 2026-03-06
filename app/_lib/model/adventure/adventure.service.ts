@@ -1,8 +1,8 @@
 import "server-only";
 
-import { AdventureRepository } from "@/app/_lib/adventure/adventure.repository";
-import { AdventureMapper } from "@/app/_lib/adventure/adventure.mapper";
-import { UniverseMapper } from "@lib/universe/universe.mapper";
+import { AdventureRepository } from "@/app/_lib/model/adventure/adventure.repository";
+import { AdventureMapper } from "@/app/_lib/model/adventure/adventure.mapper";
+import { UniverseMapper } from "@/app/_lib/model/universe/universe.mapper";
 import { AdventureDto } from "./dtos/adventure.dto";
 import { AdventurePatchDto } from "./dtos/adventure.patch.dto";
 

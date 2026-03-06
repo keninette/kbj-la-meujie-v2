@@ -1,11 +1,11 @@
 "use client";
 
-import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
+import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
 import { useEffect, useState } from "react";
-import { UniverseDto } from "@lib/universe/dtos/universe.dto";
+import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
 import SubmitButton from "@components/_basics/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import type { AdventurePatchDto } from "@lib/adventure/dtos/adventure.patch.dto";
+import type { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.patch.dto";
 import { useRouter } from "next/navigation";
 
 type AdventureFormProps = {
@@ -24,7 +24,9 @@ const BasicInfoForm = ({
   const translationsNamespace = "editAdventure";
   const router = useRouter();
   const [name, setName] = useState(adventure.name);
-  const [universeCode, setUniverseCode] = useState(adventure.universe?.code ?? "");
+  const [universeCode, setUniverseCode] = useState(
+    adventure.universe?.code ?? "",
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -43,10 +45,11 @@ const BasicInfoForm = ({
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    const adventurePatchDto: Pick<AdventurePatchDto, "name" | "universeCode"> = {
-      name: name.trim(),
-      universeCode,
-    };
+    const adventurePatchDto: Pick<AdventurePatchDto, "name" | "universeCode"> =
+      {
+        name: name.trim(),
+        universeCode,
+      };
 
     try {
       const response = await fetch(`/api/adventures/${adventure.uuid}`, {
@@ -101,7 +104,9 @@ const BasicInfoForm = ({
           ))}
         </select>
         {errorMessage && <p>{errorMessage}</p>}
-        <SubmitButton label={translate("basicData.edit", translationsNamespace)} />
+        <SubmitButton
+          label={translate("basicData.edit", translationsNamespace)}
+        />
       </form>
     </>
   );

@@ -1,8 +1,8 @@
 import "server-only";
 
 import { cache } from "react";
-import { UniverseMapper } from "@lib/universe/universe.mapper";
-import { UniverseRepository } from "@lib/universe/universe.repository";
+import { UniverseMapper } from "@/app/_lib/model/universe/universe.mapper";
+import { UniverseRepository } from "@/app/_lib/model/universe/universe.repository";
 
 export class UniverseService {
   private repository: UniverseRepository;

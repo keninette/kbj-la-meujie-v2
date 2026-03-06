@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdventureService, getUniverseService } from "@lib/registry";
-import { AdventurePatchDto } from "@lib/adventure/dtos/adventure.patch.dto";
+import { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.patch.dto";
 import { revalidatePath } from "next/cache";
 
 export async function GET(
@@ -20,15 +20,17 @@ export async function PATCH(
   const { uuid } = await params;
   const requestBody = await request.json();
   const adventurePatchDto = Object.assign(new AdventurePatchDto(), requestBody);
-  const validationErrors: string[] = await adventurePatchDto.validate(
-    getUniverseService(),
-  );
+  const validationErrors: string[] =
+    await adventurePatchDto.validate(getUniverseService());
 
   if (validationErrors.length > 0) {
     return NextResponse.json({ errors: validationErrors }, { status: 400 });
   }
 
-  const adventure = await getAdventureService().patchOne(uuid, adventurePatchDto);
+  const adventure = await getAdventureService().patchOne(
+    uuid,
+    adventurePatchDto,
+  );
   revalidatePath("/");
   revalidatePath(`/adventures/${uuid}/edit`);
 
