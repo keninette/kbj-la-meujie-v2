@@ -5,6 +5,9 @@ import { Adventure } from "@/app/_lib/model/adventure/adventure.entity";
 import { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.patch.dto";
 
 export class AdventureRepository extends GenericRepository {
+  private selectStatement =
+    "id, name, uuid, universe(code, name, icon), storyArcs:story_arc(id, uuid, name, adventureId:adventure_id, chapters:chapter(id, uuid, name, storyArcId:story_arc_id))";
+
   constructor() {
     super("adventure");
   }
@@ -20,7 +23,7 @@ export class AdventureRepository extends GenericRepository {
   getOne = async (uuid: string): Promise<Adventure> => {
     const adventure = await this.client
       .from(this.name)
-      .select(`id, name, uuid, universe(code, name, icon)`)
+      .select(this.selectStatement)
       .eq("uuid", uuid);
 
     return adventure.data?.[0] as unknown as Adventure;
@@ -36,7 +39,7 @@ export class AdventureRepository extends GenericRepository {
       .from(this.name)
       .update(payload)
       .eq("uuid", uuid)
-      .select(`id, name, uuid, universe(code, name, icon)`);
+      .select(this.selectStatement);
 
     return adventure.data?.[0] as unknown as Adventure;
   };

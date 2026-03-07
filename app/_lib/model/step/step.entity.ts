@@ -8,7 +8,7 @@ export class Step {
   name!: string;
   description!: string;
   date?: string;
-  place?: Place
+  place?: Place;
   audios?: Audio[];
   diceRolls?: Diceroll[];
   nonPlayerCharacters?: NonPlayerCharacter[];

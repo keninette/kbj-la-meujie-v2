@@ -28,6 +28,18 @@
         display: flex;
         justify-content: flex-end;
       }
+
+      &__story-arc {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--spacing-layout-section-content-margin);
+        margin: 0 0 var(--spacing-layout-section-content-margin) 0;
+      }
+
+      &__story-arc-name {
+        margin: 0;
+      }
     }
   }
 

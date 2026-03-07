@@ -6,7 +6,6 @@ import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
 import SubmitButton from "@components/_basics/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import type { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.patch.dto";
-import { useRouter } from "next/navigation";
 
 type AdventureFormProps = {
   adventure: AdventureDto;
@@ -22,7 +21,6 @@ const BasicInfoForm = ({
   onAdventureUpdated,
 }: AdventureFormProps) => {
   const translationsNamespace = "editAdventure";
-  const router = useRouter();
   const [name, setName] = useState(adventure.name);
   const [universeCode, setUniverseCode] = useState(
     adventure.universe?.code ?? "",
@@ -72,7 +70,6 @@ const BasicInfoForm = ({
       setName(updatedAdventure.name);
       setUniverseCode(updatedAdventure.universe?.code ?? "");
       onAdventureUpdated(updatedAdventure);
-      router.refresh();
     } catch {
       setErrorMessage("Unable to update adventure");
     } finally {
@@ -105,7 +102,7 @@ const BasicInfoForm = ({
         </select>
         {errorMessage && <p>{errorMessage}</p>}
         <SubmitButton
-          label={translate("basicData.edit", translationsNamespace)}
+          label={translate("basicInfo.edit", translationsNamespace)}
         />
       </form>
     </>

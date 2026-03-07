@@ -7,7 +7,7 @@ export class Chapter {
   name!: string;
   steps!: Step[];
 
-    constructor() {
+  constructor() {
     this.uuid = uuidv4();
   }
 }

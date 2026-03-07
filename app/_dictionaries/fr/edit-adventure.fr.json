@@ -1,6 +1,11 @@
 {
-  "basicData.title": "Données de base",
-  "basicData.name": "Nom : {{name}}",
-  "basicData.universe": "Univers : {{name}}",
-  "basicData.edit": "Éditer"
+  "basicInfo.title": "Données de base",
+  "basicInfo.name": "Nom : {{name}}",
+  "basicInfo.universe": "Univers : {{name}}",
+  "basicInfo.edit": "Éditer",
+  "storyArc.title": "Arcs",
+  "storyArc.name": "Nom : {{name}}",
+  "storyArc.edit": "Éditer",
+  "storyArc.empty": "Aucun arc pour cette aventure",
+  "storyArc.form.title": "Éditer l'arc : {{name}}"
 }

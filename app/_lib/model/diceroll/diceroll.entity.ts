@@ -8,7 +8,7 @@ type DicerollResult = {
 
 export class Diceroll {
   dice!: string;
-  skill!: Skill
+  skill!: Skill;
   onSuccess!: DicerollResult;
   onFailure!: DicerollResult;
   condition?: string;

@@ -1,6 +1,6 @@
 import Skeleton from "@components/_basics/skeleton/Skeleton.server";
 
-const LoadingState = () => {
+const BasicInfoLoadingState = () => {
   return (
     <>
       <Skeleton type={"rectangle"} width={"300px"} height={"25px"} />
@@ -10,4 +10,4 @@ const LoadingState = () => {
   );
 };
 
-export default LoadingState;
+export default BasicInfoLoadingState;
