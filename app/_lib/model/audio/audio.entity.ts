@@ -1,5 +1,6 @@
 export class Audio {
   id!: number;
+  uuid!: string;
   name!: string;
   filename!: string;
   loop!: boolean;

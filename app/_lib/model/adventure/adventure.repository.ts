@@ -6,7 +6,7 @@ import { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.pat
 
 export class AdventureRepository extends GenericRepository {
   private selectStatement =
-    "id, name, uuid, universe(code, name, icon), storyArcs:story_arc(id, uuid, name, adventureId:adventure_id, chapters:chapter(id, uuid, name, storyArcId:story_arc_id))";
+    "id, name, uuid, universe(uuid, code, name, icon), storyArcs:story_arc(id, uuid, name, adventureId:adventure_id, chapters:chapter(id, uuid, name, storyArcId:story_arc_id))";
 
   constructor() {
     super("adventure");
@@ -15,7 +15,7 @@ export class AdventureRepository extends GenericRepository {
   getAll = async (): Promise<Array<Adventure>> => {
     const allAdventures = await this.client
       .from(this.name)
-      .select(`id, name, uuid, universe(code, name, icon)`);
+      .select(`id, name, uuid, universe(uuid, code, name, icon)`);
 
     return (allAdventures.data ?? []) as unknown as Adventure[];
   };

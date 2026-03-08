@@ -31,17 +31,22 @@ export class AdventureMapper {
     rawAdventure: Adventure,
     universeMapper: UniverseMapper,
   ): AdventureDto {
+    const storyArcs =
+      rawAdventure.storyArcs &&
+      this.storyArcMapper
+        .toStoryArcDtos(rawAdventure.storyArcs, this.chapterMapper)
+        .map((storyArc) => ({
+          ...storyArc,
+          adventureUuid: rawAdventure.uuid,
+        }));
+
     return {
-      ...rawAdventure,
+      name: rawAdventure.name,
+      uuid: rawAdventure.uuid,
       universe:
         rawAdventure.universe &&
         universeMapper.toUniverseDto(rawAdventure.universe),
-      storyArcs:
-        rawAdventure.storyArcs &&
-        this.storyArcMapper.toStoryArcDtos(
-          rawAdventure.storyArcs,
-          this.chapterMapper,
-        ),
+      storyArcs,
     };
   }
 

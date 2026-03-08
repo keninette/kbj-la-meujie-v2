@@ -1,6 +1,6 @@
-export class PlaceListDto {
-  id!: number;
-  name!: string;
-  pinId?: string;
-  isStepBound!: boolean;
-}
+import { PlaceDto } from "@/app/_lib/model/place/dtos/place.dto";
+
+export type PlaceListDto = Pick<
+  PlaceDto,
+  "uuid" | "name" | "pinId" | "isStepBound"
+>;

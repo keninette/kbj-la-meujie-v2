@@ -10,7 +10,7 @@ type PlaceLike = Place & {
 
 export class PlaceRepository extends GenericRepository {
   private selectStatement =
-    "id, name, publicDescription:public_description, privateDescription:private_description, picture, pinId:pin_id, isStepBound:is_step_bound";
+    "id, uuid, name, publicDescription:public_description, privateDescription:private_description, picture, pinId:pin_id, isStepBound:is_step_bound";
 
   constructor() {
     super("place");

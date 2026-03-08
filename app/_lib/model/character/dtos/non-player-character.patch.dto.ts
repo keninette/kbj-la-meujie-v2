@@ -2,31 +2,62 @@ import { CharacterType } from "@/app/_lib/model/character/enums/character-type.e
 import { DndAlignment } from "@/app/_lib/model/character/enums/alignment.enum";
 import { DndCharacterClass } from "@/app/_lib/model/character/enums/character-class.enum";
 import { DndRace } from "@/app/_lib/model/character/enums/race.enum";
-import { NonPlayerCharacterRuleset } from "@/app/_lib/model/character/dtos/non-player-character.dto";
+import {
+  NonPlayerCharacterDto,
+  NonPlayerCharacterRuleset,
+} from "@/app/_lib/model/character/dtos/non-player-character.dto";
 
-export class NonPlayerCharacterPatchDto {
-  name?: string;
-  identifiesAs?: "Female" | "Male" | "Non-binary";
-  currentHealthPoints?: number;
-  maxHealthPoints?: number;
+type NonPlayerCharacterPatchDtoProps = Partial<
+  Pick<
+    NonPlayerCharacterDto,
+    | "name"
+    | "identifiesAs"
+    | "currentHealthPoints"
+    | "maxHealthPoints"
+    | "type"
+    | "portrait"
+    | "ruleset"
+    | "characterClass"
+    | "level"
+    | "inspirationPoints"
+    | "proficiencyBonus"
+    | "initiativeBonus"
+    | "armorClass"
+    | "race"
+    | "alignment"
+    | "backstory"
+    | "occupation"
+    | "currentMagicPoints"
+    | "maxMagicPoints"
+    | "currentSanPoints"
+    | "maxSanPoints"
+    | "stepUuid"
+  >
+>;
+
+export class NonPlayerCharacterPatchDto implements NonPlayerCharacterPatchDtoProps {
+  name?: NonPlayerCharacterDto["name"];
+  identifiesAs?: NonPlayerCharacterDto["identifiesAs"];
+  currentHealthPoints?: NonPlayerCharacterDto["currentHealthPoints"];
+  maxHealthPoints?: NonPlayerCharacterDto["maxHealthPoints"];
   type?: CharacterType;
-  portrait?: string;
+  portrait?: NonPlayerCharacterDto["portrait"];
   ruleset?: NonPlayerCharacterRuleset;
   characterClass?: DndCharacterClass;
-  level?: number;
-  inspirationPoints?: number;
-  proficiencyBonus?: number;
-  initiativeBonus?: number;
-  armorClass?: number;
+  level?: NonPlayerCharacterDto["level"];
+  inspirationPoints?: NonPlayerCharacterDto["inspirationPoints"];
+  proficiencyBonus?: NonPlayerCharacterDto["proficiencyBonus"];
+  initiativeBonus?: NonPlayerCharacterDto["initiativeBonus"];
+  armorClass?: NonPlayerCharacterDto["armorClass"];
   race?: DndRace;
   alignment?: DndAlignment;
-  backstory?: string;
-  occupation?: string;
-  currentMagicPoints?: number;
-  maxMagicPoints?: number;
-  currentSanPoints?: number;
-  maxSanPoints?: number;
-  stepId?: number;
+  backstory?: NonPlayerCharacterDto["backstory"];
+  occupation?: NonPlayerCharacterDto["occupation"];
+  currentMagicPoints?: NonPlayerCharacterDto["currentMagicPoints"];
+  maxMagicPoints?: NonPlayerCharacterDto["maxMagicPoints"];
+  currentSanPoints?: NonPlayerCharacterDto["currentSanPoints"];
+  maxSanPoints?: NonPlayerCharacterDto["maxSanPoints"];
+  stepUuid?: NonPlayerCharacterDto["stepUuid"];
 
   validate = async (): Promise<Array<string>> => {
     const errors: Array<string> = [];
@@ -53,7 +84,7 @@ export class NonPlayerCharacterPatchDto {
       this.maxMagicPoints === undefined &&
       this.currentSanPoints === undefined &&
       this.maxSanPoints === undefined &&
-      this.stepId === undefined
+      this.stepUuid === undefined
     ) {
       errors.push("At least one field is required for patch");
     }

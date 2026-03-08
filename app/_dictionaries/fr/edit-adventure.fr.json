@@ -6,6 +6,8 @@
   "storyArc.title": "Arcs",
   "storyArc.name": "Nom : {{name}}",
   "storyArc.edit": "Éditer",
+  "storyArc.add": "Ajouter",
   "storyArc.empty": "Aucun arc pour cette aventure",
-  "storyArc.form.title": "Éditer l'arc : {{name}}"
+  "storyArc.form.title": "Éditer l'arc : {{name}}",
+  "storyArc.form.createTitle": "Ajouter un arc"
 }

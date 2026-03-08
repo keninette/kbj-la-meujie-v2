@@ -4,7 +4,13 @@ import { NonPlayerCharacterDto } from "@/app/_lib/model/character/dtos/non-playe
 import { NonPlayerCharacterListDto } from "@/app/_lib/model/character/dtos/non-player-character-list.dto";
 
 type NonPlayerCharacterLike = NonPlayerCharacter &
-  Partial<NonPlayerCharacterDto>;
+  Partial<NonPlayerCharacterDto> & {
+    id?: number;
+    stepId?: number;
+    step?: {
+      uuid?: string;
+    };
+  };
 
 export class NonPlayerCharacterMapper {
   toNonPlayerCharacterListDto(
@@ -13,11 +19,11 @@ export class NonPlayerCharacterMapper {
     const nonPlayerCharacter = rawNonPlayerCharacter as NonPlayerCharacterLike;
 
     return {
-      id: nonPlayerCharacter.id,
+      uuid: nonPlayerCharacter.uuid,
       name: nonPlayerCharacter.name,
       type: nonPlayerCharacter.type,
       ruleset: nonPlayerCharacter.ruleset,
-      stepId: nonPlayerCharacter.stepId,
+      stepUuid: nonPlayerCharacter.stepUuid ?? nonPlayerCharacter.step?.uuid,
     };
   }
 

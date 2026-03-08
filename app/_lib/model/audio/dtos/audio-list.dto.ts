@@ -1,9 +1,6 @@
-export class AudioListDto {
-  id!: number;
-  name!: string;
-  filename!: string;
-  loop!: boolean;
-  autoPlay!: boolean;
-  volume!: number;
-  helper?: string;
-}
+import { AudioDto } from "@/app/_lib/model/audio/dtos/audio.dto";
+
+export type AudioListDto = Pick<
+  AudioDto,
+  "uuid" | "name" | "filename" | "loop" | "autoPlay" | "volume" | "helper"
+>;

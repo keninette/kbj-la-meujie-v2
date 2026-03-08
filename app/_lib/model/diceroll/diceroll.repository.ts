@@ -5,13 +5,17 @@ import { Diceroll } from "@/app/_lib/model/diceroll/diceroll.entity";
 import { DicerollPatchDto } from "@/app/_lib/model/diceroll/dtos/diceroll.patch.dto";
 
 type DicerollLike = Diceroll & {
-  id?: number;
   stepId?: number;
+  
+  stepUuid?: string;
+  step?: {
+    uuid?: string;
+  };
 };
 
 export class DicerollRepository extends GenericRepository {
   private selectStatement =
-    "id, dice, skill, onSuccess:on_success, onFailure:on_failure, condition, stepId:step_id";
+    "id, uuid, dice, skill, onSuccess:on_success, onFailure:on_failure, condition, stepId:step_id, step:step(uuid)";
 
   constructor() {
     super("diceroll");
@@ -38,7 +42,7 @@ export class DicerollRepository extends GenericRepository {
     id: number,
     dicerollPatchDto: DicerollPatchDto,
   ): Promise<DicerollLike> => {
-    const payload = this.convertDtoToPayload(dicerollPatchDto);
+    const payload = await this.convertDtoToPayload(dicerollPatchDto);
 
     const diceroll = await this.client
       .from(this.name)
@@ -51,14 +55,14 @@ export class DicerollRepository extends GenericRepository {
 
   private convertDtoToPayload = (
     dicerollPatchDto: DicerollPatchDto,
-  ): {
+  ): Promise<{
     dice?: string;
     skill?: string;
     on_success?: unknown;
     on_failure?: unknown;
     condition?: string;
     step_id?: number;
-  } => {
+  }> => {
     const payload: {
       dice?: string;
       skill?: string;
@@ -88,10 +92,28 @@ export class DicerollRepository extends GenericRepository {
       payload.condition = dicerollPatchDto.condition;
     }
 
-    if (dicerollPatchDto.stepId !== undefined) {
-      payload.step_id = dicerollPatchDto.stepId;
+    if (dicerollPatchDto.stepUuid !== undefined) {
+      return this.getStepIdByUuid(dicerollPatchDto.stepUuid).then((stepId) => ({
+        ...payload,
+        step_id: stepId,
+      }));
     }
 
-    return payload;
+    return Promise.resolve(payload);
+  };
+
+  private getStepIdByUuid = async (stepUuid: string): Promise<number> => {
+    const step = await this.client
+      .from("step")
+      .select("id")
+      .eq("uuid", stepUuid);
+
+    const stepId = step.data?.[0]?.id as number | undefined;
+
+    if (!stepId) {
+      throw new Error("Step not found");
+    }
+
+    return stepId;
   };
 }

@@ -1,10 +1,10 @@
 export class AudioDto {
-  id!: number;
+  uuid!: string;
   name!: string;
   filename!: string;
   loop!: boolean;
   autoPlay!: boolean;
   volume!: number;
   helper?: string;
-  stepId?: number;
+  stepUuid?: string;
 }

@@ -3,14 +3,17 @@ import { DicerollDto } from "@/app/_lib/model/diceroll/dtos/diceroll.dto";
 import { DicerollListDto } from "@/app/_lib/model/diceroll/dtos/diceroll-list.dto";
 
 type DicerollLike = Diceroll & {
-  id?: number;
   stepId?: number;
+  stepUuid?: string;
+  step?: {
+    uuid?: string;
+  };
 };
 
 export class DicerollMapper {
   toDicerollListDto(rawDiceroll: DicerollLike): DicerollListDto {
     return {
-      id: rawDiceroll.id,
+      uuid: rawDiceroll.uuid,
       dice: rawDiceroll.dice,
       skill: rawDiceroll.skill,
       condition: rawDiceroll.condition,
@@ -22,7 +25,7 @@ export class DicerollMapper {
       ...this.toDicerollListDto(rawDiceroll),
       onSuccess: rawDiceroll.onSuccess,
       onFailure: rawDiceroll.onFailure,
-      stepId: rawDiceroll.stepId,
+      stepUuid: rawDiceroll.stepUuid ?? rawDiceroll.step?.uuid,
     };
   }
 

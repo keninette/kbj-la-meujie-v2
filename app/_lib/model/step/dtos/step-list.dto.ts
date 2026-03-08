@@ -1,8 +1,6 @@
-export class StepListDto {
-  id!: number;
-  name!: string;
-  description!: string;
-  date?: string;
-  chapterId?: number;
-  placeId?: number;
-}
+import { StepDto } from "@/app/_lib/model/step/dtos/step.dto";
+
+export type StepListDto = Pick<
+  StepDto,
+  "uuid" | "name" | "description" | "date" | "chapterUuid" | "placeUuid"
+>;

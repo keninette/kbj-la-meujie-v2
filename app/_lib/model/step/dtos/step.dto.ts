@@ -4,12 +4,12 @@ import { DicerollListDto } from "@/app/_lib/model/diceroll/dtos/diceroll-list.dt
 import { NonPlayerCharacterListDto } from "@/app/_lib/model/character/dtos/non-player-character-list.dto";
 
 export class StepDto {
-  id!: number;
+  uuid!: string;
   name!: string;
   description!: string;
   date?: string;
-  chapterId?: number;
-  placeId?: number;
+  chapterUuid?: string;
+  placeUuid?: string;
   place?: PlaceDto;
   audios?: AudioListDto[];
   diceRolls?: DicerollListDto[];

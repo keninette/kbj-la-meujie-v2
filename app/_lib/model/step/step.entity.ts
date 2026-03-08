@@ -5,6 +5,7 @@ import { Place } from "../place/place.entity";
 
 export class Step {
   id!: number;
+  uuid!: string;
   name!: string;
   description!: string;
   date?: string;

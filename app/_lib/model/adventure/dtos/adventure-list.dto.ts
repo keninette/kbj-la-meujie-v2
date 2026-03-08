@@ -1,7 +1,3 @@
-import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
+import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
 
-export class AdventureListDto {
-  name!: string;
-  uuid!: string;
-  universe?: UniverseDto;
-}
+export type AdventureListDto = Pick<AdventureDto, "uuid" | "name" | "universe">;

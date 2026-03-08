@@ -6,11 +6,16 @@ import { AudioPatchDto } from "@/app/_lib/model/audio/dtos/audio.patch.dto";
 
 type AudioLike = Audio & {
   stepId?: number;
+  // todo fix this
+  stepUuid?: string;
+  step?: {
+    uuid?: string;
+  };
 };
 
 export class AudioRepository extends GenericRepository {
   private selectStatement =
-    "id, name, filename, loop, autoPlay:auto_play, volume, helper, stepId:step_id";
+    "id, uuid, name, filename, loop, autoPlay:auto_play, volume, helper, stepId:step_id, step:step(uuid)";
 
   constructor() {
     super("audio");
@@ -37,7 +42,7 @@ export class AudioRepository extends GenericRepository {
     id: number,
     audioPatchDto: AudioPatchDto,
   ): Promise<AudioLike> => {
-    const payload = this.convertDtoToPayload(audioPatchDto);
+    const payload = await this.convertDtoToPayload(audioPatchDto);
 
     const audio = await this.client
       .from(this.name)
@@ -50,7 +55,7 @@ export class AudioRepository extends GenericRepository {
 
   private convertDtoToPayload = (
     audioPatchDto: AudioPatchDto,
-  ): {
+  ): Promise<{
     name?: string;
     filename?: string;
     loop?: boolean;
@@ -58,7 +63,7 @@ export class AudioRepository extends GenericRepository {
     volume?: number;
     helper?: string;
     step_id?: number;
-  } => {
+  }> => {
     const payload: {
       name?: string;
       filename?: string;
@@ -93,10 +98,28 @@ export class AudioRepository extends GenericRepository {
       payload.helper = audioPatchDto.helper;
     }
 
-    if (audioPatchDto.stepId !== undefined) {
-      payload.step_id = audioPatchDto.stepId;
+    if (audioPatchDto.stepUuid !== undefined) {
+      return this.getStepIdByUuid(audioPatchDto.stepUuid).then((stepId) => ({
+        ...payload,
+        step_id: stepId,
+      }));
     }
 
-    return payload;
+    return Promise.resolve(payload);
+  };
+
+  private getStepIdByUuid = async (stepUuid: string): Promise<number> => {
+    const step = await this.client
+      .from("step")
+      .select("id")
+      .eq("uuid", stepUuid);
+
+    const stepId = step.data?.[0]?.id as number | undefined;
+
+    if (!stepId) {
+      throw new Error("Step not found");
+    }
+
+    return stepId;
   };
 }

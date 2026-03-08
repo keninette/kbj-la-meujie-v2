@@ -10,7 +10,7 @@ type NonPlayerCharacterLike = NonPlayerCharacter &
 
 export class NonPlayerCharacterRepository extends GenericRepository {
   private selectStatement =
-    "id, name, identifiesAs:identifies_as, currentHealthPoints:current_health_points, maxHealthPoints:max_health_points, type, portrait, ruleset, characterClass:character_class, level, inspirationPoints:inspiration_points, proficiencyBonus:proficiency_bonus, initiativeBonus:initiative_bonus, armorClass:armor_class, race, alignment, backstory, occupation, currentMagicPoints:current_magic_points, maxMagicPoints:max_magic_points, currentSanPoints:current_san_points, maxSanPoints:max_san_points, stepId:step_id";
+    "id, uuid, name, identifiesAs:identifies_as, currentHealthPoints:current_health_points, maxHealthPoints:max_health_points, type, portrait, ruleset, characterClass:character_class, level, inspirationPoints:inspiration_points, proficiencyBonus:proficiency_bonus, initiativeBonus:initiative_bonus, armorClass:armor_class, race, alignment, backstory, occupation, currentMagicPoints:current_magic_points, maxMagicPoints:max_magic_points, currentSanPoints:current_san_points, maxSanPoints:max_san_points, stepId:step_id, step:step(uuid)";
 
   constructor() {
     super("non_player_character");
@@ -38,7 +38,7 @@ export class NonPlayerCharacterRepository extends GenericRepository {
     id: number,
     nonPlayerCharacterPatchDto: NonPlayerCharacterPatchDto,
   ): Promise<NonPlayerCharacterLike> => {
-    const payload = this.convertDtoToPayload(nonPlayerCharacterPatchDto);
+    const payload = await this.convertDtoToPayload(nonPlayerCharacterPatchDto);
 
     const nonPlayerCharacter = await this.client
       .from(this.name)
@@ -51,7 +51,7 @@ export class NonPlayerCharacterRepository extends GenericRepository {
 
   private convertDtoToPayload = (
     nonPlayerCharacterPatchDto: NonPlayerCharacterPatchDto,
-  ): {
+  ): Promise<{
     name?: string;
     identifies_as?: "Female" | "Male" | "Non-binary";
     current_health_points?: number;
@@ -74,7 +74,7 @@ export class NonPlayerCharacterRepository extends GenericRepository {
     current_san_points?: number;
     max_san_points?: number;
     step_id?: number;
-  } => {
+  }> => {
     const payload: {
       name?: string;
       identifies_as?: "Female" | "Male" | "Non-binary";
@@ -186,10 +186,30 @@ export class NonPlayerCharacterRepository extends GenericRepository {
       payload.max_san_points = nonPlayerCharacterPatchDto.maxSanPoints;
     }
 
-    if (nonPlayerCharacterPatchDto.stepId !== undefined) {
-      payload.step_id = nonPlayerCharacterPatchDto.stepId;
+    if (nonPlayerCharacterPatchDto.stepUuid !== undefined) {
+      return this.getStepIdByUuid(nonPlayerCharacterPatchDto.stepUuid).then(
+        (stepId) => ({
+          ...payload,
+          step_id: stepId,
+        }),
+      );
     }
 
-    return payload;
+    return Promise.resolve(payload);
+  };
+
+  private getStepIdByUuid = async (stepUuid: string): Promise<number> => {
+    const step = await this.client
+      .from("step")
+      .select("id")
+      .eq("uuid", stepUuid);
+
+    const stepId = step.data?.[0]?.id as number | undefined;
+
+    if (!stepId) {
+      throw new Error("Step not found");
+    }
+
+    return stepId;
   };
 }

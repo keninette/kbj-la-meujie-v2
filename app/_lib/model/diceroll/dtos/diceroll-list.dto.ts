@@ -1,8 +1,6 @@
-import { Skill } from "@/app/_lib/model/character/enums/skill.enum";
+import { DicerollDto } from "@/app/_lib/model/diceroll/dtos/diceroll.dto";
 
-export class DicerollListDto {
-  id?: number;
-  dice!: string;
-  skill!: Skill;
-  condition?: string;
-}
+export type DicerollListDto = Pick<
+  DicerollDto,
+  "uuid" | "dice" | "skill" | "condition"
+>;

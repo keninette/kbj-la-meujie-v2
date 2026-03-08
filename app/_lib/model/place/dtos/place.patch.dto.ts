@@ -1,10 +1,19 @@
-export class PlacePatchDto {
-  name?: string;
-  publicDescription?: string;
-  privateDescription?: string;
-  picture?: unknown;
-  pinId?: string;
-  isStepBound?: boolean;
+import { PlaceDto } from "@/app/_lib/model/place/dtos/place.dto";
+
+type PlacePatchDtoProps = Partial<
+  Pick<
+    PlaceDto,
+    "name" | "publicDescription" | "privateDescription" | "picture" | "pinId" | "isStepBound"
+  >
+>;
+
+export class PlacePatchDto implements PlacePatchDtoProps {
+  name?: PlaceDto["name"];
+  publicDescription?: PlaceDto["publicDescription"];
+  privateDescription?: PlaceDto["privateDescription"];
+  picture?: PlaceDto["picture"];
+  pinId?: PlaceDto["pinId"];
+  isStepBound?: PlaceDto["isStepBound"];
 
   validate = async (): Promise<Array<string>> => {
     const errors: Array<string> = [];

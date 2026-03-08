@@ -6,10 +6,16 @@ type PlaceLike = Place & {
   picture?: unknown;
 };
 
+type PictureLike = {
+  uuid?: string;
+  name?: string;
+  filename?: string;
+};
+
 export class PlaceMapper {
   toPlaceListDto(rawPlace: PlaceLike): PlaceListDto {
     return {
-      id: rawPlace.id,
+      uuid: rawPlace.uuid,
       name: rawPlace.name,
       pinId: rawPlace.pinId,
       isStepBound: rawPlace.isStepBound,
@@ -17,11 +23,20 @@ export class PlaceMapper {
   }
 
   toPlaceDto(rawPlace: PlaceLike): PlaceDto {
+    const picture = rawPlace.picture as PictureLike | undefined;
+
     return {
       ...this.toPlaceListDto(rawPlace),
       publicDescription: rawPlace.publicDescription,
       privateDescription: rawPlace.privateDescription,
-      picture: rawPlace.picture,
+      picture:
+        picture && picture.uuid && picture.name && picture.filename
+          ? {
+              uuid: picture.uuid,
+              name: picture.name,
+              filename: picture.filename,
+            }
+          : undefined,
     };
   }
 

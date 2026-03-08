@@ -7,6 +7,8 @@ type DicerollResult = {
 };
 
 export class Diceroll {
+  id!: number;
+  uuid!: string;
   dice!: string;
   skill!: Skill;
   onSuccess!: DicerollResult;

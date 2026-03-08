@@ -9,7 +9,9 @@ export class UniverseRepository extends GenericRepository {
   }
 
   getAll = async (): Promise<Array<Universe>> => {
-    const allUniverses = await this.client.from(this.name).select();
+    const allUniverses = await this.client
+      .from(this.name)
+      .select("uuid, code, name, icon");
 
     return (allUniverses.data ?? []) as unknown as Universe[];
   };

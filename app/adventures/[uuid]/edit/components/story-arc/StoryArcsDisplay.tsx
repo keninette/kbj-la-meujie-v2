@@ -5,56 +5,63 @@ import styles from "@/app/adventures/[uuid]/edit/edit-adventure-page.module.scss
 
 type StoryArcsDisplayProps = {
   storyArcs: StoryArcDto[];
-  setIsDrawerOpened: (isOpened: boolean) => void;
-  setStoryArcToEdit: (storyArc: StoryArcDto | null) => void;
+  onEditStoryArc: (storyArc: StoryArcDto) => void;
+  onAddStoryArc: () => void;
 };
 
 const StoryArcsDisplay = ({
   storyArcs,
-  setIsDrawerOpened,
-  setStoryArcToEdit,
+  onEditStoryArc,
+  onAddStoryArc,
 }: StoryArcsDisplayProps) => {
   const translationsNamespace = "editAdventure";
 
-  if (storyArcs.length === 0) {
-    return (
-      <p className={styles["edit-adventure-page__section__content__p"]}>
-        {translate("storyArc.empty", translationsNamespace)}
-      </p>
-    );
-  }
-
   return (
     <>
-      {storyArcs.map((storyArc) => (
-        <div
-          key={storyArc.uuid}
-          className={styles["edit-adventure-page__section__content__story-arc"]}
-        >
-          <p
+      <div className={styles["edit-adventure-page__section__content__button"]}>
+        <ButtonWithIcon
+          label={translate("storyArc.add", translationsNamespace)}
+          faIcon="plus"
+          iconPosition="left"
+          onClick={onAddStoryArc}
+        />
+      </div>
+      {storyArcs.length === 0 ? (
+        <p className={styles["edit-adventure-page__section__content__p"]}>
+          {translate("storyArc.empty", translationsNamespace)}
+        </p>
+      ) : (
+        storyArcs.map((storyArc) => (
+          <div
+            key={storyArc.uuid}
             className={
-              styles["edit-adventure-page__section__content__story-arc-name"]
+              styles["edit-adventure-page__section__content__story-arc"]
             }
           >
-            {translate("storyArc.name", translationsNamespace, {
-              name: storyArc.name,
-            })}
-          </p>
-          <div
-            className={styles["edit-adventure-page__section__content__button"]}
-          >
-            <ButtonWithIcon
-              label={translate("storyArc.edit", translationsNamespace)}
-              faIcon="edit"
-              iconPosition="left"
-              onClick={() => {
-                setStoryArcToEdit(storyArc);
-                setIsDrawerOpened(true);
-              }}
-            />
+            <p
+              className={
+                styles["edit-adventure-page__section__content__story-arc-name"]
+              }
+            >
+              {translate("storyArc.name", translationsNamespace, {
+                name: storyArc.name,
+              })}
+            </p>
+            <div
+              className={
+                styles["edit-adventure-page__section__content__button"]
+              }
+            >
+              <ButtonWithIcon
+                label={translate("storyArc.edit", translationsNamespace)}
+                faIcon="edit"
+                iconPosition="left"
+                onClick={() => onEditStoryArc(storyArc)}
+              />
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </>
   );
 };

@@ -6,7 +6,7 @@ import { DndRace } from "@/app/_lib/model/character/enums/race.enum";
 export type NonPlayerCharacterRuleset = "DND" | "CTHULHU";
 
 export class NonPlayerCharacterDto {
-  id?: number;
+  uuid?: string;
   name!: string;
   identifiesAs!: "Female" | "Male" | "Non-binary";
   currentHealthPoints!: number;
@@ -28,5 +28,5 @@ export class NonPlayerCharacterDto {
   maxMagicPoints?: number;
   currentSanPoints?: number;
   maxSanPoints?: number;
-  stepId?: number;
+  stepUuid?: string;
 }

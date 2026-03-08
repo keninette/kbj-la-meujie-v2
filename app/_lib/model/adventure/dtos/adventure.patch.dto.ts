@@ -1,11 +1,16 @@
 import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
+import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
 
 type UniverseServiceLike = {
   getAll: () => Promise<Array<UniverseDto>>;
 };
 
-export class AdventurePatchDto {
-  name?: string;
+type AdventurePatchDtoProps = Partial<Pick<AdventureDto, "name">> & {
+  universeCode?: string;
+};
+
+export class AdventurePatchDto implements AdventurePatchDtoProps {
+  name?: AdventureDto["name"];
   universeCode?: string;
 
   validate = async (

@@ -1,9 +1,11 @@
+import { PictureDto } from "@/app/_lib/model/picture/dtos/picture.dto";
+
 export class PlaceDto {
-  id!: number;
+  uuid!: string;
   name!: string;
   publicDescription!: string;
   privateDescription?: string;
-  picture?: unknown;
+  picture?: PictureDto;
   pinId?: string;
   isStepBound!: boolean;
 }

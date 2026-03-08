@@ -9,17 +9,22 @@ import { NonPlayerCharacterMapper } from "@/app/_lib/model/character/non-player-
 type StepLike = Step & {
   chapterId?: number;
   placeId?: number;
+  chapterUuid?: string;
+  placeUuid?: string;
+  chapter?: {
+    uuid?: string;
+  };
 };
 
 export class StepMapper {
   toStepListDto(rawStep: StepLike): StepListDto {
     return {
-      id: rawStep.id,
+      uuid: rawStep.uuid,
       name: rawStep.name,
       description: rawStep.description,
       date: rawStep.date,
-      chapterId: rawStep.chapterId,
-      placeId: rawStep.placeId,
+      chapterUuid: rawStep.chapterUuid ?? rawStep.chapter?.uuid,
+      placeUuid: rawStep.placeUuid ?? rawStep.place?.uuid,
     };
   }
 

@@ -3,6 +3,7 @@ import { CharacterType } from "../enums/character-type.enum";
 
 export abstract class Character {
   id!: number;
+  uuid!: string;
   name!: string;
   identifiesAs!: "Female" | "Male" | "Non-binary";
   currentHealthPoints!: number;

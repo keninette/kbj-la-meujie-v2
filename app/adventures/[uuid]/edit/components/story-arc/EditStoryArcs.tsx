@@ -8,19 +8,23 @@ import StoryArcsDisplay from "@/app/adventures/[uuid]/edit/components/story-arc/
 import CustomDrawer from "@components/drawer/CustomDrawer";
 import StoryArcForm from "@/app/adventures/[uuid]/edit/components/story-arc/StoryArcForm";
 import StoryArcsLoadingState from "@/app/adventures/[uuid]/edit/components/story-arc/StoryArcsLoadingState";
+import CreateStoryArcForm from "@/app/adventures/[uuid]/edit/components/story-arc/CreateStoryArcForm";
 
 type EditStoryArcsProps = {
   adventure: AdventureDto | null;
   isLoading: boolean;
   onStoryArcUpdated: (updatedStoryArc: StoryArcDto) => void;
+  onStoryArcCreated: (createdStoryArc: StoryArcDto) => void;
 };
 
 const EditStoryArcs = ({
   adventure,
   isLoading,
   onStoryArcUpdated,
+  onStoryArcCreated,
 }: EditStoryArcsProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
+  const [isCreateFormDisplayed, setIsCreateFormDisplayed] = useState(false);
   const [storyArcToEdit, setStoryArcToEdit] = useState<StoryArcDto | null>(
     null,
   );
@@ -37,18 +41,38 @@ const EditStoryArcs = ({
     <>
       <StoryArcsDisplay
         storyArcs={adventure.storyArcs ?? []}
-        setIsDrawerOpened={setIsDrawerOpened}
-        setStoryArcToEdit={setStoryArcToEdit}
+        onEditStoryArc={(storyArc) => {
+          setStoryArcToEdit(storyArc);
+          setIsCreateFormDisplayed(false);
+          setIsDrawerOpened(true);
+        }}
+        onAddStoryArc={() => {
+          setStoryArcToEdit(null);
+          setIsCreateFormDisplayed(true);
+          setIsDrawerOpened(true);
+        }}
       />
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => {
           setIsDrawerOpened(false);
+          setIsCreateFormDisplayed(false);
           setStoryArcToEdit(null);
         }}
       >
-        {storyArcToEdit && (
+        {isCreateFormDisplayed && (
+          <CreateStoryArcForm
+            adventureUuid={adventure.uuid}
+            className={styles["edit-adventure-page__form"]}
+            onStoryArcCreated={(createdStoryArc) => {
+              onStoryArcCreated(createdStoryArc);
+              setIsDrawerOpened(false);
+            }}
+          />
+        )}
+        {!isCreateFormDisplayed && storyArcToEdit && (
           <StoryArcForm
+            adventureUuid={adventure.uuid}
             storyArc={storyArcToEdit}
             className={styles["edit-adventure-page__form"]}
             onStoryArcUpdated={(updatedStoryArc) => {

@@ -6,7 +6,6 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
 import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
 import EditBasicInfoLoader from "@/app/adventures/[uuid]/edit/components/basic-info/EditBasicInfoLoader";
-import EditStoryArcsLoader from "@/app/adventures/[uuid]/edit/components/story-arc/EditStoryArcsLoader";
 import EditStoryArcs from "./story-arc/EditStoryArcs";
 
 type EditAdventureLoaderProps = {
@@ -74,6 +73,19 @@ const EditAdventureLoader = ({ uuid }: EditAdventureLoaderProps) => {
     });
   };
 
+  const onStoryArcCreated = (createdStoryArc: StoryArcDto) => {
+    setAdventure((previousAdventure) => {
+      if (!previousAdventure) {
+        return previousAdventure;
+      }
+
+      return {
+        ...previousAdventure,
+        storyArcs: [...(previousAdventure.storyArcs ?? []), createdStoryArc],
+      };
+    });
+  };
+
   return (
     <>
       <section className={styles["edit-adventure-page__section"]}>
@@ -98,6 +110,7 @@ const EditAdventureLoader = ({ uuid }: EditAdventureLoaderProps) => {
             adventure={adventure}
             isLoading={isAdventureLoading}
             onStoryArcUpdated={onStoryArcUpdated}
+            onStoryArcCreated={onStoryArcCreated}
           />
         </div>
       </section>

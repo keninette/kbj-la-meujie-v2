@@ -5,6 +5,10 @@ import { StoryArcListDto } from "@/app/_lib/model/storyArc/dtos/story-arc-list.d
 
 type StoryArcLike = StoryArc & {
   adventureId?: number;
+  adventureUuid?: string;
+  adventure?: {
+    uuid?: string;
+  };
 };
 
 export class StoryArcMapper {
@@ -21,6 +25,7 @@ export class StoryArcMapper {
   ): StoryArcDto {
     return {
       ...this.toStoryArcListDto(rawStoryArc),
+      adventureUuid: rawStoryArc.adventure?.uuid ?? rawStoryArc.adventureUuid,
       chapters:
         rawStoryArc.chapters &&
         chapterMapper.toChapterListDtos(rawStoryArc.chapters),

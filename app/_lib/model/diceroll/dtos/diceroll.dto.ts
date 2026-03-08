@@ -7,11 +7,11 @@ export type DicerollResultDto = {
 };
 
 export class DicerollDto {
-  id?: number;
+  uuid?: string;
   dice!: string;
   skill!: Skill;
   onSuccess!: DicerollResultDto;
   onFailure!: DicerollResultDto;
   condition?: string;
-  stepId?: number;
+  stepUuid?: string;
 }
