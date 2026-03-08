@@ -1,0 +1,74 @@
+import { Step } from "@/app/_lib/model/step/step.entity";
+import { StepDto } from "@/app/_lib/model/step/dtos/step.dto";
+import { StepListDto } from "@/app/_lib/model/step/dtos/step-list.dto";
+import { PlaceMapper } from "@/app/_lib/model/place/place.mapper";
+import { AudioMapper } from "@/app/_lib/model/audio/audio.mapper";
+import { DicerollMapper } from "@/app/_lib/model/diceroll/diceroll.mapper";
+import { NonPlayerCharacterMapper } from "@/app/_lib/model/character/non-player-character.mapper";
+
+type StepLike = Step & {
+  chapterId?: number;
+  placeId?: number;
+  chapterUuid?: string;
+  placeUuid?: string;
+  chapter?: {
+    uuid?: string;
+  };
+};
+
+export class StepMapper {
+  toStepListDto(rawStep: StepLike): StepListDto {
+    return {
+      uuid: rawStep.uuid,
+      name: rawStep.name,
+      description: rawStep.description,
+      date: rawStep.date,
+      chapterUuid: rawStep.chapterUuid ?? rawStep.chapter?.uuid,
+      placeUuid: rawStep.placeUuid ?? rawStep.place?.uuid,
+    };
+  }
+
+  toStepDto(
+    rawStep: StepLike,
+    placeMapper: PlaceMapper,
+    audioMapper: AudioMapper,
+    dicerollMapper: DicerollMapper,
+    nonPlayerCharacterMapper: NonPlayerCharacterMapper,
+  ): StepDto {
+    return {
+      ...this.toStepListDto(rawStep),
+      place: rawStep.place && placeMapper.toPlaceDto(rawStep.place),
+      audios: rawStep.audios && audioMapper.toAudioListDtos(rawStep.audios),
+      diceRolls:
+        rawStep.diceRolls &&
+        dicerollMapper.toDicerollListDtos(rawStep.diceRolls),
+      nonPlayerCharacters:
+        rawStep.nonPlayerCharacters &&
+        nonPlayerCharacterMapper.toNonPlayerCharacterListDtos(
+          rawStep.nonPlayerCharacters,
+        ),
+    };
+  }
+
+  toStepDtos(
+    rawSteps: StepLike[],
+    placeMapper: PlaceMapper,
+    audioMapper: AudioMapper,
+    dicerollMapper: DicerollMapper,
+    nonPlayerCharacterMapper: NonPlayerCharacterMapper,
+  ): StepDto[] {
+    return rawSteps.map((rawStep) =>
+      this.toStepDto(
+        rawStep,
+        placeMapper,
+        audioMapper,
+        dicerollMapper,
+        nonPlayerCharacterMapper,
+      ),
+    );
+  }
+
+  toStepListDtos(rawSteps: StepLike[]): StepListDto[] {
+    return rawSteps.map((rawStep) => this.toStepListDto(rawStep));
+  }
+}
