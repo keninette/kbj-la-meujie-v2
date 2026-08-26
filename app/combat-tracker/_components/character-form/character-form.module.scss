@@ -1,0 +1,16 @@
+.character-form {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem;
+  
+  &__fieldset {
+    border: none;
+    gap: 0.5rem;
+  }
+
+  &__line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+}

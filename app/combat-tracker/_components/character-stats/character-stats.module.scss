@@ -1,4 +1,4 @@
-@use '../../variables.sys.scss';
+@use "../../../variables.sys.scss";
 
 .character-stats {
   display: flex;
@@ -9,7 +9,7 @@
 
   &__stat {
     font-weight: bold;
-  
+
     &--high {
       color: #4caf50;
     }
@@ -20,7 +20,7 @@
       color: #b4001e;
     }
   }
-  
+
   &__line {
     margin: 0 0 1rem 0;
     gap: 0.5rem;
@@ -30,7 +30,7 @@
     & > p {
       margin: 0;
     }
-    
+
     &--vertical {
       flex-direction: column;
     }

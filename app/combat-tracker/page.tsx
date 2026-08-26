@@ -1,146 +1,93 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import CharacterList from "./_components/characters-list/CharacterList";
-import styles from "./combat-tracker.module.scss";  
-import CharacterStats from "./_components/CharacterStats";
+import styles from "./combat-tracker.module.scss";
+import CharacterStats from "./_components/character-stats/CharacterStats";
+import CustomDrawer from "../_components/drawer/CustomDrawer";
+import ButtonWithIcon from "../_components/_basics/button-with-icon/ButtonWithIcon";
+import { FaIconStyleEnum } from "../_lib/enums/fa-icon.style.enum";
+import CharacterForm from "./_components/character-form/CharacterForm";
+import { clearCombat, loadCombat, saveCombat } from "./_lib/local-storage";
 
 export type CombatCharacter = {
   name: string;
   hp: number;
   maxHp: number;
   ac: number;
-  initScore: number;
+  initiativeScore: number;
   spellSlotsLefts?: Record<number, number>;
-  states?: {name: string, numberOfTurns: number, saveThrowStat: string, saveThrowThreshold: number}[]; 
+  states?: {
+    name: string;
+    numberOfTurns: number;
+    saveThrowStat: string;
+    saveThrowThreshold: number;
+  }[];
 };
 
+export type Combat = {
+  currentTurn: number;
+  characters: CombatCharacter[];
+}
+
 const CombatTrackerPage = () => {
-  const sampleCharacters = [
-    // Personnages Joueurs avec différents niveaux de sorts
-    {
-      name: 'Thoron',
-      hp: 45,
-      maxHp: 50,
-      ac: 18,
-      initScore: 15,
-      spellSlotsLefts: { 1: 4, 2: 3, 3: 2, 4: 1, 5: 1 },
-      states: [{name: 'Bless', numberOfTurns: 2, saveThrowStat: 'WIS', saveThrowThreshold: 15}, {name: 'Haste', numberOfTurns: 1, saveThrowStat: 'DEX', saveThrowThreshold: 14}]
-    },
-    {
-      name: 'Elara',
-      hp: 32,
-      maxHp: 40,
-      ac: 16,
-      initScore: 12,
-      spellSlotsLefts: { 1: 3, 2: 2, 3: 1 },
-      states: [{name: '🔥 En feu', numberOfTurns: 10, saveThrowStat: 'CON', saveThrowThreshold: 13}]
-    },
-    {
-      name: 'Kaelen',
-      hp: 28,
-      maxHp: 35,
-      ac: 14,
-      initScore: 11,
-      spellSlotsLefts: { 1: 2, 2: 1 },
-    },
-    {
-      name: 'Myra',
-      hp: 15,
-      maxHp: 20,
-      ac: 13,
-      initScore: 8,
-      spellSlotsLefts: { 1: 5, 2: 2, 3: 1, 4: 1 },
-    },
-    {
-      name: 'Zephyr le Sage',
-      hp: 60,
-      maxHp: 70,
-      ac: 15,
-      initScore: 17,
-      spellSlotsLefts: { 1: 6, 2: 4, 3: 3, 4: 2, 5: 2, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1 },
-    },
-    // Personnages sans sorts (guerriers, voleurs, etc.)
-    {
-      name: 'Gorim le Guerrier',
-      hp: 0,
-      maxHp: 95,
-      ac: 20,
-      initScore: 10,
-      spellSlotsLefts: {},
-    },
-    {
-      name: 'Shadowsong',
-      hp: 55,
-      maxHp: 60,
-      ac: 17,
-      initScore: 16,
-      spellSlotsLefts: {},
-    },
-    // Monstres / PNJ
-    {
-      name: 'Goblin Chef',
-      hp: -1,
-      maxHp: 9,
-      ac: 12,
-      initScore: 8,
-      spellSlotsLefts: {},
-    },
-    {
-      name: 'Ork Guerrier',
-      hp: 38,
-      maxHp: 45,
-      ac: 15,
-      initScore: 10,
-      spellSlotsLefts: {},
-    },
-    {
-      name: 'Drago Noir',
-      hp: 2,
-      maxHp: 200,
-      ac: 22,
-      initScore: 19,
-      spellSlotsLefts: {},
-    },
-    {
-      name: 'Arch mage Vex',
-      hp: 65,
-      maxHp: 75,
-      ac: 17,
-      initScore: 14,
-      spellSlotsLefts: { 1: 3, 2: 2, 3: 1 },
-    },
-    {
-      name: 'Dame Lyria',
-      hp: 72,
-      maxHp: 80,
-      ac: 16,
-      initScore: 13,
-      spellSlotsLefts: { 1: 4, 2: 3, 3: 0, 4: 2, 5: 1 },
-    },
-  ];
-
-  const [selectedCharacter, setSelectedCharacter] = useState<CombatCharacter | null>(null);
-  const sortedCharacters = [...sampleCharacters].sort((a, b) => b.initScore - a.initScore);
-
+  const [combat, setCombat] = useState<Combat>(loadCombat());
+  const [selectedCharacter, setSelectedCharacter] =
+  useState<CombatCharacter | null>(null);
+  const sortedCharacters = [...combat?.characters ?? []].sort(
+    (a, b) => b.initiativeScore - a.initiativeScore,
+  );
+  const [isDrawerOpened, setIsDrawerOpened] = useState(false);
 
   const handleCharacterClick = (character: CombatCharacter) => {
     setSelectedCharacter(character);
-  } 
+  };
+
+  const handleAddCharacter = (character: CombatCharacter) => {
+    const updatedCharacters = [...combat?.characters ?? [], character];
+    setCombat({ ...combat, characters: updatedCharacters });
+    saveCombat({ ...combat, characters: updatedCharacters });
+    setIsDrawerOpened(false);
+  }
+
+  const resetCombat = () => {
+    setCombat((prevCombat) => ({ ...prevCombat, currentTurn: 1 }));
+    setSelectedCharacter(null);
+  }
 
   return (
-    <div className={styles["combat-tracker"]}>
-      <h1>Tracker de Combat</h1>
-      <div className={styles["combat-tracker__container"]}>
-        <CharacterList characters={sortedCharacters} onClick={handleCharacterClick} selectedCharacter={selectedCharacter}  className={styles["combat-tracker__container__left"]}/>
-        {selectedCharacter && (
-          <div className={styles["combat-tracker__container__right"]}>
-            <CharacterStats character={selectedCharacter} />
+    <>
+      <div className={styles["combat-tracker"]}>
+        <h1>Tracker de Combat</h1>
+        <div className={styles["combat-tracker__container"]}>
+          <div>
+            <ButtonWithIcon label="Commencer un combat" onClick={() => setIsDrawerOpened(true)} faIcon="play" faIconStyle={FaIconStyleEnum.SOLID} iconPosition="left"/>
+            <ButtonWithIcon label="Ajouter un personnage" onClick={() => setIsDrawerOpened(true)} faIcon="plus" faIconStyle={FaIconStyleEnum.SOLID} iconPosition="left"/>
+            <ButtonWithIcon label="Recommencer le combat" onClick={resetCombat} faIcon="refresh" faIconStyle={FaIconStyleEnum.SOLID} iconPosition="left"/>
           </div>
-        )}
+          <CharacterList
+            characters={sortedCharacters}
+            onClick={handleCharacterClick}
+            selectedCharacter={selectedCharacter}
+            className={styles["combat-tracker__container__left"]}
+          />
+          {selectedCharacter && (
+            <div className={styles["combat-tracker__container__right"]}>
+              <CharacterStats character={selectedCharacter} />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      {selectedCharacter && (
+        <CustomDrawer isOpened={isDrawerOpened} onClose={() => setIsDrawerOpened(false)}>
+          <CharacterForm initialCharacter={selectedCharacter} onSubmit={handleAddCharacter} />
+        </CustomDrawer>
+      )}
+      <CustomDrawer isOpened={isDrawerOpened} onClose={() => setIsDrawerOpened(false)}>
+        <CharacterForm initialCharacter={selectedCharacter} onSubmit={handleAddCharacter} />
+      </CustomDrawer>
+    </>
   );
-}
+};
 
 export default CombatTrackerPage;
