@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { StoryArcCreateDto } from "@/app/_lib/model/storyArc/dtos/story-arc.create.dto";
+import { StoryArcCreateDto } from "@lib/model/storyArc/dtos/story-arc.create.dto";
 import { getStoryArcService } from "@lib/registry";
 
 export async function POST(

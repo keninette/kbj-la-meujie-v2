@@ -1,6 +1,6 @@
-import { Place } from "@/app/_lib/model/place/place.entity";
-import { PlaceDto } from "@/app/_lib/model/place/dtos/place.dto";
-import { PlaceListDto } from "@/app/_lib/model/place/dtos/place-list.dto";
+import { Place } from "@lib/model/place/place.entity";
+import { PlaceDto } from "@lib/model/place/dtos/place.dto";
+import { PlaceListDto } from "@lib/model/place/dtos/place-list.dto";
 
 type PlaceLike = Place & {
   picture?: unknown;

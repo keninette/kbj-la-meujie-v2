@@ -1,6 +1,8 @@
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
 
-type StoryArcPatchDtoProps = Partial<Pick<StoryArcDto, "name" | "adventureUuid">>;
+type StoryArcPatchDtoProps = Partial<
+  Pick<StoryArcDto, "name" | "adventureUuid">
+>;
 
 export class StoryArcPatchDto implements StoryArcPatchDtoProps {
   name?: StoryArcDto["name"];

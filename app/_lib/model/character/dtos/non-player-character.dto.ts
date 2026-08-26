@@ -1,7 +1,7 @@
-import { CharacterType } from "@/app/_lib/model/character/enums/character-type.enum";
-import { DndAlignment } from "@/app/_lib/model/character/enums/alignment.enum";
-import { DndCharacterClass } from "@/app/_lib/model/character/enums/character-class.enum";
-import { DndRace } from "@/app/_lib/model/character/enums/race.enum";
+import { CharacterType } from "@lib/model/character/enums/character-type.enum";
+import { DndAlignment } from "@lib/model/character/enums/alignment.enum";
+import { DndCharacterClass } from "@lib/model/character/enums/character-class.enum";
+import { DndRace } from "@lib/model/character/enums/race.enum";
 
 export type NonPlayerCharacterRuleset = "DND" | "CTHULHU";
 

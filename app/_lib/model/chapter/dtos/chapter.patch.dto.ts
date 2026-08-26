@@ -1,4 +1,4 @@
-import { ChapterDto } from "@/app/_lib/model/chapter/dtos/chapter.dto";
+import { ChapterDto } from "@lib/model/chapter/dtos/chapter.dto";
 
 type ChapterPatchDtoProps = Partial<Pick<ChapterDto, "name" | "storyArcUuid">>;
 

@@ -1,7 +1,7 @@
-import { Adventure } from "@/app/_lib/model/adventure/adventure.entity";
-import { AdventureListDto } from "@/app/_lib/model/adventure/dtos/adventure-list.dto";
-import { UniverseMapper } from "@/app/_lib/model/universe/universe.mapper";
-import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
+import { Adventure } from "@lib/model/adventure/adventure.entity";
+import { AdventureListDto } from "@lib/model/adventure/dtos/adventure-list.dto";
+import { UniverseMapper } from "@lib/model/universe/universe.mapper";
+import { AdventureDto } from "@lib/model/adventure/dtos/adventure.dto";
 import { ChapterMapper } from "../chapter/chapter.mapper";
 import { StoryArcMapper } from "../storyArc/story-arc.mapper";
 

@@ -1,12 +1,12 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { Diceroll } from "@/app/_lib/model/diceroll/diceroll.entity";
-import { DicerollPatchDto } from "@/app/_lib/model/diceroll/dtos/diceroll.patch.dto";
+import { Diceroll } from "@lib/model/diceroll/diceroll.entity";
+import { DicerollPatchDto } from "@lib/model/diceroll/dtos/diceroll.patch.dto";
 
 type DicerollLike = Diceroll & {
   stepId?: number;
-  
+
   stepUuid?: string;
   step?: {
     uuid?: string;

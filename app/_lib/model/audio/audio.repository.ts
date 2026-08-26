@@ -1,8 +1,8 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { Audio } from "@/app/_lib/model/audio/audio.entity";
-import { AudioPatchDto } from "@/app/_lib/model/audio/dtos/audio.patch.dto";
+import { Audio } from "@lib/model/audio/audio.entity";
+import { AudioPatchDto } from "@lib/model/audio/dtos/audio.patch.dto";
 
 type AudioLike = Audio & {
   stepId?: number;

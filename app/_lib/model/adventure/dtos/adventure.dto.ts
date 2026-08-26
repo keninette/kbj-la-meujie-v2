@@ -1,5 +1,5 @@
-import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
+import { UniverseDto } from "@lib/model/universe/dtos/universe.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
 
 export class AdventureDto {
   name!: string;

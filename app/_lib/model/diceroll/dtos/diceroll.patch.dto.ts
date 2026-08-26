@@ -1,6 +1,6 @@
-import { Skill } from "@/app/_lib/model/character/enums/skill.enum";
-import { DicerollResultDto } from "@/app/_lib/model/diceroll/dtos/diceroll.dto";
-import { DicerollDto } from "@/app/_lib/model/diceroll/dtos/diceroll.dto";
+import { Skill } from "@lib/model/character/enums/skill.enum";
+import { DicerollResultDto } from "@lib/model/diceroll/dtos/diceroll.dto";
+import { DicerollDto } from "@lib/model/diceroll/dtos/diceroll.dto";
 
 type DicerollPatchDtoProps = Partial<
   Pick<

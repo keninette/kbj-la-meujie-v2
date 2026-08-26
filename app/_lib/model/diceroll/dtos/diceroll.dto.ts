@@ -1,5 +1,5 @@
-import { Skill } from "@/app/_lib/model/character/enums/skill.enum";
-import { DicerollResultType } from "@/app/_lib/model/diceroll/enums/diceroll-result.enum";
+import { Skill } from "@lib/model/character/enums/skill.enum";
+import { DicerollResultType } from "@lib/model/diceroll/enums/diceroll-result.enum";
 
 export type DicerollResultDto = {
   type: DicerollResultType;

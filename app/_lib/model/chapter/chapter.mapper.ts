@@ -1,6 +1,6 @@
-import { Chapter } from "@/app/_lib/model/chapter/chapter.entity";
-import { ChapterDto } from "@/app/_lib/model/chapter/dtos/chapter.dto";
-import { ChapterListDto } from "@/app/_lib/model/chapter/dtos/chapter-list.dto";
+import { Chapter } from "@lib/model/chapter/chapter.entity";
+import { ChapterDto } from "@lib/model/chapter/dtos/chapter.dto";
+import { ChapterListDto } from "@lib/model/chapter/dtos/chapter-list.dto";
 import { StepMapper } from "../step/step.mapper";
 
 type ChapterLike = Chapter & {

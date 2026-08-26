@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdventureService, getUniverseService } from "@lib/registry";
-import { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.patch.dto";
+import { AdventurePatchDto } from "@lib/model/adventure/dtos/adventure.patch.dto";
 import { revalidatePath } from "next/cache";
 
 export async function GET(

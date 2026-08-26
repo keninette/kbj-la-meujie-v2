@@ -1,7 +1,10 @@
-import { AudioDto } from "@/app/_lib/model/audio/dtos/audio.dto";
+import { AudioDto } from "@lib/model/audio/dtos/audio.dto";
 
 type AudioPatchDtoProps = Partial<
-  Pick<AudioDto, "name" | "filename" | "loop" | "autoPlay" | "volume" | "helper" | "stepUuid">
+  Pick<
+    AudioDto,
+    "name" | "filename" | "loop" | "autoPlay" | "volume" | "helper" | "stepUuid"
+  >
 >;
 
 export class AudioPatchDto implements AudioPatchDtoProps {

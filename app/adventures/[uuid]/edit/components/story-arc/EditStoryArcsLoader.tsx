@@ -1,7 +1,7 @@
 "use client";
 
-import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
+import { AdventureDto } from "@lib/model/adventure/dtos/adventure.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
 import EditStoryArcs from "@/app/adventures/[uuid]/edit/components/story-arc/EditStoryArcs";
 
 type EditStoryArcsLoaderProps = {

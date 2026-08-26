@@ -1,4 +1,4 @@
-import { PlaceDto } from "@/app/_lib/model/place/dtos/place.dto";
+import { PlaceDto } from "@lib/model/place/dtos/place.dto";
 
 export type PlaceListDto = Pick<
   PlaceDto,

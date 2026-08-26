@@ -1,4 +1,4 @@
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import ButtonWithIcon from "@components/_basics/button-with-icon/ButtonWithIcon";
 import styles from "@/app/adventures/[uuid]/edit/edit-adventure-page.module.scss";

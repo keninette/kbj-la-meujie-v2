@@ -1,8 +1,8 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { Place } from "@/app/_lib/model/place/place.entity";
-import { PlacePatchDto } from "@/app/_lib/model/place/dtos/place.patch.dto";
+import { Place } from "@lib/model/place/place.entity";
+import { PlacePatchDto } from "@lib/model/place/dtos/place.patch.dto";
 
 type PlaceLike = Place & {
   picture?: unknown;

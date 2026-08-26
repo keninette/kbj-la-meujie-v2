@@ -1,11 +1,11 @@
-import { CharacterType } from "@/app/_lib/model/character/enums/character-type.enum";
-import { DndAlignment } from "@/app/_lib/model/character/enums/alignment.enum";
-import { DndCharacterClass } from "@/app/_lib/model/character/enums/character-class.enum";
-import { DndRace } from "@/app/_lib/model/character/enums/race.enum";
+import { CharacterType } from "@lib/model/character/enums/character-type.enum";
+import { DndAlignment } from "@lib/model/character/enums/alignment.enum";
+import { DndCharacterClass } from "@lib/model/character/enums/character-class.enum";
+import { DndRace } from "@lib/model/character/enums/race.enum";
 import {
   NonPlayerCharacterDto,
   NonPlayerCharacterRuleset,
-} from "@/app/_lib/model/character/dtos/non-player-character.dto";
+} from "@lib/model/character/dtos/non-player-character.dto";
 
 type NonPlayerCharacterPatchDtoProps = Partial<
   Pick<

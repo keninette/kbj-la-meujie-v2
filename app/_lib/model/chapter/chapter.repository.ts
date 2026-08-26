@@ -1,8 +1,8 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { Chapter } from "@/app/_lib/model/chapter/chapter.entity";
-import { ChapterPatchDto } from "@/app/_lib/model/chapter/dtos/chapter.patch.dto";
+import { Chapter } from "@lib/model/chapter/chapter.entity";
+import { ChapterPatchDto } from "@lib/model/chapter/dtos/chapter.patch.dto";
 
 type ChapterLike = Chapter & {
   storyArcId?: number;
@@ -22,9 +22,7 @@ export class ChapterRepository extends GenericRepository {
   }
 
   getAll = async (): Promise<Array<ChapterLike>> => {
-    const chapters = await this.client
-      .from(this.name)
-      .select("id, uuid, name");
+    const chapters = await this.client.from(this.name).select("id, uuid, name");
 
     return (chapters.data ?? []) as unknown as ChapterLike[];
   };
@@ -78,7 +76,9 @@ export class ChapterRepository extends GenericRepository {
     return Promise.resolve(payload);
   };
 
-  private getStoryArcIdByUuid = async (storyArcUuid: string): Promise<number> => {
+  private getStoryArcIdByUuid = async (
+    storyArcUuid: string,
+  ): Promise<number> => {
     const storyArc = await this.client
       .from("story_arc")
       .select("id")

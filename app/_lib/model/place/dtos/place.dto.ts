@@ -1,4 +1,4 @@
-import { PictureDto } from "@/app/_lib/model/picture/dtos/picture.dto";
+import { PictureDto } from "@lib/model/picture/dtos/picture.dto";
 
 export class PlaceDto {
   uuid!: string;

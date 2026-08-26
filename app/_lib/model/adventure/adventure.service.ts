@@ -1,8 +1,8 @@
 import "server-only";
 
-import { AdventureRepository } from "@/app/_lib/model/adventure/adventure.repository";
-import { AdventureMapper } from "@/app/_lib/model/adventure/adventure.mapper";
-import { UniverseMapper } from "@/app/_lib/model/universe/universe.mapper";
+import { AdventureRepository } from "@lib/model/adventure/adventure.repository";
+import { AdventureMapper } from "@lib/model/adventure/adventure.mapper";
+import { UniverseMapper } from "@lib/model/universe/universe.mapper";
 import { AdventureDto } from "./dtos/adventure.dto";
 import { AdventurePatchDto } from "./dtos/adventure.patch.dto";
 
@@ -19,6 +19,7 @@ export class AdventureService {
 
   getAll = async () => {
     const adventures = await this.repository.getAll();
+    console.log("adventures", adventures);
 
     return this.mapper.toAdventureListDtos(adventures, this.universeMapper);
   };

@@ -1,6 +1,6 @@
-import { Audio } from "@/app/_lib/model/audio/audio.entity";
-import { AudioDto } from "@/app/_lib/model/audio/dtos/audio.dto";
-import { AudioListDto } from "@/app/_lib/model/audio/dtos/audio-list.dto";
+import { Audio } from "@lib/model/audio/audio.entity";
+import { AudioDto } from "@lib/model/audio/dtos/audio.dto";
+import { AudioListDto } from "@lib/model/audio/dtos/audio-list.dto";
 
 type AudioLike = Audio & {
   stepId?: number;

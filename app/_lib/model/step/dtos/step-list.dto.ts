@@ -1,4 +1,4 @@
-import { StepDto } from "@/app/_lib/model/step/dtos/step.dto";
+import { StepDto } from "@lib/model/step/dtos/step.dto";
 
 export type StepListDto = Pick<
   StepDto,

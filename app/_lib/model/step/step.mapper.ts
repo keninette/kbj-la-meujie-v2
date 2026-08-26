@@ -1,10 +1,10 @@
-import { Step } from "@/app/_lib/model/step/step.entity";
-import { StepDto } from "@/app/_lib/model/step/dtos/step.dto";
-import { StepListDto } from "@/app/_lib/model/step/dtos/step-list.dto";
-import { PlaceMapper } from "@/app/_lib/model/place/place.mapper";
-import { AudioMapper } from "@/app/_lib/model/audio/audio.mapper";
-import { DicerollMapper } from "@/app/_lib/model/diceroll/diceroll.mapper";
-import { NonPlayerCharacterMapper } from "@/app/_lib/model/character/non-player-character.mapper";
+import { Step } from "@lib/model/step/step.entity";
+import { StepDto } from "@lib/model/step/dtos/step.dto";
+import { StepListDto } from "@lib/model/step/dtos/step-list.dto";
+import { PlaceMapper } from "@lib/model/place/place.mapper";
+import { AudioMapper } from "@lib/model/audio/audio.mapper";
+import { DicerollMapper } from "@lib/model/diceroll/diceroll.mapper";
+import { NonPlayerCharacterMapper } from "@lib/model/character/non-player-character.mapper";
 
 type StepLike = Step & {
   chapterId?: number;

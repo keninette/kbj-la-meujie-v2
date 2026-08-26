@@ -1,6 +1,6 @@
-import { Diceroll } from "@/app/_lib/model/diceroll/diceroll.entity";
-import { DicerollDto } from "@/app/_lib/model/diceroll/dtos/diceroll.dto";
-import { DicerollListDto } from "@/app/_lib/model/diceroll/dtos/diceroll-list.dto";
+import { Diceroll } from "@lib/model/diceroll/diceroll.entity";
+import { DicerollDto } from "@lib/model/diceroll/dtos/diceroll.dto";
+import { DicerollListDto } from "@lib/model/diceroll/dtos/diceroll-list.dto";
 
 type DicerollLike = Diceroll & {
   stepId?: number;

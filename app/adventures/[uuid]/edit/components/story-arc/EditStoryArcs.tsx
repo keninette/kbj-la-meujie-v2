@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
+import { AdventureDto } from "@lib/model/adventure/dtos/adventure.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
 import styles from "../../edit-adventure-page.module.scss";
 import StoryArcsDisplay from "@/app/adventures/[uuid]/edit/components/story-arc/StoryArcsDisplay";
 import CustomDrawer from "@components/drawer/CustomDrawer";

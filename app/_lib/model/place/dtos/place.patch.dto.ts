@@ -1,9 +1,14 @@
-import { PlaceDto } from "@/app/_lib/model/place/dtos/place.dto";
+import { PlaceDto } from "@lib/model/place/dtos/place.dto";
 
 type PlacePatchDtoProps = Partial<
   Pick<
     PlaceDto,
-    "name" | "publicDescription" | "privateDescription" | "picture" | "pinId" | "isStepBound"
+    | "name"
+    | "publicDescription"
+    | "privateDescription"
+    | "picture"
+    | "pinId"
+    | "isStepBound"
   >
 >;
 

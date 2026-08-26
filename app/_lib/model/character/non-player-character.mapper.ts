@@ -1,7 +1,7 @@
-import { CharacterType } from "@/app/_lib/model/character/enums/character-type.enum";
-import { NonPlayerCharacter } from "@/app/_lib/model/character/entities/non-player-character.entity";
-import { NonPlayerCharacterDto } from "@/app/_lib/model/character/dtos/non-player-character.dto";
-import { NonPlayerCharacterListDto } from "@/app/_lib/model/character/dtos/non-player-character-list.dto";
+import { CharacterType } from "@lib/model/character/enums/character-type.enum";
+import { NonPlayerCharacter } from "@lib/model/character/entities/non-player-character.entity";
+import { NonPlayerCharacterDto } from "@lib/model/character/dtos/non-player-character.dto";
+import { NonPlayerCharacterListDto } from "@lib/model/character/dtos/non-player-character-list.dto";
 
 type NonPlayerCharacterLike = NonPlayerCharacter &
   Partial<NonPlayerCharacterDto> & {

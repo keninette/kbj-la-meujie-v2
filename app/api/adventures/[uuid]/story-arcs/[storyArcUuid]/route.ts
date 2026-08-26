@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { StoryArcPatchDto } from "@/app/_lib/model/storyArc/dtos/story-arc.patch.dto";
+import { StoryArcPatchDto } from "@lib/model/storyArc/dtos/story-arc.patch.dto";
 import { getStoryArcService } from "@lib/registry";
 
 export async function PATCH(

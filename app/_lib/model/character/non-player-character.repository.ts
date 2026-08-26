@@ -1,9 +1,9 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { NonPlayerCharacter } from "@/app/_lib/model/character/entities/non-player-character.entity";
-import { NonPlayerCharacterDto } from "@/app/_lib/model/character/dtos/non-player-character.dto";
-import { NonPlayerCharacterPatchDto } from "@/app/_lib/model/character/dtos/non-player-character.patch.dto";
+import { NonPlayerCharacter } from "@lib/model/character/entities/non-player-character.entity";
+import { NonPlayerCharacterDto } from "@lib/model/character/dtos/non-player-character.dto";
+import { NonPlayerCharacterPatchDto } from "@lib/model/character/dtos/non-player-character.patch.dto";
 
 type NonPlayerCharacterLike = NonPlayerCharacter &
   Partial<NonPlayerCharacterDto>;

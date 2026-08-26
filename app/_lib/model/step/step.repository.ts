@@ -1,8 +1,8 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { Step } from "@/app/_lib/model/step/step.entity";
-import { StepPatchDto } from "@/app/_lib/model/step/dtos/step.patch.dto";
+import { Step } from "@lib/model/step/step.entity";
+import { StepPatchDto } from "@lib/model/step/dtos/step.patch.dto";
 
 type StepLike = Step & {
   chapterId?: number;
@@ -111,7 +111,9 @@ export class StepRepository extends GenericRepository {
     }
 
     if (stepPatchDto.placeUuid !== undefined) {
-      nextPayload.place_id = await this.getPlaceIdByUuid(stepPatchDto.placeUuid);
+      nextPayload.place_id = await this.getPlaceIdByUuid(
+        stepPatchDto.placeUuid,
+      );
     }
 
     return nextPayload;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
-import type { StoryArcCreateDto } from "@/app/_lib/model/storyArc/dtos/story-arc.create.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
+import type { StoryArcCreateDto } from "@lib/model/storyArc/dtos/story-arc.create.dto";
 import SubmitButton from "@components/_basics/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 

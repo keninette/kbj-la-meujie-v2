@@ -1,7 +1,7 @@
-import { ChapterMapper } from "@/app/_lib/model/chapter/chapter.mapper";
-import { StoryArc } from "@/app/_lib/model/storyArc/storyArc.entity";
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
-import { StoryArcListDto } from "@/app/_lib/model/storyArc/dtos/story-arc-list.dto";
+import { ChapterMapper } from "@lib/model/chapter/chapter.mapper";
+import { StoryArc } from "@lib/model/storyArc/storyArc.entity";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
+import { StoryArcListDto } from "@lib/model/storyArc/dtos/story-arc-list.dto";
 
 type StoryArcLike = StoryArc & {
   adventureId?: number;

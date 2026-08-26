@@ -1,4 +1,4 @@
-import { Universe } from "@/app/_lib/model/universe/universe.entity";
+import { Universe } from "@lib/model/universe/universe.entity";
 import { v4 as uuidv4 } from "uuid";
 import { StoryArc } from "../storyArc/storyArc.entity";
 

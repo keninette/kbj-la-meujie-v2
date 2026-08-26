@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import styles from "../edit-adventure-page.module.scss";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
+import { AdventureDto } from "@lib/model/adventure/dtos/adventure.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
 import EditBasicInfoLoader from "@/app/adventures/[uuid]/edit/components/basic-info/EditBasicInfoLoader";
 import EditStoryArcs from "./story-arc/EditStoryArcs";
 

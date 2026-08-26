@@ -1,11 +1,11 @@
 import "server-only";
 
-import { StoryArcRepository } from "@/app/_lib/model/storyArc/story-arc.repository";
-import { StoryArcMapper } from "@/app/_lib/model/storyArc/story-arc.mapper";
-import { ChapterMapper } from "@/app/_lib/model/chapter/chapter.mapper";
-import { StoryArcCreateDto } from "@/app/_lib/model/storyArc/dtos/story-arc.create.dto";
-import { StoryArcDto } from "@/app/_lib/model/storyArc/dtos/story-arc.dto";
-import { StoryArcPatchDto } from "@/app/_lib/model/storyArc/dtos/story-arc.patch.dto";
+import { StoryArcRepository } from "@lib/model/storyArc/story-arc.repository";
+import { StoryArcMapper } from "@lib/model/storyArc/story-arc.mapper";
+import { ChapterMapper } from "@lib/model/chapter/chapter.mapper";
+import { StoryArcCreateDto } from "@lib/model/storyArc/dtos/story-arc.create.dto";
+import { StoryArcDto } from "@lib/model/storyArc/dtos/story-arc.dto";
+import { StoryArcPatchDto } from "@lib/model/storyArc/dtos/story-arc.patch.dto";
 
 export class StoryArcService {
   private repository: StoryArcRepository;

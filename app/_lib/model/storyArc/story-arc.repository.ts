@@ -1,9 +1,9 @@
 import "server-only";
 
 import { GenericRepository } from "@lib/generic-classes/generic-repository";
-import { StoryArc } from "@/app/_lib/model/storyArc/storyArc.entity";
-import { StoryArcCreateDto } from "@/app/_lib/model/storyArc/dtos/story-arc.create.dto";
-import { StoryArcPatchDto } from "@/app/_lib/model/storyArc/dtos/story-arc.patch.dto";
+import { StoryArc } from "@lib/model/storyArc/storyArc.entity";
+import { StoryArcCreateDto } from "@lib/model/storyArc/dtos/story-arc.create.dto";
+import { StoryArcPatchDto } from "@lib/model/storyArc/dtos/story-arc.patch.dto";
 
 type StoryArcLike = StoryArc & {
   adventureId?: number;
@@ -40,7 +40,10 @@ export class StoryArcRepository extends GenericRepository {
   ): Promise<StoryArcLike> => {
     const adventureId = await this.getAdventureIdByUuid(adventureUuid);
 
-    const payload = this.convertCreateDtoToPayload(storyArcCreateDto, adventureId);
+    const payload = this.convertCreateDtoToPayload(
+      storyArcCreateDto,
+      adventureId,
+    );
 
     const storyArc = await this.client
       .from(this.name)

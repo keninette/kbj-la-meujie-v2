@@ -1,4 +1,4 @@
-import { AudioDto } from "@/app/_lib/model/audio/dtos/audio.dto";
+import { AudioDto } from "@lib/model/audio/dtos/audio.dto";
 
 export type AudioListDto = Pick<
   AudioDto,

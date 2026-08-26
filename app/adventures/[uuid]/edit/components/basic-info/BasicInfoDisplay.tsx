@@ -1,4 +1,4 @@
-import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
+import { AdventureDto } from "@lib/model/adventure/dtos/adventure.dto";
 import { EditAdventureForm } from "@/app/adventures/[uuid]/edit/components/basic-info/EditBasicInfo";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import ButtonWithIcon from "@components/_basics/button-with-icon/ButtonWithIcon";

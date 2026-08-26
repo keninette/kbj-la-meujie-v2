@@ -1,11 +1,11 @@
 "use client";
 
-import { AdventureDto } from "@/app/_lib/model/adventure/dtos/adventure.dto";
+import { AdventureDto } from "@lib/model/adventure/dtos/adventure.dto";
 import { useEffect, useState } from "react";
-import { UniverseDto } from "@/app/_lib/model/universe/dtos/universe.dto";
+import { UniverseDto } from "@lib/model/universe/dtos/universe.dto";
 import SubmitButton from "@components/_basics/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import type { AdventurePatchDto } from "@/app/_lib/model/adventure/dtos/adventure.patch.dto";
+import type { AdventurePatchDto } from "@lib/model/adventure/dtos/adventure.patch.dto";
 
 type AdventureFormProps = {
   adventure: AdventureDto;
