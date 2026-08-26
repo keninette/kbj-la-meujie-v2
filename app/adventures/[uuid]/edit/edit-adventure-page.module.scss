@@ -1,4 +1,4 @@
-@use '../../../mixins';
+@use "../../../mixins";
 
 .edit-adventure-page {
   &__section {
@@ -8,7 +8,8 @@
     &__content {
       display: flex;
       flex-direction: column;
-      padding: var(--spacing-layout-section-content-margin) 0 var(--spacing-layout-section-content-margin) 0;
+      padding: var(--spacing-layout-section-content-margin) 0
+        var(--spacing-layout-section-content-margin) 0;
 
       @include mixins.border--regular--dark;
       border-bottom: 0;
@@ -26,9 +27,21 @@
       &__button {
         display: flex;
         justify-content: flex-end;
+        gap: var(--spacing-padding--button);
+      }
+
+      &__story-arc {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--spacing-layout-section-content-margin);
+        margin: 0 0 var(--spacing-layout-section-content-margin) 0;
+      }
+
+      &__story-arc-name {
+        margin: 0;
       }
     }
-
   }
 
   &__form {

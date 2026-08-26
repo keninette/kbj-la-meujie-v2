@@ -7,7 +7,10 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 
 export default function Header() {
   return (
-    <Link href="/" className={[styles["header"], styles["header__link"]].join(" ")}>
+    <Link
+      href="/"
+      className={[styles["header"], styles["header__link"]].join(" ")}
+    >
       <div className={styles["header__logo"]}>
         <Image
           src={dog}

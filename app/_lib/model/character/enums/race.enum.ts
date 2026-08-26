@@ -1,0 +1,12 @@
+export enum DndRace {
+  HUMAN = "HUMAN",
+  ELF = "ELF",
+  DWARF = "DWARF",
+  HALFLING = "HALFLING",
+  ORC = "ORC",
+  TIEFLING = "TIEFLING",
+  DRAGONBORN = "DRAGONBORN",
+  GNOME = "GNOME",
+  HALF_ELF = "HALF_ELF",
+  HALF_ORC = "HALF_ORC",
+}
