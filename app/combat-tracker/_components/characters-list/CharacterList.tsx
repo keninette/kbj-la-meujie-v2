@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./characters-list.module.scss";
 import { CombatCharacter } from "../../page";
+import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
+import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
+import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 
 type CharacterListProps = {
   characters: CombatCharacter[];
@@ -18,14 +21,18 @@ const CharacterList = ({
   ...restProps
 }: CharacterListProps) => {
   const [currentCharacterKey, setCurrentCharacterKey] = useState<string | null>(
-    selectedCharacter?.name || null,
+    null,
   );
+
+  useEffect(() => {
+    setCurrentCharacterKey(selectedCharacter?.name ?? null);
+  }, [selectedCharacter]);
 
   return (
     <ol {...restProps}>
       {characters.map((char) => (
         <li
-          key={char.name}
+          key={`${char.name}`}
           className={
             char.name === currentCharacterKey
               ? styles["characters-list__item--active"]
@@ -35,21 +42,24 @@ const CharacterList = ({
           <div
             className={[
               styles["characters-list__item"],
-              char.hp < 0 ? styles["characters-list__item--dead"] : "",
-              char.hp === 0 ? styles["characters-list__item--down"] : "",
+              char.isDying ? styles["characters-list__item--down"] : "",
+              char.isDead ? styles["characters-list__item--dead"] : "",
             ].join(" ")}
           >
             <p>{char.name}</p>
-            <button
+            <ButtonWithIcon
+              variant={ButtonVariant.SECONDARY}
+              label="Éditer"
+              faIcon="pen"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              type="button"
               onClick={() => {
-                setCurrentCharacterKey(char.name);
                 if (onClick) {
                   onClick(char);
                 }
               }}
-            >
-              👀 Voir
-            </button>
+            />
           </div>
         </li>
       ))}

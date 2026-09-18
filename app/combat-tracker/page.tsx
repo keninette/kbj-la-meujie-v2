@@ -1,90 +1,178 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CharacterList from "./_components/characters-list/CharacterList";
 import styles from "./combat-tracker.module.scss";
 import CharacterStats from "./_components/character-stats/CharacterStats";
 import CustomDrawer from "../_components/drawer/CustomDrawer";
-import ButtonWithIcon from "../_components/_basics/button-with-icon/ButtonWithIcon";
-import { FaIconStyleEnum } from "../_lib/enums/fa-icon.style.enum";
 import CharacterForm from "./_components/character-form/CharacterForm";
 import { clearCombat, loadCombat, saveCombat } from "./_lib/local-storage";
+import CombatManager from "./_components/combat-manager/CombatManager";
 
+// Since its only a prototype combat tracker and that it has yet to be included in adventures
+// All libs & models are stored here
+// This will change when combat tracker is embedded inside adventures
 export type CombatCharacter = {
   name: string;
   hp: number;
   maxHp: number;
+  alternativeHp?: number;
+  isDying: boolean;
+  isDead: boolean;
+  deathSaveThrowsLeft: number;
   ac: number;
   initiativeScore: number;
-  spellSlotsLefts?: Record<number, number>;
+  spellSlotsLeft?: Record<number, number>;
   states?: {
     name: string;
-    numberOfTurns: number;
-    saveThrowStat: string;
-    saveThrowThreshold: number;
+    numberOfTurns?: number;
+    saveThrowStat?: string;
+    saveThrowDc?: number;
   }[];
 };
 
-export type Combat = {
-  currentTurn: number;
-  characters: CombatCharacter[];
+export enum CombatStatusEnum {
+  PREPARING = "preparing",
+  ONGOING = "ongoing",
 }
 
-const CombatTrackerPage = () => {
-  const [combat, setCombat] = useState<Combat>(loadCombat());
-  const [selectedCharacter, setSelectedCharacter] =
-  useState<CombatCharacter | null>(null);
-  const sortedCharacters = [...combat?.characters ?? []].sort(
-    (a, b) => b.initiativeScore - a.initiativeScore,
-  );
-  const [isDrawerOpened, setIsDrawerOpened] = useState(false);
+export type CombatHistoryEntry = {
+  turn: number;
+  action: string;
+};
 
-  const handleCharacterClick = (character: CombatCharacter) => {
-    setSelectedCharacter(character);
+export type Combat = {
+  status: CombatStatusEnum;
+  currentTurn: number;
+  selectedCharacterIndex: number;
+  characters: CombatCharacter[];
+  history: CombatHistoryEntry[];
+};
+
+export const findCharacterIndexByName = (
+  characters: CombatCharacter[],
+  name: string,
+) => {
+  const existingCharacterIndex = characters?.findIndex(
+    (char) => char.name === name,
+  );
+
+  return existingCharacterIndex;
+};
+
+const CombatTrackerPage = () => {
+  const [combat, setCombat] = useState<Combat | null>(loadCombat());
+  const [selectedCharacter, setSelectedCharacter] =
+    useState<CombatCharacter | null>(null);
+  const [characterToEdit, setCharacterToEdit] =
+    useState<CombatCharacter | null>(null);
+  const [isDrawerOpened, setIsDrawerOpened] = useState(false);
+  const sortCharacters = (characters: CombatCharacter[]) => {
+    return characters.sort((a, b) => b.initiativeScore - a.initiativeScore);
   };
 
-  const handleAddCharacter = (character: CombatCharacter) => {
-    const updatedCharacters = [...combat?.characters ?? [], character];
+  const sortedCharacters = sortCharacters(combat?.characters ?? []);
+
+  const onCombatChange = (combat: Combat | null) => {
+    setCombat(combat);
+  };
+
+  const handleCharacterClick = (character: CombatCharacter) => {
+    setIsDrawerOpened(true);
+    setCharacterToEdit(character);
+  };
+
+  const onCharacterAdded = (character: CombatCharacter) => {
+    const updatedCharacters = [...(combat?.characters ?? []), character];
     setCombat({ ...combat, characters: updatedCharacters });
-    saveCombat({ ...combat, characters: updatedCharacters });
     setIsDrawerOpened(false);
-  }
+  };
 
-  const resetCombat = () => {
-    setCombat((prevCombat) => ({ ...prevCombat, currentTurn: 1 }));
-    setSelectedCharacter(null);
-  }
+  const onCharacterEdited = (character: CombatCharacter) => {
+    const existingCharacterIndex = findCharacterIndexByName(
+      combat?.characters ?? [],
+      character.name,
+    );
 
+    if (existingCharacterIndex === -1) {
+      console.log("error, character not found", character);
+      return;
+    }
+
+    const updatedCharacters = [...(combat?.characters ?? [])];
+    updatedCharacters[existingCharacterIndex] = character;
+
+    setCombat({ ...combat, characters: updatedCharacters });
+    setIsDrawerOpened(false);
+  };
+
+  const onHistoryEdited = (historyEntries: string[]) => {
+    setCombat((prev) => {
+      return {
+        ...prev,
+        history: [
+          ...(prev?.history ?? []),
+          ...historyEntries.map((entry) => ({
+            turn: combat!.currentTurn,
+            action: entry,
+          })),
+        ],
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (combat && combat !== null) {
+      const sortedCharacters = sortCharacters(combat?.characters ?? []);
+      saveCombat({ ...combat, characters: sortedCharacters });
+      setSelectedCharacter(
+        combat?.characters?.[combat?.selectedCharacterIndex],
+      );
+    } else {
+      clearCombat();
+      setSelectedCharacter(null);
+      setCharacterToEdit(null);
+    }
+  }, [combat]);
+
+  console.log(combat, selectedCharacter, combat?.selectedCharacterIndex);
   return (
     <>
       <div className={styles["combat-tracker"]}>
         <h1>Tracker de Combat</h1>
+        <CombatManager
+          ongoingCombat={combat}
+          onCombatChange={onCombatChange}
+          onCharacterAdded={onCharacterAdded}
+        />
         <div className={styles["combat-tracker__container"]}>
-          <div>
-            <ButtonWithIcon label="Commencer un combat" onClick={() => setIsDrawerOpened(true)} faIcon="play" faIconStyle={FaIconStyleEnum.SOLID} iconPosition="left"/>
-            <ButtonWithIcon label="Ajouter un personnage" onClick={() => setIsDrawerOpened(true)} faIcon="plus" faIconStyle={FaIconStyleEnum.SOLID} iconPosition="left"/>
-            <ButtonWithIcon label="Recommencer le combat" onClick={resetCombat} faIcon="refresh" faIconStyle={FaIconStyleEnum.SOLID} iconPosition="left"/>
-          </div>
           <CharacterList
             characters={sortedCharacters}
             onClick={handleCharacterClick}
             selectedCharacter={selectedCharacter}
             className={styles["combat-tracker__container__left"]}
           />
-          {selectedCharacter && (
+          {selectedCharacter && combat && (
             <div className={styles["combat-tracker__container__right"]}>
-              <CharacterStats character={selectedCharacter} />
+              <CharacterStats
+                selectedCharacter={selectedCharacter}
+                characters={combat.characters}
+                onCharacterChange={onCharacterEdited}
+                onHistoryEdited={onHistoryEdited}
+                combatCurrentTurn={combat.currentTurn}
+              />
             </div>
           )}
         </div>
       </div>
-      {selectedCharacter && (
-        <CustomDrawer isOpened={isDrawerOpened} onClose={() => setIsDrawerOpened(false)}>
-          <CharacterForm initialCharacter={selectedCharacter} onSubmit={handleAddCharacter} />
-        </CustomDrawer>
-      )}
-      <CustomDrawer isOpened={isDrawerOpened} onClose={() => setIsDrawerOpened(false)}>
-        <CharacterForm initialCharacter={selectedCharacter} onSubmit={handleAddCharacter} />
+      <CustomDrawer
+        isOpened={isDrawerOpened}
+        onClose={() => setIsDrawerOpened(false)}
+      >
+        <CharacterForm
+          initialCharacter={characterToEdit}
+          onSubmit={onCharacterEdited}
+        />
       </CustomDrawer>
     </>
   );

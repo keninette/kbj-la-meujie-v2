@@ -11,6 +11,10 @@
     @include mixins.button--fab;
   }
 
+  &--secondary {
+    @include mixins.button--secondary;
+  }
+
   &__icon {
     &--left {
       margin-right: var(--spacing-padding--button);

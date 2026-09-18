@@ -7,6 +7,10 @@
   justify-items: space-evenly;
   padding: 0.5rem;
 
+  &--disabled-like {
+    opacity: var(--opacity--disabled);
+  }
+
   &__stat {
     font-weight: bold;
 

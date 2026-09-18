@@ -11,7 +11,7 @@
     }
 
     &--dead {
-      opacity: 0.5;
+      opacity: var(--opacity--disabled);
       font-style: italic;
 
       &::before {
