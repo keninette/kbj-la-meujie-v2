@@ -44,15 +44,15 @@ const AdventureTile = ({ adventure }: AdventureTileProps) => {
             options={[
               {
                 label: translate("newSession", translationsName),
-                onClick: () => console.log("nouvelle session"),
+                onClick: () => {},
               },
               {
                 label: "Arti, mystères & compagnie",
-                onClick: () => console.log("Arti, mystères & compagnie"),
+                onClick: () => {},
               },
               {
                 label: "Le clan des tocards",
-                onClick: () => console.log("Le clan des tocards"),
+                onClick: () => {},
               },
             ]}
             faIcon="play"

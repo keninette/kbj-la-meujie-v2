@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import styles from "./characters-list.module.scss";
-import { CombatCharacter } from "../../page";
+import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
+import IconButton from "@/app/_components/_basics/icon-button/IconButton";
+import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
+import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
+import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
+import { translate } from "@/app/_dictionaries/dictionnary";
 
 type CharacterListProps = {
   characters: CombatCharacter[];
@@ -17,17 +21,13 @@ const CharacterList = ({
   selectedCharacter,
   ...restProps
 }: CharacterListProps) => {
-  const [currentCharacterKey, setCurrentCharacterKey] = useState<string | null>(
-    selectedCharacter?.name || null,
-  );
-
   return (
     <ol {...restProps}>
       {characters.map((char) => (
         <li
-          key={char.name}
+          key={char.id}
           className={
-            char.name === currentCharacterKey
+            char.id === selectedCharacter?.id
               ? styles["characters-list__item--active"]
               : ""
           }
@@ -35,21 +35,44 @@ const CharacterList = ({
           <div
             className={[
               styles["characters-list__item"],
-              char.hp < 0 ? styles["characters-list__item--dead"] : "",
-              char.hp === 0 ? styles["characters-list__item--down"] : "",
+              char.isDying ? styles["characters-list__item--down"] : "",
+              char.isDead ? styles["characters-list__item--dead"] : "",
             ].join(" ")}
           >
+            {char.isDying && (
+              <FontAwesomeIcon
+                faIcon="hand-holding-heart"
+                faIconStyle={FaIconStyleEnum.SOLID}
+                tooltip={translate("stats.dying", "combatTracker")}
+              />
+            )}
+            {char.isDead && (
+              <FontAwesomeIcon
+                faIcon="skull"
+                faIconStyle={FaIconStyleEnum.SOLID}
+                tooltip={translate("stats.dead", "combatTracker")}
+              />
+            )}
+            {!char.isNpc && (
+              <FontAwesomeIcon
+                faIcon="user"
+                faIconStyle={FaIconStyleEnum.SOLID}
+                tooltip={translate("stats.player", "combatTracker")}
+              />
+            )}
             <p>{char.name}</p>
-            <button
+            <IconButton
+              variant={ButtonVariant.TERTIARY}
+              faIcon="pen"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              type="button"
+              tooltip={translate("list.edit", "combatTracker")}
               onClick={() => {
-                setCurrentCharacterKey(char.name);
                 if (onClick) {
                   onClick(char);
                 }
               }}
-            >
-              👀 Voir
-            </button>
+            />
           </div>
         </li>
       ))}

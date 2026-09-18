@@ -7,6 +7,10 @@
   justify-items: space-evenly;
   padding: 0.5rem;
 
+  &--disabled-like {
+    opacity: var(--opacity--disabled);
+  }
+
   &__stat {
     font-weight: bold;
 
@@ -22,6 +26,10 @@
   }
 
   &__line {
+    h3 {
+      margin: 0;
+    }
+
     margin: 0 0 1rem 0;
     gap: 0.5rem;
     display: flex;
@@ -38,5 +46,16 @@
     &--indented {
       margin-left: 1rem;
     }
+  }
+
+  &__line--vertical-content {
+    flex-direction: column;
+  }
+
+  &__line__subcontent {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    margin: 0;
   }
 }

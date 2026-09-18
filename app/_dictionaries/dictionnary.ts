@@ -9,6 +9,7 @@ const dictionaries = {
     layout: await import("./fr/layout.fr.json"),
     adventuresList: await import("./fr/adventures-list.fr.json"),
     editAdventure: await import("./fr/edit-adventure.fr.json"),
+    combatTracker: await import("./fr/combat-tracker.fr.json"),
   },
 };
 

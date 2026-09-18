@@ -1,6 +1,7 @@
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import { ButtonVariant } from "@lib/enums/button-variant.enum";
 import styles from "./button-with-icon.module.scss";
+import FontAwesomeIcon from "../font-awesome-icon/FontAwesomeIcon";
 
 type ButtonWithIconProps = {
   label: string;
@@ -9,6 +10,7 @@ type ButtonWithIconProps = {
   faIconStyle?: FaIconStyleEnum;
   variant?: ButtonVariant;
   onClick?: () => void;
+  disabled?: boolean;
   type?: "button" | "submit" | "reset";
   className?: string;
 };
@@ -20,6 +22,7 @@ const ButtonWithIcon = ({
   faIconStyle = FaIconStyleEnum.REGULAR,
   variant = ButtonVariant.FAB,
   onClick,
+  disabled = false,
   type = "button",
 }: ButtonWithIconProps) => {
   const splitButtonVariantClass = `button-with-icon--${variant}`;
@@ -29,20 +32,25 @@ const ButtonWithIcon = ({
       className={`${styles["button-with-icon"]} ${styles[splitButtonVariantClass]}`}
     >
       {iconPosition === "left" && (
-        <i
-          className={`fa-${faIconStyle} fa-${faIcon} ${styles["button-with-icon__icon"]} ${styles["button-with-icon__icon--left"]}`}
+        <FontAwesomeIcon
+          faIcon={faIcon}
+          faIconStyle={faIconStyle}
+          className={styles["button-with-icon__icon--left"]}
         />
       )}
       <button
         className={styles["button-with-icon__button"]}
         onClick={onClick}
+        disabled={disabled}
         type={type}
       >
         {label}
       </button>
       {iconPosition === "right" && (
-        <i
-          className={`fa-${faIconStyle} fa-${faIcon} ${styles["button-with-icon__icon--right"]}`}
+        <FontAwesomeIcon
+          faIcon={faIcon}
+          faIconStyle={faIconStyle}
+          className={styles["button-with-icon__icon--right"]}
         />
       )}
     </div>

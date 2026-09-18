@@ -11,7 +11,20 @@
     @include mixins.button--fab;
   }
 
+  &--secondary {
+    @include mixins.button--secondary;
+  }
+
+  &--tertiary {
+    background: transparent;
+    border: none;
+    color: var(--color-button-text--secondary);
+  }
+
   &__icon {
+    align-items: center;
+    display: inline-flex;
+
     &--left {
       margin-right: var(--spacing-padding--button);
     }
@@ -23,5 +36,12 @@
 
   &__button {
     @include mixins.button--reset-style;
+    align-items: center;
+    display: inline-flex;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: var(--opacity--disabled);
+    }
   }
 }

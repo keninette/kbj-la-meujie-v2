@@ -11,22 +11,12 @@
     }
 
     &--dead {
-      opacity: 0.5;
+      opacity: var(--opacity--disabled);
       font-style: italic;
-
-      &::before {
-        content: "☠️";
-        margin-right: 0.5rem;
-      }
     }
 
     &--down {
       color: #b4001e;
-
-      &::before {
-        content: "💀";
-        margin-right: 0.5rem;
-      }
     }
   }
 }

@@ -10,7 +10,7 @@ const Nav = () => {
             href={"/combat-tracker"}
             className={styles["nav__list__item__link"]}
           >
-            ⚔ Combat tracker
+            Combat tracker
           </Link>
         </li>
         <li className={styles["nav__list__item"]}>
