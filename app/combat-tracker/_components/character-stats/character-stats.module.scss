@@ -1,0 +1,46 @@
+@use "../../../variables.sys.scss";
+
+.character-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-items: space-evenly;
+  padding: 0.5rem;
+
+  &--disabled-like {
+    opacity: var(--opacity--disabled);
+  }
+
+  &__stat {
+    font-weight: bold;
+
+    &--high {
+      color: #4caf50;
+    }
+    &--medium {
+      color: #ff8b07;
+    }
+    &--low {
+      color: #b4001e;
+    }
+  }
+
+  &__line {
+    margin: 0 0 1rem 0;
+    gap: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+
+    & > p {
+      margin: 0;
+    }
+
+    &--vertical {
+      flex-direction: column;
+    }
+
+    &--indented {
+      margin-left: 1rem;
+    }
+  }
+}

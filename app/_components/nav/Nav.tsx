@@ -6,6 +6,14 @@ const Nav = () => {
     <nav className={styles["nav"]}>
       <ul className={styles["nav__list"]}>
         <li className={styles["nav__list__item"]}>
+          <Link
+            href={"/combat-tracker"}
+            className={styles["nav__list__item__link"]}
+          >
+            ⚔ Combat tracker
+          </Link>
+        </li>
+        <li className={styles["nav__list__item"]}>
           <Link href={"#"} className={styles["nav__list__item__link"]}>
             Créer une aventure
           </Link>

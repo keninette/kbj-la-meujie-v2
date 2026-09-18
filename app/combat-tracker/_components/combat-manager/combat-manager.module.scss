@@ -1,0 +1,26 @@
+@use "app/mixins";
+
+.combat-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 1.8rem;
+    padding: var(--spacing-layout-section-margin);
+
+    &--even {
+      justify-content: space-between;
+    }
+
+    &--border-bottom {
+      @include mixins.border--thin--light;
+      border-left: none;
+      border-top: none;
+      border-right: none;
+    }
+  }
+}

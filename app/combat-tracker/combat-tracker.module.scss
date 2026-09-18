@@ -1,0 +1,30 @@
+@use "app/mixins";
+
+.combat-tracker {
+  display: flex;
+  flex-direction: column;
+  margin: var(--spacing-layout-section-margin);
+
+  &__container {
+    display: flex;
+    gap: 1rem;
+    margin: var(--spacing-layout-section-margin);
+
+    &__left {
+      flex: 0;
+      display: flex;
+      flex-direction: column;
+      min-width: 20rem;
+      @include mixins.border--thin--light;
+      border-left: none;
+      border-top: none;
+      border-bottom: none;
+    }
+
+    &__right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

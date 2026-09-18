@@ -1,10 +1,14 @@
 @use "variables.token";
 
 :root {
+  --button-height--regular: 1.1rem;
+
   --color-background-gradient--borders: var(--color-default-blue--light);
   --color-background-gradient--center: var(--color-default-pink--ultra-light);
   --color-button--fab: var(--color-default-purple--primary);
   --color-button-text--fab: var(--color-default-white);
+  --color-button--secondary: var(--color-default-pink--ultra-light);
+  --color-button-text--secondary: var(--color-default-purple--primary);
   --color-dropdown: var(--color-default-white);
   --color-dropdown-text: var(--color-default-grey--dark);
   --color-info: var(--color-default-purple--primary);
@@ -12,6 +16,8 @@
   --color-link: var(--color-default-purple--primary);
   --color-text--dark: var(--color-default-grey--dark);
   --color-text--light: var(--color-default-white);
+  --color-border--light: var(--color-default-pink--ultra-light);
+  --color-border--dark: var(--color-default-purple--primary);
 
   --font-size--title: var(--font-size--l);
   --font-size--subtitle: var(--font-size--m);
@@ -20,10 +26,13 @@
 
   --font-weight--title: var(--font-weight--light);
   --font-weight--subtitle: var(--font-weight--regular);
+  --font-weight--bold: var(--font-weight--bold);
 
   --letter-spacing--title: var(--letter-spacing--l);
   --letter-spacing--section-title: var(--letter-spacing--m);
   --letter-spacing--section-subtitle: var(--letter-spacing--s);
+
+  --opacity--disabled: var(--opacity--low);
 
   --radius--button: var(--radius--s);
   --radius--chip: var(--radius--s);
