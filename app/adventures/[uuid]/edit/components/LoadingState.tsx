@@ -1,4 +1,4 @@
-import Skeleton from "@components/_basics/skeleton/Skeleton.server";
+import Skeleton from "@components/_basics/skeleton/Skeleton";
 
 const LoadingState = () => {
   return (

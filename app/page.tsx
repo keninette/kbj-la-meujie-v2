@@ -1,5 +1,5 @@
 import styles from "./home.module.scss";
-import AdventuresList from "@components/adventures-list/AdventuresList.client";
+import AdventuresList from "@components/adventures-list/AdventuresList";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { getAdventureService } from "@lib/registry";
 
