@@ -154,7 +154,7 @@ const CharacterStats = ({
               faIconStyle={FaIconStyleEnum.SOLID}
               tooltip={translate("stats.dead", "combatTracker")}
             />
-            Mort
+            {translate("stats.dead", "combatTracker")}
           </div>
         )}
 

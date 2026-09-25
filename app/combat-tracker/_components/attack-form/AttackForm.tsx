@@ -470,6 +470,7 @@ const AttackForm = ({
             }
             name="attackDamage"
             id="attackDamage"
+            min="0"
           />
           <ButtonWithIcon
             variant={ButtonVariant.SECONDARY}
@@ -494,8 +495,11 @@ const AttackForm = ({
               <select
                 name="spellUsedLevel"
                 id="spellUsedLevel"
+                value={spellUsedLevel ?? ""}
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-                  setSpellUsedLevel(+event.target.value)
+                  setSpellUsedLevel(
+                    event.target.value === "" ? null : +event.target.value,
+                  )
                 }
               >
                 <option value="">

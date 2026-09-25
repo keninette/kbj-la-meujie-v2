@@ -6,11 +6,11 @@ import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { findCharacterIndexById } from "@/app/_lib/combat/combat.helper";
 import { useState } from "react";
 import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
-import CharacterForm from "../character-form/CharacterForm";
 import styles from "./combat-manager.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import CombatHistory from "../combat-history/CombatHistory";
+import EditCharacterForm from "../edit-character-form/EditCharacterForm";
 
 type CombatManagerProps = {
   ongoingCombat: Combat | null;
@@ -280,7 +280,13 @@ const CombatManager = ({
         onClose={() => setIsDrawerOpened(false)}
       >
         {drawerContent === DrawerContentEnum.CHARACTER_FORM && (
-          <CharacterForm initialCharacter={null} onSubmit={updateCharacter} />
+          <EditCharacterForm
+            initialCharacter={null}
+            onSubmit={(updatedCharacter: CombatCharacter) => {
+              updateCharacter(updatedCharacter);
+              setIsDrawerOpened(false);
+            }}
+          />
         )}
         {drawerContent === DrawerContentEnum.COMBAT_HISTORY && (
           <CombatHistory combatHistory={ongoingCombat?.history ?? []} />

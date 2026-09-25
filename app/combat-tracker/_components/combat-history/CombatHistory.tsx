@@ -16,7 +16,10 @@ const CombatHistory = ({ combatHistory }: CombatHistoryProps) => {
         <ul>
           {combatHistory.map((entry) => (
             <li key={entry.id}>
-              Tour {entry.turn} : {entry.action}
+              {translate("manager.turn", "combatTracker", {
+                turn: entry.turn.toString(),
+              })}{" "}
+              : {entry.action}
             </li>
           ))}
         </ul>

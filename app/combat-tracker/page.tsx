@@ -5,7 +5,7 @@ import CharacterList from "./_components/characters-list/CharacterList";
 import styles from "./combat-tracker.module.scss";
 import CharacterStats from "./_components/character-stats/CharacterStats";
 import CustomDrawer from "../_components/drawer/CustomDrawer";
-import CharacterForm from "./_components/character-form/CharacterForm";
+import EditCharacterForm from "./_components/edit-character-form/EditCharacterForm";
 import { clearCombat, loadCombat, saveCombat } from "./_lib/local-storage";
 import CombatManager from "./_components/combat-manager/CombatManager";
 import { CombatStatusEnum } from "../_lib/enums/combat-status.enum";
@@ -180,7 +180,7 @@ const CombatTrackerPage = () => {
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
       >
-        <CharacterForm
+        <EditCharacterForm
           initialCharacter={characterToEdit}
           onSubmit={onCharacterEdited}
         />

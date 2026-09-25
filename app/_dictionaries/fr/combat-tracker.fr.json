@@ -18,6 +18,7 @@
   "form.name": "Nom",
   "form.npc": "PNJ",
   "form.hp": "PV",
+  "form.isDead": "Mort",
   "form.maxHp": "PV max",
   "form.alternativeHp": "PV alternatifs",
   "form.tempHp": "PV temporaires",

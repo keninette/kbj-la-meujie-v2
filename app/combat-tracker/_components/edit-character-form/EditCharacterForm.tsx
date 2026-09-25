@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./character-form.module.scss";
+import styles from "./edit-character-form.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
@@ -9,7 +9,7 @@ import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 
-type CharacterFormProps = {
+type EditCharacterFormProps = {
   initialCharacter: CombatCharacter | null;
   onSubmit?: (character: CombatCharacter) => void;
 };
@@ -19,7 +19,10 @@ const createCharacterId = () =>
     ? crypto.randomUUID()
     : `character-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
+const EditCharacterForm = ({
+  initialCharacter,
+  onSubmit,
+}: EditCharacterFormProps) => {
   const [character, setCharacter] = useState<CombatCharacter | null>(
     initialCharacter,
   );
@@ -36,6 +39,7 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
         formattedValue = value;
         break;
       case "isNpc":
+      case "isDead":
         formattedValue = event.target.checked;
         break;
       default:
@@ -58,6 +62,12 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
             initiativeScore: 0,
           }),
           [name]: formattedValue,
+          ...(name === "hp"
+            ? {
+                isDying: +value <= 0,
+                isDead: +value <= 0 && prevCharacter?.isDead,
+              }
+            : {}),
         }) as CombatCharacter,
     );
   };
@@ -114,12 +124,12 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
   // todo spell slot level peut = 0
   // todo ajouter sort de classe/rage/...
   return (
-    <div className={styles["character-form"]}>
+    <div className={styles["edit-character-form"]}>
       <h2>{translate("form.addCharacter", "combatTracker")}</h2>
       <form onSubmit={handleSubmit}>
-        <fieldset className={styles["character-form__fieldset"]}>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
           <h3>{translate("form.basicInfo", "combatTracker")}</h3>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="name">
               {translate("form.name", "combatTracker")}
             </label>
@@ -131,7 +141,7 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="isNpc">
               {translate("form.npc", "combatTracker")}
             </label>
@@ -143,7 +153,7 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="hp">{translate("form.hp", "combatTracker")}</label>
             <input
               type="number"
@@ -153,7 +163,21 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["character-form__line"]}>
+          {character?.isDying && (
+            <div className={styles["edit-character-form__line"]}>
+              <label htmlFor="isDead">
+                {translate("form.isDead", "combatTracker")}
+              </label>
+              <input
+                type="checkbox"
+                id="isDead"
+                name="isDead"
+                checked={character?.isDead || false}
+                onChange={handleInputChange}
+              />
+            </div>
+          )}
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="maxHp">
               {translate("form.maxHp", "combatTracker")}
             </label>
@@ -166,7 +190,7 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="alternativeHp">
               {translate("form.alternativeHp", "combatTracker")}
             </label>
@@ -178,7 +202,7 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="tempHp">
               {translate("form.tempHp", "combatTracker")}
             </label>
@@ -190,7 +214,7 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="ac">{translate("form.ac", "combatTracker")}</label>
             <input
               type="number"
@@ -200,8 +224,8 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["character-form__line"]}>
-            <label htmlFor="initiative">
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="initiativeScore">
               {translate("form.initiative", "combatTracker")}
             </label>
             <input
@@ -213,9 +237,9 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
             />
           </div>
         </fieldset>
-        <fieldset className={styles["character-form__fieldset"]}>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
           <h3>{translate("form.spellSlots", "combatTracker")}</h3>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             <label htmlFor="slotLevel">
               {translate("form.level", "combatTracker")}
             </label>
@@ -252,10 +276,13 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
               onClick={addSpellSlot}
             />
           </div>
-          <div className={styles["character-form__line"]}>
+          <div className={styles["edit-character-form__line"]}>
             {Object.entries(character?.spellSlotsLeft ?? {}).map(
               ([level, slots]) => (
-                <div key={level} className={styles["character-form__line"]}>
+                <div
+                  key={level}
+                  className={styles["edit-character-form__line"]}
+                >
                   🔹 niv. {level} : <span>{slots}</span>
                   <ButtonWithIcon
                     variant={ButtonVariant.SECONDARY}
@@ -271,10 +298,10 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
             )}
           </div>
         </fieldset>
-        <fieldset className={styles["character-form__fieldset"]}>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
           <h3>{translate("form.states", "combatTracker")}</h3>
         </fieldset>
-        <fieldset className={styles["character-form__fieldset"]}>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
           <SubmitButton label={translate("form.save", "combatTracker")} />
           <ButtonWithIcon
             label={translate("form.saveAndRestart", "combatTracker")}
@@ -289,4 +316,4 @@ const CharacterForm = ({ initialCharacter, onSubmit }: CharacterFormProps) => {
   );
 };
 
-export default CharacterForm;
+export default EditCharacterForm;
