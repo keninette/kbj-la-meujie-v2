@@ -17,7 +17,12 @@ export const TargetInput = ({
       <label htmlFor={inputName}>
         {translate("attack.target", "combatTracker")}
       </label>
-      <select name={inputName} id={inputName} onChange={onChange}>
+      <select
+        name={inputName}
+        id={inputName}
+        onChange={onChange}
+        data-testid={inputName}
+      >
         <option value="">-</option>
         {characters?.map((char) => (
           <option key={char.id} value={char.id}>

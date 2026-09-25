@@ -471,6 +471,7 @@ const AttackForm = ({
             name="attackDamage"
             id="attackDamage"
             min="0"
+            data-testid="attackDamage"
           />
           <ButtonWithIcon
             variant={ButtonVariant.SECONDARY}

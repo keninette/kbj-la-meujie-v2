@@ -139,6 +139,7 @@ const EditCharacterForm = ({
               name="name"
               value={character?.name || ""}
               onChange={handleInputChange}
+              data-testid="name"
             />
           </div>
           <div className={styles["edit-character-form__line"]}>
@@ -161,6 +162,7 @@ const EditCharacterForm = ({
               name="hp"
               value={character?.hp ?? 0}
               onChange={handleInputChange}
+              data-testid="hp"
             />
           </div>
           {character?.isDying && (
@@ -174,6 +176,7 @@ const EditCharacterForm = ({
                 name="isDead"
                 checked={character?.isDead || false}
                 onChange={handleInputChange}
+                data-testid="isDead"
               />
             </div>
           )}
@@ -188,6 +191,7 @@ const EditCharacterForm = ({
               min="1"
               value={character?.maxHp ?? 0}
               onChange={handleInputChange}
+              data-testid="maxHp"
             />
           </div>
           <div className={styles["edit-character-form__line"]}>
@@ -200,6 +204,7 @@ const EditCharacterForm = ({
               name="alternativeHp"
               value={character?.alternativeHp ?? 0}
               onChange={handleInputChange}
+              data-testid="alternativeHp"
             />
           </div>
           <div className={styles["edit-character-form__line"]}>
@@ -212,6 +217,7 @@ const EditCharacterForm = ({
               name="tempHp"
               value={character?.tempHp ?? 0}
               onChange={handleInputChange}
+              data-testid="tempHp"
             />
           </div>
           <div className={styles["edit-character-form__line"]}>
@@ -222,6 +228,7 @@ const EditCharacterForm = ({
               name="ac"
               value={character?.ac ?? 0}
               onChange={handleInputChange}
+              data-testid="ac"
             />
           </div>
           <div className={styles["edit-character-form__line"]}>
@@ -234,6 +241,7 @@ const EditCharacterForm = ({
               name="initiativeScore"
               value={character?.initiativeScore ?? 0}
               onChange={handleInputChange}
+              data-testid="initiativeScore"
             />
           </div>
         </fieldset>

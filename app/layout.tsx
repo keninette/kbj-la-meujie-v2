@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import Script from "next/script";
 import layoutStyles from "./layout.module.scss";
-import Header from "@components/header/Header.server";
+import Header from "@components/header/Header";
 import Nav from "@components/nav/Nav";
 
 export const metadata: Metadata = {

@@ -1,9 +1,9 @@
 import styles from "./../adventure-list.module.scss";
-import SplitButton from "@components/_basics/split-button/SplitButton.client";
+import SplitButton from "@components/_basics/split-button/SplitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
 import Image from "next/image";
-import LinkWithIcon from "@components/_basics/link-with-icon/LinkWithIcon.server";
+import LinkWithIcon from "@components/_basics/link-with-icon/LinkWithIcon";
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import { Route } from "@lib/enums/route.enum";
 
