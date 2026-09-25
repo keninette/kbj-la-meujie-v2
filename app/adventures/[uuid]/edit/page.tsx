@@ -2,6 +2,18 @@ import styles from "./edit-adventure-page.module.scss";
 import EditBasicData from "@/app/adventures/[uuid]/edit/components/EditBasicData";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { getAdventureService, getUniverseService } from "@lib/registry";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ uuid: string }>;
+}): Promise<Metadata> {
+  const { uuid } = await params;
+  const adventure = await getAdventureService().getOne(uuid);
+
+  return { title: adventure.name };
+}
 
 const EditAdventurePage = async ({
   params,
