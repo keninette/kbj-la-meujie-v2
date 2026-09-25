@@ -2,9 +2,17 @@
   border: solid 2px var(--color-default-grey--dark);
 }
 
+@mixin border--thin--light {
+  border: solid 1px var(--color-default-pink--ultra-light);
+}
 
 @mixin button {
+  align-items: center;
   border-radius: var(--radius--button);
+  box-sizing: border-box;
+  display: inline-flex;
+  height: var(--button-height--regular);
+  justify-content: center;
 }
 
 @mixin button--reset-style {
@@ -22,6 +30,12 @@
   color: var(--color-button-text--fab);
 }
 
+@mixin button--secondary {
+  background-color: var(--color-button--secondary);
+  color: var(--color-button-text--secondary);
+  border: 1px solid var(--color-button-text--secondary);
+}
+
 @mixin section {
   display: flex;
   flex-direction: column;
@@ -32,6 +46,4 @@
   font-size: var(--font-size--section-title);
   letter-spacing: var(--letter-spacing--section-title);
   text-transform: uppercase;
-}@mixin border--regular--dark {
-  border: solid 2px var(--color-default-grey--dark);
 }

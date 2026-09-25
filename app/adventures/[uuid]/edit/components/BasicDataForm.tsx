@@ -12,14 +12,19 @@ type AdventureFormProps = {
   className?: string;
 };
 
-const BasicDataForm = ({ adventure, universes, className }: AdventureFormProps) => {
+const BasicDataForm = ({
+  adventure,
+  universes,
+  className,
+}: AdventureFormProps) => {
   const translationsNamespace = "editAdventure";
   const [name, setName] = useState(adventure.name);
-  const [universeCode, setUniverseCode] = useState(adventure.universe?.code ?? "");
+  const [universeCode, setUniverseCode] = useState(
+    adventure.universe?.code ?? "",
+  );
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("submit");
   };
 
   return (
@@ -45,7 +50,9 @@ const BasicDataForm = ({ adventure, universes, className }: AdventureFormProps) 
             </option>
           ))}
         </select>
-        <SubmitButton label={translate("basicData.edit", translationsNamespace)} />
+        <SubmitButton
+          label={translate("basicData.edit", translationsNamespace)}
+        />
       </form>
     </>
   );

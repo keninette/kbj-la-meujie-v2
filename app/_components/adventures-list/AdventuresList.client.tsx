@@ -9,7 +9,6 @@ type AdventuresListProps = {
 };
 
 export default function AdventuresList({ adventures }: AdventuresListProps) {
-
   return (
     <ul className={styles["adventure-list"]}>
       {adventures.map((a) => (

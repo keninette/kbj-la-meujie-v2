@@ -1,0 +1,22 @@
+.characters-list {
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2rem;
+    width: fit-content;
+
+    &--active {
+      font-weight: bold;
+    }
+
+    &--dead {
+      opacity: var(--opacity--disabled);
+      font-style: italic;
+    }
+
+    &--down {
+      color: #b4001e;
+    }
+  }
+}

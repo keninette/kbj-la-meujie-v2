@@ -1,0 +1,21 @@
+@use "app/mixins";
+
+.icon-button {
+  @include mixins.button;
+  @include mixins.button--reset-style;
+  padding: var(--spacing-padding--button);
+
+  &--fab {
+    @include mixins.button--fab;
+  }
+
+  &--secondary {
+    @include mixins.button--secondary;
+  }
+
+  &--tertiary {
+    background: transparent;
+    border: none;
+    color: var(--color-button-text--secondary);
+  }
+}
