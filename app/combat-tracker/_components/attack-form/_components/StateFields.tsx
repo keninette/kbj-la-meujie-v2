@@ -4,9 +4,9 @@ import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { useFormContext } from "react-hook-form";
-import type { AttackFormValues } from "./attack-form.helper";
-import TargetInput from "./target-input/TargetInput";
-import styles from "./attack-form.module.scss";
+import type { AttackFormValues } from "../attack-form.helper";
+import TargetInput from "./TargetInput";
+import styles from "../attack-form.module.scss";
 
 type StateFieldsProps = {
   characters: CombatCharacter[];

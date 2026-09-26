@@ -7,10 +7,10 @@ import {
 } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
 import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import AttackFields from "./AttackFields";
-import RecoveryFields from "./RecoveryFields";
-import SpellFields from "./SpellFields";
-import StateFields from "./StateFields";
+import AttackFields from "./_components/AttackFields";
+import RecoveryFields from "./_components/RecoveryFields";
+import SpellFields from "./_components/SpellFields";
+import StateFields from "./_components/StateFields";
 import styles from "./attack-form.module.scss";
 
 type AttackFormProps = {
@@ -24,6 +24,8 @@ type PendingHistoryEntry = {
   id: string;
   action: string;
 };
+
+type HistoryAction = "attack" | "reanimate" | "revive" | "spell" | "state";
 
 const createUniqueStateId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -67,6 +69,11 @@ const AttackForm = ({
     submit: false,
   });
 
+  const addHistoryEntry = (actionType: HistoryAction, action: string) => {
+    setHistoryEntries((prev) => [...prev, { id: crypto.randomUUID(), action }]);
+    setDisabledActions((prev) => ({ ...prev, [actionType]: true }));
+  };
+
   const addAttackHistoryEntry = () => {
     const { attackTargetId, attackDamage } = getValues();
     const targetName = characters.find(
@@ -76,20 +83,14 @@ const AttackForm = ({
       return;
     }
 
-    setHistoryEntries((prev) => {
-      return [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          action: translate("history.attack", "combatTracker", {
-            character: selectedCharacter.name,
-            target: targetName,
-            damage: String(attackDamage),
-          }),
-        },
-      ];
-    });
-    setDisabledActions((prev) => ({ ...prev, attack: true }));
+    addHistoryEntry(
+      "attack",
+      translate("history.attack", "combatTracker", {
+        character: selectedCharacter.name,
+        target: targetName,
+        damage: String(attackDamage),
+      }),
+    );
   };
 
   const addSpellUsedHistoryEntry = () => {
@@ -102,22 +103,14 @@ const AttackForm = ({
         ? "history.spellLeveled"
         : "history.spellGeneric";
 
-    setHistoryEntries((prev) => {
-      return [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          action: translate(translationKey, "combatTracker", {
-            character: selectedCharacter.name,
-            ...(spellUsedName ? { spell: spellUsedName } : {}),
-            ...(spellUsedLevel !== null
-              ? { level: String(spellUsedLevel) }
-              : {}),
-          }),
-        },
-      ];
-    });
-    setDisabledActions((prev) => ({ ...prev, spell: true }));
+    addHistoryEntry(
+      "spell",
+      translate(translationKey, "combatTracker", {
+        character: selectedCharacter.name,
+        ...(spellUsedName ? { spell: spellUsedName } : {}),
+        ...(spellUsedLevel !== null ? { level: String(spellUsedLevel) } : {}),
+      }),
+    );
   };
 
   const addInflictedStateHistoryEntry = () => {
@@ -133,29 +126,23 @@ const AttackForm = ({
       return;
     }
 
-    setHistoryEntries((prev) => {
-      return [
-        ...prev,
+    addHistoryEntry(
+      "state",
+      translate(
+        inflictedStateDuration !== null
+          ? "history.state"
+          : "history.stateWithoutDuration",
+        "combatTracker",
         {
-          id: crypto.randomUUID(),
-          action: translate(
-            inflictedStateDuration !== null
-              ? "history.state"
-              : "history.stateWithoutDuration",
-            "combatTracker",
-            {
-              character: selectedCharacter.name,
-              state: inflictedStateName,
-              target: targetName,
-              ...(inflictedStateDuration !== null
-                ? { duration: String(inflictedStateDuration) }
-                : {}),
-            },
-          ),
+          character: selectedCharacter.name,
+          state: inflictedStateName,
+          target: targetName,
+          ...(inflictedStateDuration !== null
+            ? { duration: String(inflictedStateDuration) }
+            : {}),
         },
-      ];
-    });
-    setDisabledActions((prev) => ({ ...prev, state: true }));
+      ),
+    );
   };
 
   const addReviveHistoryEntry = () => {
@@ -167,17 +154,13 @@ const AttackForm = ({
       return;
     }
 
-    setHistoryEntries((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        action: translate("history.revive", "combatTracker", {
-          character: selectedCharacter.name,
-          target: targetCharacter.name,
-        }),
-      },
-    ]);
-    setDisabledActions((prev) => ({ ...prev, revive: true }));
+    addHistoryEntry(
+      "revive",
+      translate("history.revive", "combatTracker", {
+        character: selectedCharacter.name,
+        target: targetCharacter.name,
+      }),
+    );
   };
 
   const addReanimateHistoryEntry = () => {
@@ -189,17 +172,13 @@ const AttackForm = ({
       return;
     }
 
-    setHistoryEntries((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        action: translate("history.reanimate", "combatTracker", {
-          character: selectedCharacter.name,
-          target: targetCharacter.name,
-        }),
-      },
-    ]);
-    setDisabledActions((prev) => ({ ...prev, reanimate: true }));
+    addHistoryEntry(
+      "reanimate",
+      translate("history.reanimate", "combatTracker", {
+        character: selectedCharacter.name,
+        target: targetCharacter.name,
+      }),
+    );
   };
 
   const onSubmit = handleSubmit((formValues) => {
