@@ -1,28 +1,24 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { translate } from "@/app/_dictionaries/dictionnary";
+import type { UseFormRegisterReturn } from "react-hook-form";
 
 type TargetInputProps = {
   inputName: string;
   characters: CombatCharacter[];
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  registration: UseFormRegisterReturn;
 };
 
 export const TargetInput = ({
   inputName,
   characters,
-  onChange,
+  registration,
 }: TargetInputProps) => {
   return (
     <>
       <label htmlFor={inputName}>
         {translate("attack.target", "combatTracker")}
       </label>
-      <select
-        name={inputName}
-        id={inputName}
-        onChange={onChange}
-        data-testid={inputName}
-      >
+      <select {...registration} id={inputName} data-testid={inputName}>
         <option value="">-</option>
         {characters?.map((char) => (
           <option key={char.id} value={char.id}>
