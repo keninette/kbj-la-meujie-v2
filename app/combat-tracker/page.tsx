@@ -55,6 +55,7 @@ const CombatTrackerPage = () => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
   const selectedCharacter =
     combat?.characters?.[combat.selectedCharacterIndex] ?? null;
+  const idleCharacters = combat?.idleCharacters ?? [];
 
   const onCombatChange = (nextCombat: Combat | null) => {
     setCombat(normalizeCombat(nextCombat));
@@ -86,7 +87,16 @@ const CombatTrackerPage = () => {
       );
 
       if (existingCharacterIndex === -1) {
-        return previousCombat;
+        const idle = previousCombat.idleCharacters ?? [];
+        if (!idle.some((c) => c.id === character.id)) {
+          return previousCombat;
+        }
+        return {
+          ...previousCombat,
+          idleCharacters: idle.map((c) =>
+            c.id === character.id ? character : c,
+          ),
+        };
       }
 
       const updatedCharacters = [...previousCombat.characters];
@@ -97,6 +107,45 @@ const CombatTrackerPage = () => {
       });
     });
     setIsDrawerOpened(false);
+  };
+
+  const onCharacterPaused = (character: CombatCharacter) => {
+    if (!combat) {
+      return;
+    }
+
+    const selectedId = selectedCharacter?.id;
+    const characters = combat.characters.filter((c) => c.id !== character.id);
+    const newSelectedIndex = selectedId
+      ? findCharacterIndexById(characters, selectedId)
+      : -1;
+
+    setCombat({
+      ...combat,
+      characters,
+      idleCharacters: [...(combat.idleCharacters ?? []), character],
+      selectedCharacterIndex:
+        newSelectedIndex >= 0
+          ? newSelectedIndex
+          : Math.min(
+              combat.selectedCharacterIndex,
+              Math.max(characters.length - 1, 0),
+            ),
+    });
+  };
+
+  const onCharacterResumed = (character: CombatCharacter) => {
+    if (!combat) {
+      return;
+    }
+
+    onCombatChange({
+      ...combat,
+      characters: [...combat.characters, character],
+      idleCharacters: (combat.idleCharacters ?? []).filter(
+        (c) => c.id !== character.id,
+      ),
+    });
   };
 
   const onCharactersChange = (characters: CombatCharacter[]) => {
@@ -156,12 +205,28 @@ const CombatTrackerPage = () => {
           onCharacterAdded={onCharacterAdded}
         />
         <div className={styles["combat-tracker__container"]}>
-          <CharacterList
-            characters={combat?.characters ?? []}
-            onClick={handleCharacterClick}
-            selectedCharacter={selectedCharacter}
-            className={styles["combat-tracker__container__left"]}
-          />
+          <div className={styles["combat-tracker__container__left"]}>
+            <CharacterList
+              title={translate("list.active", "combatTracker")}
+              titleIcon="play"
+              characters={combat?.characters ?? []}
+              allowedActions={["edit", "removeFromCombat"]}
+              selectedCharacter={selectedCharacter}
+              onEdit={handleCharacterClick}
+              onRemoveFromCombat={onCharacterPaused}
+            />
+            {idleCharacters.length > 0 && (
+              <CharacterList
+                title={translate("list.idle", "combatTracker")}
+                titleIcon="pause"
+                characters={idleCharacters}
+                allowedActions={["edit", "addToCombat"]}
+                isIdle
+                onEdit={handleCharacterClick}
+                onAddToCombat={onCharacterResumed}
+              />
+            )}
+          </div>
           {selectedCharacter && combat && (
             <div className={styles["combat-tracker__container__right"]}>
               <CharacterStats

@@ -74,5 +74,9 @@
   "stats.spellSlots": "Emplacements de sorts",
   "stats.stateDuration": "pendant {{duration}} tours",
   "stats.saveDc": "DD",
-  "list.edit": "Éditer"
+  "list.edit": "Éditer",
+  "list.active": "Personnages actifs",
+  "list.idle": "Personnages inactifs",
+  "list.pause": "Retirer du combat",
+  "list.resume": "Remettre dans le combat"
 }
