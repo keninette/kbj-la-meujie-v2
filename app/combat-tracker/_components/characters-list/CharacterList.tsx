@@ -36,7 +36,10 @@ const CharacterList = ({
   ...restProps
 }: CharacterListProps) => {
   return (
-    <section {...restProps}>
+    <section
+      data-testid={isIdle ? "idle-characters-list" : "active-characters-list"}
+      {...restProps}
+    >
       <h2 className={styles["characters-list__title"]}>
         <FontAwesomeIcon
           faIcon={titleIcon}

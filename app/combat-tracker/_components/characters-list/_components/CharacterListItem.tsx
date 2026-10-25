@@ -28,7 +28,10 @@ const CharacterListItem = ({
   onAddToCombat,
 }: CharacterListItemProps) => {
   return (
-    <li className={isSelected ? styles["characters-list__item--active"] : ""}>
+    <li
+      className={isSelected ? styles["characters-list__item--active"] : ""}
+      data-testid={`character-item-${character.id}`}
+    >
       <div
         className={[
           styles["characters-list__item"],
@@ -76,6 +79,7 @@ const CharacterListItem = ({
             faIconStyle={FaIconStyleEnum.SOLID}
             type="button"
             tooltip={translate("list.pause", "combatTracker")}
+            data-testid={`remove-from-combat-${character.id}`}
             onClick={() => onRemoveFromCombat?.(character)}
           />
         )}
@@ -86,6 +90,7 @@ const CharacterListItem = ({
             faIconStyle={FaIconStyleEnum.SOLID}
             type="button"
             tooltip={translate("list.resume", "combatTracker")}
+            data-testid={`add-to-combat-${character.id}`}
             onClick={() => onAddToCombat?.(character)}
           />
         )}
