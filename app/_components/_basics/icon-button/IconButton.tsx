@@ -11,6 +11,7 @@ type IconButtonProps = {
   type?: "button" | "submit" | "reset";
   className?: string;
   tooltip: string;
+  "data-testid"?: string;
 };
 
 const IconButton = ({
@@ -21,6 +22,7 @@ const IconButton = ({
   type = "button",
   className,
   tooltip,
+  "data-testid": dataTestId,
 }: IconButtonProps) => {
   const variantClassName = styles[`icon-button--${variant}`];
 
@@ -31,6 +33,7 @@ const IconButton = ({
       title={tooltip}
       type={type}
       aria-label={tooltip}
+      data-testid={dataTestId}
     >
       <FontAwesomeIcon faIcon={faIcon} faIconStyle={faIconStyle} />
     </button>

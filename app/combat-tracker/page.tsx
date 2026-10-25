@@ -11,41 +11,11 @@ import CombatManager from "./_components/combat-manager/CombatManager";
 import { CombatStatusEnum } from "../_lib/enums/combat-status.enum";
 import { Combat } from "../_lib/types/combat.type";
 import { CombatCharacter } from "../_lib/types/combat-character.type";
-import { findCharacterIndexById } from "../_lib/combat/combat.helper";
+import {
+  findCharacterIndexById,
+  normalizeCombat,
+} from "../_lib/combat/combat.helper";
 import { translate } from "../_dictionaries/dictionnary";
-
-const sortCharacters = (characters: CombatCharacter[]) => {
-  return [...characters].sort((a, b) => b.initiativeScore - a.initiativeScore);
-};
-
-const normalizeCombat = (nextCombat: Combat | null): Combat | null => {
-  if (!nextCombat) {
-    return null;
-  }
-
-  const selectedCharacterId =
-    nextCombat.characters[nextCombat.selectedCharacterIndex]?.id;
-  const characters = sortCharacters(nextCombat.characters);
-  const selectedCharacterIndex = selectedCharacterId
-    ? findCharacterIndexById(characters, selectedCharacterId)
-    : nextCombat.selectedCharacterIndex;
-  const fallbackCharacterIndex =
-    characters.length > 0
-      ? Math.min(
-          Math.max(nextCombat.selectedCharacterIndex, 0),
-          characters.length - 1,
-        )
-      : 0;
-
-  return {
-    ...nextCombat,
-    characters,
-    selectedCharacterIndex:
-      selectedCharacterIndex >= 0
-        ? selectedCharacterIndex
-        : fallbackCharacterIndex,
-  };
-};
 
 const CombatTrackerPage = () => {
   const [combat, setCombat] = useState<Combat | null>(null);
@@ -55,6 +25,7 @@ const CombatTrackerPage = () => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
   const selectedCharacter =
     combat?.characters?.[combat.selectedCharacterIndex] ?? null;
+  const idleCharacters = combat?.idleCharacters ?? [];
 
   const onCombatChange = (nextCombat: Combat | null) => {
     setCombat(normalizeCombat(nextCombat));
@@ -86,7 +57,16 @@ const CombatTrackerPage = () => {
       );
 
       if (existingCharacterIndex === -1) {
-        return previousCombat;
+        const idle = previousCombat.idleCharacters ?? [];
+        if (!idle.some((c) => c.id === character.id)) {
+          return previousCombat;
+        }
+        return {
+          ...previousCombat,
+          idleCharacters: idle.map((c) =>
+            c.id === character.id ? character : c,
+          ),
+        };
       }
 
       const updatedCharacters = [...previousCombat.characters];
@@ -97,6 +77,52 @@ const CombatTrackerPage = () => {
       });
     });
     setIsDrawerOpened(false);
+  };
+
+  const onCharacterDeactivated = (character: CombatCharacter) => {
+    setCombat((previousCombat) => {
+      if (!previousCombat) {
+        return null;
+      }
+
+      const selectedId =
+        previousCombat.characters[previousCombat.selectedCharacterIndex]?.id;
+      const characters = previousCombat.characters.filter(
+        (c) => c.id !== character.id,
+      );
+      const newSelectedIndex = selectedId
+        ? findCharacterIndexById(characters, selectedId)
+        : -1;
+
+      return {
+        ...previousCombat,
+        characters,
+        idleCharacters: [...(previousCombat.idleCharacters ?? []), character],
+        selectedCharacterIndex:
+          newSelectedIndex >= 0
+            ? newSelectedIndex
+            : Math.min(
+                previousCombat.selectedCharacterIndex,
+                Math.max(characters.length - 1, 0),
+              ),
+      };
+    });
+  };
+
+  const onCharacterReactivated = (character: CombatCharacter) => {
+    setCombat((previousCombat) => {
+      if (!previousCombat) {
+        return null;
+      }
+
+      return normalizeCombat({
+        ...previousCombat,
+        characters: [...previousCombat.characters, character],
+        idleCharacters: (previousCombat.idleCharacters ?? []).filter(
+          (c) => c.id !== character.id,
+        ),
+      });
+    });
   };
 
   const onCharactersChange = (characters: CombatCharacter[]) => {
@@ -156,12 +182,28 @@ const CombatTrackerPage = () => {
           onCharacterAdded={onCharacterAdded}
         />
         <div className={styles["combat-tracker__container"]}>
-          <CharacterList
-            characters={combat?.characters ?? []}
-            onClick={handleCharacterClick}
-            selectedCharacter={selectedCharacter}
-            className={styles["combat-tracker__container__left"]}
-          />
+          <div className={styles["combat-tracker__container__left"]}>
+            <CharacterList
+              title={translate("list.active", "combatTracker")}
+              titleIcon="shield-halved"
+              characters={combat?.characters ?? []}
+              allowedActions={["edit", "deactivate"]}
+              selectedCharacter={selectedCharacter}
+              onEdit={handleCharacterClick}
+              onDeactivate={onCharacterDeactivated}
+            />
+            {idleCharacters.length > 0 && (
+              <CharacterList
+                title={translate("list.idle", "combatTracker")}
+                titleIcon="couch"
+                characters={idleCharacters}
+                allowedActions={["edit", "reactivate"]}
+                isIdle
+                onEdit={handleCharacterClick}
+                onReactivate={onCharacterReactivated}
+              />
+            )}
+          </div>
           {selectedCharacter && combat && (
             <div className={styles["combat-tracker__container__right"]}>
               <CharacterStats

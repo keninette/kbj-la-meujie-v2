@@ -57,6 +57,29 @@ describe("loadCombat", () => {
     expect(loadCombat()).toEqual(combat);
   });
 
+  it("round-trips idle characters", () => {
+    const combat = {
+      ...buildCombat([buildCharacter()]),
+      idleCharacters: [buildCharacter({ id: "idle-1" })],
+    };
+
+    saveCombat(combat);
+
+    expect(loadCombat()).toEqual(combat);
+  });
+
+  it("returns null when the stored idle characters are invalid", () => {
+    localStorage.setItem(
+      "scratchie-combat-tracker",
+      JSON.stringify({
+        ...buildCombat([buildCharacter()]),
+        idleCharacters: "not-an-array",
+      }),
+    );
+
+    expect(loadCombat()).toBeNull();
+  });
+
   it("returns null when the stored payload is malformed", () => {
     localStorage.setItem(
       "scratchie-combat-tracker",

@@ -1,82 +1,67 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import styles from "./characters-list.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import IconButton from "@/app/_components/_basics/icon-button/IconButton";
-import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
-import { translate } from "@/app/_dictionaries/dictionnary";
+import CharacterListItem, {
+  CharacterListAction,
+} from "./_components/CharacterListItem";
 
-type CharacterListProps = {
+export type { CharacterListAction };
+
+type CharacterListProps = Omit<ComponentProps<"section">, "title"> & {
+  title: string;
+  titleIcon: string;
   characters: CombatCharacter[];
+  allowedActions: CharacterListAction[];
+  isIdle?: boolean;
   selectedCharacter?: CombatCharacter | null;
-  onClick?: (character: CombatCharacter) => void;
-  [key: string]: unknown;
+  onEdit?: (character: CombatCharacter) => void;
+  onDeactivate?: (character: CombatCharacter) => void;
+  onReactivate?: (character: CombatCharacter) => void;
 };
 
 const CharacterList = ({
+  title,
+  titleIcon,
   characters,
-  onClick,
+  allowedActions,
+  isIdle = false,
   selectedCharacter,
+  onEdit,
+  onDeactivate,
+  onReactivate,
   ...restProps
 }: CharacterListProps) => {
   return (
-    <ol {...restProps}>
-      {characters.map((char) => (
-        <li
-          key={char.id}
-          className={
-            char.id === selectedCharacter?.id
-              ? styles["characters-list__item--active"]
-              : ""
-          }
-        >
-          <div
-            className={[
-              styles["characters-list__item"],
-              char.isDying ? styles["characters-list__item--down"] : "",
-              char.isDead ? styles["characters-list__item--dead"] : "",
-            ].join(" ")}
-          >
-            {char.isDying && (
-              <FontAwesomeIcon
-                faIcon="hand-holding-heart"
-                faIconStyle={FaIconStyleEnum.SOLID}
-                tooltip={translate("stats.dying", "combatTracker")}
-              />
-            )}
-            {char.isDead && (
-              <FontAwesomeIcon
-                faIcon="skull"
-                faIconStyle={FaIconStyleEnum.SOLID}
-                tooltip={translate("stats.dead", "combatTracker")}
-              />
-            )}
-            {!char.isNpc && (
-              <FontAwesomeIcon
-                faIcon="user"
-                faIconStyle={FaIconStyleEnum.SOLID}
-                tooltip={translate("stats.player", "combatTracker")}
-              />
-            )}
-            <p>{char.name}</p>
-            <IconButton
-              variant={ButtonVariant.TERTIARY}
-              faIcon="pen"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              type="button"
-              tooltip={translate("list.edit", "combatTracker")}
-              onClick={() => {
-                if (onClick) {
-                  onClick(char);
-                }
-              }}
-            />
-          </div>
-        </li>
-      ))}
-    </ol>
+    <section
+      data-testid={isIdle ? "idle-characters-list" : "active-characters-list"}
+      {...restProps}
+    >
+      <h2 className={styles["characters-list__title"]}>
+        <FontAwesomeIcon
+          faIcon={titleIcon}
+          faIconStyle={FaIconStyleEnum.SOLID}
+        />
+        {title}
+      </h2>
+      <ol>
+        {characters.map((char) => (
+          <CharacterListItem
+            key={char.id}
+            character={char}
+            allowedActions={allowedActions}
+            isIdle={isIdle}
+            isSelected={char.id === selectedCharacter?.id}
+            onEdit={onEdit}
+            onDeactivate={onDeactivate}
+            onReactivate={onReactivate}
+          />
+        ))}
+      </ol>
+    </section>
   );
 };
 

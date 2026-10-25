@@ -13,6 +13,7 @@ type ButtonWithIconProps = {
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
   className?: string;
+  "data-testid"?: string;
 };
 
 const ButtonWithIcon = ({
@@ -24,6 +25,7 @@ const ButtonWithIcon = ({
   onClick,
   disabled = false,
   type = "button",
+  "data-testid": dataTestId,
 }: ButtonWithIconProps) => {
   const splitButtonVariantClass = `button-with-icon--${variant}`;
 
@@ -43,6 +45,7 @@ const ButtonWithIcon = ({
         onClick={onClick}
         disabled={disabled}
         type={type}
+        data-testid={dataTestId}
       >
         {label}
       </button>

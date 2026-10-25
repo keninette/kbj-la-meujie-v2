@@ -7,5 +7,6 @@ export type Combat = {
   currentTurn: number;
   selectedCharacterIndex: number;
   characters: CombatCharacter[];
+  idleCharacters?: CombatCharacter[];
   history: CombatHistoryEntry[];
 };
