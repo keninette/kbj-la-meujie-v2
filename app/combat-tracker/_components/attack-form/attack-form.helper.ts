@@ -5,7 +5,7 @@ export type AttackFormValues = {
   attackTargetId: string;
   attackDamage: number;
   spellUsedName: string;
-  spellUsedLevel: number | null;
+  spellUsedLevel: string | null;
   inflictedStateTargetId: string;
   inflictedStateName: string;
   inflictedStateDuration: number | null;

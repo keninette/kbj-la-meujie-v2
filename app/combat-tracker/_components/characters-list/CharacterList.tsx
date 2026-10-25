@@ -13,7 +13,7 @@ export type { CharacterListAction };
 
 type CharacterListProps = Omit<ComponentProps<"section">, "title"> & {
   title: string;
-  titleIcon: string;
+  titleIcon?: string;
   characters: CombatCharacter[];
   allowedActions: CharacterListAction[];
   isIdle?: boolean;
@@ -41,10 +41,12 @@ const CharacterList = ({
       {...restProps}
     >
       <h2 className={styles["characters-list__title"]}>
-        <FontAwesomeIcon
-          faIcon={titleIcon}
-          faIconStyle={FaIconStyleEnum.SOLID}
-        />
+        {titleIcon && (
+          <FontAwesomeIcon
+            faIcon={titleIcon}
+            faIconStyle={FaIconStyleEnum.SOLID}
+          />
+        )}
         {title}
       </h2>
       <ol>

@@ -108,7 +108,7 @@ const AttackForm = ({
       translate(translationKey, "combatTracker", {
         character: selectedCharacter.name,
         ...(spellUsedName ? { spell: spellUsedName } : {}),
-        ...(spellUsedLevel !== null ? { level: String(spellUsedLevel) } : {}),
+        ...(spellUsedLevel !== null ? { level: spellUsedLevel } : {}),
       }),
     );
   };

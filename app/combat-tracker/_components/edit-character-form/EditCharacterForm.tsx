@@ -26,8 +26,10 @@ const EditCharacterForm = ({
   const [character, setCharacter] = useState<CombatCharacter | null>(
     initialCharacter,
   );
-  const [spellSlotLevel, setSpellSlotLevel] = useState(0);
+  const [spellSlotName, setSpellSlotName] = useState("");
   const [spellSlotValue, setSpellSlotValue] = useState(0);
+  const [passiveName, setPassiveName] = useState("");
+  const [usableObjectName, setUsableObjectName] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -73,10 +75,10 @@ const EditCharacterForm = ({
   };
 
   const addSpellSlot = () => {
+    const trimmedName = spellSlotName.trim();
     if (
-      !Number.isInteger(spellSlotLevel) ||
+      !trimmedName ||
       !Number.isInteger(spellSlotValue) ||
-      spellSlotLevel < 0 ||
       spellSlotValue < 0
     ) {
       return;
@@ -84,7 +86,7 @@ const EditCharacterForm = ({
 
     setCharacter((prevChar) => {
       const spellSlotsLeft = { ...(prevChar?.spellSlotsLeft ?? {}) };
-      spellSlotsLeft[spellSlotLevel] = spellSlotValue;
+      spellSlotsLeft[trimmedName] = spellSlotValue;
 
       return {
         ...prevChar,
@@ -92,18 +94,72 @@ const EditCharacterForm = ({
       } as CombatCharacter;
     });
 
-    setSpellSlotLevel(0);
+    setSpellSlotName("");
     setSpellSlotValue(0);
   };
 
-  const removeSpellSlot = (level: number) => {
+  const removeSpellSlot = (name: string) => {
     const spellSlotsLefts = { ...(character?.spellSlotsLeft ?? {}) };
-    delete spellSlotsLefts[level];
+    delete spellSlotsLefts[name];
     setCharacter(
       (prevChar) =>
         ({
           ...prevChar,
           spellSlotsLeft: spellSlotsLefts,
+        }) as CombatCharacter,
+    );
+  };
+
+  const addPassive = () => {
+    const trimmedName = passiveName.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          passives: [...(prevChar?.passives ?? []), trimmedName],
+        }) as CombatCharacter,
+    );
+    setPassiveName("");
+  };
+
+  const removePassive = (index: number) => {
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          passives: (prevChar?.passives ?? []).filter((_, i) => i !== index),
+        }) as CombatCharacter,
+    );
+  };
+
+  const addUsableObject = () => {
+    const trimmedName = usableObjectName.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          usableObjects: [...(prevChar?.usableObjects ?? []), trimmedName],
+        }) as CombatCharacter,
+    );
+    setUsableObjectName("");
+  };
+
+  const removeUsableObject = (index: number) => {
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          usableObjects: (prevChar?.usableObjects ?? []).filter(
+            (_, i) => i !== index,
+          ),
         }) as CombatCharacter,
     );
   };
@@ -121,8 +177,6 @@ const EditCharacterForm = ({
     });
   };
 
-  // todo spell slot level peut = 0
-  // todo ajouter sort de classe/rage/...
   return (
     <div className={styles["edit-character-form"]}>
       <h2>{translate("form.addCharacter", "combatTracker")}</h2>
@@ -249,23 +303,24 @@ const EditCharacterForm = ({
           <h3>{translate("form.spellSlots", "combatTracker")}</h3>
           <div className={styles["edit-character-form__line"]}>
             <label htmlFor="slotLevel">
-              {translate("form.level", "combatTracker")}
+              {translate("form.nameOrLevel", "combatTracker")}
             </label>
             <input
-              type="number"
+              type="text"
+              id="slotLevel"
               name="slotLevel"
-              min="0"
-              step="1"
-              value={spellSlotLevel}
+              value={spellSlotName}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setSpellSlotLevel(+event.target.value)
+                setSpellSlotName(event.target.value)
               }
+              data-testid="spellSlotName"
             />
             <label htmlFor="slotValue">
               {translate("form.value", "combatTracker")}
             </label>
             <input
               type="number"
+              id="slotValue"
               name="slotValue"
               min="0"
               step="1"
@@ -286,12 +341,9 @@ const EditCharacterForm = ({
           </div>
           <div className={styles["edit-character-form__line"]}>
             {Object.entries(character?.spellSlotsLeft ?? {}).map(
-              ([level, slots]) => (
-                <div
-                  key={level}
-                  className={styles["edit-character-form__line"]}
-                >
-                  🔹 niv. {level} : <span>{slots}</span>
+              ([name, slots]) => (
+                <div key={name} className={styles["edit-character-form__line"]}>
+                  ✨ {name} : <span>{slots}</span>
                   <ButtonWithIcon
                     variant={ButtonVariant.SECONDARY}
                     label={translate("form.remove", "combatTracker")}
@@ -299,11 +351,115 @@ const EditCharacterForm = ({
                     faIconStyle={FaIconStyleEnum.SOLID}
                     iconPosition="left"
                     type="button"
-                    onClick={() => removeSpellSlot(Number(level))}
+                    onClick={() => removeSpellSlot(name)}
                   />
                 </div>
               ),
             )}
+          </div>
+        </fieldset>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
+          <h3>{translate("form.passives", "combatTracker")}</h3>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="passiveName">
+              {translate("form.passiveName", "combatTracker")}
+            </label>
+            <input
+              type="text"
+              id="passiveName"
+              name="passiveName"
+              value={passiveName}
+              onChange={(event) => setPassiveName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addPassive();
+                }
+              }}
+              data-testid="passiveName"
+            />
+            <ButtonWithIcon
+              variant={ButtonVariant.SECONDARY}
+              label={translate("form.add", "combatTracker")}
+              faIcon="plus"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              type="button"
+              onClick={addPassive}
+              data-testid="addPassive"
+            />
+          </div>
+          <div className={styles["edit-character-form__line"]}>
+            {(character?.passives ?? []).map((passive, index) => (
+              <div
+                key={`${passive}-${index}`}
+                className={styles["edit-character-form__line"]}
+                data-testid="passive-item"
+              >
+                ⚫ <span>{passive}</span>
+                <ButtonWithIcon
+                  variant={ButtonVariant.SECONDARY}
+                  label={translate("form.remove", "combatTracker")}
+                  faIcon="xmark"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  iconPosition="left"
+                  type="button"
+                  onClick={() => removePassive(index)}
+                />
+              </div>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
+          <h3>{translate("form.usableObjects", "combatTracker")}</h3>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="usableObjectName">
+              {translate("form.usableObjectName", "combatTracker")}
+            </label>
+            <input
+              type="text"
+              id="usableObjectName"
+              name="usableObjectName"
+              value={usableObjectName}
+              onChange={(event) => setUsableObjectName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addUsableObject();
+                }
+              }}
+              data-testid="usableObjectName"
+            />
+            <ButtonWithIcon
+              variant={ButtonVariant.SECONDARY}
+              label={translate("form.add", "combatTracker")}
+              faIcon="plus"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              type="button"
+              onClick={addUsableObject}
+              data-testid="addUsableObject"
+            />
+          </div>
+          <div className={styles["edit-character-form__line"]}>
+            {(character?.usableObjects ?? []).map((usableObject, index) => (
+              <div
+                key={`${usableObject}-${index}`}
+                className={styles["edit-character-form__line"]}
+                data-testid="usable-object-item"
+              >
+                ⚫ <span>{usableObject}</span>
+                <ButtonWithIcon
+                  variant={ButtonVariant.SECONDARY}
+                  label={translate("form.remove", "combatTracker")}
+                  faIcon="xmark"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  iconPosition="left"
+                  type="button"
+                  onClick={() => removeUsableObject(index)}
+                />
+              </div>
+            ))}
           </div>
         </fieldset>
         <fieldset className={styles["edit-character-form__fieldset"]}>

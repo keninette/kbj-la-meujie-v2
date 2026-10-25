@@ -28,29 +28,23 @@ const SpellFields = ({
       {!!Object.values(selectedCharacter.spellSlotsLeft ?? {}).length && (
         <>
           <label htmlFor="spellUsedLevel">
-            {translate("form.level", "combatTracker")}
+            {translate("form.nameOrLevel", "combatTracker")}
           </label>
           <select
             {...register("spellUsedLevel", {
-              setValueAs: (value) => (value === "" ? null : Number(value)),
+              setValueAs: (value) => (value === "" ? null : String(value)),
             })}
             id="spellUsedLevel"
           >
             <option value="">
               {translate("attack.chooseLevel", "combatTracker")}
             </option>
-            {Object.keys(selectedCharacter.spellSlotsLeft ?? {}).map(
-              (level) => (
-                <option
-                  key={level}
-                  value={+level}
-                  disabled={
-                    +(selectedCharacter.spellSlotsLeft?.[+level] ?? 0) <= 0
-                  }
-                >
-                  {level} (
+            {Object.entries(selectedCharacter.spellSlotsLeft ?? {}).map(
+              ([name, slots]) => (
+                <option key={name} value={name} disabled={slots <= 0}>
+                  {name} (
                   {translate("attack.slotsRemaining", "combatTracker", {
-                    count: String(selectedCharacter.spellSlotsLeft?.[+level]),
+                    count: String(slots),
                   })}
                   )
                 </option>
