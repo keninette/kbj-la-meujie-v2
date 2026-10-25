@@ -70,6 +70,9 @@ const isCombat = (value: unknown): value is Combat => {
     typeof value.selectedCharacterIndex === "number" &&
     Array.isArray(value.characters) &&
     value.characters.every(isCombatCharacter) &&
+    (value.idleCharacters === undefined ||
+      (Array.isArray(value.idleCharacters) &&
+        value.idleCharacters.every(isCombatCharacter))) &&
     Array.isArray(value.history) &&
     value.history.every(
       (entry) =>
@@ -96,13 +99,18 @@ const normalizeStoredCombat = (value: unknown): unknown => {
     return value;
   }
 
+  const withCharacterIds = (list: unknown[]) =>
+    list.map((character) =>
+      isRecord(character)
+        ? { ...character, id: character.id || createCharacterId() }
+        : character,
+    );
   const characters = Array.isArray(value.characters)
-    ? value.characters.map((character) =>
-        isRecord(character)
-          ? { ...character, id: character.id || createCharacterId() }
-          : character,
-      )
+    ? withCharacterIds(value.characters)
     : value.characters;
+  const idleCharacters = Array.isArray(value.idleCharacters)
+    ? withCharacterIds(value.idleCharacters)
+    : value.idleCharacters;
   const history = Array.isArray(value.history)
     ? value.history.map((entry) =>
         isRecord(entry)
@@ -111,7 +119,12 @@ const normalizeStoredCombat = (value: unknown): unknown => {
       )
     : value.history;
 
-  return { ...value, characters, history };
+  return {
+    ...value,
+    characters,
+    ...(idleCharacters !== undefined && { idleCharacters }),
+    history,
+  };
 };
 
 export function loadCombat(): Combat | null {

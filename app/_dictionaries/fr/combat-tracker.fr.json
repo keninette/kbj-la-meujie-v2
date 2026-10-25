@@ -77,6 +77,6 @@
   "list.edit": "Éditer",
   "list.active": "Personnages actifs",
   "list.idle": "Personnages inactifs",
-  "list.pause": "Retirer du combat",
-  "list.resume": "Remettre dans le combat"
+  "list.deactivate": "Désactiver",
+  "list.reactivate": "Réactiver"
 }

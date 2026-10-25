@@ -160,6 +160,9 @@ const CombatManager = ({
         characters: ongoingCombat.characters.filter(
           (character) => !character.isNpc,
         ),
+        idleCharacters: ongoingCombat.idleCharacters?.filter(
+          (character) => !character.isNpc,
+        ),
         history: [],
       });
     }
@@ -214,6 +217,7 @@ const CombatManager = ({
         {ongoingCombat?.status === CombatStatusEnum.ONGOING && (
           <ButtonWithIcon
             label={translate("manager.stopCombat", "combatTracker")}
+            data-testid="stop-combat"
             onClick={() => {
               setDrawerContent(DrawerContentEnum.STOP_COMBAT_CONFIRMATION);
               setIsDrawerOpened(true);
@@ -304,6 +308,7 @@ const CombatManager = ({
             />
             <ButtonWithIcon
               label={translate("manager.removeOnlyNpcs", "combatTracker")}
+              data-testid="stop-combat-keep-players"
               onClick={() => stopCombat(false)}
               faIcon="user-minus"
               faIconStyle={FaIconStyleEnum.SOLID}

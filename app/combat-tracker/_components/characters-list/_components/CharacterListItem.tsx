@@ -6,7 +6,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
 
-export type CharacterListAction = "edit" | "removeFromCombat" | "addToCombat";
+export type CharacterListAction = "edit" | "deactivate" | "reactivate";
 
 type CharacterListItemProps = {
   character: CombatCharacter;
@@ -14,8 +14,8 @@ type CharacterListItemProps = {
   isIdle?: boolean;
   isSelected?: boolean;
   onEdit?: (character: CombatCharacter) => void;
-  onRemoveFromCombat?: (character: CombatCharacter) => void;
-  onAddToCombat?: (character: CombatCharacter) => void;
+  onDeactivate?: (character: CombatCharacter) => void;
+  onReactivate?: (character: CombatCharacter) => void;
 };
 
 const CharacterListItem = ({
@@ -24,8 +24,8 @@ const CharacterListItem = ({
   isIdle = false,
   isSelected = false,
   onEdit,
-  onRemoveFromCombat,
-  onAddToCombat,
+  onDeactivate,
+  onReactivate,
 }: CharacterListItemProps) => {
   return (
     <li
@@ -72,26 +72,26 @@ const CharacterListItem = ({
             onClick={() => onEdit?.(character)}
           />
         )}
-        {allowedActions.includes("removeFromCombat") && (
+        {allowedActions.includes("deactivate") && (
           <IconButton
             variant={ButtonVariant.TERTIARY}
-            faIcon="pause"
+            faIcon="user-minus"
             faIconStyle={FaIconStyleEnum.SOLID}
             type="button"
-            tooltip={translate("list.pause", "combatTracker")}
-            data-testid={`remove-from-combat-${character.id}`}
-            onClick={() => onRemoveFromCombat?.(character)}
+            tooltip={translate("list.deactivate", "combatTracker")}
+            data-testid={`deactivate-character-${character.id}`}
+            onClick={() => onDeactivate?.(character)}
           />
         )}
-        {allowedActions.includes("addToCombat") && (
+        {allowedActions.includes("reactivate") && (
           <IconButton
             variant={ButtonVariant.TERTIARY}
-            faIcon="play"
+            faIcon="user-plus"
             faIconStyle={FaIconStyleEnum.SOLID}
             type="button"
-            tooltip={translate("list.resume", "combatTracker")}
-            data-testid={`add-to-combat-${character.id}`}
-            onClick={() => onAddToCombat?.(character)}
+            tooltip={translate("list.reactivate", "combatTracker")}
+            data-testid={`reactivate-character-${character.id}`}
+            onClick={() => onReactivate?.(character)}
           />
         )}
       </div>

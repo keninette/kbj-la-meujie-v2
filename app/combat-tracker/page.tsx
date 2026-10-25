@@ -11,41 +11,11 @@ import CombatManager from "./_components/combat-manager/CombatManager";
 import { CombatStatusEnum } from "../_lib/enums/combat-status.enum";
 import { Combat } from "../_lib/types/combat.type";
 import { CombatCharacter } from "../_lib/types/combat-character.type";
-import { findCharacterIndexById } from "../_lib/combat/combat.helper";
+import {
+  findCharacterIndexById,
+  normalizeCombat,
+} from "../_lib/combat/combat.helper";
 import { translate } from "../_dictionaries/dictionnary";
-
-const sortCharacters = (characters: CombatCharacter[]) => {
-  return [...characters].sort((a, b) => b.initiativeScore - a.initiativeScore);
-};
-
-const normalizeCombat = (nextCombat: Combat | null): Combat | null => {
-  if (!nextCombat) {
-    return null;
-  }
-
-  const selectedCharacterId =
-    nextCombat.characters[nextCombat.selectedCharacterIndex]?.id;
-  const characters = sortCharacters(nextCombat.characters);
-  const selectedCharacterIndex = selectedCharacterId
-    ? findCharacterIndexById(characters, selectedCharacterId)
-    : nextCombat.selectedCharacterIndex;
-  const fallbackCharacterIndex =
-    characters.length > 0
-      ? Math.min(
-          Math.max(nextCombat.selectedCharacterIndex, 0),
-          characters.length - 1,
-        )
-      : 0;
-
-  return {
-    ...nextCombat,
-    characters,
-    selectedCharacterIndex:
-      selectedCharacterIndex >= 0
-        ? selectedCharacterIndex
-        : fallbackCharacterIndex,
-  };
-};
 
 const CombatTrackerPage = () => {
   const [combat, setCombat] = useState<Combat | null>(null);
@@ -109,42 +79,49 @@ const CombatTrackerPage = () => {
     setIsDrawerOpened(false);
   };
 
-  const onCharacterPaused = (character: CombatCharacter) => {
-    if (!combat) {
-      return;
-    }
+  const onCharacterDeactivated = (character: CombatCharacter) => {
+    setCombat((previousCombat) => {
+      if (!previousCombat) {
+        return null;
+      }
 
-    const selectedId = selectedCharacter?.id;
-    const characters = combat.characters.filter((c) => c.id !== character.id);
-    const newSelectedIndex = selectedId
-      ? findCharacterIndexById(characters, selectedId)
-      : -1;
+      const selectedId =
+        previousCombat.characters[previousCombat.selectedCharacterIndex]?.id;
+      const characters = previousCombat.characters.filter(
+        (c) => c.id !== character.id,
+      );
+      const newSelectedIndex = selectedId
+        ? findCharacterIndexById(characters, selectedId)
+        : -1;
 
-    setCombat({
-      ...combat,
-      characters,
-      idleCharacters: [...(combat.idleCharacters ?? []), character],
-      selectedCharacterIndex:
-        newSelectedIndex >= 0
-          ? newSelectedIndex
-          : Math.min(
-              combat.selectedCharacterIndex,
-              Math.max(characters.length - 1, 0),
-            ),
+      return {
+        ...previousCombat,
+        characters,
+        idleCharacters: [...(previousCombat.idleCharacters ?? []), character],
+        selectedCharacterIndex:
+          newSelectedIndex >= 0
+            ? newSelectedIndex
+            : Math.min(
+                previousCombat.selectedCharacterIndex,
+                Math.max(characters.length - 1, 0),
+              ),
+      };
     });
   };
 
-  const onCharacterResumed = (character: CombatCharacter) => {
-    if (!combat) {
-      return;
-    }
+  const onCharacterReactivated = (character: CombatCharacter) => {
+    setCombat((previousCombat) => {
+      if (!previousCombat) {
+        return null;
+      }
 
-    onCombatChange({
-      ...combat,
-      characters: [...combat.characters, character],
-      idleCharacters: (combat.idleCharacters ?? []).filter(
-        (c) => c.id !== character.id,
-      ),
+      return normalizeCombat({
+        ...previousCombat,
+        characters: [...previousCombat.characters, character],
+        idleCharacters: (previousCombat.idleCharacters ?? []).filter(
+          (c) => c.id !== character.id,
+        ),
+      });
     });
   };
 
@@ -208,22 +185,22 @@ const CombatTrackerPage = () => {
           <div className={styles["combat-tracker__container__left"]}>
             <CharacterList
               title={translate("list.active", "combatTracker")}
-              titleIcon="play"
+              titleIcon="shield-halved"
               characters={combat?.characters ?? []}
-              allowedActions={["edit", "removeFromCombat"]}
+              allowedActions={["edit", "deactivate"]}
               selectedCharacter={selectedCharacter}
               onEdit={handleCharacterClick}
-              onRemoveFromCombat={onCharacterPaused}
+              onDeactivate={onCharacterDeactivated}
             />
             {idleCharacters.length > 0 && (
               <CharacterList
                 title={translate("list.idle", "combatTracker")}
-                titleIcon="pause"
+                titleIcon="couch"
                 characters={idleCharacters}
-                allowedActions={["edit", "addToCombat"]}
+                allowedActions={["edit", "reactivate"]}
                 isIdle
                 onEdit={handleCharacterClick}
-                onAddToCombat={onCharacterResumed}
+                onReactivate={onCharacterReactivated}
               />
             )}
           </div>

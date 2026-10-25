@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import styles from "./characters-list.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
@@ -10,7 +11,7 @@ import CharacterListItem, {
 
 export type { CharacterListAction };
 
-type CharacterListProps = {
+type CharacterListProps = Omit<ComponentProps<"section">, "title"> & {
   title: string;
   titleIcon: string;
   characters: CombatCharacter[];
@@ -18,9 +19,8 @@ type CharacterListProps = {
   isIdle?: boolean;
   selectedCharacter?: CombatCharacter | null;
   onEdit?: (character: CombatCharacter) => void;
-  onRemoveFromCombat?: (character: CombatCharacter) => void;
-  onAddToCombat?: (character: CombatCharacter) => void;
-  [key: string]: unknown;
+  onDeactivate?: (character: CombatCharacter) => void;
+  onReactivate?: (character: CombatCharacter) => void;
 };
 
 const CharacterList = ({
@@ -31,8 +31,8 @@ const CharacterList = ({
   isIdle = false,
   selectedCharacter,
   onEdit,
-  onRemoveFromCombat,
-  onAddToCombat,
+  onDeactivate,
+  onReactivate,
   ...restProps
 }: CharacterListProps) => {
   return (
@@ -56,8 +56,8 @@ const CharacterList = ({
             isIdle={isIdle}
             isSelected={char.id === selectedCharacter?.id}
             onEdit={onEdit}
-            onRemoveFromCombat={onRemoveFromCombat}
-            onAddToCombat={onAddToCombat}
+            onDeactivate={onDeactivate}
+            onReactivate={onReactivate}
           />
         ))}
       </ol>
