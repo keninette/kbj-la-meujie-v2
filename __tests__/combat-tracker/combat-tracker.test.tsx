@@ -1,5 +1,11 @@
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { findCharacterIndexById } from "@lib/combat/combat.helper";
 import {
   loadCombat,
@@ -8,6 +14,7 @@ import {
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import AttackForm from "@/app/combat-tracker/_components/attack-form/AttackForm";
+import CharacterStats from "@/app/combat-tracker/_components/character-stats/CharacterStats";
 import {
   buildCharacter,
   buildCombat,
@@ -50,7 +57,9 @@ describe("loadCombat", () => {
   });
 
   it("round-trips a valid combat through saveCombat/loadCombat", () => {
-    const combat = buildCombat([buildCharacter()]);
+    const combat = buildCombat([
+      buildCharacter({ passives: ["Rage", "Vision dans le noir"] }),
+    ]);
 
     saveCombat(combat);
 
@@ -89,10 +98,33 @@ describe("loadCombat", () => {
     expect(loadCombat()).toBeNull();
   });
 
+  it("returns null when the stored passives are not an array of strings", () => {
+    localStorage.setItem(
+      "scratchie-combat-tracker",
+      JSON.stringify(
+        buildCombat([
+          buildCharacter({ passives: [42] as unknown as string[] }),
+        ]),
+      ),
+    );
+
+    expect(loadCombat()).toBeNull();
+  });
+
   it("returns null when the stored payload is not valid JSON", () => {
     localStorage.setItem("scratchie-combat-tracker", "not-json");
 
     expect(loadCombat()).toBeNull();
+  });
+
+  it("keeps a backup of unreadable stored data", () => {
+    localStorage.setItem("scratchie-combat-tracker", "not-json");
+
+    loadCombat();
+
+    expect(localStorage.getItem("scratchie-combat-tracker-backup")).toBe(
+      "not-json",
+    );
   });
 });
 
@@ -145,6 +177,81 @@ describe("EditCharacterForm hp/isDying/isDead behavior", () => {
     });
 
     expect(screen.getByTestId("isDead")).toBeChecked();
+  });
+});
+
+describe("EditCharacterForm passives", () => {
+  it("adds a passive and submits it with the character", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "  Rage  " },
+    });
+    fireEvent.click(screen.getByTestId("addPassive"));
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ passives: ["Rage"] }),
+    );
+  });
+
+  it("removes an existing passive and ignores blank ones", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ passives: ["Rage", "Fury"] })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("addPassive"));
+    expect(screen.getAllByTestId("passive-item")).toHaveLength(2);
+
+    fireEvent.click(
+      within(screen.getAllByTestId("passive-item")[0]).getByRole("button"),
+    );
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ passives: ["Fury"] }),
+    );
+  });
+});
+
+describe("CharacterStats passives", () => {
+  const renderStats = (character: CombatCharacter) =>
+    render(
+      <CharacterStats
+        selectedCharacter={character}
+        characters={[character]}
+        onCharacterChange={jest.fn()}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={jest.fn()}
+        isCombatOngoing={false}
+      />,
+    );
+
+  it("displays the passives of the selected character", () => {
+    renderStats(buildCharacter({ passives: ["Rage", "Fury"] }));
+
+    const passives = screen.getByTestId("character-passives");
+    expect(passives).toHaveTextContent("Rage");
+    expect(passives).toHaveTextContent("Fury");
+  });
+
+  it("does not display the passives block when there are none", () => {
+    renderStats(buildCharacter());
+
+    expect(screen.queryByTestId("character-passives")).not.toBeInTheDocument();
   });
 });
 

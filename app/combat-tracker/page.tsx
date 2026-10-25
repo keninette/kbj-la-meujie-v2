@@ -28,6 +28,9 @@ const CombatTrackerPage = () => {
   const idleCharacters = combat?.idleCharacters ?? [];
 
   const onCombatChange = (nextCombat: Combat | null) => {
+    if (!nextCombat) {
+      clearCombat();
+    }
     setCombat(normalizeCombat(nextCombat));
   };
 
@@ -167,8 +170,6 @@ const CombatTrackerPage = () => {
 
     if (combat) {
       saveCombat(combat);
-    } else {
-      clearCombat();
     }
   }, [combat, isCombatLoaded]);
 
@@ -183,15 +184,21 @@ const CombatTrackerPage = () => {
         />
         <div className={styles["combat-tracker__container"]}>
           <div className={styles["combat-tracker__container__left"]}>
-            <CharacterList
-              title={translate("list.active", "combatTracker")}
-              titleIcon="shield-halved"
-              characters={combat?.characters ?? []}
-              allowedActions={["edit", "deactivate"]}
-              selectedCharacter={selectedCharacter}
-              onEdit={handleCharacterClick}
-              onDeactivate={onCharacterDeactivated}
-            />
+            {(combat?.characters.length ?? 0) > 0 && (
+              <CharacterList
+                title={translate("list.active", "combatTracker")}
+                titleIcon={
+                  combat?.status === CombatStatusEnum.ONGOING
+                    ? "play"
+                    : undefined
+                }
+                characters={combat?.characters ?? []}
+                allowedActions={["edit", "deactivate"]}
+                selectedCharacter={selectedCharacter}
+                onEdit={handleCharacterClick}
+                onDeactivate={onCharacterDeactivated}
+              />
+            )}
             {idleCharacters.length > 0 && (
               <CharacterList
                 title={translate("list.idle", "combatTracker")}

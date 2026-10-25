@@ -211,13 +211,41 @@ const CharacterStats = ({
                       key={level}
                     >
                       {" "}
-                      🔹 niv. {level} :{" "}
+                      ✨ niv. {level} :{" "}
                       <span className={slots === 0 ? emptyStatClass : ""}>
                         {slots}
                       </span>
                     </div>
                   ),
                 )}
+              </div>
+            </div>
+          )}
+        {selectedCharacter.passives &&
+          selectedCharacter.passives.length > 0 && (
+            <div
+              className={[
+                styles["character-stats__line--vertical"],
+                styles["character-stats__line"],
+              ].join(" ")}
+              data-testid="character-passives"
+            >
+              <div>
+                <FontAwesomeIcon
+                  faIcon="book-open"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                />
+                {translate("stats.passives", "combatTracker")} :
+              </div>
+              <div className={styles["character-stats__line"]}>
+                {selectedCharacter.passives.map((passive, index) => (
+                  <div
+                    className={styles["character-stats__line--indented"]}
+                    key={`${passive}-${index}`}
+                  >
+                    ⚫ {passive}
+                  </div>
+                ))}
               </div>
             </div>
           )}

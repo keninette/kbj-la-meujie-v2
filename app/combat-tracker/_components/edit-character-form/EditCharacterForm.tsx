@@ -28,6 +28,7 @@ const EditCharacterForm = ({
   );
   const [spellSlotLevel, setSpellSlotLevel] = useState(0);
   const [spellSlotValue, setSpellSlotValue] = useState(0);
+  const [passiveName, setPassiveName] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -104,6 +105,32 @@ const EditCharacterForm = ({
         ({
           ...prevChar,
           spellSlotsLeft: spellSlotsLefts,
+        }) as CombatCharacter,
+    );
+  };
+
+  const addPassive = () => {
+    const trimmedName = passiveName.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          passives: [...(prevChar?.passives ?? []), trimmedName],
+        }) as CombatCharacter,
+    );
+    setPassiveName("");
+  };
+
+  const removePassive = (index: number) => {
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          passives: (prevChar?.passives ?? []).filter((_, i) => i !== index),
         }) as CombatCharacter,
     );
   };
@@ -291,7 +318,7 @@ const EditCharacterForm = ({
                   key={level}
                   className={styles["edit-character-form__line"]}
                 >
-                  🔹 niv. {level} : <span>{slots}</span>
+                  ✨ niv. {level} : <span>{slots}</span>
                   <ButtonWithIcon
                     variant={ButtonVariant.SECONDARY}
                     label={translate("form.remove", "combatTracker")}
@@ -304,6 +331,58 @@ const EditCharacterForm = ({
                 </div>
               ),
             )}
+          </div>
+        </fieldset>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
+          <h3>{translate("form.passives", "combatTracker")}</h3>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="passiveName">
+              {translate("form.passiveName", "combatTracker")}
+            </label>
+            <input
+              type="text"
+              id="passiveName"
+              name="passiveName"
+              value={passiveName}
+              onChange={(event) => setPassiveName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addPassive();
+                }
+              }}
+              data-testid="passiveName"
+            />
+            <ButtonWithIcon
+              variant={ButtonVariant.SECONDARY}
+              label={translate("form.add", "combatTracker")}
+              faIcon="plus"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              type="button"
+              onClick={addPassive}
+              data-testid="addPassive"
+            />
+          </div>
+          <div className={styles["edit-character-form__line"]}>
+            {(character?.passives ?? []).map((passive, index) => (
+              <div
+                key={`${passive}-${index}`}
+                className={styles["edit-character-form__line"]}
+                data-testid="passive-item"
+              >
+                ⚫ <span>{passive}</span>
+                <ButtonWithIcon
+                  variant={ButtonVariant.SECONDARY}
+                  label={translate("form.remove", "combatTracker")}
+                  faIcon="xmark"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  iconPosition="left"
+                  type="button"
+                  onClick={() => removePassive(index)}
+                />
+              </div>
+            ))}
           </div>
         </fieldset>
         <fieldset className={styles["edit-character-form__fieldset"]}>

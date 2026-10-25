@@ -38,6 +38,10 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
   const statesAreValid =
     value.states === undefined ||
     (Array.isArray(value.states) && value.states.every(isCombatState));
+  const passivesAreValid =
+    value.passives === undefined ||
+    (Array.isArray(value.passives) &&
+      value.passives.every((passive) => typeof passive === "string"));
 
   return (
     typeof value.id === "string" &&
@@ -54,7 +58,8 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     typeof value.ac === "number" &&
     typeof value.initiativeScore === "number" &&
     spellSlotsAreValid &&
-    statesAreValid
+    statesAreValid &&
+    passivesAreValid
   );
 };
 
@@ -128,21 +133,35 @@ const normalizeStoredCombat = (value: unknown): unknown => {
 };
 
 export function loadCombat(): Combat | null {
+  let raw: string | null = null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       return null;
     }
 
     const parsed = normalizeStoredCombat(JSON.parse(raw));
     if (!isCombat(parsed)) {
+      backupUnreadableCombat(raw);
       return null;
     }
 
     return parsed;
   } catch (error) {
     console.error("Erreur chargement personnages:", error);
+    if (raw) {
+      backupUnreadableCombat(raw);
+    }
     return null;
+  }
+}
+
+// Keeps a copy of data we could not read so it is never lost by a later save
+function backupUnreadableCombat(raw: string): void {
+  try {
+    localStorage.setItem(`${STORAGE_KEY}-backup`, raw);
+  } catch (error) {
+    console.error("Erreur sauvegarde de secours:", error);
   }
 }
 

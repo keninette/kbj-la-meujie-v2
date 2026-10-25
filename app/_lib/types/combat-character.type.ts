@@ -15,4 +15,5 @@ export type CombatCharacter = {
   initiativeScore: number;
   spellSlotsLeft?: Record<number, number>;
   states?: CombatState[];
+  passives?: string[];
 };
