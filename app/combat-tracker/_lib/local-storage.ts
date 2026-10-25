@@ -42,6 +42,10 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     value.passives === undefined ||
     (Array.isArray(value.passives) &&
       value.passives.every((passive) => typeof passive === "string"));
+  const usableObjectsAreValid =
+    value.usableObjects === undefined ||
+    (Array.isArray(value.usableObjects) &&
+      value.usableObjects.every((object) => typeof object === "string"));
 
   return (
     typeof value.id === "string" &&
@@ -59,7 +63,8 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     typeof value.initiativeScore === "number" &&
     spellSlotsAreValid &&
     statesAreValid &&
-    passivesAreValid
+    passivesAreValid &&
+    usableObjectsAreValid
   );
 };
 

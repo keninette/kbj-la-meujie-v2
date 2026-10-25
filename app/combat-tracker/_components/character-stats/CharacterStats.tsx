@@ -249,6 +249,34 @@ const CharacterStats = ({
               </div>
             </div>
           )}
+        {selectedCharacter.usableObjects &&
+          selectedCharacter.usableObjects.length > 0 && (
+            <div
+              className={[
+                styles["character-stats__line--vertical"],
+                styles["character-stats__line"],
+              ].join(" ")}
+              data-testid="character-usable-objects"
+            >
+              <div>
+                <FontAwesomeIcon
+                  faIcon="bag-shopping"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                />
+                {translate("stats.usableObjects", "combatTracker")} :
+              </div>
+              <div className={styles["character-stats__line"]}>
+                {selectedCharacter.usableObjects.map((usableObject, index) => (
+                  <div
+                    className={styles["character-stats__line--indented"]}
+                    key={`${usableObject}-${index}`}
+                  >
+                    ⚫ {usableObject}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         {selectedCharacter.states && selectedCharacter.states.length > 0 && (
           <div
             className={[

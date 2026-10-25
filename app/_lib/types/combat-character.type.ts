@@ -16,4 +16,5 @@ export type CombatCharacter = {
   spellSlotsLeft?: Record<number, number>;
   states?: CombatState[];
   passives?: string[];
+  usableObjects?: string[];
 };

@@ -58,7 +58,10 @@ describe("loadCombat", () => {
 
   it("round-trips a valid combat through saveCombat/loadCombat", () => {
     const combat = buildCombat([
-      buildCharacter({ passives: ["Rage", "Vision dans le noir"] }),
+      buildCharacter({
+        passives: ["Rage", "Vision dans le noir"],
+        usableObjects: ["Potion de soin"],
+      }),
     ]);
 
     saveCombat(combat);
@@ -93,6 +96,19 @@ describe("loadCombat", () => {
     localStorage.setItem(
       "scratchie-combat-tracker",
       JSON.stringify({ status: "unknown-status" }),
+    );
+
+    expect(loadCombat()).toBeNull();
+  });
+
+  it("returns null when the stored usable objects are not an array of strings", () => {
+    localStorage.setItem(
+      "scratchie-combat-tracker",
+      JSON.stringify(
+        buildCombat([
+          buildCharacter({ usableObjects: [42] as unknown as string[] }),
+        ]),
+      ),
     );
 
     expect(loadCombat()).toBeNull();
@@ -252,6 +268,68 @@ describe("CharacterStats passives", () => {
     renderStats(buildCharacter());
 
     expect(screen.queryByTestId("character-passives")).not.toBeInTheDocument();
+  });
+});
+
+describe("EditCharacterForm usable objects", () => {
+  it("adds and removes usable objects, ignoring blank ones", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ usableObjects: ["Torche"] })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("usableObjectName"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("addUsableObject"));
+    expect(screen.getAllByTestId("usable-object-item")).toHaveLength(1);
+
+    fireEvent.change(screen.getByTestId("usableObjectName"), {
+      target: { value: "  Potion  " },
+    });
+    fireEvent.click(screen.getByTestId("addUsableObject"));
+    fireEvent.click(
+      within(screen.getAllByTestId("usable-object-item")[0]).getByRole(
+        "button",
+      ),
+    );
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ usableObjects: ["Potion"] }),
+    );
+  });
+});
+
+describe("CharacterStats usable objects", () => {
+  const renderStats = (character: CombatCharacter) =>
+    render(
+      <CharacterStats
+        selectedCharacter={character}
+        characters={[character]}
+        onCharacterChange={jest.fn()}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={jest.fn()}
+        isCombatOngoing={false}
+      />,
+    );
+
+  it("displays usable objects only when there are some", () => {
+    const { unmount } = renderStats(
+      buildCharacter({ usableObjects: ["Potion"] }),
+    );
+    expect(screen.getByTestId("character-usable-objects")).toHaveTextContent(
+      "Potion",
+    );
+    unmount();
+
+    renderStats(buildCharacter());
+    expect(
+      screen.queryByTestId("character-usable-objects"),
+    ).not.toBeInTheDocument();
   });
 });
 

@@ -29,6 +29,7 @@ const EditCharacterForm = ({
   const [spellSlotLevel, setSpellSlotLevel] = useState(0);
   const [spellSlotValue, setSpellSlotValue] = useState(0);
   const [passiveName, setPassiveName] = useState("");
+  const [usableObjectName, setUsableObjectName] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -131,6 +132,34 @@ const EditCharacterForm = ({
         ({
           ...prevChar,
           passives: (prevChar?.passives ?? []).filter((_, i) => i !== index),
+        }) as CombatCharacter,
+    );
+  };
+
+  const addUsableObject = () => {
+    const trimmedName = usableObjectName.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          usableObjects: [...(prevChar?.usableObjects ?? []), trimmedName],
+        }) as CombatCharacter,
+    );
+    setUsableObjectName("");
+  };
+
+  const removeUsableObject = (index: number) => {
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          usableObjects: (prevChar?.usableObjects ?? []).filter(
+            (_, i) => i !== index,
+          ),
         }) as CombatCharacter,
     );
   };
@@ -380,6 +409,58 @@ const EditCharacterForm = ({
                   iconPosition="left"
                   type="button"
                   onClick={() => removePassive(index)}
+                />
+              </div>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className={styles["edit-character-form__fieldset"]}>
+          <h3>{translate("form.usableObjects", "combatTracker")}</h3>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="usableObjectName">
+              {translate("form.usableObjectName", "combatTracker")}
+            </label>
+            <input
+              type="text"
+              id="usableObjectName"
+              name="usableObjectName"
+              value={usableObjectName}
+              onChange={(event) => setUsableObjectName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addUsableObject();
+                }
+              }}
+              data-testid="usableObjectName"
+            />
+            <ButtonWithIcon
+              variant={ButtonVariant.SECONDARY}
+              label={translate("form.add", "combatTracker")}
+              faIcon="plus"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              type="button"
+              onClick={addUsableObject}
+              data-testid="addUsableObject"
+            />
+          </div>
+          <div className={styles["edit-character-form__line"]}>
+            {(character?.usableObjects ?? []).map((usableObject, index) => (
+              <div
+                key={`${usableObject}-${index}`}
+                className={styles["edit-character-form__line"]}
+                data-testid="usable-object-item"
+              >
+                ⚫ <span>{usableObject}</span>
+                <ButtonWithIcon
+                  variant={ButtonVariant.SECONDARY}
+                  label={translate("form.remove", "combatTracker")}
+                  faIcon="xmark"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  iconPosition="left"
+                  type="button"
+                  onClick={() => removeUsableObject(index)}
                 />
               </div>
             ))}
