@@ -205,13 +205,13 @@ const CharacterStats = ({
               </div>
               <div className={styles["character-stats__line"]}>
                 {Object.entries(selectedCharacter.spellSlotsLeft).map(
-                  ([level, slots]) => (
+                  ([name, slots]) => (
                     <div
                       className={styles["character-stats__line--indented"]}
-                      key={level}
+                      key={name}
                     >
                       {" "}
-                      ✨ niv. {level} :{" "}
+                      ✨ {name} :{" "}
                       <span className={slots === 0 ? emptyStatClass : ""}>
                         {slots}
                       </span>

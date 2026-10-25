@@ -13,7 +13,7 @@ export type CombatCharacter = {
   deathSaveThrowsLeft: number;
   ac: number;
   initiativeScore: number;
-  spellSlotsLeft?: Record<number, number>;
+  spellSlotsLeft?: Record<string, number>;
   states?: CombatState[];
   passives?: string[];
   usableObjects?: string[];

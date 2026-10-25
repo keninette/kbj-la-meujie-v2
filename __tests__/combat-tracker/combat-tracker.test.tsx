@@ -333,6 +333,31 @@ describe("CharacterStats usable objects", () => {
   });
 });
 
+describe("EditCharacterForm spell slots", () => {
+  it("adds a spell slot with a free-text name", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("spellSlotName"), {
+      target: { value: " Rage " },
+    });
+    fireEvent.change(screen.getByLabelText("form.value"), {
+      target: { value: "4" },
+    });
+    fireEvent.click(screen.getAllByText("form.add")[0]);
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ spellSlotsLeft: { Rage: 4 } }),
+    );
+  });
+});
+
 describe("AttackForm isDying/isDead behavior", () => {
   it("submits registered spell and timed-state values", async () => {
     const attacker = buildCharacter({
@@ -352,7 +377,7 @@ describe("AttackForm isDying/isDead behavior", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText("form.level"), {
+    fireEvent.change(screen.getByLabelText("form.nameOrLevel"), {
       target: { value: "1" },
     });
     fireEvent.change(screen.getByTestId("inflictedStateTargetName"), {

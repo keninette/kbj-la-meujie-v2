@@ -26,7 +26,7 @@ const EditCharacterForm = ({
   const [character, setCharacter] = useState<CombatCharacter | null>(
     initialCharacter,
   );
-  const [spellSlotLevel, setSpellSlotLevel] = useState(0);
+  const [spellSlotName, setSpellSlotName] = useState("");
   const [spellSlotValue, setSpellSlotValue] = useState(0);
   const [passiveName, setPassiveName] = useState("");
   const [usableObjectName, setUsableObjectName] = useState("");
@@ -75,10 +75,10 @@ const EditCharacterForm = ({
   };
 
   const addSpellSlot = () => {
+    const trimmedName = spellSlotName.trim();
     if (
-      !Number.isInteger(spellSlotLevel) ||
+      !trimmedName ||
       !Number.isInteger(spellSlotValue) ||
-      spellSlotLevel < 0 ||
       spellSlotValue < 0
     ) {
       return;
@@ -86,7 +86,7 @@ const EditCharacterForm = ({
 
     setCharacter((prevChar) => {
       const spellSlotsLeft = { ...(prevChar?.spellSlotsLeft ?? {}) };
-      spellSlotsLeft[spellSlotLevel] = spellSlotValue;
+      spellSlotsLeft[trimmedName] = spellSlotValue;
 
       return {
         ...prevChar,
@@ -94,13 +94,13 @@ const EditCharacterForm = ({
       } as CombatCharacter;
     });
 
-    setSpellSlotLevel(0);
+    setSpellSlotName("");
     setSpellSlotValue(0);
   };
 
-  const removeSpellSlot = (level: number) => {
+  const removeSpellSlot = (name: string) => {
     const spellSlotsLefts = { ...(character?.spellSlotsLeft ?? {}) };
-    delete spellSlotsLefts[level];
+    delete spellSlotsLefts[name];
     setCharacter(
       (prevChar) =>
         ({
@@ -177,8 +177,6 @@ const EditCharacterForm = ({
     });
   };
 
-  // todo spell slot level peut = 0
-  // todo ajouter sort de classe/rage/...
   return (
     <div className={styles["edit-character-form"]}>
       <h2>{translate("form.addCharacter", "combatTracker")}</h2>
@@ -305,23 +303,24 @@ const EditCharacterForm = ({
           <h3>{translate("form.spellSlots", "combatTracker")}</h3>
           <div className={styles["edit-character-form__line"]}>
             <label htmlFor="slotLevel">
-              {translate("form.level", "combatTracker")}
+              {translate("form.nameOrLevel", "combatTracker")}
             </label>
             <input
-              type="number"
+              type="text"
+              id="slotLevel"
               name="slotLevel"
-              min="0"
-              step="1"
-              value={spellSlotLevel}
+              value={spellSlotName}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setSpellSlotLevel(+event.target.value)
+                setSpellSlotName(event.target.value)
               }
+              data-testid="spellSlotName"
             />
             <label htmlFor="slotValue">
               {translate("form.value", "combatTracker")}
             </label>
             <input
               type="number"
+              id="slotValue"
               name="slotValue"
               min="0"
               step="1"
@@ -342,12 +341,9 @@ const EditCharacterForm = ({
           </div>
           <div className={styles["edit-character-form__line"]}>
             {Object.entries(character?.spellSlotsLeft ?? {}).map(
-              ([level, slots]) => (
-                <div
-                  key={level}
-                  className={styles["edit-character-form__line"]}
-                >
-                  ✨ niv. {level} : <span>{slots}</span>
+              ([name, slots]) => (
+                <div key={name} className={styles["edit-character-form__line"]}>
+                  ✨ {name} : <span>{slots}</span>
                   <ButtonWithIcon
                     variant={ButtonVariant.SECONDARY}
                     label={translate("form.remove", "combatTracker")}
@@ -355,7 +351,7 @@ const EditCharacterForm = ({
                     faIconStyle={FaIconStyleEnum.SOLID}
                     iconPosition="left"
                     type="button"
-                    onClick={() => removeSpellSlot(Number(level))}
+                    onClick={() => removeSpellSlot(name)}
                   />
                 </div>
               ),
