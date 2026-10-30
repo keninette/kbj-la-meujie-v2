@@ -4,6 +4,8 @@ import type { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 export type AttackFormValues = {
   attackTargetId: string;
   attackDamage: number;
+  healTargetId: string;
+  healAmount: number;
   spellUsedName: string;
   spellUsedLevel: string | null;
   inflictedStateTargetId: string;
@@ -21,11 +23,19 @@ export type ApplyAttackFormResult = {
   missingAttackTargetId: string | null;
 };
 
+// Defaults to the alternative HP value when no maximum was set.
+export const getMaxAlternativeHp = (
+  character: CombatCharacter,
+): number | undefined => character.maxAlternativeHp || character.alternativeHp;
+
 export const applyDamageToCharacter = (
   damagedCharacter: CombatCharacter,
   damage: number,
 ): CombatCharacter => {
-  const updatedCharacter = { ...damagedCharacter };
+  const updatedCharacter = {
+    ...damagedCharacter,
+    maxAlternativeHp: getMaxAlternativeHp(damagedCharacter),
+  };
   let remainingDamage = 0;
 
   if (updatedCharacter.tempHp) {
@@ -46,6 +56,7 @@ export const applyDamageToCharacter = (
     if (updatedCharacter.alternativeHp <= 0) {
       remainingDamage = Math.abs(updatedCharacter.alternativeHp);
       updatedCharacter.alternativeHp = undefined;
+      updatedCharacter.maxAlternativeHp = undefined;
     }
     if (remainingDamage === 0) {
       return updatedCharacter;
@@ -70,12 +81,48 @@ export const applyDamageToCharacter = (
   return updatedCharacter;
 };
 
+// Never adds temporary HP, and never heals past the maximum.
+export const applyHealToCharacter = (
+  healedCharacter: CombatCharacter,
+  heal: number,
+): CombatCharacter => {
+  if (healedCharacter.isDead || heal <= 0) {
+    return healedCharacter;
+  }
+
+  const updatedCharacter = { ...healedCharacter };
+
+  // Alternative HP takes the whole heal: points above their maximum are lost.
+  if (updatedCharacter.alternativeHp) {
+    const maxAlternativeHp =
+      getMaxAlternativeHp(updatedCharacter) ?? updatedCharacter.alternativeHp;
+    updatedCharacter.alternativeHp = Math.max(
+      updatedCharacter.alternativeHp,
+      Math.min(updatedCharacter.alternativeHp + heal, maxAlternativeHp),
+    );
+    return updatedCharacter;
+  }
+
+  // A dying character's HP can be negative: healing starts from 0.
+  updatedCharacter.hp = Math.max(
+    updatedCharacter.hp,
+    Math.min(Math.max(updatedCharacter.hp, 0) + heal, updatedCharacter.maxHp),
+  );
+  if (updatedCharacter.isDying && updatedCharacter.hp > 0) {
+    updatedCharacter.isDying = false;
+    updatedCharacter.deathSaveThrowsLeft = 3;
+  }
+
+  return updatedCharacter;
+};
+
 export const resetRevivedCharacter = (
   character: CombatCharacter,
 ): CombatCharacter => ({
   ...character,
   hp: 1,
   alternativeHp: 0,
+  maxAlternativeHp: undefined,
   tempHp: 0,
   isDead: false,
   isDying: false,
@@ -104,6 +151,23 @@ export const applyAttackFormValues = (
       updatedCharacters[targetCharacterIndex] = applyDamageToCharacter(
         updatedCharacters[targetCharacterIndex],
         values.attackDamage,
+      );
+      hasChanges = true;
+    }
+  }
+
+  if (values.healTargetId && values.healAmount) {
+    const targetCharacterIndex = findCharacterIndexById(
+      updatedCharacters,
+      values.healTargetId,
+    );
+    if (
+      targetCharacterIndex !== -1 &&
+      !updatedCharacters[targetCharacterIndex].isDead
+    ) {
+      updatedCharacters[targetCharacterIndex] = applyHealToCharacter(
+        updatedCharacters[targetCharacterIndex],
+        values.healAmount,
       );
       hasChanges = true;
     }

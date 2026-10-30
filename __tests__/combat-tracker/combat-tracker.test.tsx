@@ -439,6 +439,53 @@ describe("AttackForm isDying/isDead behavior", () => {
     });
   });
 
+  it("heals a target and records it before saving", async () => {
+    const healer = buildCharacter({ id: "healer", name: "Healer" });
+    const target = buildCharacter({
+      id: "target",
+      name: "Target",
+      hp: 0,
+      isDying: true,
+      deathSaveThrowsLeft: 1,
+    });
+    const dead = buildCharacter({ id: "dead", name: "Dead", isDead: true });
+    const onCharactersChange = jest.fn();
+    const onHistoryEdited = jest.fn();
+
+    render(
+      <AttackForm
+        characters={[healer, target, dead]}
+        selectedCharacter={healer}
+        onCharactersChange={onCharactersChange}
+        onHistoryEdited={onHistoryEdited}
+      />,
+    );
+
+    const healTarget = screen.getByTestId("healTargetId");
+    expect(
+      within(healTarget).queryByRole("option", { name: "Dead" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(healTarget, { target: { value: target.id } });
+    fireEvent.change(screen.getByTestId("healAmount"), {
+      target: { value: "4" },
+    });
+    fireEvent.click(
+      screen.getAllByRole("button", { name: "attack.validate" })[1],
+    );
+    fireEvent.click(screen.getByRole("button", { name: "form.save" }));
+
+    await waitFor(() => expect(onCharactersChange).toHaveBeenCalled());
+
+    const [updatedCharacters] = onCharactersChange.mock.calls[0];
+    expect(
+      updatedCharacters.find(
+        (character: CombatCharacter) => character.id === target.id,
+      ),
+    ).toMatchObject({ hp: 4, isDying: false, deathSaveThrowsLeft: 3 });
+    expect(onHistoryEdited).toHaveBeenCalledWith(["history.heal"]);
+  });
+
   it("sets isDying to true when an attack brings a target's hp to 0 or less", async () => {
     const attacker = buildCharacter({ id: "attacker", name: "Attacker" });
     const target = buildCharacter({ id: "target", name: "Target", hp: 5 });

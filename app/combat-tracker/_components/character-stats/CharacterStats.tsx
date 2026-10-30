@@ -6,6 +6,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useState } from "react";
 import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
+import { getMaxAlternativeHp } from "../attack-form/attack-form.helper";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
@@ -176,7 +177,8 @@ const CharacterStats = ({
               <p>
                 <span>💙</span>{" "}
                 {translate("stats.alternativeHp", "combatTracker")} :{" "}
-                {+selectedCharacter.alternativeHp}
+                {+selectedCharacter.alternativeHp} /{" "}
+                {getMaxAlternativeHp(selectedCharacter)}
               </p>
             )}
           <p>
