@@ -8,6 +8,7 @@ import {
 import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import AttackFields from "./_components/AttackFields";
+import HealFields from "./_components/HealFields";
 import RecoveryFields from "./_components/RecoveryFields";
 import SpellFields from "./_components/SpellFields";
 import StateFields from "./_components/StateFields";
@@ -25,7 +26,13 @@ type PendingHistoryEntry = {
   action: string;
 };
 
-type HistoryAction = "attack" | "reanimate" | "revive" | "spell" | "state";
+type HistoryAction =
+  | "attack"
+  | "heal"
+  | "reanimate"
+  | "revive"
+  | "spell"
+  | "state";
 
 const createUniqueStateId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -45,6 +52,8 @@ const AttackForm = ({
     defaultValues: {
       attackTargetId: "",
       attackDamage: 0,
+      healTargetId: "",
+      healAmount: 0,
       spellUsedName: "",
       spellUsedLevel: null,
       inflictedStateTargetId: "",
@@ -62,6 +71,7 @@ const AttackForm = ({
   );
   const [disabledActions, setDisabledActions] = useState({
     attack: false,
+    heal: false,
     reanimate: false,
     revive: false,
     spell: false,
@@ -89,6 +99,25 @@ const AttackForm = ({
         character: selectedCharacter.name,
         target: targetName,
         damage: String(attackDamage),
+      }),
+    );
+  };
+
+  const addHealHistoryEntry = () => {
+    const { healTargetId, healAmount } = getValues();
+    const targetName = characters.find(
+      (character) => character.id === healTargetId,
+    )?.name;
+    if (!targetName || !healAmount) {
+      return;
+    }
+
+    addHistoryEntry(
+      "heal",
+      translate("history.heal", "combatTracker", {
+        character: selectedCharacter.name,
+        target: targetName,
+        heal: String(healAmount),
       }),
     );
   };
@@ -226,6 +255,11 @@ const AttackForm = ({
             characters={characters}
             disabled={disabledActions.attack}
             onAddHistory={addAttackHistoryEntry}
+          />
+          <HealFields
+            characters={characters}
+            disabled={disabledActions.heal}
+            onAddHistory={addHealHistoryEntry}
           />
           <SpellFields
             selectedCharacter={selectedCharacter}

@@ -54,6 +54,8 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     typeof value.maxHp === "number" &&
     (value.alternativeHp === undefined ||
       typeof value.alternativeHp === "number") &&
+    (value.maxAlternativeHp === undefined ||
+      typeof value.maxAlternativeHp === "number") &&
     (value.tempHp === undefined || typeof value.tempHp === "number") &&
     typeof value.isDying === "boolean" &&
     typeof value.isDead === "boolean" &&

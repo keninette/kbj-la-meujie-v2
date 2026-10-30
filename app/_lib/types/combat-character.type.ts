@@ -6,6 +6,7 @@ export type CombatCharacter = {
   hp: number;
   maxHp: number;
   alternativeHp?: number;
+  maxAlternativeHp?: number;
   tempHp?: number;
   isDying: boolean;
   isDead: boolean;

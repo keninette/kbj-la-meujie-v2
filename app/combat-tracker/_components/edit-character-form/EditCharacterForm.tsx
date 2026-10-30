@@ -8,6 +8,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
+import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
 
 type EditCharacterFormProps = {
   initialCharacter: CombatCharacter | null;
@@ -174,6 +175,7 @@ const EditCharacterForm = ({
     onSubmit?.({
       ...character,
       id: character.id || createCharacterId(),
+      maxAlternativeHp: getMaxAlternativeHp(character),
     });
   };
 
@@ -259,6 +261,24 @@ const EditCharacterForm = ({
               value={character?.alternativeHp ?? 0}
               onChange={handleInputChange}
               data-testid="alternativeHp"
+            />
+          </div>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="maxAlternativeHp">
+              {translate("form.maxAlternativeHp", "combatTracker")}
+            </label>
+            <input
+              type="number"
+              id="maxAlternativeHp"
+              name="maxAlternativeHp"
+              value={character?.maxAlternativeHp || ""}
+              placeholder={
+                character?.alternativeHp
+                  ? String(character.alternativeHp)
+                  : undefined
+              }
+              onChange={handleInputChange}
+              data-testid="maxAlternativeHp"
             />
           </div>
           <div className={styles["edit-character-form__line"]}>
