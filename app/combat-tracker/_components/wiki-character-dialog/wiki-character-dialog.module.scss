@@ -71,10 +71,7 @@
     &--all {
       padding-bottom: var(--spacing-padding--button);
 
-      @include mixins.border--thin--light;
-      border-left: none;
-      border-right: none;
-      border-top: none;
+      @include mixins.separator--bottom;
       font-weight: bold;
     }
   }
@@ -103,9 +100,6 @@
     justify-content: flex-end;
     padding-top: var(--spacing-layout-section-content-margin);
 
-    @include mixins.border--thin--light;
-    border-bottom: none;
-    border-left: none;
-    border-right: none;
+    @include mixins.separator--top;
   }
 }

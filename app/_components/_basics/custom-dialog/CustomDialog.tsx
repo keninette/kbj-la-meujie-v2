@@ -11,7 +11,6 @@ type CustomDialogProps = {
   children: React.ReactNode;
 };
 
-/** Modal window with the app's look: a title, then the given content */
 const CustomDialog = ({
   isOpened,
   onClose,
@@ -33,9 +32,12 @@ const CustomDialog = ({
       }}
     >
       <div className={styles["custom-dialog"]}>
-        <h2 id={titleId} className={styles["custom-dialog__title"]}>
-          {title}
-        </h2>
+        <header className={styles["custom-dialog__header"]}>
+          <h2 id={titleId} className={styles["custom-dialog__title"]}>
+            {title}
+          </h2>
+          <hr className={styles["custom-dialog__separator"]} />
+        </header>
         {children}
       </div>
     </Dialog>
