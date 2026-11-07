@@ -13,6 +13,7 @@ import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwe
 import { translate } from "@/app/_dictionaries/dictionnary";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import ActionsList from "../actions-list/ActionsList";
+import NpcAttitudeIcon from "../npc-attitude-icon/NpcAttitudeIcon";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -122,6 +123,9 @@ const CharacterStats = ({
                   faIconStyle={FaIconStyleEnum.SOLID}
                   tooltip={translate("stats.player", "combatTracker")}
                 />
+              )}
+              {selectedCharacter.isNpc && selectedCharacter.attitude && (
+                <NpcAttitudeIcon attitude={selectedCharacter.attitude} />
               )}
               {selectedCharacter.name}
             </h3>

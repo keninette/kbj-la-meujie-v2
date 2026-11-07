@@ -6,6 +6,7 @@ import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
+import NpcAttitudeIcon from "@/app/combat-tracker/_components/npc-attitude-icon/NpcAttitudeIcon";
 
 export type CharacterListAction = "edit" | "deactivate" | "reactivate";
 
@@ -61,6 +62,9 @@ const CharacterListItem = ({
             faIconStyle={FaIconStyleEnum.SOLID}
             tooltip={translate("stats.player", "combatTracker")}
           />
+        )}
+        {character.isNpc && character.attitude && (
+          <NpcAttitudeIcon attitude={character.attitude} />
         )}
         <p>{character.name}</p>
         {character.wikiLink && (

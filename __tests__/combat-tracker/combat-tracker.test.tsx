@@ -12,6 +12,7 @@ import {
   saveCombat,
 } from "@/app/combat-tracker/_lib/local-storage";
 import { CombatCharacter } from "@lib/types/combat-character.type";
+import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import AttackForm from "@/app/combat-tracker/_components/attack-form/AttackForm";
 import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
@@ -186,6 +187,26 @@ describe("loadCombat", () => {
       ),
     );
 
+    expect(loadCombat()).toBeNull();
+  });
+
+  it("keeps the NPC attitude, and refuses an unknown one", () => {
+    const combat = buildCombat([
+      buildCharacter({ isNpc: true, attitude: NpcAttitudeEnum.ENEMY }),
+    ]);
+    saveCombat(combat);
+    expect(loadCombat()?.characters[0].attitude).toBe(NpcAttitudeEnum.ENEMY);
+
+    localStorage.setItem(
+      "scratchie-combat-tracker",
+      JSON.stringify(
+        buildCombat([
+          buildCharacter({
+            attitude: "grumpy" as unknown as NpcAttitudeEnum,
+          }),
+        ]),
+      ),
+    );
     expect(loadCombat()).toBeNull();
   });
 
@@ -691,6 +712,50 @@ describe("EditCharacterForm import from wiki", () => {
   );
 });
 
+describe("EditCharacterForm NPC attitude", () => {
+  it("is only asked for NPCs, and saved with the character", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ isNpc: false })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    expect(screen.queryByTestId("attitude")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("form.npc"));
+    fireEvent.change(screen.getByTestId("attitude"), {
+      target: { value: NpcAttitudeEnum.FRIEND },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({
+      isNpc: true,
+      attitude: NpcAttitudeEnum.FRIEND,
+    });
+  });
+
+  it("can be left unknown", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          isNpc: true,
+          attitude: NpcAttitudeEnum.ENEMY,
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("attitude"), {
+      target: { value: "" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].attitude).toBeUndefined();
+  });
+});
+
 describe("EditCharacterForm passives", () => {
   it("adds a passive and submits it with the character", () => {
     const onSubmit = jest.fn();
@@ -881,6 +946,22 @@ describe("CharacterStats passives", () => {
     renderStats(buildCharacter());
 
     expect(screen.queryByTestId("character-actions")).not.toBeInTheDocument();
+  });
+
+  it("shows the attitude of an NPC only", () => {
+    const { unmount } = renderStats(
+      buildCharacter({ isNpc: true, attitude: NpcAttitudeEnum.ENEMY }),
+    );
+    expect(screen.getByTestId("npc-attitude-enemy")).toHaveAttribute(
+      "title",
+      "attitude.enemy",
+    );
+    unmount();
+
+    renderStats(
+      buildCharacter({ isNpc: false, attitude: NpcAttitudeEnum.ENEMY }),
+    );
+    expect(screen.queryByTestId("npc-attitude-enemy")).not.toBeInTheDocument();
   });
 
   it("does not display the passives block when there are none", () => {

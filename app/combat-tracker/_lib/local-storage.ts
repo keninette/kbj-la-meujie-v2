@@ -1,3 +1,4 @@
+import { isNpcAttitude } from "@/app/_lib/enums/npc-attitude.enum";
 import { Combat } from "../../_lib/types/combat.type";
 import { CombatCharacter } from "../../_lib/types/combat-character.type";
 import { CombatState } from "../../_lib/types/combat-state.type";
@@ -99,6 +100,7 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     typeof value.isDying === "boolean" &&
     typeof value.isDead === "boolean" &&
     typeof value.isNpc === "boolean" &&
+    (value.attitude === undefined || isNpcAttitude(value.attitude)) &&
     typeof value.deathSaveThrowsLeft === "number" &&
     typeof value.ac === "number" &&
     typeof value.initiativeScore === "number" &&

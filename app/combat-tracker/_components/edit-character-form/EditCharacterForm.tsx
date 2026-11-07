@@ -13,6 +13,10 @@ import CharacterPortrait from "@/app/combat-tracker/_components/character-portra
 import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
 import ActionsList from "@/app/combat-tracker/_components/actions-list/ActionsList";
 import {
+  isNpcAttitude,
+  NpcAttitudeEnum,
+} from "@/app/_lib/enums/npc-attitude.enum";
+import {
   BG3_WIKI_HOST,
   buildWikiLink,
   WikiCharacter,
@@ -411,6 +415,35 @@ const EditCharacterForm = ({
               onChange={handleInputChange}
             />
           </div>
+          {character?.isNpc && (
+            <div className={styles["edit-character-form__line"]}>
+              <label htmlFor="attitude">
+                {translate("form.attitude", "combatTracker")}
+              </label>
+              <select
+                id="attitude"
+                name="attitude"
+                value={character.attitude ?? ""}
+                onChange={(event) => {
+                  const { value } = event.target;
+                  setCharacter((prevChar) => ({
+                    ...(prevChar ?? createEmptyCharacter()),
+                    attitude: isNpcAttitude(value) ? value : undefined,
+                  }));
+                }}
+                data-testid="attitude"
+              >
+                <option value="">
+                  {translate("attitude.unknown", "combatTracker")}
+                </option>
+                {Object.values(NpcAttitudeEnum).map((attitude) => (
+                  <option key={attitude} value={attitude}>
+                    {translate(`attitude.${attitude}`, "combatTracker")}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className={lineClassName("hp")}>
             <label htmlFor="hp">{translate("form.hp", "combatTracker")}</label>
             <input
