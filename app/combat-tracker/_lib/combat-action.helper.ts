@@ -1,4 +1,5 @@
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
+import { translate } from "@/app/_dictionaries/dictionnary";
 
 export enum ActionCostKind {
   ACTION = "action",
@@ -50,7 +51,9 @@ export const describeActionDetails = (action: CombatAction): string =>
       [damage.dice, damage.type].filter(Boolean).join(" "),
     ),
     action.save,
-    action.isConcentration ? "concentration" : undefined,
+    action.isConcentration
+      ? translate("actions.concentration", "combatTracker")
+      : undefined,
     action.recharge,
   ]
     .filter(Boolean)

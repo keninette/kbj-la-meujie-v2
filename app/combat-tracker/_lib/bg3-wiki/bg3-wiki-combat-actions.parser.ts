@@ -5,7 +5,9 @@ import {
 import {
   buildWikiLink,
   normalizeResourceName,
+  splitTopLevelParams,
   stripWikiMarkup,
+  toFileTitle,
 } from "./bg3-wiki.parser";
 
 /**
@@ -22,7 +24,7 @@ export type FeatureBox = {
 /** A row of the wiki's "actions" Cargo table, as exported in JSON */
 export type WikiActionRow = {
   page: string;
-  name: string;
+  name?: string | null;
   type?: string | null;
   cost?: string | null;
   "spell level"?: number | string | null;
@@ -65,11 +67,12 @@ export const ACTION_FIELDS = [
   "hotbar_icon",
 ].join(",");
 
+const capitalize = (value: string): string =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
 /** "Off-Hand_Attack_(Melee)" and "off-Hand Attack (Melee)" are the same page */
-const normalizePageName = (page: string): string => {
-  const spaced = page.replaceAll("_", " ").replace(/\s+/g, " ").trim();
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
-};
+const normalizePageName = (page: string): string =>
+  capitalize(page.replaceAll("_", " ").replace(/\s+/g, " ").trim());
 
 /**
  * The "Attacks and actions" section when the page has one (feature boxes
@@ -90,19 +93,59 @@ const getActionsSection = (wikitext: string): string => {
 };
 
 /**
+ * Content of each feature box ("Main Hand Attack|item=dagger"), including the
+ * ones holding nested templates ("item={{SAI|Dagger}}").
+ */
+const findFeatureBoxContents = (text: string): string[] => {
+  const contents: string[] = [];
+  // "Feature box", "feature_box", and "Reaction box" for reactions
+  for (const match of text.matchAll(
+    /\{\{\s*(?:feature|reaction)[ _]box\s*\|/gi,
+  )) {
+    const start = match.index + match[0].length;
+    let depth = 1;
+    let i = start;
+    while (i < text.length && depth > 0) {
+      const pair = text.slice(i, i + 2);
+      if (pair === "{{" || pair === "}}") {
+        depth += pair === "{{" ? 1 : -1;
+        i += 2;
+      } else {
+        i++;
+      }
+    }
+    // An unclosed box is ignored
+    if (depth === 0) {
+      contents.push(text.slice(start, i - 2));
+    }
+  }
+  return contents;
+};
+
+/** Lists the same action with the same item once, in order */
+export const uniqueFeatureBoxes = (boxes: FeatureBox[]): FeatureBox[] => {
+  const seen = new Set<string>();
+  return boxes.filter((box) => {
+    const key = `${box.page}|${box.item ?? ""}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+};
+
+/**
  * "{{Feature box|Main Hand Attack|item=dagger}}" (or "{{Reaction box|…}}")
  * -> { page: "Main Hand Attack", item: "dagger" }
  * Duplicates (same action, same item) are listed once.
  */
 export const extractFeatureBoxes = (wikitext: string): FeatureBox[] => {
   const boxes: FeatureBox[] = [];
-  const seen = new Set<string>();
 
-  for (const [, content] of getActionsSection(wikitext).matchAll(
-    // "Feature box", "feature_box", and "Reaction box" for reactions
-    /\{\{\s*(?:feature|reaction)[ _]box\s*\|([^{}]*)\}\}/gi,
-  )) {
-    const [rawPage, ...params] = content.split("|");
+  for (const content of findFeatureBoxContents(getActionsSection(wikitext))) {
+    // Pipes inside [[Link|Label]] or {{Templates|…}} don't separate params
+    const [rawPage, ...params] = splitTopLevelParams(content);
     const page = normalizePageName(stripWikiMarkup(rawPage));
     if (!page) {
       continue;
@@ -110,9 +153,12 @@ export const extractFeatureBoxes = (wikitext: string): FeatureBox[] => {
 
     const box: FeatureBox = { page };
     for (const param of params) {
-      const [key, ...value] = param.split("=");
-      const trimmedValue = stripWikiMarkup(value.join("="));
-      const name = key.trim().toLowerCase();
+      const separatorIndex = param.indexOf("=");
+      if (separatorIndex === -1) {
+        continue;
+      }
+      const name = param.slice(0, separatorIndex).trim().toLowerCase();
+      const trimmedValue = stripWikiMarkup(param.slice(separatorIndex + 1));
       if (
         trimmedValue &&
         (name === "item" || name === "cost" || name === "recharge")
@@ -121,14 +167,10 @@ export const extractFeatureBoxes = (wikitext: string): FeatureBox[] => {
       }
     }
 
-    const key = `${box.page}|${box.item ?? ""}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      boxes.push(box);
-    }
+    boxes.push(box);
   }
 
-  return boxes;
+  return uniqueFeatureBoxes(boxes);
 };
 
 /**
@@ -140,13 +182,14 @@ export const findCombatSubpage = (wikitext: string): string | undefined =>
 
 /**
  * Cargo query matching the given pages. Titles holding a double quote can't
- * be written in the query and are left out.
+ * be written in the query and are left out: undefined when none is left.
  */
-export const buildActionsWhere = (pages: string[]): string =>
-  `_pageName IN (${pages
+export const buildActionsWhere = (pages: string[]): string | undefined => {
+  const quoted = pages
     .filter((page) => !page.includes('"'))
-    .map((page) => `"${page}"`)
-    .join(",")})`;
+    .map((page) => `"${page}"`);
+  return quoted.length ? `_pageName IN (${quoted.join(",")})` : undefined;
+};
 
 /**
  * "action, spell2" -> ["action", "2"], keyed like the spell slots.
@@ -178,11 +221,14 @@ const decodeHtmlEntities = (value: string): string => {
     value = value.replace(
       /&(#x[0-9a-f]+|#\d+|[a-z]+);/gi,
       (entity, code: string) => {
-        if (code.startsWith("#x") || code.startsWith("#X")) {
-          return String.fromCodePoint(parseInt(code.slice(2), 16));
-        }
         if (code.startsWith("#")) {
-          return String.fromCodePoint(parseInt(code.slice(1), 10));
+          const codePoint = /^#x/i.test(code)
+            ? parseInt(code.slice(2), 16)
+            : parseInt(code.slice(1), 10);
+          // A malformed code is kept as written
+          return codePoint <= 0x10ffff
+            ? String.fromCodePoint(codePoint)
+            : entity;
         }
         return named[code.toLowerCase()] ?? entity;
       },
@@ -198,24 +244,14 @@ const decodeHtmlEntities = (value: string): string => {
  * -> "receive Disadvantage on…"
  */
 export const cleanDescription = (value: string | null | undefined): string => {
-  let text = decodeHtmlEntities(value ?? "").replace(/<[^>]*>/g, "");
-
-  // Innermost links first: "[[File:x.png|alt=[[Attack Roll]]]]" holds one
-  let previous;
-  do {
-    previous = text;
-    text = text.replace(/\[\[([^[\]]*)\]\]/g, (_, content: string) =>
-      /^\s*(File|Image):/i.test(content)
-        ? ""
-        : (content.split("|").at(-1) ?? ""),
-    );
-  } while (text !== previous);
+  const text = decodeHtmlEntities(value ?? "")
+    // Only actual tags: "HP < 50%, else >" is text
+    .replace(/<\/?[a-z][a-z0-9-]*(?:\s[^<>]*)?\/?>/gi, "")
+    // Icons, which may hold a link: "[[File:x.png|alt=[[Attack Roll]]]]"
+    .replace(/\[\[\s*(?:File|Image):(?:[^[\]]|\[\[[^[\]]*\]\])*\]\]/gi, "");
 
   return stripWikiMarkup(text).replace(/\s+/g, " ").trim();
 };
-
-const capitalize = (value: string): string =>
-  value.charAt(0).toUpperCase() + value.slice(1);
 
 const parseDamages = (row: WikiActionRow): CombatActionDamage[] =>
   ([1, 2, 3, 4] as const).flatMap((index) => {
@@ -273,9 +309,7 @@ export const buildCombatAction = (
 
 /** "Cure Wounds Unfaded Icon.webp" -> "File:Cure Wounds Unfaded Icon.webp" */
 export const getActionIconFile = (row: WikiActionRow): string | undefined =>
-  row["hotbar icon"]
-    ? `File:${row["hotbar icon"].replace(/^(File|Image):/i, "")}`
-    : undefined;
+  row["hotbar icon"] ? toFileTitle(row["hotbar icon"]) : undefined;
 
 /**
  * One action per feature box, in the page's order. A box whose page isn't in
@@ -292,7 +326,7 @@ export const buildCombatActions = (
     );
     // A page may store several rows: prefer the one named after it
     const row =
-      pageRows.find((r) => normalizePageName(r.name) === box.page) ??
+      pageRows.find((r) => r.name && normalizePageName(r.name) === box.page) ??
       pageRows[0];
     if (!row) {
       return [];

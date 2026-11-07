@@ -55,6 +55,7 @@
   "form.actionName": "Nom de l'action",
   "stats.passives": "Passifs",
   "stats.actions": "Actions",
+  "actions.concentration": "concentration",
   "actions.cost.action": "Action",
   "actions.cost.bonus": "Action bonus",
   "actions.cost.reaction": "Réaction",

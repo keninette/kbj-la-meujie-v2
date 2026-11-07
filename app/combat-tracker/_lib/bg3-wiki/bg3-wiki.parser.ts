@@ -87,7 +87,7 @@ const extractInfoboxContent = (wikitext: string): string | null => {
  * Splits the infobox on top-level "|" only, so that pipes inside
  * [[Link|Label]] or nested {{Templates|...}} are kept intact.
  */
-const splitTopLevelParams = (content: string): string[] => {
+export const splitTopLevelParams = (content: string): string[] => {
   const params: string[] = [];
   let depth = 0;
   let current = "";
@@ -258,6 +258,10 @@ export const parseResources = (
   return resources;
 };
 
+/** "Portrait Kagha.png" or "Image:Portrait Kagha.png" -> "File:Portrait Kagha.png" */
+export const toFileTitle = (fileName: string): string =>
+  `File:${fileName.trim().replace(/^(File|Image):/i, "")}`;
+
 /**
  * Image file names from the infobox, best first: the portrait (small,
  * square), then the in-game render.
@@ -269,7 +273,7 @@ export const getImageFileCandidates = (
   ["portrait", "in game"]
     .map((field) => fields[field])
     .filter((fileName): fileName is string => !!fileName)
-    .map((fileName) => `File:${fileName.replace(/^(File|Image):/i, "")}`);
+    .map(toFileTitle);
 
 /**
  * "Minthara, Baenre Paladin" -> "https://bg3.wiki/wiki/Minthara,_Baenre_Paladin"

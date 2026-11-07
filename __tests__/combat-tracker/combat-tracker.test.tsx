@@ -504,7 +504,9 @@ describe("EditCharacterForm import from wiki", () => {
     await runImport(false);
 
     const moonbeam = screen.getByTestId("actions-list-action");
-    expect(moonbeam).toHaveTextContent("2d10 Radiant · CON · concentration");
+    expect(moonbeam).toHaveTextContent(
+      "2d10 Radiant · CON · actions.concentration",
+    );
     expect(
       within(moonbeam).getByTestId("action-cost-action"),
     ).toBeInTheDocument();
@@ -740,6 +742,23 @@ describe("EditCharacterForm actions", () => {
   const submit = () =>
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
+  it("keeps a whole character when an action is the first thing added", () => {
+    const onSubmit = jest.fn();
+    render(<EditCharacterForm initialCharacter={null} onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByTestId("actionName"), {
+      target: { value: "Dodge" },
+    });
+    fireEvent.click(screen.getByTestId("addAction"));
+    submit();
+
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({
+      id: expect.any(String),
+      hp: expect.any(Number),
+      actions: [{ name: "Dodge", costs: [] }],
+    });
+  });
+
   it("adds an action by name, without details", () => {
     const onSubmit = jest.fn();
     render(
@@ -838,7 +857,7 @@ describe("CharacterStats passives", () => {
     ).getAllByTestId("actions-list-action");
 
     expect(moonbeam).toHaveTextContent("Moonbeam");
-    expect(moonbeam).toHaveTextContent("2d10 Radiant · concentration");
+    expect(moonbeam).toHaveTextContent("2d10 Radiant · actions.concentration");
     expect(moonbeam).toHaveAttribute("title", "Call down a beam of light.");
     // An action that also uses a spell slot shows both icons
     expect(

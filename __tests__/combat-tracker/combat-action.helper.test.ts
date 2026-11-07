@@ -4,6 +4,11 @@ import {
   parseActionCost,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 
+// dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
+jest.mock("../../app/_dictionaries/dictionnary", () => ({
+  translate: (key: string) => key,
+}));
+
 describe("parseActionCost", () => {
   it("recognizes the action economy", () => {
     expect(parseActionCost("action")).toEqual({
@@ -39,7 +44,7 @@ describe("describeActionDetails", () => {
 
   it("describes the action without its costs", () => {
     expect(describeActionDetails(moonbeam)).toBe(
-      "2d10 Radiant · CON · concentration",
+      "2d10 Radiant · CON · actions.concentration",
     );
   });
 });

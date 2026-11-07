@@ -19,6 +19,7 @@ import {
   extractFeatureBoxes,
   findCombatSubpage,
   getActionIconFile,
+  uniqueFeatureBoxes,
   WikiActionRow,
 } from "./bg3-wiki-combat-actions.parser";
 
@@ -83,6 +84,64 @@ const callCargoExport = <T>(params: Record<string, string>): Promise<T> => {
   return fetchJson<T>(exportUrl);
 };
 
+type WikiQueryPage = NonNullable<
+  NonNullable<WikiImageInfoResponse["query"]>["pages"]
+>[number];
+
+/**
+ * Queries pages by title, 50 at a time, all batches at once, and follows the
+ * redirects. Gives for each requested title the page it leads to, if found.
+ * Never throws: a failed batch only leaves its titles out.
+ */
+const queryPagesByTitle = async (
+  titles: string[],
+  params: Record<string, string> = {},
+): Promise<Map<string, WikiQueryPage>> => {
+  const uniqueTitles = [...new Set(titles)];
+  const batches: string[][] = [];
+  for (let i = 0; i < uniqueTitles.length; i += MAX_TITLES_PER_REQUEST) {
+    batches.push(uniqueTitles.slice(i, i + MAX_TITLES_PER_REQUEST));
+  }
+
+  const results = await Promise.all(
+    batches.map(async (batch) => {
+      try {
+        const data = await callWikiApi<WikiImageInfoResponse>({
+          ...params,
+          action: "query",
+          titles: batch.join("|"),
+          redirects: "1",
+        });
+
+        // The API may rename titles ("File:Portrait_Kagha.png" -> "File:Portrait Kagha.png"),
+        // then follow redirects ("File:Kagha portrait.png" -> "File:Portrait Kagha.png")
+        const toMap = (renames: { from: string; to: string }[] = []) =>
+          new Map(renames.map(({ from, to }) => [from, to]));
+        const normalizedTitles = toMap(data.query?.normalized);
+        const redirectedTitles = toMap(data.query?.redirects);
+        const pagesByTitle = new Map(
+          (data.query?.pages ?? [])
+            .filter((page) => !page.missing)
+            .map((page) => [page.title, page]),
+        );
+
+        return batch.flatMap((title) => {
+          const normalized = normalizedTitles.get(title) ?? title;
+          const page = pagesByTitle.get(
+            redirectedTitles.get(normalized) ?? normalized,
+          );
+          return page ? [[title, page] as const] : [];
+        });
+      } catch (error) {
+        console.error(error);
+        return [];
+      }
+    }),
+  );
+
+  return new Map(results.flat());
+};
+
 /**
  * URLs of the image files that exist on the wiki, by requested file name.
  * Never throws: a missing picture should never prevent an import.
@@ -90,50 +149,31 @@ const callCargoExport = <T>(params: Record<string, string>): Promise<T> => {
 const findImageUrls = async (
   fileNames: string[],
 ): Promise<Map<string, string>> => {
-  const urls = new Map<string, string>();
-  const uniqueNames = [...new Set(fileNames)];
-
-  for (let i = 0; i < uniqueNames.length; i += MAX_TITLES_PER_REQUEST) {
-    const batch = uniqueNames.slice(i, i + MAX_TITLES_PER_REQUEST);
-    try {
-      const data = await callWikiApi<WikiImageInfoResponse>({
-        action: "query",
-        titles: batch.join("|"),
-        prop: "imageinfo",
-        iiprop: "url",
-        // A file name may redirect to the actual picture
-        redirects: "1",
-      });
-
-      // The API may rename titles ("File:Portrait_Kagha.png" -> "File:Portrait Kagha.png"),
-      // then follow redirects ("File:Kagha portrait.png" -> "File:Portrait Kagha.png")
-      const toMap = (renames: { from: string; to: string }[] = []) =>
-        new Map(renames.map(({ from, to }) => [from, to]));
-      const normalizedTitles = toMap(data.query?.normalized);
-      const redirectedTitles = toMap(data.query?.redirects);
-      const resolveTitle = (name: string) => {
-        const normalized = normalizedTitles.get(name) ?? name;
-        return redirectedTitles.get(normalized) ?? normalized;
-      };
-      const urlsByTitle = new Map(
-        (data.query?.pages ?? [])
-          .filter((page) => !page.missing && page.imageinfo?.[0]?.url)
-          .map((page) => [page.title, page.imageinfo![0].url]),
-      );
-
-      for (const name of batch) {
-        const url = urlsByTitle.get(resolveTitle(name));
-        if (url) {
-          urls.set(name, url);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  return urls;
+  const pages = await queryPagesByTitle(fileNames, {
+    prop: "imageinfo",
+    iiprop: "url",
+  });
+  return new Map(
+    [...pages].flatMap(([fileName, page]) => {
+      const url = page.imageinfo?.[0]?.url;
+      return url ? [[fileName, url] as const] : [];
+    }),
+  );
 };
+
+/**
+ * Title of the page each title leads to: "Firebolt" -> "Fire Bolt".
+ * Titles that don't exist are left out.
+ */
+const resolveRedirects = async (
+  titles: string[],
+): Promise<Map<string, string>> =>
+  new Map(
+    [...(await queryPagesByTitle(titles))].map(([title, page]) => [
+      title,
+      page.title,
+    ]),
+  );
 
 /** URL of the first image file that exists on the wiki */
 const findImageUrl = async (
@@ -194,22 +234,54 @@ const fetchCombatSubpage = async (
 };
 
 /**
+ * Infobox fields of a page, undefined when it has none: a boss may keep
+ * them on its main page, its "/Combat" subpage, or both.
+ */
+const parseOptionalInfobox = (
+  wikitext: string | undefined,
+): Record<string, string> | undefined => {
+  if (!wikitext) {
+    return undefined;
+  }
+  try {
+    return parseInfobox(wikitext);
+  } catch (error) {
+    if (!(error instanceof Bg3WikiError)) {
+      throw error;
+    }
+    return undefined;
+  }
+};
+
+/**
  * Actions listed on the first page having some ("Attacks and actions"),
  * with their details from the actions table.
  * Never throws: the character is still imported without its actions.
  */
 const fetchActions = async (wikitexts: string[]): Promise<CombatAction[]> => {
   try {
-    const boxes =
+    const listedBoxes =
       wikitexts.map(extractFeatureBoxes).find((found) => found.length) ?? [];
-    if (!boxes.length) {
+    if (!listedBoxes.length) {
+      return [];
+    }
+    // The actions table only knows the actual pages, not their redirects
+    const pages = await resolveRedirects(listedBoxes.map((box) => box.page));
+    const boxes = uniqueFeatureBoxes(
+      listedBoxes.map((box) => ({
+        ...box,
+        page: pages.get(box.page) ?? box.page,
+      })),
+    );
+    const where = buildActionsWhere(boxes.map((box) => box.page));
+    if (!where) {
       return [];
     }
 
     const rows = await callCargoExport<WikiActionRow[]>({
       tables: "actions",
       fields: ACTION_FIELDS,
-      where: buildActionsWhere(boxes.map((box) => box.page)),
+      where,
       limit: "500",
     });
     const iconUrls = await findImageUrls(
@@ -235,12 +307,19 @@ export const createCharacterFromWiki = async (
       extractPageTitleFromUrl(url),
     );
     const combatWikitext = await fetchCombatSubpage(wikitext);
-    const fields = combatWikitext
-      ? mergeCombatInfobox(parseInfobox(wikitext), parseInfobox(combatWikitext))
-      : parseInfobox(wikitext);
+    const pageFields = parseOptionalInfobox(wikitext);
+    const combatFields = parseOptionalInfobox(combatWikitext);
+    if (!pageFields && !combatFields) {
+      throw new Bg3WikiError(Bg3WikiErrorEnum.NO_INFOBOX);
+    }
+    const fields =
+      pageFields && combatFields
+        ? mergeCombatInfobox(pageFields, combatFields)
+        : (combatFields ?? pageFields)!;
     const [imageUrl, actions] = await Promise.all([
       findImageUrl(getImageFileCandidates(fields)),
-      fetchActions(combatWikitext ? [wikitext, combatWikitext] : [wikitext]),
+      // The subpage is the one about the fight: its actions win
+      fetchActions(combatWikitext ? [combatWikitext, wikitext] : [wikitext]),
     ]);
 
     return {

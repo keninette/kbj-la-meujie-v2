@@ -6,6 +6,7 @@ import {
   findCombatSubpage,
   getActionIconFile,
   parseCosts,
+  uniqueFeatureBoxes,
   WikiActionRow,
 } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki-combat-actions.parser";
 
@@ -87,6 +88,38 @@ describe("bg3-wiki combat actions parser", () => {
     });
   });
 
+  describe("extractFeatureBoxes with markup", () => {
+    it("keeps links and templates inside the params", () => {
+      expect(
+        extractFeatureBoxes(
+          `{{Feature box|Main Hand Attack|item=[[Dagger|dagger]]}}
+{{Feature box|Off-Hand Attack (Melee)|item={{SAI|Scimitar}}}}
+{{Feature box|Unclosed`,
+        ),
+      ).toEqual([
+        { page: "Main Hand Attack", item: "dagger" },
+        { page: "Off-Hand Attack (Melee)", item: "Scimitar" },
+      ]);
+    });
+  });
+
+  describe("uniqueFeatureBoxes", () => {
+    it("keeps the first box of each action and item", () => {
+      expect(
+        uniqueFeatureBoxes([
+          { page: "Fire Bolt" },
+          { page: "Main Hand Attack", item: "Dagger" },
+          { page: "Fire Bolt", cost: "bonus" },
+          { page: "Main Hand Attack", item: "Club" },
+        ]),
+      ).toEqual([
+        { page: "Fire Bolt" },
+        { page: "Main Hand Attack", item: "Dagger" },
+        { page: "Main Hand Attack", item: "Club" },
+      ]);
+    });
+  });
+
   describe("findCombatSubpage", () => {
     it("finds the boss subpage listing the actions", () => {
       expect(
@@ -101,6 +134,8 @@ describe("bg3-wiki combat actions parser", () => {
       expect(
         buildActionsWhere(["Moonbeam", "Absolute's Ward", 'The "Bad" one']),
       ).toBe(`_pageName IN ("Moonbeam","Absolute's Ward")`);
+      expect(buildActionsWhere(['The "Bad" one'])).toBeUndefined();
+      expect(buildActionsWhere([])).toBeUndefined();
     });
   });
 
@@ -127,6 +162,16 @@ describe("bg3-wiki combat actions parser", () => {
         ),
       ).toBe("Move the beam 18 m. Higher if you're hidden.");
       expect(cleanDescription(null)).toBe("");
+      // Escaped comparison signs aren't tags
+      expect(
+        cleanDescription(
+          "Deals 1d6 if HP &lt; 50%, else &gt; 2d6. &lt;b&gt;Bold&lt;/b&gt;",
+        ),
+      ).toBe("Deals 1d6 if HP < 50%, else > 2d6. Bold");
+      // An invalid code is kept rather than breaking the import
+      expect(cleanDescription("Bad &#x110000; code")).toBe(
+        "Bad &#x110000; code",
+      );
     });
   });
 
@@ -207,6 +252,14 @@ describe("bg3-wiki combat actions parser", () => {
       );
       expect(aid.costs).toEqual(["bonus"]);
       expect(aid.recharge).toBe("Long rest");
+    });
+
+    it("ignores the rows without a name", () => {
+      const [moonbeam] = buildCombatActions(
+        [{ page: "Moonbeam" }],
+        [row({ name: null, type: "other" }), row({ type: "spell" })],
+      );
+      expect(moonbeam.type).toBe("spell");
     });
 
     it("treats a level 0 spell as a cantrip", () => {

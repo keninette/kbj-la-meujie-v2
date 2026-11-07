@@ -166,7 +166,7 @@ const EditCharacterForm = ({
       spellSlotsLeft[trimmedName] = spellSlotValue;
 
       return {
-        ...prevChar,
+        ...(prevChar ?? createEmptyCharacter()),
         spellSlotsLeft,
       } as CombatCharacter;
     });
@@ -182,7 +182,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevChar) =>
         ({
-          ...prevChar,
+          ...(prevChar ?? createEmptyCharacter()),
           spellSlotsLeft: spellSlotsLefts,
         }) as CombatCharacter,
     );
@@ -198,7 +198,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevChar) =>
         ({
-          ...prevChar,
+          ...(prevChar ?? createEmptyCharacter()),
           passives: [...(prevChar?.passives ?? []), trimmedName],
         }) as CombatCharacter,
     );
@@ -210,7 +210,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevChar) =>
         ({
-          ...prevChar,
+          ...(prevChar ?? createEmptyCharacter()),
           passives: (prevChar?.passives ?? []).filter((_, i) => i !== index),
         }) as CombatCharacter,
     );
@@ -227,7 +227,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevChar) =>
         ({
-          ...prevChar,
+          ...(prevChar ?? createEmptyCharacter()),
           actions: [
             ...(prevChar?.actions ?? []),
             { name: trimmedName, costs: [] },
@@ -242,7 +242,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevChar) =>
         ({
-          ...prevChar,
+          ...(prevChar ?? createEmptyCharacter()),
           actions: (prevChar?.actions ?? []).filter((_, i) => i !== index),
         }) as CombatCharacter,
     );
@@ -257,7 +257,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevChar) =>
         ({
-          ...prevChar,
+          ...(prevChar ?? createEmptyCharacter()),
           usableObjects: [...(prevChar?.usableObjects ?? []), trimmedName],
         }) as CombatCharacter,
     );
@@ -268,7 +268,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevChar) =>
         ({
-          ...prevChar,
+          ...(prevChar ?? createEmptyCharacter()),
           usableObjects: (prevChar?.usableObjects ?? []).filter(
             (_, i) => i !== index,
           ),
