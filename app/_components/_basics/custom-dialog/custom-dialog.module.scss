@@ -1,0 +1,35 @@
+@use "app/mixins";
+
+// MUI injects its own styles after the CSS modules, hence the !important
+.custom-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-layout-section-content-margin);
+  padding: var(--spacing-layout-section-margin) var(--spacing--m);
+
+  color: var(--color-text--dark);
+
+  &__paper {
+    background-color: var(--color-dialog-background) !important;
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius--s) !important;
+    box-shadow: 0 0.5rem 2rem rgba(47, 56, 80, 0.25) !important;
+    @include mixins.border--thin--light;
+  }
+
+  &__backdrop {
+    background-color: rgba(47, 56, 80, 0.35) !important;
+  }
+
+  &__title {
+    @include mixins.section__title;
+    margin: 0;
+    padding-bottom: var(--spacing-padding--text);
+
+    font-weight: var(--font-weight--title);
+    @include mixins.border--thin--light;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+}

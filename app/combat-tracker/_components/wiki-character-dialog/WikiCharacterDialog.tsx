@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CircularProgress, Dialog } from "@mui/material";
+import { CircularProgress } from "@mui/material";
+import CustomDialog from "@/app/_components/_basics/custom-dialog/CustomDialog";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
@@ -82,20 +83,12 @@ const WikiCharacterDialog = ({
   };
 
   return (
-    <Dialog
-      open
+    <CustomDialog
+      isOpened
       onClose={close}
-      fullWidth
-      maxWidth="sm"
-      slotProps={{
-        paper: { className: styles["wiki-character-dialog__paper"] },
-        backdrop: { className: styles["wiki-character-dialog__backdrop"] },
-      }}
+      title={translate("wiki.title", "combatTracker")}
     >
       <form className={styles["wiki-character-dialog"]} onSubmit={handleSubmit}>
-        <h2 className={styles["wiki-character-dialog__title"]}>
-          {translate("wiki.title", "combatTracker")}
-        </h2>
         <div className={styles["wiki-character-dialog__field"]}>
           <label
             htmlFor="wiki-url"
@@ -190,7 +183,7 @@ const WikiCharacterDialog = ({
           />
         </div>
       </form>
-    </Dialog>
+    </CustomDialog>
   );
 };
 
