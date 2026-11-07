@@ -9,7 +9,20 @@ import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+import Image from "next/image";
 import { fetchPortraitFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
+import {
+  BG3_WIKI_HOST,
+  buildWikiLink,
+  isBg3WikiImage,
+} from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
+import {
+  listUpdatedFields,
+  mergeWikiCharacter,
+  WIKI_FIELD_LABEL_KEYS,
+  WikiImportedField,
+} from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
+import WikiCharacterDialog from "@/app/combat-tracker/_components/wiki-character-dialog/WikiCharacterDialog";
 
 type EditCharacterFormProps = {
   initialCharacter: CombatCharacter | null;
@@ -20,6 +33,19 @@ const createCharacterId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `character-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+const createEmptyCharacter = (): CombatCharacter => ({
+  id: createCharacterId(),
+  name: "",
+  hp: 0,
+  maxHp: 0,
+  isDying: false,
+  isDead: false,
+  isNpc: false,
+  deathSaveThrowsLeft: 3,
+  ac: 0,
+  initiativeScore: 0,
+});
 
 const EditCharacterForm = ({
   initialCharacter,
@@ -33,9 +59,65 @@ const EditCharacterForm = ({
   const [passiveName, setPassiveName] = useState("");
   const [usableObjectName, setUsableObjectName] = useState("");
   const [isFetchingPortrait, startTransition] = useTransition();
+  const [isWikiDialogOpened, setIsWikiDialogOpened] = useState(false);
+  const imageUrl = character?.imageUrl?.trim();
+
+  // The character's wiki page, or a guess from its name
+  const wikiUrlGuess =
+    character?.wikiLink?.trim() ||
+    (character?.name?.trim()
+      ? buildWikiLink(character.name.trim())
+      : `https://${BG3_WIKI_HOST}/wiki/`);
+
+  // Fields changed by the last wiki import: listed in the summary, and
+  // highlighted until they are edited by hand. null = no import yet.
+  const [importedFields, setImportedFields] = useState<
+    WikiImportedField[] | null
+  >(null);
+  const [highlightedFields, setHighlightedFields] = useState<
+    WikiImportedField[]
+  >([]);
+
+  const clearHighlight = (field: string) =>
+    setHighlightedFields((fields) => fields.filter((f) => f !== field));
+
+  const lineClassName = (field: WikiImportedField) =>
+    [
+      styles["edit-character-form__line"],
+      highlightedFields.includes(field)
+        ? styles["edit-character-form__line--imported"]
+        : "",
+    ].join(" ");
+
+  const fieldsetClassName = (field: WikiImportedField) =>
+    [
+      styles["edit-character-form__fieldset"],
+      highlightedFields.includes(field)
+        ? styles["edit-character-form__fieldset--imported"]
+        : "",
+    ].join(" ");
+
+  // Only fills the form: nothing is saved until the form is submitted
+  const importFromWiki = (
+    fetched: CombatCharacter,
+    overrideFields: WikiImportedField[],
+  ) => {
+    const current = character ?? createEmptyCharacter();
+    const merged = mergeWikiCharacter(current, fetched, overrideFields);
+    const updatedFields = listUpdatedFields(current, merged);
+
+    // A new character imported from the wiki is an NPC. An existing
+    // character keeps its NPC status (still editable with the checkbox).
+    setCharacter(
+      initialCharacter === null ? { ...merged, isNpc: true } : merged,
+    );
+    setImportedFields(updatedFields);
+    setHighlightedFields(updatedFields);
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+    clearHighlight(name);
 
     // Format value
     let formattedValue: string | number | boolean = value;
@@ -43,6 +125,7 @@ const EditCharacterForm = ({
       case "name":
       case "shortDescription":
       case "wikiLink":
+      case "imageUrl":
         formattedValue = value;
         break;
       case "isNpc":
@@ -56,18 +139,7 @@ const EditCharacterForm = ({
     setCharacter(
       (prevCharacter) =>
         ({
-          ...(prevCharacter ?? {
-            id: createCharacterId(),
-            name: "",
-            hp: 0,
-            maxHp: 0,
-            isDying: false,
-            isDead: false,
-            isNpc: false,
-            deathSaveThrowsLeft: 3,
-            ac: 0,
-            initiativeScore: 0,
-          }),
+          ...(prevCharacter ?? createEmptyCharacter()),
           [name]: formattedValue,
           ...(name === "hp"
             ? {
@@ -89,6 +161,7 @@ const EditCharacterForm = ({
       return;
     }
 
+    clearHighlight("spellSlotsLeft");
     setCharacter((prevChar) => {
       const spellSlotsLeft = { ...(prevChar?.spellSlotsLeft ?? {}) };
       spellSlotsLeft[trimmedName] = spellSlotValue;
@@ -104,6 +177,7 @@ const EditCharacterForm = ({
   };
 
   const removeSpellSlot = (name: string) => {
+    clearHighlight("spellSlotsLeft");
     const spellSlotsLefts = { ...(character?.spellSlotsLeft ?? {}) };
     delete spellSlotsLefts[name];
     setCharacter(
@@ -121,6 +195,7 @@ const EditCharacterForm = ({
       return;
     }
 
+    clearHighlight("passives");
     setCharacter(
       (prevChar) =>
         ({
@@ -132,6 +207,7 @@ const EditCharacterForm = ({
   };
 
   const removePassive = (index: number) => {
+    clearHighlight("passives");
     setCharacter(
       (prevChar) =>
         ({
@@ -182,8 +258,8 @@ const EditCharacterForm = ({
     startTransition(async () => {
       // No picture yet but a wiki page: fetch its portrait before saving.
       // If none is found, the character is saved without one.
-      const imageUrl =
-        character.imageUrl ||
+      const savedImageUrl =
+        imageUrl ||
         (wikiLink ? await fetchPortraitFromWiki(wikiLink) : undefined);
 
       onSubmit?.({
@@ -191,7 +267,7 @@ const EditCharacterForm = ({
         id: character.id || createCharacterId(),
         maxAlternativeHp: getMaxAlternativeHp(character),
         wikiLink,
-        imageUrl,
+        imageUrl: savedImageUrl,
       });
     });
   };
@@ -199,10 +275,45 @@ const EditCharacterForm = ({
   return (
     <div className={styles["edit-character-form"]}>
       <h2>{translate("form.addCharacter", "combatTracker")}</h2>
+      <ButtonWithIcon
+        label={translate("form.importFromWiki", "combatTracker")}
+        onClick={() => setIsWikiDialogOpened(true)}
+        faIcon="book-open"
+        faIconStyle={FaIconStyleEnum.SOLID}
+        iconPosition="left"
+        variant={ButtonVariant.SECONDARY}
+        data-testid="import-from-wiki"
+      />
+      {importedFields && (
+        <p
+          className={styles["edit-character-form__import-summary"]}
+          role="status"
+          data-testid="imported-fields"
+        >
+          {importedFields.length
+            ? translate("form.importedFields", "combatTracker", {
+                fields: importedFields
+                  .map((field) =>
+                    translate(WIKI_FIELD_LABEL_KEYS[field], "combatTracker"),
+                  )
+                  .join(", "),
+              })
+            : translate("form.noImportedFields", "combatTracker")}
+        </p>
+      )}
+      {/* Mounted on open so the URL is pre-filled with the current values */}
+      {isWikiDialogOpened && (
+        <WikiCharacterDialog
+          isOpened
+          initialUrl={wikiUrlGuess}
+          onClose={() => setIsWikiDialogOpened(false)}
+          onImport={importFromWiki}
+        />
+      )}
       <form onSubmit={handleSubmit}>
         <fieldset className={styles["edit-character-form__fieldset"]}>
           <h3>{translate("form.basicInfo", "combatTracker")}</h3>
-          <div className={styles["edit-character-form__line"]}>
+          <div className={lineClassName("name")}>
             <label htmlFor="name">
               {translate("form.name", "combatTracker")}
             </label>
@@ -215,7 +326,7 @@ const EditCharacterForm = ({
               data-testid="name"
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
+          <div className={lineClassName("shortDescription")}>
             <label htmlFor="shortDescription">
               {translate("form.shortDescription", "combatTracker")}
             </label>
@@ -228,7 +339,7 @@ const EditCharacterForm = ({
               data-testid="shortDescription"
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
+          <div className={lineClassName("wikiLink")}>
             <label htmlFor="wikiLink">
               {translate("form.wikiLink", "combatTracker")}
             </label>
@@ -242,6 +353,32 @@ const EditCharacterForm = ({
               data-testid="wikiLink"
             />
           </div>
+          <div className={lineClassName("imageUrl")}>
+            <label htmlFor="imageUrl">
+              {translate("form.imageUrl", "combatTracker")}
+            </label>
+            <div className={styles["edit-character-form__picture-field"]}>
+              <input
+                type="url"
+                id="imageUrl"
+                name="imageUrl"
+                value={character?.imageUrl || ""}
+                onChange={handleInputChange}
+                data-testid="imageUrl"
+              />
+              {imageUrl && (
+                <Image
+                  src={imageUrl}
+                  alt={character?.name ?? ""}
+                  width={40}
+                  height={40}
+                  unoptimized={!isBg3WikiImage(imageUrl)}
+                  className={styles["edit-character-form__picture"]}
+                  data-testid="imageUrl-preview"
+                />
+              )}
+            </div>
+          </div>
           <div className={styles["edit-character-form__line"]}>
             <label htmlFor="isNpc">
               {translate("form.npc", "combatTracker")}
@@ -254,7 +391,7 @@ const EditCharacterForm = ({
               onChange={handleInputChange}
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
+          <div className={lineClassName("hp")}>
             <label htmlFor="hp">{translate("form.hp", "combatTracker")}</label>
             <input
               type="number"
@@ -280,7 +417,7 @@ const EditCharacterForm = ({
               />
             </div>
           )}
-          <div className={styles["edit-character-form__line"]}>
+          <div className={lineClassName("maxHp")}>
             <label htmlFor="maxHp">
               {translate("form.maxHp", "combatTracker")}
             </label>
@@ -338,7 +475,7 @@ const EditCharacterForm = ({
               data-testid="tempHp"
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
+          <div className={lineClassName("ac")}>
             <label htmlFor="ac">{translate("form.ac", "combatTracker")}</label>
             <input
               type="number"
@@ -363,7 +500,7 @@ const EditCharacterForm = ({
             />
           </div>
         </fieldset>
-        <fieldset className={styles["edit-character-form__fieldset"]}>
+        <fieldset className={fieldsetClassName("spellSlotsLeft")}>
           <h3>{translate("form.spellSlots", "combatTracker")}</h3>
           <div className={styles["edit-character-form__line"]}>
             <label htmlFor="slotLevel">
@@ -422,7 +559,7 @@ const EditCharacterForm = ({
             )}
           </div>
         </fieldset>
-        <fieldset className={styles["edit-character-form__fieldset"]}>
+        <fieldset className={fieldsetClassName("passives")}>
           <h3>{translate("form.passives", "combatTracker")}</h3>
           <div className={styles["edit-character-form__line"]}>
             <label htmlFor="passiveName">

@@ -9,28 +9,44 @@ import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
 import { Bg3WikiErrorEnum } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
+import {
+  WIKI_FIELD_LABEL_KEYS,
+  WIKI_IMPORTED_FIELDS,
+  WikiImportedField,
+} from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
 import styles from "./wiki-character-dialog.module.scss";
 
 type WikiCharacterDialogProps = {
   isOpened: boolean;
   onClose: () => void;
-  onCharacterCreated: (character: CombatCharacter) => void;
+  /** Pre-fills the URL field (read when the dialog is mounted) */
+  initialUrl?: string;
+  /**
+   * Called with the character read from the wiki and the fields whose
+   * existing values should be replaced (the others are only filled if empty).
+   */
+  onImport: (
+    character: CombatCharacter,
+    overrideFields: WikiImportedField[],
+  ) => void;
 };
 
 const WikiCharacterDialog = ({
   isOpened,
   onClose,
-  onCharacterCreated,
+  initialUrl = "",
+  onImport,
 }: WikiCharacterDialogProps) => {
-  const [url, setUrl] = useState<string>("");
-  // Kept as a string so the field can be empty until the roll is typed in
-  const [initiativeScore, setInitiativeScore] = useState<string>("");
+  const [url, setUrl] = useState<string>(initialUrl);
+  const [overrideFields, setOverrideFields] = useState<WikiImportedField[]>([]);
   const [error, setError] = useState<Bg3WikiErrorEnum | null>(null);
   const [isLoading, startTransition] = useTransition();
+  const areAllFieldsOverridden =
+    overrideFields.length === WIKI_IMPORTED_FIELDS.length;
 
   const resetFields = () => {
-    setUrl("");
-    setInitiativeScore("");
+    setUrl(initialUrl);
+    setOverrideFields([]);
     setError(null);
   };
 
@@ -42,6 +58,17 @@ const WikiCharacterDialog = ({
     onClose();
   };
 
+  const toggleField = (field: WikiImportedField, checked: boolean) =>
+    // Rebuilt from WIKI_IMPORTED_FIELDS to keep the fields in form order
+    setOverrideFields((fields) =>
+      WIKI_IMPORTED_FIELDS.filter((f) =>
+        f === field ? checked : fields.includes(f),
+      ),
+    );
+
+  const toggleAllFields = (checked: boolean) =>
+    setOverrideFields(checked ? [...WIKI_IMPORTED_FIELDS] : []);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
@@ -52,10 +79,7 @@ const WikiCharacterDialog = ({
         setError(result.error);
         return;
       }
-      onCharacterCreated({
-        ...result.character,
-        initiativeScore: Number(initiativeScore),
-      });
+      onImport(result.character, overrideFields);
       resetFields();
       onClose();
     });
@@ -97,29 +121,47 @@ const WikiCharacterDialog = ({
             data-testid="wiki-url"
           />
         </div>
-        <div className={styles["wiki-character-dialog__field"]}>
+        <fieldset
+          className={styles["wiki-character-dialog__overrides"]}
+          disabled={isLoading}
+        >
+          <legend className={styles["wiki-character-dialog__label"]}>
+            {translate("wiki.override", "combatTracker")}
+          </legend>
+          <p className={styles["wiki-character-dialog__hint"]}>
+            {translate("wiki.overrideHint", "combatTracker")}
+          </p>
           <label
-            htmlFor="wiki-initiative"
-            className={styles["wiki-character-dialog__label"]}
-          >
-            {translate("form.initiative", "combatTracker")}
-          </label>
-          <input
-            type="number"
             className={[
-              styles["wiki-character-dialog__input"],
-              styles["wiki-character-dialog__input--short"],
+              styles["wiki-character-dialog__checkbox"],
+              styles["wiki-character-dialog__checkbox--all"],
             ].join(" ")}
-            id="wiki-initiative"
-            name="wiki-initiative"
-            step={1}
-            value={initiativeScore}
-            onChange={(event) => setInitiativeScore(event.target.value)}
-            disabled={isLoading}
-            required
-            data-testid="wiki-initiative"
-          />
-        </div>
+          >
+            <input
+              type="checkbox"
+              checked={areAllFieldsOverridden}
+              onChange={(event) => toggleAllFields(event.target.checked)}
+              data-testid="wiki-override-all"
+            />
+            {translate("wiki.overrideAll", "combatTracker")}
+          </label>
+          <div className={styles["wiki-character-dialog__override-list"]}>
+            {WIKI_IMPORTED_FIELDS.map((field) => (
+              <label
+                key={field}
+                className={styles["wiki-character-dialog__checkbox"]}
+              >
+                <input
+                  type="checkbox"
+                  checked={overrideFields.includes(field)}
+                  onChange={(event) => toggleField(field, event.target.checked)}
+                  data-testid={`wiki-override-${field}`}
+                />
+                {translate(WIKI_FIELD_LABEL_KEYS[field], "combatTracker")}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         {error && (
           <p className={styles["wiki-character-dialog__error"]} role="alert">
             {translate(`wiki.error.${error}`, "combatTracker")}
@@ -142,13 +184,13 @@ const WikiCharacterDialog = ({
             variant={ButtonVariant.SECONDARY}
           />
           <ButtonWithIcon
-            label={translate("wiki.create", "combatTracker")}
+            label={translate("wiki.import", "combatTracker")}
             type="submit"
-            disabled={isLoading || !url.trim() || initiativeScore === ""}
+            disabled={isLoading || !url.trim()}
             faIcon="wand-magic-sparkles"
             faIconStyle={FaIconStyleEnum.SOLID}
             iconPosition="left"
-            data-testid="wiki-create"
+            data-testid="wiki-import"
           />
         </div>
       </form>

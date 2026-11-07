@@ -65,9 +65,47 @@
     &:disabled {
       opacity: var(--opacity--disabled);
     }
+  }
 
-    &--short {
-      width: 6rem;
+  // Fields whose existing values the import may replace
+  &__overrides {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-padding--button);
+    margin: 0;
+    padding: 0;
+
+    border: none;
+  }
+
+  &__hint {
+    margin: 0;
+
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  &__override-list {
+    display: grid;
+    gap: var(--spacing-padding--button) var(--spacing-padding--text);
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  }
+
+  &__checkbox {
+    align-items: center;
+    display: flex;
+    gap: var(--spacing-padding--text);
+
+    cursor: pointer;
+
+    &--all {
+      padding-bottom: var(--spacing-padding--button);
+
+      @include mixins.border--thin--light;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      font-weight: bold;
     }
   }
 

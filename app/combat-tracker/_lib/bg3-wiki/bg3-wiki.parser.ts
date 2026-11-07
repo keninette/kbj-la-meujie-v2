@@ -210,7 +210,14 @@ export const getImageFileCandidates = (wikitext: string): string[] => {
     .map((fileName) => `File:${fileName.replace(/^(File|Image):/i, "")}`);
 };
 
-/** "Minthara, Baenre Paladin" -> "https://bg3.wiki/wiki/Minthara,_Baenre_Paladin" */
+/**
+ * Images hosted by the wiki can go through Next's image optimisation
+ * (allowed in next.config.ts). Any other URL typed by hand can't.
+ */
+export const isBg3WikiImage = (url: string): boolean =>
+  url.startsWith(`https://${BG3_WIKI_HOST}/w/images/`);
+
+/** "Minthara, Baenre Paladin" ->"https://bg3.wiki/wiki/Minthara,_Baenre_Paladin" */
 export const buildWikiLink = (pageTitle: string): string =>
   `https://${BG3_WIKI_HOST}/wiki/${encodeURI(pageTitle.replaceAll(" ", "_"))}`;
 
