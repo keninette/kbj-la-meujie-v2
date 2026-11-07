@@ -1,3 +1,4 @@
+import { CombatAction } from "./combat-action.type";
 import { CombatState } from "./combat-state.type";
 
 export type CombatCharacter = {
@@ -22,5 +23,6 @@ export type CombatCharacter = {
   spellSlotsLeft?: Record<string, number>;
   states?: CombatState[];
   passives?: string[];
+  actions?: CombatAction[];
   usableObjects?: string[];
 };

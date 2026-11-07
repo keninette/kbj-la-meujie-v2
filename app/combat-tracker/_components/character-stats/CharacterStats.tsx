@@ -12,6 +12,7 @@ import { getMaxAlternativeHp } from "../attack-form/attack-form.helper";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
+import ActionsList from "../actions-list/ActionsList";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -275,6 +276,27 @@ const CharacterStats = ({
               </div>
             </div>
           )}
+        {selectedCharacter.actions && selectedCharacter.actions.length > 0 && (
+          <div
+            className={[
+              styles["character-stats__line--vertical"],
+              styles["character-stats__line"],
+            ].join(" ")}
+            data-testid="character-actions"
+          >
+            <div>
+              <FontAwesomeIcon
+                faIcon="hand-fist"
+                faIconStyle={FaIconStyleEnum.SOLID}
+              />
+              {translate("stats.actions", "combatTracker")} :
+            </div>
+            <ActionsList
+              actions={selectedCharacter.actions}
+              className={styles["character-stats__line--indented"]}
+            />
+          </div>
+        )}
         {selectedCharacter.usableObjects &&
           selectedCharacter.usableObjects.length > 0 && (
             <div

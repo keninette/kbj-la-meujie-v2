@@ -15,6 +15,7 @@ export const WIKI_IMPORTED_FIELDS = [
   "ac",
   "spellSlotsLeft",
   "passives",
+  "actions",
 ] as const satisfies readonly (keyof CombatCharacter)[];
 
 export type WikiImportedField = (typeof WIKI_IMPORTED_FIELDS)[number];
@@ -30,6 +31,7 @@ export const WIKI_FIELD_LABEL_KEYS: Record<WikiImportedField, string> = {
   ac: "form.ac",
   spellSlotsLeft: "form.spellSlots",
   passives: "form.passives",
+  actions: "form.actions",
 };
 
 /** Imported fields whose value differs between the two characters */
