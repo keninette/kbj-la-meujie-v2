@@ -6,10 +6,25 @@
   --color-background-gradient--borders: var(--color-default-blue--light);
   --color-background-gradient--center: var(--color-default-pink--light);
 
-  --color-button--fab: var(--color-default-purple--primary);
+  --background-button--fab: linear-gradient(
+    95deg,
+    var(--color-default-blue--primary),
+    var(--color-default-coral--primary)
+  );
+  --color-button--fab: var(--color-default-blue--primary);
   --color-button-text--fab: var(--color-default-white);
-  --color-button--secondary: var(--color-default-pink--light);
-  --color-button-text--secondary: var(--color-default-purple--primary);
+  --color-button--secondary: var(--color-default-white);
+  --background-button--secondary: linear-gradient(
+    var(--color-button--secondary),
+    var(--color-button--secondary)
+  );
+  --border-button--secondary: linear-gradient(
+    135deg,
+    var(--color-default-blue--primary),
+    var(--color-default-coral--primary)
+  );
+  --background-size--button: 110% 100%;
+  --color-button-text--secondary: var(--color-default-blue--primary);
   --color-dialog-background: var(--color-default-pink--ultra-light);
   --color-dropdown: var(--color-default-white);
   --color-dropdown-text: var(--color-default-grey--dark);

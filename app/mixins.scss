@@ -27,13 +27,23 @@
 
 @mixin button--fab {
   background-color: var(--color-button--fab);
+  background-image: var(--background-button--fab);
+  background-size: var(--background-size--button);
   color: var(--color-button-text--fab);
 }
 
+// The border is a gradient too: CSS borders can't be, so it is a second
+// background layer, painted under the whole box (border-box) and showing
+// through the transparent border, while the fill stays inside (padding-box).
 @mixin button--secondary {
+  border: 1px solid transparent;
   background-color: var(--color-button--secondary);
+  background-image:
+    var(--background-button--secondary), var(--border-button--secondary);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-size: var(--background-size--button);
   color: var(--color-button-text--secondary);
-  border: 1px solid var(--color-button-text--secondary);
 }
 
 @mixin section {
