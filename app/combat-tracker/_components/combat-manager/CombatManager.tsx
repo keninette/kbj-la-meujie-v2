@@ -24,8 +24,6 @@ enum DrawerContentEnum {
   STOP_COMBAT_CONFIRMATION = "stop-combat-confirmation",
 }
 
-// todo revoir les css pour utiliser les variables sys
-// todo juste onCombatChange : pour regrouper start, character added, ...
 const CombatManager = ({
   ongoingCombat,
   onCombatChange,

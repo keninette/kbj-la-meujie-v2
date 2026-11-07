@@ -142,3 +142,37 @@ describe("CharacterList active and idle characters", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("CharacterList wiki link", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("links to the wiki page of a character, in a new tab", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "kagha",
+          name: "Kagha",
+          wikiLink: "https://bg3.wiki/wiki/Kagha",
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    const link = await screen.findByTestId("wiki-link-kagha");
+    expect(link).toHaveAttribute("href", "https://bg3.wiki/wiki/Kagha");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    // Icon only: the title is the tooltip and the accessible name
+    expect(link).toHaveAttribute("title", "list.wiki");
+    expect(link).toHaveAccessibleName("list.wiki");
+    expect(link).toHaveTextContent("");
+  });
+
+  it("does not display the wiki link when the character has none", async () => {
+    await renderPageWithCharacters();
+
+    expect(screen.queryByTestId("wiki-link-aragorn")).not.toBeInTheDocument();
+  });
+});

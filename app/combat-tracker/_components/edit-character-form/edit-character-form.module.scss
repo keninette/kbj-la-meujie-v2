@@ -15,4 +15,37 @@
     justify-content: space-between;
     margin-bottom: 0.5rem;
   }
+
+  // Fields changed by the last wiki import, until edited by hand
+  &__line--imported,
+  &__fieldset--imported,
+  &__import-summary {
+    background-color: var(--color-highlight);
+    border-left: 3px solid var(--color-border--dark);
+    border-radius: var(--radius--s);
+  }
+
+  &__line--imported {
+    padding: var(--spacing--xxs) var(--spacing-padding--text);
+  }
+
+  &__import-summary {
+    margin: var(--spacing-padding--text) 0;
+    padding: var(--spacing-padding--text);
+
+    color: var(--color-info);
+  }
+
+  &__picture-field {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  // Preview of the portrait, next to its URL field
+  &__picture {
+    border-radius: var(--radius--s);
+    flex-shrink: 0;
+    object-fit: cover;
+  }
 }

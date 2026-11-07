@@ -4,6 +4,8 @@ import styles from "./character-stats.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useState } from "react";
+import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
+import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
 import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
 import { getMaxAlternativeHp } from "../attack-form/attack-form.helper";
@@ -99,16 +101,38 @@ const CharacterStats = ({
         {...restProps}
       >
         <div className={styles["character-stats__line"]}>
-          <h3>
-            {!selectedCharacter.isNpc && (
-              <FontAwesomeIcon
-                faIcon="user"
-                faIconStyle={FaIconStyleEnum.SOLID}
-                tooltip={translate("stats.player", "combatTracker")}
+          {isDisplayableImageUrl(selectedCharacter.imageUrl) && (
+            <span className={styles["character-stats__picture-frame"]}>
+              <CharacterPortrait
+                src={selectedCharacter.imageUrl}
+                alt={selectedCharacter.name}
+                width={75}
+                height={75}
+                className={styles["character-stats__picture"]}
+                data-testid="character-picture"
               />
+            </span>
+          )}
+          <div className={styles["character-stats__identity"]}>
+            <h3>
+              {!selectedCharacter.isNpc && (
+                <FontAwesomeIcon
+                  faIcon="user"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  tooltip={translate("stats.player", "combatTracker")}
+                />
+              )}
+              {selectedCharacter.name}
+            </h3>
+            {selectedCharacter.shortDescription && (
+              <p
+                className={styles["character-stats__short-description"]}
+                data-testid="character-short-description"
+              >
+                {selectedCharacter.shortDescription}
+              </p>
             )}
-            {selectedCharacter.name}
-          </h3>
+          </div>
           {isCombatOngoing &&
             !selectedCharacter.isDying &&
             !selectedCharacter.isDead && (

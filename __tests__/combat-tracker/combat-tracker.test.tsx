@@ -14,6 +14,7 @@ import {
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import AttackForm from "@/app/combat-tracker/_components/attack-form/AttackForm";
+import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
 import CharacterStats from "@/app/combat-tracker/_components/character-stats/CharacterStats";
 import {
   buildCharacter,
@@ -24,6 +25,12 @@ import {
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
 }));
+
+// Never call the real wiki from the tests
+jest.mock("../../app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions", () => ({
+  createCharacterFromWiki: jest.fn(),
+}));
+const mockedCreateFromWiki = jest.mocked(createCharacterFromWiki);
 
 // Note: these test only cover important behaviors and do not provide exhaustive coverage of all edge cases.
 describe("findCharacterIndexById", () => {
@@ -61,6 +68,20 @@ describe("loadCombat", () => {
       buildCharacter({
         passives: ["Rage", "Vision dans le noir"],
         usableObjects: ["Potion de soin"],
+      }),
+    ]);
+
+    saveCombat(combat);
+
+    expect(loadCombat()).toEqual(combat);
+  });
+
+  it("round-trips the short description, picture and wiki link", () => {
+    const combat = buildCombat([
+      buildCharacter({
+        shortDescription: "Wood elf Druid level 5",
+        imageUrl: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png",
+        wikiLink: "https://bg3.wiki/wiki/Kagha",
       }),
     ]);
 
@@ -196,6 +217,397 @@ describe("EditCharacterForm hp/isDying/isDead behavior", () => {
   });
 });
 
+describe("EditCharacterForm short description", () => {
+  it("submits the typed short description", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("shortDescription"), {
+      target: { value: "Human Ranger level 4" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ shortDescription: "Human Ranger level 4" }),
+    );
+  });
+
+  it("prefills the short description of an existing character", () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ shortDescription: "Elf Druid" })}
+      />,
+    );
+
+    expect(screen.getByTestId("shortDescription")).toHaveValue("Elf Druid");
+  });
+});
+
+describe("EditCharacterForm wiki link", () => {
+  it("submits the typed wiki link", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("wikiLink"), {
+      target: { value: " https://bg3.wiki/wiki/Halsin " },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ wikiLink: "https://bg3.wiki/wiki/Halsin" }),
+      ),
+    );
+  });
+
+  it("prefills the wiki link and removes it when the field is cleared", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          wikiLink: "https://bg3.wiki/wiki/Kagha",
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    expect(screen.getByTestId("wikiLink")).toHaveValue(
+      "https://bg3.wiki/wiki/Kagha",
+    );
+
+    fireEvent.change(screen.getByTestId("wikiLink"), {
+      target: { value: "" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].wikiLink).toBeUndefined();
+  });
+});
+
+describe("EditCharacterForm portrait", () => {
+  const submitWith = (character: CombatCharacter) => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm initialCharacter={character} onSubmit={onSubmit} />,
+    );
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    return onSubmit;
+  };
+
+  it("saves the picture as typed", () => {
+    const onSubmit = submitWith(
+      buildCharacter({ imageUrl: "https://example.com/custom.png" }),
+    );
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ imageUrl: "https://example.com/custom.png" }),
+    );
+  });
+
+  it("removes the picture when its field is cleared, even with a wiki link", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          wikiLink: "https://bg3.wiki/wiki/Halsin",
+          imageUrl: "https://bg3.wiki/w/images/a/a1/Portrait_Halsin.png",
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("imageUrl"), {
+      target: { value: "" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    // Saved right away: the wiki is only called by the import dialog
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].imageUrl).toBeUndefined();
+    expect(mockedCreateFromWiki).not.toHaveBeenCalled();
+  });
+});
+
+describe("EditCharacterForm import from wiki", () => {
+  const kaghaFromWiki = buildCharacter({
+    id: "wiki-id",
+    name: "Kagha",
+    shortDescription: "Wood elf Druid level 5",
+    imageUrl: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png",
+    wikiLink: "https://bg3.wiki/wiki/Kagha",
+    hp: 84,
+    maxHp: 84,
+    ac: 14,
+    isNpc: true,
+    initiativeScore: 0,
+  });
+
+  beforeEach(() => {
+    mockedCreateFromWiki.mockResolvedValue({ character: kaghaFromWiki });
+  });
+
+  afterEach(() => {
+    mockedCreateFromWiki.mockReset();
+  });
+
+  const openImport = () => {
+    fireEvent.click(
+      screen.getByRole("button", { name: "form.importFromWiki" }),
+    );
+    return screen.getByTestId("wiki-url");
+  };
+
+  /** override: true = every field, false = none, or a list of field ids */
+  const runImport = async (override: boolean | string[]) => {
+    openImport();
+    if (override === true) {
+      fireEvent.click(screen.getByTestId("wiki-override-all"));
+    } else if (Array.isArray(override)) {
+      override.forEach((field) =>
+        fireEvent.click(screen.getByTestId(`wiki-override-${field}`)),
+      );
+    }
+    fireEvent.click(screen.getByRole("button", { name: "wiki.import" }));
+    await waitFor(() =>
+      expect(screen.queryByTestId("wiki-url")).not.toBeInTheDocument(),
+    );
+  };
+
+  it("pre-fills the URL from the character's name, editable", () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ name: "Kagha" })}
+      />,
+    );
+
+    const urlInput = openImport();
+    expect(urlInput).toHaveValue("https://bg3.wiki/wiki/Kagha");
+
+    fireEvent.change(urlInput, {
+      target: { value: "https://bg3.wiki/wiki/Halsin" },
+    });
+    expect(urlInput).toHaveValue("https://bg3.wiki/wiki/Halsin");
+  });
+
+  it("pre-fills the URL with the wiki link when there is one", () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          name: "Archdruid",
+          wikiLink: "https://bg3.wiki/wiki/Kagha",
+        })}
+      />,
+    );
+
+    expect(openImport()).toHaveValue("https://bg3.wiki/wiki/Kagha");
+  });
+
+  it("only fills empty fields by default, without saving", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ name: "My Kagha", ac: 16 })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    await runImport(false);
+
+    expect(mockedCreateFromWiki).toHaveBeenCalledWith(
+      "https://bg3.wiki/wiki/My_Kagha",
+    );
+    expect(screen.getByTestId("name")).toHaveValue("My Kagha");
+    expect(screen.getByLabelText("form.ac")).toHaveValue(16);
+    expect(screen.getByTestId("shortDescription")).toHaveValue(
+      "Wood elf Druid level 5",
+    );
+    expect(screen.getByTestId("wikiLink")).toHaveValue(
+      "https://bg3.wiki/wiki/Kagha",
+    );
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("marks a new character imported from the wiki as an NPC", async () => {
+    render(<EditCharacterForm initialCharacter={null} />);
+    expect(screen.getByLabelText("form.npc")).not.toBeChecked();
+
+    await runImport(false);
+
+    expect(screen.getByLabelText("form.npc")).toBeChecked();
+    expect(screen.getByTestId("name")).toHaveValue("Kagha");
+  });
+
+  it("keeps the NPC status of an existing character", async () => {
+    render(
+      <EditCharacterForm initialCharacter={buildCharacter({ isNpc: false })} />,
+    );
+
+    await runImport(true);
+
+    expect(screen.getByLabelText("form.npc")).not.toBeChecked();
+  });
+
+  it("lets every field be selected at once, or one by one", () => {
+    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+    openImport();
+
+    const all = screen.getByTestId("wiki-override-all");
+    const name = screen.getByTestId("wiki-override-name");
+    const ac = screen.getByTestId("wiki-override-ac");
+    expect(name).not.toBeChecked();
+
+    fireEvent.click(all);
+    expect(name).toBeChecked();
+    expect(ac).toBeChecked();
+
+    fireEvent.click(ac);
+    expect(ac).not.toBeChecked();
+    expect(all).not.toBeChecked();
+
+    fireEvent.click(ac);
+    expect(all).toBeChecked();
+
+    fireEvent.click(all);
+    expect(name).not.toBeChecked();
+  });
+
+  it("only replaces the fields selected in the dialog", async () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ name: "My Kagha", ac: 16 })}
+      />,
+    );
+
+    await runImport(["name"]);
+
+    expect(screen.getByTestId("name")).toHaveValue("Kagha");
+    expect(screen.getByLabelText("form.ac")).toHaveValue(16);
+    // Not selected but empty before: filled anyway
+    expect(screen.getByTestId("shortDescription")).toHaveValue(
+      "Wood elf Druid level 5",
+    );
+  });
+
+  it("replaces existing values when asked, and fields stay editable", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ name: "My Kagha", ac: 16 })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    await runImport(true);
+
+    expect(screen.getByTestId("name")).toHaveValue("Kagha");
+    expect(screen.getByLabelText("form.ac")).toHaveValue(14);
+    expect(screen.getByTestId("maxHp")).toHaveValue(84);
+
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { value: "Kagha the Archdruid" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Kagha the Archdruid",
+          ac: 14,
+          initiativeScore: 12,
+          isNpc: false,
+        }),
+      ),
+    );
+  });
+
+  const lineOf = (testId: string) => screen.getByTestId(testId).closest("div");
+  const IMPORTED = "edit-character-form__line--imported";
+
+  it("lists and highlights the fields replaced by the import", async () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ name: "My Kagha", ac: 14 })}
+      />,
+    );
+
+    await runImport(true);
+
+    expect(screen.getByTestId("imported-fields")).toHaveTextContent(
+      "form.importedFields",
+    );
+    expect(lineOf("name")).toHaveClass(IMPORTED);
+    expect(lineOf("maxHp")).toHaveClass(IMPORTED);
+    expect(lineOf("shortDescription")).toHaveClass(IMPORTED);
+    // Same value as before (14): not highlighted
+    expect(lineOf("ac")).not.toHaveClass(IMPORTED);
+    // Never imported
+    expect(lineOf("initiativeScore")).not.toHaveClass(IMPORTED);
+  });
+
+  it("removes the highlight of a field edited by hand", async () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ name: "My Kagha" })}
+      />,
+    );
+
+    await runImport(true);
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { value: "Kagha the Archdruid" },
+    });
+
+    expect(lineOf("name")).not.toHaveClass(IMPORTED);
+    expect(lineOf("maxHp")).toHaveClass(IMPORTED);
+    // The summary still tells what the import did
+    expect(screen.getByTestId("imported-fields")).toBeInTheDocument();
+  });
+
+  it("says so when the import changed nothing", async () => {
+    render(<EditCharacterForm initialCharacter={kaghaFromWiki} />);
+
+    await runImport(true);
+
+    expect(screen.getByTestId("imported-fields")).toHaveTextContent(
+      "form.noImportedFields",
+    );
+  });
+
+  it("shows the portrait next to its field", () => {
+    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+
+    expect(screen.queryByTestId("imageUrl-preview")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId("imageUrl"), {
+      target: { value: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png" },
+    });
+
+    expect(screen.getByTestId("imageUrl-preview")).toBeInTheDocument();
+  });
+
+  it.each(["https://bg3.wiki/w/images/", "//cdn.example/x.png", "htt"])(
+    "does not preview the half-typed URL %s",
+    (value) => {
+      render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+
+      fireEvent.change(screen.getByTestId("imageUrl"), {
+        target: { value },
+      });
+
+      expect(screen.queryByTestId("imageUrl-preview")).not.toBeInTheDocument();
+    },
+  );
+});
+
 describe("EditCharacterForm passives", () => {
   it("adds a passive and submits it with the character", () => {
     const onSubmit = jest.fn();
@@ -268,6 +680,22 @@ describe("CharacterStats passives", () => {
     renderStats(buildCharacter());
 
     expect(screen.queryByTestId("character-passives")).not.toBeInTheDocument();
+  });
+
+  it("displays the short description under the name", () => {
+    renderStats(buildCharacter({ shortDescription: "Wood elf Druid level 5" }));
+
+    expect(screen.getByTestId("character-short-description")).toHaveTextContent(
+      "Wood elf Druid level 5",
+    );
+  });
+
+  it("does not display the short description when there is none", () => {
+    renderStats(buildCharacter());
+
+    expect(
+      screen.queryByTestId("character-short-description"),
+    ).not.toBeInTheDocument();
   });
 });
 
