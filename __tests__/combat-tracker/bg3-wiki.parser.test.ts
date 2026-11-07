@@ -1,6 +1,6 @@
 import {
   Bg3WikiErrorEnum,
-  buildCharacterFromWikitext,
+  buildCharacterFromInfobox,
   extractPageTitleFromUrl,
   getHighestDifficultyValue,
   getImageFileCandidates,
@@ -48,6 +48,8 @@ describe("bg3 wiki parser", () => {
       "not a url",
       "https://example.com/wiki/Kagha",
       "https://bg3.wiki/",
+      // Malformed escape sequence
+      "https://bg3.wiki/wiki/100%_Damage",
     ])("rejects %s", (url) => {
       expect(() => extractPageTitleFromUrl(url)).toThrow(
         Bg3WikiErrorEnum.INVALID_URL,
@@ -83,6 +85,18 @@ describe("bg3 wiki parser", () => {
       );
       expect(getHighestDifficultyValue(fields, "ac")).toBe("12");
       expect(getHighestDifficultyValue(fields, "missing")).toBeUndefined();
+    });
+
+    it("falls back when the preferred value is only markup", () => {
+      expect(
+        getHighestDifficultyValue(
+          { "h hp": "<!-- TBD -->", "t hp": "{{ref|unknown}}", hp: "65" },
+          "hp",
+        ),
+      ).toBe("65");
+      expect(
+        getHighestDifficultyValue({ "h hp": "<!-- TBD -->" }, "hp"),
+      ).toBeUndefined();
     });
   });
 
@@ -129,6 +143,12 @@ describe("bg3 wiki parser", () => {
         "https://bg3.wiki/wiki/Minthara,_Baenre_Paladin",
       );
     });
+
+    it("escapes characters that would end the page path", () => {
+      const link = buildWikiLink("Who? What #1 & co");
+      expect(link).toBe("https://bg3.wiki/wiki/Who%3F_What_%231_%26_co");
+      expect(extractPageTitleFromUrl(link)).toBe("Who?_What_#1_&_co");
+    });
   });
 
   describe("wiki markup in values", () => {
@@ -145,13 +165,33 @@ describe("bg3 wiki parser", () => {
         "Brave, Halfling Luck",
       );
     });
+
+    it("keeps the text displayed by other templates", () => {
+      const fields = {
+        passives: "{{SAI|Darkvision}}, {{SAI|Fey Ancestry|size=20}}",
+      };
+      expect(getHighestDifficultyValue(fields, "passives")).toBe(
+        "Darkvision, Fey Ancestry",
+      );
+    });
+
+    it("keeps links passed to a template whole", () => {
+      expect(
+        getHighestDifficultyValue(
+          { passives: "{{SAI|[[Darkvision|Dark vision]]}}, Brave" },
+          "passives",
+        ),
+      ).toBe("Dark vision, Brave");
+    });
   });
 
   describe("getImageFileCandidates", () => {
     it("returns the portrait first, then the in-game render", () => {
       expect(
         getImageFileCandidates(
-          "{{Infobox creature\n| in game = Kagha.png\n| portrait = Portrait Kagha.png\n}}",
+          parseInfobox(
+            "{{Infobox creature\n| in game = Kagha.png\n| portrait = Portrait Kagha.png\n}}",
+          ),
         ),
       ).toEqual(["File:Portrait Kagha.png", "File:Kagha.png"]);
     });
@@ -159,29 +199,30 @@ describe("bg3 wiki parser", () => {
     it("ignores missing fields and existing File: prefixes", () => {
       expect(
         getImageFileCandidates(
-          "{{Infobox creature\n| in game = File:Loic.png\n}}",
+          parseInfobox("{{Infobox creature\n| in game = File:Loic.png\n}}"),
         ),
       ).toEqual(["File:Loic.png"]);
       expect(
-        getImageFileCandidates("{{Infobox creature\n| hp = 3\n}}"),
+        getImageFileCandidates(
+          parseInfobox("{{Infobox creature\n| hp = 3\n}}"),
+        ),
       ).toEqual([]);
     });
   });
 
-  describe("buildCharacterFromWikitext", () => {
+  describe("buildCharacterFromInfobox", () => {
     it("adds the picture when one was found", () => {
       const url = "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png";
       expect(
-        buildCharacterFromWikitext(KAGHA_WIKITEXT, "Kagha", "id-1", url)
+        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", url)
           .imageUrl,
       ).toBe(url);
     });
 
     it("builds Kagha with her Tactician stats", () => {
       expect(
-        buildCharacterFromWikitext(KAGHA_WIKITEXT, "Kagha", "id-1"),
+        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha"),
       ).toEqual({
-        id: "id-1",
         name: "Kagha",
         shortDescription: "Wood elf Druid level 5",
         wikiLink: "https://bg3.wiki/wiki/Kagha",
@@ -205,10 +246,11 @@ describe("bg3 wiki parser", () => {
     });
 
     it("uses Honour values when present and falls back on the page title", () => {
-      const character = buildCharacterFromWikitext(
-        "{{Infobox creature\n| hp = 26\n| t hp = 33\n| h hp = 50\n| ac = 12\n| h ac = 15\n}}",
+      const character = buildCharacterFromInfobox(
+        parseInfobox(
+          "{{Infobox creature\n| hp = 26\n| t hp = 33\n| h hp = 50\n| ac = 12\n| h ac = 15\n}}",
+        ),
         "Some_Boss",
-        "id-2",
       );
       expect(character.name).toBe("Some Boss");
       expect(character.hp).toBe(50);

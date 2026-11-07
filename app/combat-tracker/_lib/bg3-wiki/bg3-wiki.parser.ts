@@ -1,6 +1,10 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
+import { BG3_WIKI_HOST } from "./bg3-wiki.images";
 
-export const BG3_WIKI_HOST = "bg3.wiki";
+export { BG3_WIKI_HOST, isBg3WikiImage } from "./bg3-wiki.images";
+
+/** A character read from the wiki: the id is the one of the edited character */
+export type WikiCharacter = Omit<CombatCharacter, "id">;
 const INFOBOX_NAME = "Infobox creature";
 
 /**
@@ -42,7 +46,12 @@ export const extractPageTitleFromUrl = (rawUrl: string): string => {
     throw new Bg3WikiError(Bg3WikiErrorEnum.INVALID_URL);
   }
 
-  return decodeURIComponent(match[1]);
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    // Malformed escape sequence, e.g. a bare "%"
+    throw new Bg3WikiError(Bg3WikiErrorEnum.INVALID_URL);
+  }
 };
 
 /**
@@ -131,12 +140,32 @@ export const parseInfobox = (wikitext: string): Record<string, string> => {
   return fields;
 };
 
-/** Removes {{templates}}, innermost first so nested ones go too. */
+/** Footnotes and editor notes: they never hold the value itself */
+const NOTE_TEMPLATES =
+  /^(ref|note|efn|fn|sic|cn|tbd|verify|citation needed|cite.*)$/i;
+
+/**
+ * Keeps what a template displays: its last unnamed argument.
+ * "{{SAI|Darkvision}}" -> "Darkvision", "{{ref|footnote}}" -> "",
+ * "{{SAI|[[Darkvision|Dark vision]]}}" -> "[[Darkvision|Dark vision]]".
+ */
+const renderTemplate = (template: string): string => {
+  // Pipes inside [[Link|Label]] don't separate arguments
+  const [name, ...args] = splitTopLevelParams(template.slice(2, -2));
+  if (NOTE_TEMPLATES.test(name.trim())) {
+    return "";
+  }
+  // Named arguments ("size=20") are options, not displayed text
+  const unnamedArgs = args.filter((arg) => !/^[^=[\]]*=/.test(arg));
+  return unnamedArgs.at(-1)?.trim() ?? "";
+};
+
+/** Replaces {{templates}} by their text, innermost first (nested ones too). */
 const stripTemplates = (value: string): string => {
   let previous;
   do {
     previous = value;
-    value = value.replace(/\{\{[^{}]*\}\}/g, "");
+    value = value.replace(/\{\{[^{}]*\}\}/g, renderTemplate);
   } while (value !== previous);
   return value;
 };
@@ -153,15 +182,18 @@ const stripWikiMarkup = (value: string): string =>
     .replace(/'{2,}/g, "")
     .trim();
 
-/** Honour value if any, otherwise Tactician, otherwise the plain field. */
+/**
+ * Honour value if any, otherwise Tactician, otherwise the plain field.
+ * A value that is only markup (comment, footnote...) counts as missing.
+ */
 export const getHighestDifficultyValue = (
   fields: Record<string, string>,
   field: string,
 ): string | undefined => {
   for (const prefix of DIFFICULTY_PREFIXES) {
-    const value = fields[`${prefix}${field}`];
-    if (value !== undefined) {
-      return stripWikiMarkup(value);
+    const value = stripWikiMarkup(fields[`${prefix}${field}`] ?? "");
+    if (value) {
+      return value;
     }
   }
   return undefined;
@@ -202,24 +234,27 @@ export const parseResources = (
  * square), then the in-game render.
  * "Portrait Kagha.png" -> "File:Portrait Kagha.png"
  */
-export const getImageFileCandidates = (wikitext: string): string[] => {
-  const fields = parseInfobox(wikitext);
-  return ["portrait", "in game"]
+export const getImageFileCandidates = (
+  fields: Record<string, string>,
+): string[] =>
+  ["portrait", "in game"]
     .map((field) => fields[field])
     .filter((fileName): fileName is string => !!fileName)
     .map((fileName) => `File:${fileName.replace(/^(File|Image):/i, "")}`);
-};
 
 /**
- * Images hosted by the wiki can go through Next's image optimisation
- * (allowed in next.config.ts). Any other URL typed by hand can't.
+ * "Minthara, Baenre Paladin" -> "https://bg3.wiki/wiki/Minthara,_Baenre_Paladin"
+ * "Who? What?" -> "https://bg3.wiki/wiki/Who%3F_What%3F"
+ * Everything is escaped ("?", "#", "&" would break the link) except the
+ * characters MediaWiki keeps readable in its own links.
  */
-export const isBg3WikiImage = (url: string): boolean =>
-  url.startsWith(`https://${BG3_WIKI_HOST}/w/images/`);
-
-/** "Minthara, Baenre Paladin" ->"https://bg3.wiki/wiki/Minthara,_Baenre_Paladin" */
-export const buildWikiLink = (pageTitle: string): string =>
-  `https://${BG3_WIKI_HOST}/wiki/${encodeURI(pageTitle.replaceAll(" ", "_"))}`;
+export const buildWikiLink = (pageTitle: string): string => {
+  const path = encodeURIComponent(pageTitle.replaceAll(" ", "_")).replace(
+    /%(2C|3A|2F)/gi,
+    (escaped) => decodeURIComponent(escaped),
+  );
+  return `https://${BG3_WIKI_HOST}/wiki/${path}`;
+};
 
 /**
  * "subrace (or race) class level N", missing parts are skipped:
@@ -239,13 +274,12 @@ export const buildShortDescription = (
     .join(" ");
 };
 
-export const buildCharacterFromWikitext = (
-  wikitext: string,
+/** Builds the character from the fields returned by parseInfobox */
+export const buildCharacterFromInfobox = (
+  fields: Record<string, string>,
   pageTitle: string,
-  id: string,
   imageUrl?: string,
-): CombatCharacter => {
-  const fields = parseInfobox(wikitext);
+): WikiCharacter => {
   const get = (field: string) => getHighestDifficultyValue(fields, field);
 
   const hp = toNumber(get("hp"));
@@ -257,7 +291,6 @@ export const buildCharacterFromWikitext = (
   ];
 
   return {
-    id,
     name: get("name") || pageTitle.replaceAll("_", " "),
     ...(shortDescription ? { shortDescription } : {}),
     ...(imageUrl ? { imageUrl } : {}),

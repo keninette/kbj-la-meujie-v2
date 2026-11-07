@@ -1,13 +1,14 @@
 "use server";
 
-import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import {
   BG3_WIKI_HOST,
   Bg3WikiError,
   Bg3WikiErrorEnum,
-  buildCharacterFromWikitext,
+  buildCharacterFromInfobox,
   extractPageTitleFromUrl,
   getImageFileCandidates,
+  parseInfobox,
+  WikiCharacter,
 } from "./bg3-wiki.parser";
 
 type WikiParseResponse = {
@@ -18,6 +19,7 @@ type WikiParseResponse = {
 type WikiImageInfoResponse = {
   query?: {
     normalized?: { from: string; to: string }[];
+    redirects?: { from: string; to: string }[];
     pages?: {
       title: string;
       missing?: boolean;
@@ -27,7 +29,7 @@ type WikiImageInfoResponse = {
 };
 
 export type CreateCharacterFromWikiResult =
-  | { character: CombatCharacter; error?: never }
+  | { character: WikiCharacter; error?: never }
   | { character?: never; error: Bg3WikiErrorEnum };
 
 const callWikiApi = async <T>(params: Record<string, string>): Promise<T> => {
@@ -65,12 +67,20 @@ const findImageUrl = async (
       titles: fileNames.join("|"),
       prop: "imageinfo",
       iiprop: "url",
+      // A file name may redirect to the actual picture
+      redirects: "1",
     });
 
-    // The API may rename titles ("File:Portrait_Kagha.png" -> "File:Portrait Kagha.png")
-    const normalizedTitles = new Map(
-      (data.query?.normalized ?? []).map(({ from, to }) => [from, to]),
-    );
+    // The API may rename titles ("File:Portrait_Kagha.png" -> "File:Portrait Kagha.png"),
+    // then follow redirects ("File:Kagha portrait.png" -> "File:Portrait Kagha.png")
+    const toMap = (renames: { from: string; to: string }[] = []) =>
+      new Map(renames.map(({ from, to }) => [from, to]));
+    const normalizedTitles = toMap(data.query?.normalized);
+    const redirectedTitles = toMap(data.query?.redirects);
+    const resolveTitle = (name: string) => {
+      const normalized = normalizedTitles.get(name) ?? name;
+      return redirectedTitles.get(normalized) ?? normalized;
+    };
     const urlsByTitle = new Map(
       (data.query?.pages ?? [])
         .filter((page) => !page.missing && page.imageinfo?.[0]?.url)
@@ -78,7 +88,7 @@ const findImageUrl = async (
     );
 
     return fileNames
-      .map((name) => urlsByTitle.get(normalizedTitles.get(name) ?? name))
+      .map((name) => urlsByTitle.get(resolveTitle(name)))
       .find(Boolean);
   } catch (error) {
     console.error(error);
@@ -127,39 +137,15 @@ export const createCharacterFromWiki = async (
 ): Promise<CreateCharacterFromWikiResult> => {
   try {
     const { wikitext, title } = await fetchWikiPage(url);
-    const imageUrl = await findImageUrl(getImageFileCandidates(wikitext));
+    const fields = parseInfobox(wikitext);
+    const imageUrl = await findImageUrl(getImageFileCandidates(fields));
 
-    return {
-      character: buildCharacterFromWikitext(
-        wikitext,
-        title,
-        crypto.randomUUID(),
-        imageUrl,
-      ),
-    };
+    return { character: buildCharacterFromInfobox(fields, title, imageUrl) };
   } catch (error) {
     if (error instanceof Bg3WikiError) {
       return { error: error.code };
     }
     console.error(error);
     return { error: Bg3WikiErrorEnum.FETCH_FAILED };
-  }
-};
-
-/**
- * Portrait URL of the character behind a bg3.wiki URL, or undefined when the
- * page has none or can't be read: a missing picture is never an error.
- */
-export const fetchPortraitFromWiki = async (
-  url: string,
-): Promise<string | undefined> => {
-  try {
-    const { wikitext } = await fetchWikiPage(url);
-    return await findImageUrl(getImageFileCandidates(wikitext));
-  } catch (error) {
-    if (!(error instanceof Bg3WikiError)) {
-      console.error(error);
-    }
-    return undefined;
   }
 };

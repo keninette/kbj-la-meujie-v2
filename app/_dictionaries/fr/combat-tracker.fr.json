@@ -56,7 +56,6 @@
   "form.usableObjectName": "Nom de l'objet",
   "stats.usableObjects": "Objets utilisables",
   "form.save": "Enregistrer",
-  "form.fetchingPortrait": "Récupération du portrait…",
   "form.saveAndRestart": "Enregistrer et recommencer",
   "attack.reviveTitle": "Relever un personnage",
   "attack.revive": "Relever",

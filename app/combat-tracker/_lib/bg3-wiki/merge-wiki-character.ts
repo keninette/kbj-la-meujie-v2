@@ -1,4 +1,5 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
+import { WikiCharacter } from "./bg3-wiki.parser";
 
 /**
  * Fields the wiki can provide. Combat state (initiative, states, death saves,
@@ -62,15 +63,22 @@ const isEmpty = (value: unknown): boolean =>
  */
 export const mergeWikiCharacter = (
   current: CombatCharacter,
-  fetched: CombatCharacter,
+  fetched: WikiCharacter,
   overrideFields: readonly WikiImportedField[],
 ): CombatCharacter => {
   const merged: Record<string, unknown> = { ...current };
 
+  // 0 HP is a real value for a downed character (it has max HP), not an
+  // empty field: filling it would bring the character back to life.
+  const isCurrentEmpty = (field: WikiImportedField) =>
+    field === "hp"
+      ? isEmpty(current.hp) && isEmpty(current.maxHp)
+      : isEmpty(current[field]);
+
   for (const field of WIKI_IMPORTED_FIELDS) {
     const value = fetched[field];
     const override = overrideFields.includes(field);
-    if (isEmpty(value) || (!override && !isEmpty(current[field]))) {
+    if (isEmpty(value) || (!override && !isCurrentEmpty(field))) {
       continue;
     }
     merged[field] = value;

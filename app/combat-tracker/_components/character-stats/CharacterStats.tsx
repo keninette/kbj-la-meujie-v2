@@ -4,8 +4,8 @@ import styles from "./character-stats.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useState } from "react";
-import Image from "next/image";
-import { isBg3WikiImage } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
+import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
+import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
 import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
 import { getMaxAlternativeHp } from "../attack-form/attack-form.helper";
@@ -101,14 +101,13 @@ const CharacterStats = ({
         {...restProps}
       >
         <div className={styles["character-stats__line"]}>
-          {selectedCharacter.imageUrl && (
+          {isDisplayableImageUrl(selectedCharacter.imageUrl) && (
             <span className={styles["character-stats__picture-frame"]}>
-              <Image
+              <CharacterPortrait
                 src={selectedCharacter.imageUrl}
                 alt={selectedCharacter.name}
                 width={75}
                 height={75}
-                unoptimized={!isBg3WikiImage(selectedCharacter.imageUrl)}
                 className={styles["character-stats__picture"]}
                 data-testid="character-picture"
               />

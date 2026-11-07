@@ -14,10 +14,7 @@ import {
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import AttackForm from "@/app/combat-tracker/_components/attack-form/AttackForm";
-import {
-  createCharacterFromWiki,
-  fetchPortraitFromWiki,
-} from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
+import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
 import CharacterStats from "@/app/combat-tracker/_components/character-stats/CharacterStats";
 import {
   buildCharacter,
@@ -31,10 +28,8 @@ jest.mock("../../app/_dictionaries/dictionnary", () => ({
 
 // Never call the real wiki from the tests
 jest.mock("../../app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions", () => ({
-  fetchPortraitFromWiki: jest.fn(),
   createCharacterFromWiki: jest.fn(),
 }));
-const mockedFetchPortrait = jest.mocked(fetchPortraitFromWiki);
 const mockedCreateFromWiki = jest.mocked(createCharacterFromWiki);
 
 // Note: these test only cover important behaviors and do not provide exhaustive coverage of all edge cases.
@@ -299,13 +294,7 @@ describe("EditCharacterForm wiki link", () => {
   });
 });
 
-describe("EditCharacterForm portrait from the wiki", () => {
-  const halsinPortrait = "https://bg3.wiki/w/images/a/a1/Portrait_Halsin.png";
-
-  afterEach(() => {
-    mockedFetchPortrait.mockReset();
-  });
-
+describe("EditCharacterForm portrait", () => {
   const submitWith = (character: CombatCharacter) => {
     const onSubmit = jest.fn();
     render(
@@ -315,56 +304,37 @@ describe("EditCharacterForm portrait from the wiki", () => {
     return onSubmit;
   };
 
-  it("fetches the portrait when there is a wiki link but no picture", async () => {
-    mockedFetchPortrait.mockResolvedValue(halsinPortrait);
-
+  it("saves the picture as typed", () => {
     const onSubmit = submitWith(
-      buildCharacter({ wikiLink: "https://bg3.wiki/wiki/Halsin" }),
+      buildCharacter({ imageUrl: "https://example.com/custom.png" }),
     );
 
-    expect(
-      screen.getByRole("button", { name: "form.fetchingPortrait" }),
-    ).toBeDisabled();
-    await waitFor(() =>
-      expect(onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({ imageUrl: halsinPortrait }),
-      ),
-    );
-    expect(mockedFetchPortrait).toHaveBeenCalledWith(
-      "https://bg3.wiki/wiki/Halsin",
-    );
-  });
-
-  it("keeps the existing picture without calling the wiki", () => {
-    const onSubmit = submitWith(
-      buildCharacter({
-        wikiLink: "https://bg3.wiki/wiki/Halsin",
-        imageUrl: "https://example.com/custom.png",
-      }),
-    );
-
-    expect(mockedFetchPortrait).not.toHaveBeenCalled();
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ imageUrl: "https://example.com/custom.png" }),
     );
   });
 
-  it("does not call the wiki without a wiki link", () => {
-    const onSubmit = submitWith(buildCharacter());
-
-    expect(mockedFetchPortrait).not.toHaveBeenCalled();
-    expect(onSubmit.mock.calls[0][0].imageUrl).toBeUndefined();
-  });
-
-  it("still saves the character when no portrait is found", async () => {
-    mockedFetchPortrait.mockResolvedValue(undefined);
-
-    const onSubmit = submitWith(
-      buildCharacter({ wikiLink: "https://bg3.wiki/wiki/Nobody" }),
+  it("removes the picture when its field is cleared, even with a wiki link", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          wikiLink: "https://bg3.wiki/wiki/Halsin",
+          imageUrl: "https://bg3.wiki/w/images/a/a1/Portrait_Halsin.png",
+        })}
+        onSubmit={onSubmit}
+      />,
     );
 
-    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    fireEvent.change(screen.getByTestId("imageUrl"), {
+      target: { value: "" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    // Saved right away: the wiki is only called by the import dialog
+    expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onSubmit.mock.calls[0][0].imageUrl).toBeUndefined();
+    expect(mockedCreateFromWiki).not.toHaveBeenCalled();
   });
 });
 
@@ -623,6 +593,19 @@ describe("EditCharacterForm import from wiki", () => {
 
     expect(screen.getByTestId("imageUrl-preview")).toBeInTheDocument();
   });
+
+  it.each(["https://bg3.wiki/w/images/", "//cdn.example/x.png", "htt"])(
+    "does not preview the half-typed URL %s",
+    (value) => {
+      render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+
+      fireEvent.change(screen.getByTestId("imageUrl"), {
+        target: { value },
+      });
+
+      expect(screen.queryByTestId("imageUrl-preview")).not.toBeInTheDocument();
+    },
+  );
 });
 
 describe("EditCharacterForm passives", () => {

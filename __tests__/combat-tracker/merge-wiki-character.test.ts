@@ -22,6 +22,24 @@ const kagha = buildCharacter({
 });
 
 describe("mergeWikiCharacter", () => {
+  it("keeps the 0 HP of a downed character when not overriding", () => {
+    const current = buildCharacter({
+      hp: 0,
+      maxHp: 20,
+      isDying: true,
+      isDead: true,
+    });
+
+    const merged = mergeWikiCharacter(current, kagha, []);
+
+    expect(merged).toMatchObject({
+      hp: 0,
+      maxHp: 20,
+      isDying: true,
+      isDead: true,
+    });
+  });
+
   it("only fills empty fields when not overriding", () => {
     const current = buildCharacter({
       name: "My Kagha",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import styles from "./edit-character-form.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
@@ -9,12 +9,12 @@ import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
-import Image from "next/image";
-import { fetchPortraitFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
+import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
+import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
 import {
   BG3_WIKI_HOST,
   buildWikiLink,
-  isBg3WikiImage,
+  WikiCharacter,
 } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
 import {
   listUpdatedFields,
@@ -58,7 +58,6 @@ const EditCharacterForm = ({
   const [spellSlotValue, setSpellSlotValue] = useState(0);
   const [passiveName, setPassiveName] = useState("");
   const [usableObjectName, setUsableObjectName] = useState("");
-  const [isFetchingPortrait, startTransition] = useTransition();
   const [isWikiDialogOpened, setIsWikiDialogOpened] = useState(false);
   const imageUrl = character?.imageUrl?.trim();
 
@@ -81,25 +80,23 @@ const EditCharacterForm = ({
   const clearHighlight = (field: string) =>
     setHighlightedFields((fields) => fields.filter((f) => f !== field));
 
+  // "edit-character-form__line" + "--imported" modifier while highlighted
+  const importedClassName = (
+    element: "line" | "fieldset",
+    field: WikiImportedField,
+  ) => {
+    const base = `edit-character-form__${element}`;
+    return [
+      styles[base],
+      highlightedFields.includes(field) ? styles[`${base}--imported`] : "",
+    ].join(" ");
+  };
   const lineClassName = (field: WikiImportedField) =>
-    [
-      styles["edit-character-form__line"],
-      highlightedFields.includes(field)
-        ? styles["edit-character-form__line--imported"]
-        : "",
-    ].join(" ");
-
-  const fieldsetClassName = (field: WikiImportedField) =>
-    [
-      styles["edit-character-form__fieldset"],
-      highlightedFields.includes(field)
-        ? styles["edit-character-form__fieldset--imported"]
-        : "",
-    ].join(" ");
+    importedClassName("line", field);
 
   // Only fills the form: nothing is saved until the form is submitted
   const importFromWiki = (
-    fetched: CombatCharacter,
+    fetched: WikiCharacter,
     overrideFields: WikiImportedField[],
   ) => {
     const current = character ?? createEmptyCharacter();
@@ -252,23 +249,13 @@ const EditCharacterForm = ({
       return;
     }
 
-    // A cleared field means "no link"
-    const wikiLink = character.wikiLink?.trim() || undefined;
-
-    startTransition(async () => {
-      // No picture yet but a wiki page: fetch its portrait before saving.
-      // If none is found, the character is saved without one.
-      const savedImageUrl =
-        imageUrl ||
-        (wikiLink ? await fetchPortraitFromWiki(wikiLink) : undefined);
-
-      onSubmit?.({
-        ...character,
-        id: character.id || createCharacterId(),
-        maxAlternativeHp: getMaxAlternativeHp(character),
-        wikiLink,
-        imageUrl: savedImageUrl,
-      });
+    onSubmit?.({
+      ...character,
+      id: character.id || createCharacterId(),
+      maxAlternativeHp: getMaxAlternativeHp(character),
+      // A cleared field means "no link" / "no picture"
+      wikiLink: character.wikiLink?.trim() || undefined,
+      imageUrl: imageUrl || undefined,
     });
   };
 
@@ -304,7 +291,6 @@ const EditCharacterForm = ({
       {/* Mounted on open so the URL is pre-filled with the current values */}
       {isWikiDialogOpened && (
         <WikiCharacterDialog
-          isOpened
           initialUrl={wikiUrlGuess}
           onClose={() => setIsWikiDialogOpened(false)}
           onImport={importFromWiki}
@@ -366,13 +352,13 @@ const EditCharacterForm = ({
                 onChange={handleInputChange}
                 data-testid="imageUrl"
               />
-              {imageUrl && (
-                <Image
+              {/* Not while the URL is being typed */}
+              {isDisplayableImageUrl(imageUrl) && (
+                <CharacterPortrait
                   src={imageUrl}
                   alt={character?.name ?? ""}
                   width={40}
                   height={40}
-                  unoptimized={!isBg3WikiImage(imageUrl)}
                   className={styles["edit-character-form__picture"]}
                   data-testid="imageUrl-preview"
                 />
@@ -500,7 +486,7 @@ const EditCharacterForm = ({
             />
           </div>
         </fieldset>
-        <fieldset className={fieldsetClassName("spellSlotsLeft")}>
+        <fieldset className={importedClassName("fieldset", "spellSlotsLeft")}>
           <h3>{translate("form.spellSlots", "combatTracker")}</h3>
           <div className={styles["edit-character-form__line"]}>
             <label htmlFor="slotLevel">
@@ -559,7 +545,7 @@ const EditCharacterForm = ({
             )}
           </div>
         </fieldset>
-        <fieldset className={fieldsetClassName("passives")}>
+        <fieldset className={importedClassName("fieldset", "passives")}>
           <h3>{translate("form.passives", "combatTracker")}</h3>
           <div className={styles["edit-character-form__line"]}>
             <label htmlFor="passiveName">
@@ -667,13 +653,7 @@ const EditCharacterForm = ({
           <h3>{translate("form.states", "combatTracker")}</h3>
         </fieldset>
         <fieldset className={styles["edit-character-form__fieldset"]}>
-          <SubmitButton
-            label={translate(
-              isFetchingPortrait ? "form.fetchingPortrait" : "form.save",
-              "combatTracker",
-            )}
-            disabled={isFetchingPortrait}
-          />
+          <SubmitButton label={translate("form.save", "combatTracker")} />
           <ButtonWithIcon
             label={translate("form.saveAndRestart", "combatTracker")}
             onClick={() => {}}

@@ -5,10 +5,12 @@ import { CircularProgress, Dialog } from "@mui/material";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
-import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
-import { Bg3WikiErrorEnum } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
+import {
+  Bg3WikiErrorEnum,
+  WikiCharacter,
+} from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
 import {
   WIKI_FIELD_LABEL_KEYS,
   WIKI_IMPORTED_FIELDS,
@@ -16,23 +18,25 @@ import {
 } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
 import styles from "./wiki-character-dialog.module.scss";
 
+/**
+ * Open while mounted: render it only when needed, so that every opening
+ * starts from a blank state with the URL pre-filled.
+ */
 type WikiCharacterDialogProps = {
-  isOpened: boolean;
   onClose: () => void;
-  /** Pre-fills the URL field (read when the dialog is mounted) */
+  /** Pre-fills the URL field */
   initialUrl?: string;
   /**
    * Called with the character read from the wiki and the fields whose
    * existing values should be replaced (the others are only filled if empty).
    */
   onImport: (
-    character: CombatCharacter,
+    character: WikiCharacter,
     overrideFields: WikiImportedField[],
   ) => void;
 };
 
 const WikiCharacterDialog = ({
-  isOpened,
   onClose,
   initialUrl = "",
   onImport,
@@ -44,17 +48,10 @@ const WikiCharacterDialog = ({
   const areAllFieldsOverridden =
     overrideFields.length === WIKI_IMPORTED_FIELDS.length;
 
-  const resetFields = () => {
-    setUrl(initialUrl);
-    setOverrideFields([]);
-    setError(null);
-  };
-
   const close = () => {
     if (isLoading) {
       return;
     }
-    resetFields();
     onClose();
   };
 
@@ -80,14 +77,13 @@ const WikiCharacterDialog = ({
         return;
       }
       onImport(result.character, overrideFields);
-      resetFields();
       onClose();
     });
   };
 
   return (
     <Dialog
-      open={isOpened}
+      open
       onClose={close}
       fullWidth
       maxWidth="sm"
