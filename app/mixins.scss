@@ -6,6 +6,76 @@
   border: solid 1px var(--color-default-pink--light);
 }
 
+// Windows over the page (CustomDialog, CustomDrawer). MUI injects its own
+// styles after the CSS modules, hence the !important on what it also sets.
+@mixin overlay--paper {
+  background-color: var(--color-dialog-background) !important;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0.5rem 2rem rgba(47, 56, 80, 0.25) !important;
+  @include border--thin--light;
+}
+
+@mixin overlay--backdrop {
+  background-color: rgba(47, 56, 80, 0.35) !important;
+}
+
+@mixin overlay--content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-layout-section-content-margin);
+  padding: var(--spacing-layout-section-margin) var(--spacing--m);
+
+  color: var(--color-text--dark);
+}
+
+@mixin overlay--header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding--text);
+}
+
+@mixin overlay--title {
+  @include section__title;
+  margin: 0;
+
+  font-weight: var(--font-weight--title);
+}
+
+@mixin form-field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-padding--button);
+  min-width: 0;
+}
+
+@mixin form-label {
+  color: var(--color-text--muted);
+  font-size: var(--font-size--caption);
+}
+
+@mixin form-input {
+  box-sizing: border-box;
+  height: var(--button-height--regular);
+  padding: 0 var(--spacing-padding--text);
+  width: 100%;
+
+  background-color: var(--color-surface--field);
+  border: 1px solid var(--color-border--light);
+  border-radius: var(--radius--field);
+  color: var(--color-text--dark);
+  font: inherit;
+
+  &:focus {
+    border-color: var(--color-border--dark);
+    outline: 2px solid var(--color-border--light);
+  }
+
+  &:disabled {
+    opacity: var(--opacity--disabled);
+  }
+}
+
 @mixin separator {
   margin: 0;
 

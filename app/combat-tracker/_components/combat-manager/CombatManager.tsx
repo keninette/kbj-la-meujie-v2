@@ -24,6 +24,21 @@ enum DrawerContentEnum {
   STOP_COMBAT_CONFIRMATION = "stop-combat-confirmation",
 }
 
+const DRAWER_TITLES: Record<DrawerContentEnum, string> = {
+  [DrawerContentEnum.CHARACTER_FORM]: translate(
+    "form.addCharacter",
+    "combatTracker",
+  ),
+  [DrawerContentEnum.COMBAT_HISTORY]: translate(
+    "history.title",
+    "combatTracker",
+  ),
+  [DrawerContentEnum.STOP_COMBAT_CONFIRMATION]: translate(
+    "manager.stopTitle",
+    "combatTracker",
+  ),
+};
+
 const CombatManager = ({
   ongoingCombat,
   onCombatChange,
@@ -280,6 +295,7 @@ const CombatManager = ({
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
+        title={drawerContent ? DRAWER_TITLES[drawerContent] : undefined}
       >
         {drawerContent === DrawerContentEnum.CHARACTER_FORM && (
           <EditCharacterForm
@@ -295,7 +311,6 @@ const CombatManager = ({
         )}
         {drawerContent === DrawerContentEnum.STOP_COMBAT_CONFIRMATION && (
           <div>
-            <h2>{translate("manager.stopTitle", "combatTracker")}</h2>
             <ButtonWithIcon
               label={translate("manager.removeAllCharacters", "combatTracker")}
               onClick={() => stopCombat(true)}

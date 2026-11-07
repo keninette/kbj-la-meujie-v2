@@ -1,0 +1,13 @@
+@use "app/mixins";
+
+.select-input {
+  @include mixins.form-field;
+
+  &__label {
+    @include mixins.form-label;
+  }
+
+  &__input {
+    @include mixins.form-input;
+  }
+}

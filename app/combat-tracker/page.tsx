@@ -228,6 +228,7 @@ const CombatTrackerPage = () => {
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
+        title={translate("form.editCharacter", "combatTracker")}
       >
         <EditCharacterForm
           initialCharacter={characterToEdit}

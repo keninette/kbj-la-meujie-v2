@@ -1,0 +1,19 @@
+@use "app/mixins";
+
+.text-input {
+  @include mixins.form-field;
+
+  &__label {
+    @include mixins.form-label;
+  }
+
+  &__input {
+    @include mixins.form-input;
+  }
+
+  &__with-adornment {
+    align-items: center;
+    display: flex;
+    gap: var(--spacing-padding--text);
+  }
+}

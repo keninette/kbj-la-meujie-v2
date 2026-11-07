@@ -389,6 +389,9 @@ const CharacterStats = ({
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
+        title={translate("attack.turnTitle", "combatTracker", {
+          character: selectedCharacter.name,
+        })}
       >
         <AttackForm
           characters={characters!}

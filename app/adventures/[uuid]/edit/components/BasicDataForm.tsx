@@ -3,7 +3,7 @@
 import { AdventureDto } from "@lib/adventure/dtos/adventure.dto";
 import { useState } from "react";
 import { UniverseDto } from "@lib/universe/dtos/universe.dto";
-import SubmitButton from "@components/_basics/submit-button/SubmitButton";
+import SubmitButton from "@components/_basics/_form/_submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 
 type AdventureFormProps = {

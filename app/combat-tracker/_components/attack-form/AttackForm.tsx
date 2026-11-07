@@ -5,7 +5,7 @@ import {
   applyAttackFormValues,
   type AttackFormValues,
 } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
-import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
+import SubmitButton from "@/app/_components/_basics/_form/_submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import AttackFields from "./_components/AttackFields";
 import HealFields from "./_components/HealFields";
@@ -238,11 +238,6 @@ const AttackForm = ({
   return (
     <FormProvider {...formMethods}>
       <form className={styles["attack-form"]} onSubmit={onSubmit}>
-        <h2 className={styles["attack-form__title"]}>
-          {translate("attack.turnTitle", "combatTracker", {
-            character: selectedCharacter.name,
-          })}
-        </h2>
         <div>
           <RecoveryFields
             characters={characters}

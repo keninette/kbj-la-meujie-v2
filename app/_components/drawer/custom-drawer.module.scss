@@ -1,4 +1,30 @@
+@use "app/mixins";
+
+// Same look as the custom dialog: see the overlay mixins
 .custom-drawer {
-  background-color: rgba(255, 255, 255, 0.75) !important;
+  @include mixins.overlay--paper;
   max-width: 50%;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+
+  &__backdrop {
+    @include mixins.overlay--backdrop;
+  }
+
+  &__content {
+    @include mixins.overlay--content;
+  }
+
+  &__header {
+    @include mixins.overlay--header;
+  }
+
+  &__title {
+    @include mixins.overlay--title;
+  }
+
+  &__separator {
+    @include mixins.separator;
+  }
 }

@@ -1,11 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import dndLogo from "@/public/assets/universes/dnd.png";
 import styles from "./edit-character-form.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
+import IconButton from "@/app/_components/_basics/icon-button/IconButton";
+import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
+import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
+import NumberInput from "@/app/_components/_basics/_form/_number-input/NumberInput";
+import CheckboxInput from "@/app/_components/_basics/_form/_checkbox-input/CheckboxInput";
+import SelectInput from "@/app/_components/_basics/_form/_select-input/SelectInput";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
-import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
+import SubmitButton from "@/app/_components/_basics/_form/_submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
@@ -86,21 +94,12 @@ const EditCharacterForm = ({
   const clearHighlight = (field: string) =>
     setHighlightedFields((fields) => fields.filter((f) => f !== field));
 
-  // "edit-character-form__line" + "--imported" modifier while highlighted
-  const importedClassName = (
-    element: "line" | "fieldset",
-    field: WikiImportedField,
-  ) => {
-    const base = `edit-character-form__${element}`;
-    return [
-      styles[base],
-      highlightedFields.includes(field) ? styles[`${base}--imported`] : "",
-    ].join(" ");
-  };
-  const lineClassName = (field: WikiImportedField) =>
-    importedClassName("line", field);
+  // "--imported" modifier of a field while highlighted
+  const importedClassName = (field: WikiImportedField) =>
+    highlightedFields.includes(field)
+      ? styles["edit-character-form__field--imported"]
+      : undefined;
 
-  // Only fills the form: nothing is saved until the form is submitted
   const importFromWiki = (
     fetched: WikiCharacter,
     overrideFields: WikiImportedField[],
@@ -109,8 +108,6 @@ const EditCharacterForm = ({
     const merged = mergeWikiCharacter(current, fetched, overrideFields);
     const updatedFields = listUpdatedFields(current, merged);
 
-    // A new character imported from the wiki is an NPC. An existing
-    // character keeps its NPC status (still editable with the checkbox).
     setCharacter(
       initialCharacter === null ? { ...merged, isNpc: true } : merged,
     );
@@ -122,7 +119,6 @@ const EditCharacterForm = ({
     const { name, value } = event.target;
     clearHighlight(name);
 
-    // Format value
     let formattedValue: string | number | boolean = value;
     switch (name) {
       case "name":
@@ -220,7 +216,6 @@ const EditCharacterForm = ({
     );
   };
 
-  // Added by hand: only the name, details come from a wiki import
   const addAction = () => {
     const trimmedName = actionName.trim();
     if (!trimmedName) {
@@ -299,7 +294,13 @@ const EditCharacterForm = ({
 
   return (
     <div className={styles["edit-character-form"]}>
-      <h2>{translate("form.addCharacter", "combatTracker")}</h2>
+      <Image
+        src={dndLogo}
+        alt=""
+        width={72}
+        className={styles["edit-character-form__logo"]}
+        data-testid="edit-character-form-logo"
+      />
       <ButtonWithIcon
         label={translate("form.importFromWiki", "combatTracker")}
         onClick={() => setIsWikiDialogOpened(true)}
@@ -326,7 +327,6 @@ const EditCharacterForm = ({
             : translate("form.noImportedFields", "combatTracker")}
         </p>
       )}
-      {/* Mounted on open so the URL is pre-filled with the current values */}
       {isWikiDialogOpened && (
         <WikiCharacterDialog
           initialUrl={wikiUrlGuess}
@@ -334,64 +334,55 @@ const EditCharacterForm = ({
           onImport={importFromWiki}
         />
       )}
-      <form onSubmit={handleSubmit}>
-        <fieldset className={styles["edit-character-form__fieldset"]}>
-          <h3>{translate("form.basicInfo", "combatTracker")}</h3>
-          <div className={lineClassName("name")}>
-            <label htmlFor="name">
-              {translate("form.name", "combatTracker")}
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={character?.name || ""}
-              onChange={handleInputChange}
-              data-testid="name"
-            />
-          </div>
-          <div className={lineClassName("shortDescription")}>
-            <label htmlFor="shortDescription">
-              {translate("form.shortDescription", "combatTracker")}
-            </label>
-            <input
-              type="text"
-              id="shortDescription"
-              name="shortDescription"
-              value={character?.shortDescription || ""}
-              onChange={handleInputChange}
-              data-testid="shortDescription"
-            />
-          </div>
-          <div className={lineClassName("wikiLink")}>
-            <label htmlFor="wikiLink">
-              {translate("form.wikiLink", "combatTracker")}
-            </label>
-            <input
-              type="url"
-              id="wikiLink"
-              name="wikiLink"
-              placeholder="https://bg3.wiki/wiki/Halsin"
-              value={character?.wikiLink || ""}
-              onChange={handleInputChange}
-              data-testid="wikiLink"
-            />
-          </div>
-          <div className={lineClassName("imageUrl")}>
-            <label htmlFor="imageUrl">
-              {translate("form.imageUrl", "combatTracker")}
-            </label>
-            <div className={styles["edit-character-form__picture-field"]}>
-              <input
-                type="url"
-                id="imageUrl"
-                name="imageUrl"
-                value={character?.imageUrl || ""}
-                onChange={handleInputChange}
-                data-testid="imageUrl"
-              />
-              {/* Not while the URL is being typed */}
-              {isDisplayableImageUrl(imageUrl) && (
+      <form
+        className={styles["edit-character-form__form"]}
+        onSubmit={handleSubmit}
+      >
+        <Fieldset
+          title={translate("form.basicInfo", "combatTracker")}
+          titleIcon="id-card"
+        >
+          <TextInput
+            id="name"
+            name="name"
+            label={translate("form.name", "combatTracker")}
+            value={character?.name || ""}
+            onChange={handleInputChange}
+            className={importedClassName("name")}
+            data-testid="name"
+          />
+          <TextInput
+            id="shortDescription"
+            name="shortDescription"
+            label={translate("form.shortDescription", "combatTracker")}
+            value={character?.shortDescription || ""}
+            onChange={handleInputChange}
+            className={importedClassName("shortDescription")}
+            data-testid="shortDescription"
+          />
+          <TextInput
+            type="url"
+            id="wikiLink"
+            name="wikiLink"
+            label={translate("form.wikiLink", "combatTracker")}
+            placeholder="https://bg3.wiki/wiki/Halsin"
+            value={character?.wikiLink || ""}
+            onChange={handleInputChange}
+            className={importedClassName("wikiLink")}
+            data-testid="wikiLink"
+          />
+          <TextInput
+            type="url"
+            id="imageUrl"
+            name="imageUrl"
+            label={translate("form.imageUrl", "combatTracker")}
+            value={character?.imageUrl || ""}
+            onChange={handleInputChange}
+            className={importedClassName("imageUrl")}
+            data-testid="imageUrl"
+            adornment={
+              // Not while the URL is being typed
+              isDisplayableImageUrl(imageUrl) && (
                 <CharacterPortrait
                   src={imageUrl}
                   alt={character?.name ?? ""}
@@ -400,29 +391,22 @@ const EditCharacterForm = ({
                   className={styles["edit-character-form__picture"]}
                   data-testid="imageUrl-preview"
                 />
-              )}
-            </div>
-          </div>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="isNpc">
-              {translate("form.npc", "combatTracker")}
-            </label>
-            <input
-              type="checkbox"
+              )
+            }
+          />
+          <div className={styles["edit-character-form__row"]}>
+            <CheckboxInput
               id="isNpc"
               name="isNpc"
+              label={translate("form.npc", "combatTracker")}
               checked={character?.isNpc || false}
               onChange={handleInputChange}
             />
-          </div>
-          {character?.isNpc && (
-            <div className={styles["edit-character-form__line"]}>
-              <label htmlFor="attitude">
-                {translate("form.attitude", "combatTracker")}
-              </label>
-              <select
+            {character?.isNpc && (
+              <SelectInput
                 id="attitude"
                 name="attitude"
+                label={translate("form.attitude", "combatTracker")}
                 value={character.attitude ?? ""}
                 onChange={(event) => {
                   const { value } = event.target;
@@ -441,70 +425,71 @@ const EditCharacterForm = ({
                     {translate(`attitude.${attitude}`, "combatTracker")}
                   </option>
                 ))}
-              </select>
-            </div>
-          )}
-          <div className={lineClassName("hp")}>
-            <label htmlFor="hp">{translate("form.hp", "combatTracker")}</label>
-            <input
-              type="number"
+              </SelectInput>
+            )}
+          </div>
+        </Fieldset>
+        <Fieldset
+          title={translate("form.combat", "combatTracker")}
+          titleIcon="shield-halved"
+        >
+          <div className={styles["edit-character-form__grid"]}>
+            <NumberInput
               id="hp"
               name="hp"
+              label={translate("form.hp", "combatTracker")}
               value={character?.hp ?? 0}
               onChange={handleInputChange}
+              className={importedClassName("hp")}
               data-testid="hp"
             />
-          </div>
-          {character?.isDying && (
-            <div className={styles["edit-character-form__line"]}>
-              <label htmlFor="isDead">
-                {translate("form.isDead", "combatTracker")}
-              </label>
-              <input
-                type="checkbox"
-                id="isDead"
-                name="isDead"
-                checked={character?.isDead || false}
-                onChange={handleInputChange}
-                data-testid="isDead"
-              />
-            </div>
-          )}
-          <div className={lineClassName("maxHp")}>
-            <label htmlFor="maxHp">
-              {translate("form.maxHp", "combatTracker")}
-            </label>
-            <input
-              type="number"
+            <NumberInput
               id="maxHp"
               name="maxHp"
+              label={translate("form.maxHp", "combatTracker")}
               min="1"
               value={character?.maxHp ?? 0}
               onChange={handleInputChange}
+              className={importedClassName("maxHp")}
               data-testid="maxHp"
             />
-          </div>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="alternativeHp">
-              {translate("form.alternativeHp", "combatTracker")}
-            </label>
-            <input
-              type="number"
+            <NumberInput
+              id="tempHp"
+              name="tempHp"
+              label={translate("form.tempHp", "combatTracker")}
+              value={character?.tempHp ?? 0}
+              onChange={handleInputChange}
+              data-testid="tempHp"
+            />
+            <NumberInput
+              id="ac"
+              name="ac"
+              label={translate("form.ac", "combatTracker")}
+              value={character?.ac ?? 0}
+              onChange={handleInputChange}
+              className={importedClassName("ac")}
+              data-testid="ac"
+            />
+            <NumberInput
+              id="initiativeScore"
+              name="initiativeScore"
+              label={translate("form.initiative", "combatTracker")}
+              value={character?.initiativeScore ?? 0}
+              onChange={handleInputChange}
+              data-testid="initiativeScore"
+            />
+            <NumberInput
               id="alternativeHp"
               name="alternativeHp"
+              label={translate("form.alternativeHp", "combatTracker")}
               value={character?.alternativeHp ?? 0}
               onChange={handleInputChange}
               data-testid="alternativeHp"
             />
-          </div>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="maxAlternativeHp">
-              {translate("form.maxAlternativeHp", "combatTracker")}
-            </label>
-            <input
-              type="number"
+            <NumberInput
               id="maxAlternativeHp"
               name="maxAlternativeHp"
+              label={translate("form.maxAlternativeHp", "combatTracker")}
               value={character?.maxAlternativeHp || ""}
               placeholder={
                 character?.alternativeHp
@@ -515,73 +500,57 @@ const EditCharacterForm = ({
               data-testid="maxAlternativeHp"
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="tempHp">
-              {translate("form.tempHp", "combatTracker")}
-            </label>
-            <input
-              type="number"
-              id="tempHp"
-              name="tempHp"
-              value={character?.tempHp ?? 0}
-              onChange={handleInputChange}
-              data-testid="tempHp"
-            />
-          </div>
-          <div className={lineClassName("ac")}>
-            <label htmlFor="ac">{translate("form.ac", "combatTracker")}</label>
-            <input
-              type="number"
-              id="ac"
-              name="ac"
-              value={character?.ac ?? 0}
-              onChange={handleInputChange}
-              data-testid="ac"
-            />
-          </div>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="initiativeScore">
-              {translate("form.initiative", "combatTracker")}
-            </label>
-            <input
-              type="number"
-              id="initiativeScore"
-              name="initiativeScore"
-              value={character?.initiativeScore ?? 0}
-              onChange={handleInputChange}
-              data-testid="initiativeScore"
-            />
-          </div>
-        </fieldset>
-        <fieldset className={importedClassName("fieldset", "spellSlotsLeft")}>
-          <h3>{translate("form.spellSlots", "combatTracker")}</h3>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="slotLevel">
-              {translate("form.nameOrLevel", "combatTracker")}
-            </label>
-            <input
-              type="text"
+          {character?.isDying && (
+            <div className={styles["edit-character-form__row"]}>
+              <CheckboxInput
+                id="isDead"
+                name="isDead"
+                label={translate("form.isDead", "combatTracker")}
+                checked={character?.isDead || false}
+                onChange={handleInputChange}
+                data-testid="isDead"
+              />
+            </div>
+          )}
+        </Fieldset>
+        <Fieldset
+          title={translate("form.spellSlots", "combatTracker")}
+          titleIcon="wand-sparkles"
+          isHighlighted={highlightedFields.includes("spellSlotsLeft")}
+        >
+          <ul className={styles["edit-character-form__chips"]}>
+            {Object.entries(character?.spellSlotsLeft ?? {}).map(
+              ([name, slots]) => (
+                <li key={name} className={styles["edit-character-form__chip"]}>
+                  ✨ {name} : {slots}
+                  <IconButton
+                    variant={ButtonVariant.TERTIARY}
+                    tooltip={translate("form.remove", "combatTracker")}
+                    faIcon="xmark"
+                    faIconStyle={FaIconStyleEnum.SOLID}
+                    onClick={() => removeSpellSlot(name)}
+                  />
+                </li>
+              ),
+            )}
+          </ul>
+          <div className={styles["edit-character-form__row"]}>
+            <TextInput
               id="slotLevel"
               name="slotLevel"
+              label={translate("form.nameOrLevel", "combatTracker")}
               value={spellSlotName}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setSpellSlotName(event.target.value)
-              }
+              onChange={(event) => setSpellSlotName(event.target.value)}
               data-testid="spellSlotName"
             />
-            <label htmlFor="slotValue">
-              {translate("form.value", "combatTracker")}
-            </label>
-            <input
-              type="number"
+            <NumberInput
               id="slotValue"
               name="slotValue"
+              label={translate("form.value", "combatTracker")}
               min="0"
               step="1"
               value={spellSlotValue}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setSpellSlotValue(+event.target.value)
-              }
+              onChange={(event) => setSpellSlotValue(+event.target.value)}
             />
             <ButtonWithIcon
               variant={ButtonVariant.SECONDARY}
@@ -593,35 +562,35 @@ const EditCharacterForm = ({
               onClick={addSpellSlot}
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
-            {Object.entries(character?.spellSlotsLeft ?? {}).map(
-              ([name, slots]) => (
-                <div key={name} className={styles["edit-character-form__line"]}>
-                  ✨ {name} : <span>{slots}</span>
-                  <ButtonWithIcon
-                    variant={ButtonVariant.SECONDARY}
-                    label={translate("form.remove", "combatTracker")}
-                    faIcon="xmark"
-                    faIconStyle={FaIconStyleEnum.SOLID}
-                    iconPosition="left"
-                    type="button"
-                    onClick={() => removeSpellSlot(name)}
-                  />
-                </div>
-              ),
-            )}
-          </div>
-        </fieldset>
-        <fieldset className={importedClassName("fieldset", "passives")}>
-          <h3>{translate("form.passives", "combatTracker")}</h3>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="passiveName">
-              {translate("form.passiveName", "combatTracker")}
-            </label>
-            <input
-              type="text"
+        </Fieldset>
+        <Fieldset
+          title={translate("form.passives", "combatTracker")}
+          titleIcon="book-open"
+          isHighlighted={highlightedFields.includes("passives")}
+        >
+          <ul className={styles["edit-character-form__chips"]}>
+            {(character?.passives ?? []).map((passive, index) => (
+              <li
+                key={`${passive}-${index}`}
+                className={styles["edit-character-form__chip"]}
+                data-testid="passive-item"
+              >
+                {passive}
+                <IconButton
+                  variant={ButtonVariant.TERTIARY}
+                  tooltip={translate("form.remove", "combatTracker")}
+                  faIcon="xmark"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  onClick={() => removePassive(index)}
+                />
+              </li>
+            ))}
+          </ul>
+          <div className={styles["edit-character-form__row"]}>
+            <TextInput
               id="passiveName"
               name="passiveName"
+              label={translate("form.passiveName", "combatTracker")}
               value={passiveName}
               onChange={(event) => setPassiveName(event.target.value)}
               onKeyDown={(event) => {
@@ -643,37 +612,21 @@ const EditCharacterForm = ({
               data-testid="addPassive"
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
-            {(character?.passives ?? []).map((passive, index) => (
-              <div
-                key={`${passive}-${index}`}
-                className={styles["edit-character-form__line"]}
-                data-testid="passive-item"
-              >
-                ⚫ <span>{passive}</span>
-                <ButtonWithIcon
-                  variant={ButtonVariant.SECONDARY}
-                  label={translate("form.remove", "combatTracker")}
-                  faIcon="xmark"
-                  faIconStyle={FaIconStyleEnum.SOLID}
-                  iconPosition="left"
-                  type="button"
-                  onClick={() => removePassive(index)}
-                />
-              </div>
-            ))}
-          </div>
-        </fieldset>
-        <fieldset className={importedClassName("fieldset", "actions")}>
-          <h3>{translate("form.actions", "combatTracker")}</h3>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="actionName">
-              {translate("form.actionName", "combatTracker")}
-            </label>
-            <input
-              type="text"
+        </Fieldset>
+        <Fieldset
+          title={translate("form.actions", "combatTracker")}
+          titleIcon="hand-fist"
+          isHighlighted={highlightedFields.includes("actions")}
+        >
+          <ActionsList
+            actions={character?.actions ?? []}
+            onRemove={removeAction}
+          />
+          <div className={styles["edit-character-form__row"]}>
+            <TextInput
               id="actionName"
               name="actionName"
+              label={translate("form.actionName", "combatTracker")}
               value={actionName}
               onChange={(event) => setActionName(event.target.value)}
               onKeyDown={(event) => {
@@ -695,21 +648,34 @@ const EditCharacterForm = ({
               data-testid="addAction"
             />
           </div>
-          <ActionsList
-            actions={character?.actions ?? []}
-            onRemove={removeAction}
-          />
-        </fieldset>
-        <fieldset className={styles["edit-character-form__fieldset"]}>
-          <h3>{translate("form.usableObjects", "combatTracker")}</h3>
-          <div className={styles["edit-character-form__line"]}>
-            <label htmlFor="usableObjectName">
-              {translate("form.usableObjectName", "combatTracker")}
-            </label>
-            <input
-              type="text"
+        </Fieldset>
+        <Fieldset
+          title={translate("form.usableObjects", "combatTracker")}
+          titleIcon="bag-shopping"
+        >
+          <ul className={styles["edit-character-form__chips"]}>
+            {(character?.usableObjects ?? []).map((usableObject, index) => (
+              <li
+                key={`${usableObject}-${index}`}
+                className={styles["edit-character-form__chip"]}
+                data-testid="usable-object-item"
+              >
+                {usableObject}
+                <IconButton
+                  variant={ButtonVariant.TERTIARY}
+                  tooltip={translate("form.remove", "combatTracker")}
+                  faIcon="xmark"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  onClick={() => removeUsableObject(index)}
+                />
+              </li>
+            ))}
+          </ul>
+          <div className={styles["edit-character-form__row"]}>
+            <TextInput
               id="usableObjectName"
               name="usableObjectName"
+              label={translate("form.usableObjectName", "combatTracker")}
               value={usableObjectName}
               onChange={(event) => setUsableObjectName(event.target.value)}
               onKeyDown={(event) => {
@@ -731,32 +697,12 @@ const EditCharacterForm = ({
               data-testid="addUsableObject"
             />
           </div>
-          <div className={styles["edit-character-form__line"]}>
-            {(character?.usableObjects ?? []).map((usableObject, index) => (
-              <div
-                key={`${usableObject}-${index}`}
-                className={styles["edit-character-form__line"]}
-                data-testid="usable-object-item"
-              >
-                ⚫ <span>{usableObject}</span>
-                <ButtonWithIcon
-                  variant={ButtonVariant.SECONDARY}
-                  label={translate("form.remove", "combatTracker")}
-                  faIcon="xmark"
-                  faIconStyle={FaIconStyleEnum.SOLID}
-                  iconPosition="left"
-                  type="button"
-                  onClick={() => removeUsableObject(index)}
-                />
-              </div>
-            ))}
-          </div>
-        </fieldset>
-        <fieldset className={styles["edit-character-form__fieldset"]}>
-          <h3>{translate("form.states", "combatTracker")}</h3>
-        </fieldset>
-        <fieldset className={styles["edit-character-form__fieldset"]}>
-          <SubmitButton label={translate("form.save", "combatTracker")} />
+        </Fieldset>
+        <Fieldset
+          title={translate("form.states", "combatTracker")}
+          titleIcon="fire-flame-curved"
+        />
+        <div className={styles["edit-character-form__footer"]}>
           <ButtonWithIcon
             label={translate("form.saveAndRestart", "combatTracker")}
             onClick={() => {}}
@@ -764,7 +710,8 @@ const EditCharacterForm = ({
             faIconStyle={FaIconStyleEnum.SOLID}
             iconPosition="left"
           />
-        </fieldset>
+          <SubmitButton label={translate("form.save", "combatTracker")} />
+        </div>
       </form>
     </div>
   );

@@ -1,37 +1,24 @@
 @use "app/mixins";
 
-// MUI injects its own styles after the CSS modules, hence the !important
+// Same look as the custom drawer: see the overlay mixins
 .custom-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-layout-section-content-margin);
-  padding: var(--spacing-layout-section-margin) var(--spacing--m);
-
-  color: var(--color-text--dark);
+  @include mixins.overlay--content;
 
   &__paper {
-    background-color: var(--color-dialog-background) !important;
-    backdrop-filter: blur(6px);
+    @include mixins.overlay--paper;
     border-radius: var(--radius--s) !important;
-    box-shadow: 0 0.5rem 2rem rgba(47, 56, 80, 0.25) !important;
-    @include mixins.border--thin--light;
   }
 
   &__backdrop {
-    background-color: rgba(47, 56, 80, 0.35) !important;
+    @include mixins.overlay--backdrop;
   }
 
   &__header {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-padding--text);
+    @include mixins.overlay--header;
   }
 
   &__title {
-    @include mixins.section__title;
-    margin: 0;
-
-    font-weight: var(--font-weight--title);
+    @include mixins.overlay--title;
   }
 
   &__separator {

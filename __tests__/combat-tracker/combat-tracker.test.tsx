@@ -536,7 +536,7 @@ describe("EditCharacterForm import from wiki", () => {
     ).toHaveTextContent("2");
     expect(
       screen.getByTestId("actions-list-action").closest("fieldset"),
-    ).toHaveClass("edit-character-form__fieldset--imported");
+    ).toHaveClass("fieldset--highlighted");
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
     expect(onSubmit.mock.calls[0][0].actions).toHaveLength(1);
   });
@@ -635,7 +635,7 @@ describe("EditCharacterForm import from wiki", () => {
   });
 
   const lineOf = (testId: string) => screen.getByTestId(testId).closest("div");
-  const IMPORTED = "edit-character-form__line--imported";
+  const IMPORTED = "edit-character-form__field--imported";
 
   it("lists and highlights the fields replaced by the import", async () => {
     render(

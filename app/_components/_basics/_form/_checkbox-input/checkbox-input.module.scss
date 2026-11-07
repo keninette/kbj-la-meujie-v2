@@ -1,0 +1,19 @@
+.checkbox-input {
+  align-items: center;
+  box-sizing: border-box;
+  display: inline-flex;
+  gap: var(--spacing-padding--text);
+  height: var(--button-height--regular);
+  padding: 0 var(--spacing-padding--text);
+
+  background-color: var(--color-surface--field);
+  border: 1px solid var(--color-border--light);
+  border-radius: var(--radius--field);
+  cursor: pointer;
+
+  &__input {
+    margin: 0;
+
+    accent-color: var(--color-border--dark);
+  }
+}

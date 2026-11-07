@@ -38,11 +38,15 @@
   --color-border--light: var(--color-default-pink--light);
   --color-border--dark: var(--color-default-purple--primary);
   --color-separator: var(--color-default-grey--dark);
+  --color-surface--panel: var(--color-default-white--translucent);
+  --color-surface--field: var(--color-default-white);
+  --color-text--muted: var(--color-default-grey--medium);
 
   --font-size--title: var(--font-size--l);
   --font-size--subtitle: var(--font-size--m);
   --font-size--section-title: var(--font-size--m);
   --font-size--section-content-title: var(--font-size--s);
+  --font-size--caption: var(--font-size--xs);
 
   --font-weight--title: var(--font-weight--light);
   --font-weight--subtitle: var(--font-weight--regular);
@@ -55,6 +59,10 @@
 
   --radius--button: var(--radius--s);
   --radius--chip: var(--radius--s);
+  --radius--panel: var(--radius--m);
+  --radius--field: var(--radius--s);
+
+  --shadow--panel: var(--shadow--s);
 
   --spacing-layout-section: var(--spacing--l);
   --spacing-layout-section-margin: var(--spacing--s);
@@ -62,4 +70,5 @@
   --spacing-title: var(--font-size--s);
   --spacing-padding--text: var(--spacing--xs);
   --spacing-padding--button: var(--spacing--xxs);
+  --spacing-panel: var(--spacing--s);
 }
