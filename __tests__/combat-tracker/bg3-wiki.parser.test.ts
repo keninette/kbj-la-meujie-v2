@@ -4,6 +4,7 @@ import {
   extractPageTitleFromUrl,
   getHighestDifficultyValue,
   getImageFileCandidates,
+  mergeCombatInfobox,
   buildShortDescription,
   buildWikiLink,
   parseInfobox,
@@ -108,6 +109,13 @@ describe("bg3 wiki parser", () => {
         wldshp: 2,
       });
       expect(parseResources(undefined)).toEqual({});
+    });
+
+    it("counts a resource listed without an amount once", () => {
+      expect(parseResources("chaoat, layonh:4")).toEqual({
+        chaoat: 1,
+        layonh: 4,
+      });
     });
   });
 
@@ -214,9 +222,24 @@ describe("bg3 wiki parser", () => {
     it("adds the picture when one was found", () => {
       const url = "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png";
       expect(
-        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", url)
-          .imageUrl,
+        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", {
+          imageUrl: url,
+        }).imageUrl,
       ).toBe(url);
+    });
+
+    it("adds the actions when some were found", () => {
+      const actions = [{ name: "Moonbeam", costs: ["action", "2"] }];
+      expect(
+        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", {
+          actions,
+        }).actions,
+      ).toEqual(actions);
+      expect(
+        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", {
+          actions: [],
+        }),
+      ).not.toHaveProperty("actions");
     });
 
     it("builds Kagha with her Tactician stats", () => {
@@ -259,6 +282,36 @@ describe("bg3 wiki parser", () => {
       expect(character.passives).toBeUndefined();
       expect(character.shortDescription).toBeUndefined();
       expect(character.wikiLink).toBe("https://bg3.wiki/wiki/Some_Boss");
+    });
+  });
+
+  describe("mergeCombatInfobox", () => {
+    it("uses the combat subpage's stats, with all their difficulties", () => {
+      const fields = mergeCombatInfobox(
+        parseInfobox(
+          "{{Infobox creature\n| name = Nightwarden Minthara\n| portrait = Main.jpg\n| race = [[Drow]]\n| h ac = 20\n| background = Noble\n}}",
+        ),
+        parseInfobox(
+          "{{Infobox creature\n| name = Minthara\n| portrait = Portrait Minthara.png\n| ac = 16\n| hp = 52\n| t hp = 67\n}}",
+        ),
+      );
+
+      expect(fields).toEqual({
+        name: "Minthara",
+        portrait: "Portrait Minthara.png",
+        race: "[[Drow]]",
+        // The main page's Honour AC doesn't beat the subpage's AC
+        ac: "16",
+        hp: "52",
+        "t hp": "67",
+        background: "Noble",
+      });
+      expect(buildCharacterFromInfobox(fields, "Minthara")).toMatchObject({
+        name: "Minthara",
+        ac: 16,
+        hp: 67,
+        maxHp: 67,
+      });
     });
   });
 });

@@ -1,4 +1,5 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
+import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import { BG3_WIKI_HOST } from "./bg3-wiki.images";
 
 export { BG3_WIKI_HOST, isBg3WikiImage } from "./bg3-wiki.images";
@@ -174,7 +175,7 @@ const stripTemplates = (value: string): string => {
  * "[[Elf|Elven]]" -> "Elven", "[[Druid]]" -> "Druid",
  * "Fighter{{ref|footnote}}" -> "Fighter", strips HTML comments and <ref>s.
  */
-const stripWikiMarkup = (value: string): string =>
+export const stripWikiMarkup = (value: string): string =>
   stripTemplates(value)
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<ref[^>]*\/>|<ref[^>]*>[\s\S]*?<\/ref>/g, "")
@@ -199,6 +200,28 @@ export const getHighestDifficultyValue = (
   return undefined;
 };
 
+/**
+ * Bosses keep their fight stats on a "/Combat" subpage, the main page only
+ * describes them: the subpage's fields win, with all their difficulty
+ * variants (a main page "h hp" must not beat a subpage "hp").
+ */
+export const mergeCombatInfobox = (
+  pageFields: Record<string, string>,
+  combatFields: Record<string, string>,
+): Record<string, string> => {
+  // "e hp" (Explorer), "t hp" (Tactician), "h hp" (Honour) -> "hp"
+  const baseName = (field: string) => field.replace(/^[eth] /, "");
+  const combatBaseNames = new Set(Object.keys(combatFields).map(baseName));
+  return {
+    ...Object.fromEntries(
+      Object.entries(pageFields).filter(
+        ([field]) => !combatBaseNames.has(baseName(field)),
+      ),
+    ),
+    ...combatFields,
+  };
+};
+
 const toNumber = (value: string | undefined): number => {
   const parsed = parseInt(value ?? "", 10);
   return Number.isNaN(parsed) ? 0 : parsed;
@@ -211,9 +234,13 @@ const splitList = (value: string | undefined): string[] =>
     .filter(Boolean);
 
 /**
- * "spell1:4, spell2:3, wldshp:2" -> { "1": 4, "2": 3, "wldshp": 2 }
- * Spell slots are keyed by their level, like the ones added manually.
+ * Spell slots are keyed by their level, like the ones added manually:
+ * "spell2" -> "2", other resources keep their name ("wldshp").
  */
+export const normalizeResourceName = (name: string): string =>
+  name.trim().replace(/^spell(\d+)$/i, "$1");
+
+/** "spell1:4, spell2:3, wldshp:2" -> { "1": 4, "2": 3, "wldshp": 2 } */
 export const parseResources = (
   value: string | undefined,
 ): Record<string, number> => {
@@ -223,8 +250,10 @@ export const parseResources = (
     if (!rawName) {
       continue;
     }
-    const name = rawName.replace(/^spell(\d+)$/i, "$1");
-    resources[name] = toNumber(rawCount);
+    // "chaoat" alone is a single use
+    resources[normalizeResourceName(rawName)] = rawCount
+      ? toNumber(rawCount)
+      : 1;
   }
   return resources;
 };
@@ -278,7 +307,10 @@ export const buildShortDescription = (
 export const buildCharacterFromInfobox = (
   fields: Record<string, string>,
   pageTitle: string,
-  imageUrl?: string,
+  {
+    imageUrl,
+    actions = [],
+  }: { imageUrl?: string; actions?: CombatAction[] } = {},
 ): WikiCharacter => {
   const get = (field: string) => getHighestDifficultyValue(fields, field);
 
@@ -306,5 +338,6 @@ export const buildCharacterFromInfobox = (
     initiativeScore: 0,
     ...(Object.keys(spellSlotsLeft).length ? { spellSlotsLeft } : {}),
     ...(passives.length ? { passives } : {}),
+    ...(actions.length ? { actions } : {}),
   };
 };

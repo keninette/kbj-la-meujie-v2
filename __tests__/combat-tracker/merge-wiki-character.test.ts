@@ -40,6 +40,25 @@ describe("mergeWikiCharacter", () => {
     });
   });
 
+  it("imports the actions like the other lists", () => {
+    const actions = [{ name: "Moonbeam", costs: ["action", "2"] }];
+    const fetched = { ...kagha, actions };
+    const handMade = [{ name: "Dodge", costs: [] }];
+
+    expect(mergeWikiCharacter(buildCharacter(), fetched, []).actions).toEqual(
+      actions,
+    );
+    expect(
+      mergeWikiCharacter(buildCharacter({ actions: handMade }), fetched, [])
+        .actions,
+    ).toEqual(handMade);
+    expect(
+      mergeWikiCharacter(buildCharacter({ actions: handMade }), fetched, [
+        "actions",
+      ]).actions,
+    ).toEqual(actions);
+  });
+
   it("only fills empty fields when not overriding", () => {
     const current = buildCharacter({
       name: "My Kagha",

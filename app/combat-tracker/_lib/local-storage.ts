@@ -1,6 +1,10 @@
 import { Combat } from "../../_lib/types/combat.type";
 import { CombatCharacter } from "../../_lib/types/combat-character.type";
 import { CombatState } from "../../_lib/types/combat-state.type";
+import {
+  CombatAction,
+  CombatActionDamage,
+} from "../../_lib/types/combat-action.type";
 import { CombatStatusEnum } from "../../_lib/enums/combat-status.enum";
 
 const STORAGE_KEY = "scratchie-combat-tracker";
@@ -24,6 +28,34 @@ const isCombatState = (value: unknown): value is CombatState => {
   );
 };
 
+const isOptional = (
+  value: unknown,
+  type: "string" | "number" | "boolean",
+): boolean => value === undefined || typeof value === type;
+
+const isCombatActionDamage = (value: unknown): value is CombatActionDamage =>
+  isRecord(value) &&
+  typeof value.dice === "string" &&
+  isOptional(value.type, "string");
+
+const isCombatAction = (value: unknown): value is CombatAction =>
+  isRecord(value) &&
+  typeof value.name === "string" &&
+  Array.isArray(value.costs) &&
+  value.costs.every((cost) => typeof cost === "string") &&
+  (value.damages === undefined ||
+    (Array.isArray(value.damages) &&
+      value.damages.every(isCombatActionDamage))) &&
+  isOptional(value.type, "string") &&
+  isOptional(value.spellLevel, "number") &&
+  isOptional(value.save, "string") &&
+  isOptional(value.isConcentration, "boolean") &&
+  isOptional(value.recharge, "string") &&
+  isOptional(value.item, "string") &&
+  isOptional(value.description, "string") &&
+  isOptional(value.iconUrl, "string") &&
+  isOptional(value.wikiLink, "string");
+
 const isCombatCharacter = (value: unknown): value is CombatCharacter => {
   if (!isRecord(value)) {
     return false;
@@ -42,6 +74,9 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     value.passives === undefined ||
     (Array.isArray(value.passives) &&
       value.passives.every((passive) => typeof passive === "string"));
+  const actionsAreValid =
+    value.actions === undefined ||
+    (Array.isArray(value.actions) && value.actions.every(isCombatAction));
   const usableObjectsAreValid =
     value.usableObjects === undefined ||
     (Array.isArray(value.usableObjects) &&
@@ -70,6 +105,7 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     spellSlotsAreValid &&
     statesAreValid &&
     passivesAreValid &&
+    actionsAreValid &&
     usableObjectsAreValid
   );
 };

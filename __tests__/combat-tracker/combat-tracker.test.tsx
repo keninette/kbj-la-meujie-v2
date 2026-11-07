@@ -76,6 +76,47 @@ describe("loadCombat", () => {
     expect(loadCombat()).toEqual(combat);
   });
 
+  it("round-trips the actions", () => {
+    const combat = buildCombat([
+      buildCharacter({
+        actions: [
+          {
+            name: "Moonbeam",
+            type: "spell",
+            costs: ["action", "2"],
+            spellLevel: 2,
+            damages: [{ dice: "2d10", type: "Radiant" }],
+            save: "CON",
+            isConcentration: true,
+            description: "Call down a beam of light.",
+            iconUrl: "https://bg3.wiki/w/images/a/ab/Moonbeam.webp",
+            wikiLink: "https://bg3.wiki/wiki/Moonbeam",
+          },
+          { name: "Dodge", costs: [] },
+        ],
+      }),
+    ]);
+
+    saveCombat(combat);
+
+    expect(loadCombat()).toEqual(combat);
+  });
+
+  it.each([
+    ["costs is not an array", { name: "Moonbeam", costs: "action" }],
+    ["a damage has no dice", { name: "Moonbeam", costs: [], damages: [{}] }],
+    ["the name is missing", { costs: [] }],
+  ])("returns null when a stored action is invalid: %s", (_, action) => {
+    localStorage.setItem(
+      "scratchie-combat-tracker",
+      JSON.stringify(
+        buildCombat([buildCharacter({ actions: [action] } as never)]),
+      ),
+    );
+
+    expect(loadCombat()).toBeNull();
+  });
+
   it("round-trips the short description, picture and wiki link", () => {
     const combat = buildCombat([
       buildCharacter({
@@ -437,6 +478,46 @@ describe("EditCharacterForm import from wiki", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it("fills the actions from the wiki and lists them with their details", async () => {
+    mockedCreateFromWiki.mockResolvedValueOnce({
+      character: {
+        ...kaghaFromWiki,
+        actions: [
+          {
+            name: "Moonbeam",
+            costs: ["action", "2"],
+            damages: [{ dice: "2d10", type: "Radiant" }],
+            save: "CON",
+            isConcentration: true,
+          },
+        ],
+      },
+    });
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    await runImport(false);
+
+    const moonbeam = screen.getByTestId("actions-list-action");
+    expect(moonbeam).toHaveTextContent("2d10 Radiant · CON · concentration");
+    expect(
+      within(moonbeam).getByTestId("action-cost-action"),
+    ).toBeInTheDocument();
+    expect(
+      within(moonbeam).getByTestId("action-cost-spellSlot"),
+    ).toHaveTextContent("2");
+    expect(
+      screen.getByTestId("actions-list-action").closest("fieldset"),
+    ).toHaveClass("edit-character-form__fieldset--imported");
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    expect(onSubmit.mock.calls[0][0].actions).toHaveLength(1);
+  });
+
   it("marks a new character imported from the wiki as an NPC", async () => {
     render(<EditCharacterForm initialCharacter={null} />);
     expect(screen.getByLabelText("form.npc")).not.toBeChecked();
@@ -655,6 +736,64 @@ describe("EditCharacterForm passives", () => {
   });
 });
 
+describe("EditCharacterForm actions", () => {
+  const submit = () =>
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+  it("adds an action by name, without details", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("actionName"), {
+      target: { value: "  Dodge  " },
+    });
+    fireEvent.click(screen.getByTestId("addAction"));
+    submit();
+
+    expect(onSubmit.mock.calls[0][0].actions).toEqual([
+      { name: "Dodge", costs: [] },
+    ]);
+  });
+
+  it("ignores a blank name and removes an existing action", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          actions: [
+            { name: "Moonbeam", costs: ["action", "2"] },
+            { name: "Misty Step", costs: ["bonus", "2"] },
+          ],
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("actionName"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("addAction"));
+    fireEvent.click(
+      within(screen.getAllByTestId("actions-list-action")[0]).getByRole(
+        "button",
+        {
+          name: "form.remove",
+        },
+      ),
+    );
+    submit();
+
+    expect(onSubmit.mock.calls[0][0].actions).toEqual([
+      { name: "Misty Step", costs: ["bonus", "2"] },
+    ]);
+  });
+});
+
 describe("CharacterStats passives", () => {
   const renderStats = (character: CombatCharacter) =>
     render(
@@ -674,6 +813,55 @@ describe("CharacterStats passives", () => {
     const passives = screen.getByTestId("character-passives");
     expect(passives).toHaveTextContent("Rage");
     expect(passives).toHaveTextContent("Fury");
+  });
+
+  it("displays the actions with an icon per cost", () => {
+    renderStats(
+      buildCharacter({
+        actions: [
+          {
+            name: "Moonbeam",
+            costs: ["action", "2"],
+            damages: [{ dice: "2d10", type: "Radiant" }],
+            isConcentration: true,
+            description: "Call down a beam of light.",
+          },
+          { name: "Lay on Hands", costs: ["action", "layonh:2"] },
+          { name: "Misty Step", costs: ["bonus"] },
+          { name: "Hellish Rebuke", costs: ["reaction"] },
+        ],
+      }),
+    );
+
+    const [moonbeam, layOnHands, mistyStep, rebuke] = within(
+      screen.getByTestId("character-actions"),
+    ).getAllByTestId("actions-list-action");
+
+    expect(moonbeam).toHaveTextContent("Moonbeam");
+    expect(moonbeam).toHaveTextContent("2d10 Radiant · concentration");
+    expect(moonbeam).toHaveAttribute("title", "Call down a beam of light.");
+    // An action that also uses a spell slot shows both icons
+    expect(
+      within(moonbeam).getByTestId("action-cost-action"),
+    ).toBeInTheDocument();
+    expect(
+      within(moonbeam).getByTestId("action-cost-spellSlot"),
+    ).toHaveTextContent("2");
+    expect(
+      within(layOnHands).getByTestId("action-cost-resource"),
+    ).toHaveAttribute("title", "layonh ×2");
+    expect(
+      within(mistyStep).getByTestId("action-cost-bonus"),
+    ).toBeInTheDocument();
+    expect(
+      within(rebuke).getByTestId("action-cost-reaction"),
+    ).toBeInTheDocument();
+  });
+
+  it("does not display the actions block when there are none", () => {
+    renderStats(buildCharacter());
+
+    expect(screen.queryByTestId("character-actions")).not.toBeInTheDocument();
   });
 
   it("does not display the passives block when there are none", () => {

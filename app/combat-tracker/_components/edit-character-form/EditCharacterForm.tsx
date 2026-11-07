@@ -11,6 +11,7 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
 import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
+import ActionsList from "@/app/combat-tracker/_components/actions-list/ActionsList";
 import {
   BG3_WIKI_HOST,
   buildWikiLink,
@@ -57,6 +58,7 @@ const EditCharacterForm = ({
   const [spellSlotName, setSpellSlotName] = useState("");
   const [spellSlotValue, setSpellSlotValue] = useState(0);
   const [passiveName, setPassiveName] = useState("");
+  const [actionName, setActionName] = useState("");
   const [usableObjectName, setUsableObjectName] = useState("");
   const [isWikiDialogOpened, setIsWikiDialogOpened] = useState(false);
   const imageUrl = character?.imageUrl?.trim();
@@ -210,6 +212,38 @@ const EditCharacterForm = ({
         ({
           ...prevChar,
           passives: (prevChar?.passives ?? []).filter((_, i) => i !== index),
+        }) as CombatCharacter,
+    );
+  };
+
+  // Added by hand: only the name, details come from a wiki import
+  const addAction = () => {
+    const trimmedName = actionName.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    clearHighlight("actions");
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          actions: [
+            ...(prevChar?.actions ?? []),
+            { name: trimmedName, costs: [] },
+          ],
+        }) as CombatCharacter,
+    );
+    setActionName("");
+  };
+
+  const removeAction = (index: number) => {
+    clearHighlight("actions");
+    setCharacter(
+      (prevChar) =>
+        ({
+          ...prevChar,
+          actions: (prevChar?.actions ?? []).filter((_, i) => i !== index),
         }) as CombatCharacter,
     );
   };
@@ -596,6 +630,42 @@ const EditCharacterForm = ({
               </div>
             ))}
           </div>
+        </fieldset>
+        <fieldset className={importedClassName("fieldset", "actions")}>
+          <h3>{translate("form.actions", "combatTracker")}</h3>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="actionName">
+              {translate("form.actionName", "combatTracker")}
+            </label>
+            <input
+              type="text"
+              id="actionName"
+              name="actionName"
+              value={actionName}
+              onChange={(event) => setActionName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addAction();
+                }
+              }}
+              data-testid="actionName"
+            />
+            <ButtonWithIcon
+              variant={ButtonVariant.SECONDARY}
+              label={translate("form.add", "combatTracker")}
+              faIcon="plus"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              type="button"
+              onClick={addAction}
+              data-testid="addAction"
+            />
+          </div>
+          <ActionsList
+            actions={character?.actions ?? []}
+            onRemove={removeAction}
+          />
         </fieldset>
         <fieldset className={styles["edit-character-form__fieldset"]}>
           <h3>{translate("form.usableObjects", "combatTracker")}</h3>
