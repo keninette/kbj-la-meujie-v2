@@ -1,0 +1,13 @@
+.npc-attitude-icon {
+  &--friend {
+    color: #4caf50;
+  }
+
+  &--neutral {
+    color: #8a8a8a;
+  }
+
+  &--enemy {
+    color: #b4001e;
+  }
+}

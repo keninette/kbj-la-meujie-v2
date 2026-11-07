@@ -1,3 +1,4 @@
+import { NpcAttitudeEnum } from "../enums/npc-attitude.enum";
 import { CombatAction } from "./combat-action.type";
 import { CombatState } from "./combat-state.type";
 
@@ -17,6 +18,8 @@ export type CombatCharacter = {
   isDying: boolean;
   isDead: boolean;
   isNpc: boolean;
+  /** Only used for NPCs, unknown when missing */
+  attitude?: NpcAttitudeEnum;
   deathSaveThrowsLeft: number;
   ac: number;
   initiativeScore: number;
