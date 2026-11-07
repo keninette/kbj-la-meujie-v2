@@ -101,14 +101,16 @@ const CharacterStats = ({
       >
         <div className={styles["character-stats__line"]}>
           {selectedCharacter.imageUrl && (
-            <Image
-              src={selectedCharacter.imageUrl}
-              alt={selectedCharacter.name}
-              width={64}
-              height={64}
-              className={styles["character-stats__picture"]}
-              data-testid="character-picture"
-            />
+            <span className={styles["character-stats__picture-frame"]}>
+              <Image
+                src={selectedCharacter.imageUrl}
+                alt={selectedCharacter.name}
+                width={75}
+                height={75}
+                className={styles["character-stats__picture"]}
+                data-testid="character-picture"
+              />
+            </span>
           )}
           <h3>
             {!selectedCharacter.isNpc && (

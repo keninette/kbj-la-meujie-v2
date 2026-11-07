@@ -62,15 +62,30 @@ const WikiCharacterDialog = ({
   };
 
   return (
-    <Dialog open={isOpened} onClose={close} fullWidth maxWidth="sm">
+    <Dialog
+      open={isOpened}
+      onClose={close}
+      fullWidth
+      maxWidth="sm"
+      slotProps={{
+        paper: { className: styles["wiki-character-dialog__paper"] },
+        backdrop: { className: styles["wiki-character-dialog__backdrop"] },
+      }}
+    >
       <form className={styles["wiki-character-dialog"]} onSubmit={handleSubmit}>
-        <h2>{translate("wiki.title", "combatTracker")}</h2>
+        <h2 className={styles["wiki-character-dialog__title"]}>
+          {translate("wiki.title", "combatTracker")}
+        </h2>
         <div className={styles["wiki-character-dialog__field"]}>
-          <label htmlFor="wiki-url">
+          <label
+            htmlFor="wiki-url"
+            className={styles["wiki-character-dialog__label"]}
+          >
             {translate("wiki.url", "combatTracker")}
           </label>
           <input
             type="url"
+            className={styles["wiki-character-dialog__input"]}
             id="wiki-url"
             name="wiki-url"
             placeholder="https://bg3.wiki/wiki/Halsin"
@@ -83,11 +98,18 @@ const WikiCharacterDialog = ({
           />
         </div>
         <div className={styles["wiki-character-dialog__field"]}>
-          <label htmlFor="wiki-initiative">
+          <label
+            htmlFor="wiki-initiative"
+            className={styles["wiki-character-dialog__label"]}
+          >
             {translate("form.initiative", "combatTracker")}
           </label>
           <input
             type="number"
+            className={[
+              styles["wiki-character-dialog__input"],
+              styles["wiki-character-dialog__input--short"],
+            ].join(" ")}
             id="wiki-initiative"
             name="wiki-initiative"
             step={1}
@@ -105,7 +127,7 @@ const WikiCharacterDialog = ({
         )}
         {isLoading && (
           <div className={styles["wiki-character-dialog__loader"]}>
-            <CircularProgress size="1.5rem" />
+            <CircularProgress size="1.5rem" color="inherit" />
             <span>{translate("wiki.loading", "combatTracker")}</span>
           </div>
         )}

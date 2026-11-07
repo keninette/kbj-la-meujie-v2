@@ -31,7 +31,11 @@ const ButtonWithIcon = ({
 
   return (
     <div
-      className={`${styles["button-with-icon"]} ${styles[splitButtonVariantClass]}`}
+      className={[
+        styles["button-with-icon"],
+        styles[splitButtonVariantClass],
+        disabled ? styles["button-with-icon--disabled"] : "",
+      ].join(" ")}
     >
       {iconPosition === "left" && (
         <FontAwesomeIcon
