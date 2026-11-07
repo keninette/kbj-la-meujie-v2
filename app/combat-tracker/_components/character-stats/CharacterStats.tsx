@@ -4,6 +4,7 @@ import styles from "./character-stats.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useState } from "react";
+import Image from "next/image";
 import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
 import { getMaxAlternativeHp } from "../attack-form/attack-form.helper";
@@ -99,6 +100,16 @@ const CharacterStats = ({
         {...restProps}
       >
         <div className={styles["character-stats__line"]}>
+          {selectedCharacter.imageUrl && (
+            <Image
+              src={selectedCharacter.imageUrl}
+              alt={selectedCharacter.name}
+              width={64}
+              height={64}
+              className={styles["character-stats__picture"]}
+              data-testid="character-picture"
+            />
+          )}
           <h3>
             {!selectedCharacter.isNpc && (
               <FontAwesomeIcon

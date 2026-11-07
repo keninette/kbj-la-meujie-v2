@@ -48,6 +48,11 @@
     }
   }
 
+  &__picture {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
   &__line--vertical-content {
     flex-direction: column;
   }

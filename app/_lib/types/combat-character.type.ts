@@ -3,6 +3,8 @@ import { CombatState } from "./combat-state.type";
 export type CombatCharacter = {
   id: string;
   name: string;
+  /** Remote picture, e.g. the portrait from bg3.wiki */
+  imageUrl?: string;
   hp: number;
   maxHp: number;
   alternativeHp?: number;

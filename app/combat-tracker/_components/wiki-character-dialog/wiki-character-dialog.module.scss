@@ -1,0 +1,29 @@
+.wiki-character-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-layout-section-content-margin);
+  padding: var(--spacing-layout-section);
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-padding--text);
+  }
+
+  &__error {
+    color: var(--color-info);
+    margin: 0;
+  }
+
+  &__loader {
+    align-items: center;
+    display: flex;
+    gap: var(--spacing-layout-section-content-margin);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--spacing-layout-section-content-margin);
+    justify-content: flex-end;
+  }
+}

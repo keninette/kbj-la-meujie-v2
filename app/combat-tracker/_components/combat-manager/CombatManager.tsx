@@ -11,6 +11,7 @@ import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import CombatHistory from "../combat-history/CombatHistory";
 import EditCharacterForm from "../edit-character-form/EditCharacterForm";
+import WikiCharacterDialog from "../wiki-character-dialog/WikiCharacterDialog";
 
 type CombatManagerProps = {
   ongoingCombat: Combat | null;
@@ -24,13 +25,12 @@ enum DrawerContentEnum {
   STOP_COMBAT_CONFIRMATION = "stop-combat-confirmation",
 }
 
-// todo revoir les css pour utiliser les variables sys
-// todo juste onCombatChange : pour regrouper start, character added, ...
 const CombatManager = ({
   ongoingCombat,
   onCombatChange,
 }: CombatManagerProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
+  const [isWikiDialogOpened, setIsWikiDialogOpened] = useState(false);
   const [drawerContent, setDrawerContent] = useState<DrawerContentEnum | null>(
     null,
   );
@@ -203,6 +203,17 @@ const CombatManager = ({
             variant={ButtonVariant.SECONDARY}
           />
         )}
+        {ongoingCombat && (
+          <ButtonWithIcon
+            label={translate("manager.addCharacterFromWiki", "combatTracker")}
+            onClick={() => setIsWikiDialogOpened(true)}
+            faIcon="book-open"
+            faIconStyle={FaIconStyleEnum.SOLID}
+            iconPosition="left"
+            variant={ButtonVariant.SECONDARY}
+            data-testid="add-character-from-wiki"
+          />
+        )}
         {ongoingCombat &&
           ongoingCombat.status !== CombatStatusEnum.ONGOING &&
           ongoingCombat.characters.length > 0 && (
@@ -278,6 +289,12 @@ const CombatManager = ({
           </div>
         </div>
       )}
+
+      <WikiCharacterDialog
+        isOpened={isWikiDialogOpened}
+        onClose={() => setIsWikiDialogOpened(false)}
+        onCharacterCreated={updateCharacter}
+      />
 
       <CustomDrawer
         isOpened={isDrawerOpened}
