@@ -88,6 +88,20 @@
     }
   }
 
+  // Name + short description, stacked next to the portrait
+  &__identity {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-padding--button);
+  }
+
+  &__short-description {
+    margin: 0;
+
+    font-style: italic;
+    letter-spacing: var(--letter-spacing--section-subtitle);
+  }
+
   &__picture {
     width: 75px;
     height: 75px;

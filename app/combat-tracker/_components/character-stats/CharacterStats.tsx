@@ -112,16 +112,26 @@ const CharacterStats = ({
               />
             </span>
           )}
-          <h3>
-            {!selectedCharacter.isNpc && (
-              <FontAwesomeIcon
-                faIcon="user"
-                faIconStyle={FaIconStyleEnum.SOLID}
-                tooltip={translate("stats.player", "combatTracker")}
-              />
+          <div className={styles["character-stats__identity"]}>
+            <h3>
+              {!selectedCharacter.isNpc && (
+                <FontAwesomeIcon
+                  faIcon="user"
+                  faIconStyle={FaIconStyleEnum.SOLID}
+                  tooltip={translate("stats.player", "combatTracker")}
+                />
+              )}
+              {selectedCharacter.name}
+            </h3>
+            {selectedCharacter.shortDescription && (
+              <p
+                className={styles["character-stats__short-description"]}
+                data-testid="character-short-description"
+              >
+                {selectedCharacter.shortDescription}
+              </p>
             )}
-            {selectedCharacter.name}
-          </h3>
+          </div>
           {isCombatOngoing &&
             !selectedCharacter.isDying &&
             !selectedCharacter.isDead && (

@@ -3,13 +3,17 @@ import styles from "./link-with-icon.module.scss";
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 
 type LinkWithIconProps = {
-  label: string;
+  /** Optional: without it, only the icon is shown and `title` is the tooltip */
+  label?: string;
   href: string;
   faIcon: string;
   iconPosition?: "left" | "right";
   faIconStyle?: FaIconStyleEnum;
   className?: string;
   title?: string;
+  /** Opens the link in a new tab (e.g. external pages) */
+  openInNewTab?: boolean;
+  "data-testid"?: string;
 };
 
 const LinkWithIcon = ({
@@ -20,19 +24,27 @@ const LinkWithIcon = ({
   faIconStyle = FaIconStyleEnum.REGULAR,
   className,
   title,
+  openInNewTab = false,
+  "data-testid": dataTestId,
 }: LinkWithIconProps) => {
-  const iconPositionClassName = `link-with-icon--${iconPosition}`;
+  // The spacing between icon and label is only needed when there is a label
+  const iconPositionClassName = label
+    ? styles[`link-with-icon--${iconPosition}`]
+    : "";
   const iconElement = (
-    <i
-      className={`fa-${faIconStyle} fa-${faIcon} ${styles[iconPositionClassName]}`}
-    />
+    <i className={`fa-${faIconStyle} fa-${faIcon} ${iconPositionClassName}`} />
   );
 
   return (
     <Link
       href={href}
-      className={`${styles["link-with-icon"]} ${className}`}
+      className={`${styles["link-with-icon"]} ${className ?? ""}`}
       title={title ?? label}
+      aria-label={label ? undefined : title}
+      data-testid={dataTestId}
+      {...(openInNewTab
+        ? { target: "_blank", rel: "noopener noreferrer" }
+        : {})}
     >
       {iconPosition === "left" && iconElement}
       {label}

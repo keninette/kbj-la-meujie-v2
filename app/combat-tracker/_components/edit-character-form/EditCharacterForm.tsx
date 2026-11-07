@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import styles from "./edit-character-form.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
@@ -9,6 +9,7 @@ import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+import { fetchPortraitFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
 
 type EditCharacterFormProps = {
   initialCharacter: CombatCharacter | null;
@@ -31,6 +32,7 @@ const EditCharacterForm = ({
   const [spellSlotValue, setSpellSlotValue] = useState(0);
   const [passiveName, setPassiveName] = useState("");
   const [usableObjectName, setUsableObjectName] = useState("");
+  const [isFetchingPortrait, startTransition] = useTransition();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -39,6 +41,8 @@ const EditCharacterForm = ({
     let formattedValue: string | number | boolean = value;
     switch (name) {
       case "name":
+      case "shortDescription":
+      case "wikiLink":
         formattedValue = value;
         break;
       case "isNpc":
@@ -172,10 +176,23 @@ const EditCharacterForm = ({
       return;
     }
 
-    onSubmit?.({
-      ...character,
-      id: character.id || createCharacterId(),
-      maxAlternativeHp: getMaxAlternativeHp(character),
+    // A cleared field means "no link"
+    const wikiLink = character.wikiLink?.trim() || undefined;
+
+    startTransition(async () => {
+      // No picture yet but a wiki page: fetch its portrait before saving.
+      // If none is found, the character is saved without one.
+      const imageUrl =
+        character.imageUrl ||
+        (wikiLink ? await fetchPortraitFromWiki(wikiLink) : undefined);
+
+      onSubmit?.({
+        ...character,
+        id: character.id || createCharacterId(),
+        maxAlternativeHp: getMaxAlternativeHp(character),
+        wikiLink,
+        imageUrl,
+      });
     });
   };
 
@@ -196,6 +213,33 @@ const EditCharacterForm = ({
               value={character?.name || ""}
               onChange={handleInputChange}
               data-testid="name"
+            />
+          </div>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="shortDescription">
+              {translate("form.shortDescription", "combatTracker")}
+            </label>
+            <input
+              type="text"
+              id="shortDescription"
+              name="shortDescription"
+              value={character?.shortDescription || ""}
+              onChange={handleInputChange}
+              data-testid="shortDescription"
+            />
+          </div>
+          <div className={styles["edit-character-form__line"]}>
+            <label htmlFor="wikiLink">
+              {translate("form.wikiLink", "combatTracker")}
+            </label>
+            <input
+              type="url"
+              id="wikiLink"
+              name="wikiLink"
+              placeholder="https://bg3.wiki/wiki/Halsin"
+              value={character?.wikiLink || ""}
+              onChange={handleInputChange}
+              data-testid="wikiLink"
             />
           </div>
           <div className={styles["edit-character-form__line"]}>
@@ -486,7 +530,13 @@ const EditCharacterForm = ({
           <h3>{translate("form.states", "combatTracker")}</h3>
         </fieldset>
         <fieldset className={styles["edit-character-form__fieldset"]}>
-          <SubmitButton label={translate("form.save", "combatTracker")} />
+          <SubmitButton
+            label={translate(
+              isFetchingPortrait ? "form.fetchingPortrait" : "form.save",
+              "combatTracker",
+            )}
+            disabled={isFetchingPortrait}
+          />
           <ButtonWithIcon
             label={translate("form.saveAndRestart", "combatTracker")}
             onClick={() => {}}

@@ -14,6 +14,7 @@ import {
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import AttackForm from "@/app/combat-tracker/_components/attack-form/AttackForm";
+import { fetchPortraitFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
 import CharacterStats from "@/app/combat-tracker/_components/character-stats/CharacterStats";
 import {
   buildCharacter,
@@ -24,6 +25,12 @@ import {
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
 }));
+
+// Never call the real wiki from the tests
+jest.mock("../../app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions", () => ({
+  fetchPortraitFromWiki: jest.fn(),
+}));
+const mockedFetchPortrait = jest.mocked(fetchPortraitFromWiki);
 
 // Note: these test only cover important behaviors and do not provide exhaustive coverage of all edge cases.
 describe("findCharacterIndexById", () => {
@@ -61,6 +68,20 @@ describe("loadCombat", () => {
       buildCharacter({
         passives: ["Rage", "Vision dans le noir"],
         usableObjects: ["Potion de soin"],
+      }),
+    ]);
+
+    saveCombat(combat);
+
+    expect(loadCombat()).toEqual(combat);
+  });
+
+  it("round-trips the short description, picture and wiki link", () => {
+    const combat = buildCombat([
+      buildCharacter({
+        shortDescription: "Wood elf Druid level 5",
+        imageUrl: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png",
+        wikiLink: "https://bg3.wiki/wiki/Kagha",
       }),
     ]);
 
@@ -196,6 +217,152 @@ describe("EditCharacterForm hp/isDying/isDead behavior", () => {
   });
 });
 
+describe("EditCharacterForm short description", () => {
+  it("submits the typed short description", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("shortDescription"), {
+      target: { value: "Human Ranger level 4" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ shortDescription: "Human Ranger level 4" }),
+    );
+  });
+
+  it("prefills the short description of an existing character", () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ shortDescription: "Elf Druid" })}
+      />,
+    );
+
+    expect(screen.getByTestId("shortDescription")).toHaveValue("Elf Druid");
+  });
+});
+
+describe("EditCharacterForm wiki link", () => {
+  it("submits the typed wiki link", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("wikiLink"), {
+      target: { value: " https://bg3.wiki/wiki/Halsin " },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ wikiLink: "https://bg3.wiki/wiki/Halsin" }),
+      ),
+    );
+  });
+
+  it("prefills the wiki link and removes it when the field is cleared", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          wikiLink: "https://bg3.wiki/wiki/Kagha",
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    expect(screen.getByTestId("wikiLink")).toHaveValue(
+      "https://bg3.wiki/wiki/Kagha",
+    );
+
+    fireEvent.change(screen.getByTestId("wikiLink"), {
+      target: { value: "" },
+    });
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].wikiLink).toBeUndefined();
+  });
+});
+
+describe("EditCharacterForm portrait from the wiki", () => {
+  const halsinPortrait = "https://bg3.wiki/w/images/a/a1/Portrait_Halsin.png";
+
+  afterEach(() => {
+    mockedFetchPortrait.mockReset();
+  });
+
+  const submitWith = (character: CombatCharacter) => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm initialCharacter={character} onSubmit={onSubmit} />,
+    );
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    return onSubmit;
+  };
+
+  it("fetches the portrait when there is a wiki link but no picture", async () => {
+    mockedFetchPortrait.mockResolvedValue(halsinPortrait);
+
+    const onSubmit = submitWith(
+      buildCharacter({ wikiLink: "https://bg3.wiki/wiki/Halsin" }),
+    );
+
+    expect(
+      screen.getByRole("button", { name: "form.fetchingPortrait" }),
+    ).toBeDisabled();
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ imageUrl: halsinPortrait }),
+      ),
+    );
+    expect(mockedFetchPortrait).toHaveBeenCalledWith(
+      "https://bg3.wiki/wiki/Halsin",
+    );
+  });
+
+  it("keeps the existing picture without calling the wiki", () => {
+    const onSubmit = submitWith(
+      buildCharacter({
+        wikiLink: "https://bg3.wiki/wiki/Halsin",
+        imageUrl: "https://example.com/custom.png",
+      }),
+    );
+
+    expect(mockedFetchPortrait).not.toHaveBeenCalled();
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ imageUrl: "https://example.com/custom.png" }),
+    );
+  });
+
+  it("does not call the wiki without a wiki link", () => {
+    const onSubmit = submitWith(buildCharacter());
+
+    expect(mockedFetchPortrait).not.toHaveBeenCalled();
+    expect(onSubmit.mock.calls[0][0].imageUrl).toBeUndefined();
+  });
+
+  it("still saves the character when no portrait is found", async () => {
+    mockedFetchPortrait.mockResolvedValue(undefined);
+
+    const onSubmit = submitWith(
+      buildCharacter({ wikiLink: "https://bg3.wiki/wiki/Nobody" }),
+    );
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    expect(onSubmit.mock.calls[0][0].imageUrl).toBeUndefined();
+  });
+});
+
 describe("EditCharacterForm passives", () => {
   it("adds a passive and submits it with the character", () => {
     const onSubmit = jest.fn();
@@ -268,6 +435,22 @@ describe("CharacterStats passives", () => {
     renderStats(buildCharacter());
 
     expect(screen.queryByTestId("character-passives")).not.toBeInTheDocument();
+  });
+
+  it("displays the short description under the name", () => {
+    renderStats(buildCharacter({ shortDescription: "Wood elf Druid level 5" }));
+
+    expect(screen.getByTestId("character-short-description")).toHaveTextContent(
+      "Wood elf Druid level 5",
+    );
+  });
+
+  it("does not display the short description when there is none", () => {
+    renderStats(buildCharacter());
+
+    expect(
+      screen.queryByTestId("character-short-description"),
+    ).not.toBeInTheDocument();
   });
 });
 

@@ -50,7 +50,10 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
   return (
     typeof value.id === "string" &&
     typeof value.name === "string" &&
+    (value.shortDescription === undefined ||
+      typeof value.shortDescription === "string") &&
     (value.imageUrl === undefined || typeof value.imageUrl === "string") &&
+    (value.wikiLink === undefined || typeof value.wikiLink === "string") &&
     typeof value.hp === "number" &&
     typeof value.maxHp === "number" &&
     (value.alternativeHp === undefined ||

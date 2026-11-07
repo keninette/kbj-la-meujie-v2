@@ -87,6 +87,38 @@ const findImageUrl = async (
 };
 
 /**
+ * Fetches the wikitext of the page behind a bg3.wiki URL.
+ * Throws a Bg3WikiError when the URL, the page or the request is invalid.
+ */
+const fetchWikiPage = async (
+  url: string,
+): Promise<{ wikitext: string; title: string }> => {
+  const pageTitle = extractPageTitleFromUrl(url);
+
+  let data: WikiParseResponse;
+  try {
+    data = await callWikiApi<WikiParseResponse>({
+      action: "parse",
+      page: pageTitle,
+      prop: "wikitext",
+      redirects: "1",
+    });
+  } catch {
+    throw new Bg3WikiError(Bg3WikiErrorEnum.FETCH_FAILED);
+  }
+
+  if (data.error || !data.parse) {
+    throw new Bg3WikiError(
+      data.error?.code === "missingtitle"
+        ? Bg3WikiErrorEnum.PAGE_NOT_FOUND
+        : Bg3WikiErrorEnum.FETCH_FAILED,
+    );
+  }
+
+  return data.parse;
+};
+
+/**
  * Runs on the server: bg3.wiki doesn't allow cross-origin requests
  * from the browser.
  */
@@ -94,30 +126,7 @@ export const createCharacterFromWiki = async (
   url: string,
 ): Promise<CreateCharacterFromWikiResult> => {
   try {
-    const pageTitle = extractPageTitleFromUrl(url);
-
-    let data: WikiParseResponse;
-    try {
-      data = await callWikiApi<WikiParseResponse>({
-        action: "parse",
-        page: pageTitle,
-        prop: "wikitext",
-        redirects: "1",
-      });
-    } catch {
-      return { error: Bg3WikiErrorEnum.FETCH_FAILED };
-    }
-
-    if (data.error || !data.parse) {
-      return {
-        error:
-          data.error?.code === "missingtitle"
-            ? Bg3WikiErrorEnum.PAGE_NOT_FOUND
-            : Bg3WikiErrorEnum.FETCH_FAILED,
-      };
-    }
-
-    const { wikitext, title } = data.parse;
+    const { wikitext, title } = await fetchWikiPage(url);
     const imageUrl = await findImageUrl(getImageFileCandidates(wikitext));
 
     return {
@@ -134,5 +143,23 @@ export const createCharacterFromWiki = async (
     }
     console.error(error);
     return { error: Bg3WikiErrorEnum.FETCH_FAILED };
+  }
+};
+
+/**
+ * Portrait URL of the character behind a bg3.wiki URL, or undefined when the
+ * page has none or can't be read: a missing picture is never an error.
+ */
+export const fetchPortraitFromWiki = async (
+  url: string,
+): Promise<string | undefined> => {
+  try {
+    const { wikitext } = await fetchWikiPage(url);
+    return await findImageUrl(getImageFileCandidates(wikitext));
+  } catch (error) {
+    if (!(error instanceof Bg3WikiError)) {
+      console.error(error);
+    }
+    return undefined;
   }
 };

@@ -1,6 +1,7 @@
 import styles from "../characters-list.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
+import LinkWithIcon from "@/app/_components/_basics/link-with-icon/LinkWithIcon";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
@@ -62,6 +63,16 @@ const CharacterListItem = ({
           />
         )}
         <p>{character.name}</p>
+        {character.wikiLink && (
+          <LinkWithIcon
+            href={character.wikiLink}
+            title={translate("list.wiki", "combatTracker")}
+            faIcon="arrow-up-right-from-square"
+            faIconStyle={FaIconStyleEnum.SOLID}
+            openInNewTab
+            data-testid={`wiki-link-${character.id}`}
+          />
+        )}
         {allowedActions.includes("edit") && (
           <IconButton
             variant={ButtonVariant.TERTIARY}

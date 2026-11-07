@@ -131,10 +131,24 @@ export const parseInfobox = (wikitext: string): Record<string, string> => {
   return fields;
 };
 
-/** "[[Elf|Elven]]" -> "Elven", "[[Druid]]" -> "Druid", strips HTML comments. */
+/** Removes {{templates}}, innermost first so nested ones go too. */
+const stripTemplates = (value: string): string => {
+  let previous;
+  do {
+    previous = value;
+    value = value.replace(/\{\{[^{}]*\}\}/g, "");
+  } while (value !== previous);
+  return value;
+};
+
+/**
+ * "[[Elf|Elven]]" -> "Elven", "[[Druid]]" -> "Druid",
+ * "Fighter{{ref|footnote}}" -> "Fighter", strips HTML comments and <ref>s.
+ */
 const stripWikiMarkup = (value: string): string =>
-  value
+  stripTemplates(value)
     .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<ref[^>]*\/>|<ref[^>]*>[\s\S]*?<\/ref>/g, "")
     .replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, "$1")
     .replace(/'{2,}/g, "")
     .trim();
@@ -196,6 +210,28 @@ export const getImageFileCandidates = (wikitext: string): string[] => {
     .map((fileName) => `File:${fileName.replace(/^(File|Image):/i, "")}`);
 };
 
+/** "Minthara, Baenre Paladin" -> "https://bg3.wiki/wiki/Minthara,_Baenre_Paladin" */
+export const buildWikiLink = (pageTitle: string): string =>
+  `https://${BG3_WIKI_HOST}/wiki/${encodeURI(pageTitle.replaceAll(" ", "_"))}`;
+
+/**
+ * "subrace (or race) class level N", missing parts are skipped:
+ * subrace "Wood elf", race "Elf", class "Druid", level "5"
+ * -> "Wood elf Druid level 5"
+ */
+export const buildShortDescription = (
+  get: (field: string) => string | undefined,
+): string => {
+  const level = get("level");
+  return [
+    get("subrace") || get("race"),
+    get("class"),
+    level ? `level ${level}` : undefined,
+  ]
+    .filter(Boolean)
+    .join(" ");
+};
+
 export const buildCharacterFromWikitext = (
   wikitext: string,
   pageTitle: string,
@@ -206,6 +242,7 @@ export const buildCharacterFromWikitext = (
   const get = (field: string) => getHighestDifficultyValue(fields, field);
 
   const hp = toNumber(get("hp"));
+  const shortDescription = buildShortDescription(get);
   const spellSlotsLeft = parseResources(get("resources"));
   const passives = [
     ...splitList(get("passives")),
@@ -215,7 +252,9 @@ export const buildCharacterFromWikitext = (
   return {
     id,
     name: get("name") || pageTitle.replaceAll("_", " "),
+    ...(shortDescription ? { shortDescription } : {}),
     ...(imageUrl ? { imageUrl } : {}),
+    wikiLink: buildWikiLink(pageTitle),
     hp,
     maxHp: hp,
     isDying: false,

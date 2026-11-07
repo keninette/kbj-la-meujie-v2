@@ -4,6 +4,8 @@ import {
   extractPageTitleFromUrl,
   getHighestDifficultyValue,
   getImageFileCandidates,
+  buildShortDescription,
+  buildWikiLink,
   parseInfobox,
   parseResources,
 } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
@@ -95,6 +97,56 @@ describe("bg3 wiki parser", () => {
     });
   });
 
+  describe("buildShortDescription", () => {
+    const getter = (fields: Record<string, string>) => (field: string) =>
+      fields[field];
+
+    it("uses the subrace in place of the race, then class and level", () => {
+      expect(
+        buildShortDescription(
+          getter({
+            subrace: "Lightfoot halfling",
+            race: "Halfling",
+            class: "Fighter",
+            level: "3",
+          }),
+        ),
+      ).toBe("Lightfoot halfling Fighter level 3");
+    });
+
+    it("falls back on the race and skips missing parts", () => {
+      expect(
+        buildShortDescription(getter({ race: "Goblin", level: "2" })),
+      ).toBe("Goblin level 2");
+      expect(buildShortDescription(getter({}))).toBe("");
+    });
+  });
+
+  describe("buildWikiLink", () => {
+    it("builds the page URL from the title returned by the wiki", () => {
+      expect(buildWikiLink("Kagha")).toBe("https://bg3.wiki/wiki/Kagha");
+      expect(buildWikiLink("Minthara, Baenre Paladin")).toBe(
+        "https://bg3.wiki/wiki/Minthara,_Baenre_Paladin",
+      );
+    });
+  });
+
+  describe("wiki markup in values", () => {
+    it("drops footnote templates and <ref> tags (e.g. Loic's class)", () => {
+      const fields = {
+        class:
+          "[[Fighter]]{{ref|Despite being nominally a druid, {{em|Loic}} is a fighter.}}",
+        race: "[[Halfling]]<ref name='x'>A note</ref>",
+        passives: "Brave<ref name='y' />, Halfling Luck",
+      };
+      expect(getHighestDifficultyValue(fields, "class")).toBe("Fighter");
+      expect(getHighestDifficultyValue(fields, "race")).toBe("Halfling");
+      expect(getHighestDifficultyValue(fields, "passives")).toBe(
+        "Brave, Halfling Luck",
+      );
+    });
+  });
+
   describe("getImageFileCandidates", () => {
     it("returns the portrait first, then the in-game render", () => {
       expect(
@@ -131,6 +183,8 @@ describe("bg3 wiki parser", () => {
       ).toEqual({
         id: "id-1",
         name: "Kagha",
+        shortDescription: "Wood elf Druid level 5",
+        wikiLink: "https://bg3.wiki/wiki/Kagha",
         hp: 84,
         maxHp: 84,
         isDying: false,
@@ -161,6 +215,8 @@ describe("bg3 wiki parser", () => {
       expect(character.ac).toBe(15);
       expect(character.spellSlotsLeft).toBeUndefined();
       expect(character.passives).toBeUndefined();
+      expect(character.shortDescription).toBeUndefined();
+      expect(character.wikiLink).toBe("https://bg3.wiki/wiki/Some_Boss");
     });
   });
 });

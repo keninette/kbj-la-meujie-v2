@@ -3,8 +3,11 @@ import { CombatState } from "./combat-state.type";
 export type CombatCharacter = {
   id: string;
   name: string;
+  shortDescription?: string;
   /** Remote picture, e.g. the portrait from bg3.wiki */
   imageUrl?: string;
+  /** Page the character was imported from, e.g. https://bg3.wiki/wiki/Kagha */
+  wikiLink?: string;
   hp: number;
   maxHp: number;
   alternativeHp?: number;
