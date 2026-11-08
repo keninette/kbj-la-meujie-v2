@@ -3,9 +3,12 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
 import { Combat } from "@/app/_lib/types/combat.type";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import { findCharacterIndexById } from "@/app/_lib/combat/combat.helper";
+import {
+  findCharacterIndexById,
+  getOngoingTurn,
+} from "@/app/_lib/combat/combat.helper";
 import { useState } from "react";
-import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import styles from "./combat-manager.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
@@ -23,6 +26,13 @@ enum DrawerContentEnum {
   COMBAT_HISTORY = "combat-history",
   STOP_COMBAT_CONFIRMATION = "stop-combat-confirmation",
 }
+
+// Translated at render, like the other texts
+const DRAWER_TITLE_KEYS: Record<DrawerContentEnum, string> = {
+  [DrawerContentEnum.CHARACTER_FORM]: "form.addCharacter",
+  [DrawerContentEnum.COMBAT_HISTORY]: "history.title",
+  [DrawerContentEnum.STOP_COMBAT_CONFIRMATION]: "manager.stopTitle",
+};
 
 const CombatManager = ({
   ongoingCombat,
@@ -280,6 +290,11 @@ const CombatManager = ({
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
+        title={
+          drawerContent
+            ? translate(DRAWER_TITLE_KEYS[drawerContent], "combatTracker")
+            : undefined
+        }
       >
         {drawerContent === DrawerContentEnum.CHARACTER_FORM && (
           <EditCharacterForm
@@ -288,6 +303,8 @@ const CombatManager = ({
               updateCharacter(updatedCharacter);
               setIsDrawerOpened(false);
             }}
+            onSaveAndRestart={updateCharacter}
+            currentTurn={getOngoingTurn(ongoingCombat)}
           />
         )}
         {drawerContent === DrawerContentEnum.COMBAT_HISTORY && (
@@ -295,7 +312,6 @@ const CombatManager = ({
         )}
         {drawerContent === DrawerContentEnum.STOP_COMBAT_CONFIRMATION && (
           <div>
-            <h2>{translate("manager.stopTitle", "combatTracker")}</h2>
             <ButtonWithIcon
               label={translate("manager.removeAllCharacters", "combatTracker")}
               onClick={() => stopCombat(true)}

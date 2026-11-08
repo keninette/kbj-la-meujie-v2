@@ -1,38 +1,9 @@
 @use "app/mixins";
 
-// MUI injects its own styles after the CSS modules, hence the !important
-// on the properties it also sets (same approach as the custom drawer).
 .wiki-character-dialog {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-layout-section-content-margin);
-  padding: var(--spacing-layout-section-margin) var(--spacing--m);
-
-  color: var(--color-text--dark);
-
-  &__paper {
-    background-color: var(--color-dialog-background) !important;
-    backdrop-filter: blur(6px);
-    border-radius: var(--radius--s) !important;
-    box-shadow: 0 0.5rem 2rem rgba(47, 56, 80, 0.25) !important;
-    @include mixins.border--thin--light;
-  }
-
-  &__backdrop {
-    background-color: rgba(47, 56, 80, 0.35) !important;
-  }
-
-  &__title {
-    @include mixins.section__title;
-    margin: 0;
-    padding-bottom: var(--spacing-padding--text);
-
-    font-weight: var(--font-weight--title);
-    @include mixins.border--thin--light;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-  }
 
   &__field {
     display: flex;
@@ -67,7 +38,6 @@
     }
   }
 
-  // Fields whose existing values the import may replace
   &__overrides {
     display: flex;
     flex-direction: column;
@@ -80,6 +50,7 @@
 
   &__hint {
     margin: 0;
+    margin-bottom: var(--spacing-padding--text);
 
     font-size: 0.8rem;
     opacity: 0.8;
@@ -100,12 +71,6 @@
 
     &--all {
       padding-bottom: var(--spacing-padding--button);
-
-      @include mixins.border--thin--light;
-      border-left: none;
-      border-right: none;
-      border-top: none;
-      font-weight: bold;
     }
   }
 
@@ -113,7 +78,7 @@
     margin: 0;
     padding: var(--spacing-padding--text);
 
-    background-color: var(--color-button--secondary);
+    background-color: var(--color-highlight);
     border-left: 3px solid var(--color-border--dark);
     border-radius: var(--radius--s);
     color: var(--color-info);
@@ -132,10 +97,5 @@
     gap: var(--spacing-padding--text);
     justify-content: flex-end;
     padding-top: var(--spacing-layout-section-content-margin);
-
-    @include mixins.border--thin--light;
-    border-bottom: none;
-    border-left: none;
-    border-right: none;
   }
 }

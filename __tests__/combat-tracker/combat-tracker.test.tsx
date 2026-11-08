@@ -536,7 +536,7 @@ describe("EditCharacterForm import from wiki", () => {
     ).toHaveTextContent("2");
     expect(
       screen.getByTestId("actions-list-action").closest("fieldset"),
-    ).toHaveClass("edit-character-form__fieldset--imported");
+    ).toHaveClass("fieldset--highlighted");
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
     expect(onSubmit.mock.calls[0][0].actions).toHaveLength(1);
   });
@@ -635,7 +635,7 @@ describe("EditCharacterForm import from wiki", () => {
   });
 
   const lineOf = (testId: string) => screen.getByTestId(testId).closest("div");
-  const IMPORTED = "edit-character-form__line--imported";
+  const IMPORTED = "edit-character-form__field--imported";
 
   it("lists and highlights the fields replaced by the import", async () => {
     render(
@@ -756,6 +756,128 @@ describe("EditCharacterForm NPC attitude", () => {
   });
 });
 
+describe("EditCharacterForm states", () => {
+  it("shows the existing states and removes one", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          states: [
+            {
+              id: "s1",
+              name: "Poisoned",
+              numberOfTurns: 2,
+              saveThrowStat: "CON",
+              saveThrowDc: 13,
+            },
+            { id: "s2", name: "Blessed" },
+          ],
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    const [poisoned] = screen.getAllByTestId("state-item");
+    expect(poisoned).toHaveTextContent(
+      "Poisoned stats.stateDuration, CON stats.saveDc 13",
+    );
+    fireEvent.click(within(poisoned).getByRole("button"));
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      { id: "s2", name: "Blessed" },
+    ]);
+  });
+
+  it("adds a state by name, with an id", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("stateName"), {
+      target: { value: "  Hasted  " },
+    });
+    fireEvent.click(screen.getByTestId("addState"));
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      { id: expect.any(String), name: "Hasted" },
+    ]);
+  });
+
+  it("adds a state with its duration and saving throw", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("stateName"), {
+      target: { value: "Poisoned" },
+    });
+    fireEvent.change(screen.getByTestId("stateDuration"), {
+      target: { value: "3" },
+    });
+    fireEvent.change(screen.getByTestId("stateSaveThrowStat"), {
+      target: { value: " CON " },
+    });
+    fireEvent.change(screen.getByTestId("stateSaveThrowDc"), {
+      target: { value: "13" },
+    });
+    fireEvent.click(screen.getByTestId("addState"));
+
+    // The fields are cleared for the next one
+    expect(screen.getByTestId("stateDuration")).toHaveValue(null);
+    expect(screen.getByTestId("stateSaveThrowStat")).toHaveValue("");
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      {
+        id: expect.any(String),
+        name: "Poisoned",
+        numberOfTurns: 3,
+        saveThrowStat: "CON",
+        saveThrowDc: 13,
+      },
+    ]);
+  });
+
+  it("stores the turn the state was applied on during a combat", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+        currentTurn={4}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("stateName"), {
+      target: { value: "Blessed" },
+    });
+    fireEvent.change(screen.getByTestId("stateDuration"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByTestId("addState"));
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      {
+        id: expect.any(String),
+        name: "Blessed",
+        numberOfTurns: 2,
+        appliedOnTurn: 4,
+      },
+    ]);
+  });
+});
+
 describe("EditCharacterForm passives", () => {
   it("adds a passive and submits it with the character", () => {
     const onSubmit = jest.fn();
@@ -769,7 +891,7 @@ describe("EditCharacterForm passives", () => {
     fireEvent.change(screen.getByTestId("passiveName"), {
       target: { value: "  Rage  " },
     });
-    fireEvent.click(screen.getByTestId("addPassive"));
+    fireEvent.click(screen.getByTestId("passiveName-add-button"));
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
     expect(onSubmit).toHaveBeenCalledWith(
@@ -789,11 +911,11 @@ describe("EditCharacterForm passives", () => {
     fireEvent.change(screen.getByTestId("passiveName"), {
       target: { value: "   " },
     });
-    fireEvent.click(screen.getByTestId("addPassive"));
-    expect(screen.getAllByTestId("passive-item")).toHaveLength(2);
+    fireEvent.click(screen.getByTestId("passiveName-add-button"));
+    expect(screen.getAllByTestId(/^passiveName-item-/)).toHaveLength(2);
 
     fireEvent.click(
-      within(screen.getAllByTestId("passive-item")[0]).getByRole("button"),
+      within(screen.getByTestId("passiveName-item-0")).getByRole("button"),
     );
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
@@ -1000,17 +1122,15 @@ describe("EditCharacterForm usable objects", () => {
     fireEvent.change(screen.getByTestId("usableObjectName"), {
       target: { value: "   " },
     });
-    fireEvent.click(screen.getByTestId("addUsableObject"));
-    expect(screen.getAllByTestId("usable-object-item")).toHaveLength(1);
+    fireEvent.click(screen.getByTestId("usableObjectName-add-button"));
+    expect(screen.getAllByTestId(/^usableObjectName-item-/)).toHaveLength(1);
 
     fireEvent.change(screen.getByTestId("usableObjectName"), {
       target: { value: "  Potion  " },
     });
-    fireEvent.click(screen.getByTestId("addUsableObject"));
+    fireEvent.click(screen.getByTestId("usableObjectName-add-button"));
     fireEvent.click(
-      within(screen.getAllByTestId("usable-object-item")[0]).getByRole(
-        "button",
-      ),
+      within(screen.getByTestId("usableObjectName-item-0")).getByRole("button"),
     );
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
@@ -1065,11 +1185,37 @@ describe("EditCharacterForm spell slots", () => {
     fireEvent.change(screen.getByLabelText("form.value"), {
       target: { value: "4" },
     });
-    fireEvent.click(screen.getAllByText("form.add")[0]);
+    fireEvent.click(screen.getByTestId("addSpellSlot"));
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ spellSlotsLeft: { Rage: 4 } }),
+    );
+  });
+
+  it("adds a spell slot on Enter, without submitting the form", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("spellSlotName"), {
+      target: { value: "1" },
+    });
+    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+      target: { value: "3" },
+    });
+    fireEvent.keyDown(screen.getByTestId("spellSlotValue"), { key: "Enter" });
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId("spellSlotName")).toHaveValue("");
+
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ spellSlotsLeft: { 1: 3 } }),
     );
   });
 });
@@ -1347,5 +1493,111 @@ describe("AttackForm isDying/isDead behavior", () => {
     expect(updatedCharacter.isDying).toBe(false);
     expect(updatedCharacter.isDead).toBe(false);
     expect(updatedCharacter.deathSaveThrowsLeft).toBe(3);
+  });
+});
+
+describe("EditCharacterForm save and restart", () => {
+  it("is hidden when the parent does not handle it", () => {
+    render(<EditCharacterForm initialCharacter={null} />);
+
+    expect(screen.queryByTestId("save-and-restart")).not.toBeInTheDocument();
+  });
+
+  it("saves the character, then empties the form for the next one", () => {
+    const onSubmit = jest.fn();
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSubmit={onSubmit}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    const fillCharacter = (name: string) => {
+      fireEvent.change(screen.getByTestId("name"), {
+        target: { name: "name", value: name },
+      });
+      fireEvent.change(screen.getByTestId("maxHp"), {
+        target: { name: "maxHp", value: "7" },
+      });
+    };
+
+    fillCharacter("Goblin");
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "Unsaved draft" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(onSaveAndRestart).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Goblin" }),
+    );
+    expect(screen.getByTestId("name")).toHaveValue("");
+    expect(screen.getByTestId("passiveName")).toHaveValue("");
+
+    fillCharacter("Goblin 2");
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    const [first, second] = onSaveAndRestart.mock.calls.map(([c]) => c);
+    expect(second.name).toBe("Goblin 2");
+    expect(second.id).not.toBe(first.id);
+  });
+
+  it("is blocked by the same checks as the save button", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    // Max HP stays at 0, under its minimum of 1
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).not.toHaveBeenCalled();
+    expect(screen.getByTestId("name")).toHaveValue("Goblin");
+  });
+
+  it("is not blocked by a state or spell slot that was never added", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ maxHp: 7 })}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    // Invalid drafts, left without clicking "Add"
+    fireEvent.change(screen.getByTestId("stateDuration"), {
+      target: { value: "0" },
+    });
+    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+      target: { value: "-1" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).toHaveBeenCalledTimes(1);
+    const [saved] = onSaveAndRestart.mock.calls[0];
+    expect(saved.states ?? []).toEqual([]);
+    expect(saved.spellSlotsLeft ?? {}).toEqual({});
+  });
+
+  it("does nothing when the form is empty", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).not.toHaveBeenCalled();
   });
 });

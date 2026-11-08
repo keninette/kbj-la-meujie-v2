@@ -1,0 +1,27 @@
+@use "app/mixins";
+
+// Same look as the custom drawer: see the overlay mixins
+.custom-dialog {
+  @include mixins.overlay--content;
+
+  &__paper {
+    @include mixins.overlay--paper;
+    border-radius: var(--radius--s) !important;
+  }
+
+  &__backdrop {
+    @include mixins.overlay--backdrop;
+  }
+
+  &__header {
+    @include mixins.overlay--header;
+  }
+
+  &__title {
+    @include mixins.overlay--title;
+  }
+
+  &__separator {
+    @include mixins.separator;
+  }
+}

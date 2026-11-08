@@ -6,7 +6,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useState } from "react";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
 import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
-import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
 import { getMaxAlternativeHp } from "../attack-form/attack-form.helper";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
@@ -14,6 +14,7 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import ActionsList from "../actions-list/ActionsList";
 import NpcAttitudeIcon from "../npc-attitude-icon/NpcAttitudeIcon";
+import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -22,6 +23,7 @@ type CharacterStatsProps = {
   onCharactersChange: (characters: CombatCharacter[]) => void;
   onHistoryEdited: (historyEntry: string[]) => void;
   isCombatOngoing: boolean;
+  currentTurn?: number;
   [key: string]: unknown;
 };
 
@@ -32,6 +34,7 @@ const CharacterStats = ({
   onCharactersChange,
   onHistoryEdited,
   isCombatOngoing,
+  currentTurn,
   ...restProps
 }: CharacterStatsProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
@@ -354,25 +357,7 @@ const CharacterStats = ({
                   className={styles["character-stats__line__subcontent"]}
                   key={state.id}
                 >
-                  <span>
-                    {state.name}
-                    {state.numberOfTurns !== undefined && (
-                      <>
-                        {" "}
-                        {translate("stats.stateDuration", "combatTracker", {
-                          duration: String(state.numberOfTurns),
-                        })}
-                      </>
-                    )}
-                    {state.saveThrowStat && <>, {state.saveThrowStat}</>}
-                    {state.saveThrowDc !== undefined && (
-                      <>
-                        {state.saveThrowStat ? " " : ", "}
-                        {translate("stats.saveDc", "combatTracker")}{" "}
-                        {state.saveThrowDc}
-                      </>
-                    )}
-                  </span>
+                  <span>{describeState(state)}</span>
                   <IconButton
                     variant={ButtonVariant.SECONDARY}
                     tooltip={translate("form.remove", "combatTracker")}
@@ -389,6 +374,9 @@ const CharacterStats = ({
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
+        title={translate("attack.turnTitle", "combatTracker", {
+          character: selectedCharacter.name,
+        })}
       >
         <AttackForm
           characters={characters!}
@@ -398,6 +386,7 @@ const CharacterStats = ({
             setIsDrawerOpened(false);
           }}
           onHistoryEdited={onHistoryEdited}
+          currentTurn={currentTurn}
         />
       </CustomDrawer>
     </>

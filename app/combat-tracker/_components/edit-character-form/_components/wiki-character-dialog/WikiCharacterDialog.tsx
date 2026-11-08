@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CircularProgress, Dialog } from "@mui/material";
+import { CircularProgress } from "@mui/material";
+import CustomDialog from "@/app/_components/_basics/custom-dialog/CustomDialog";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
@@ -34,12 +35,14 @@ type WikiCharacterDialogProps = {
     character: WikiCharacter,
     overrideFields: WikiImportedField[],
   ) => void;
+  displayOverrideFields: boolean;
 };
 
 const WikiCharacterDialog = ({
   onClose,
   initialUrl = "",
   onImport,
+  displayOverrideFields,
 }: WikiCharacterDialogProps) => {
   const [url, setUrl] = useState<string>(initialUrl);
   const [overrideFields, setOverrideFields] = useState<WikiImportedField[]>([]);
@@ -82,20 +85,12 @@ const WikiCharacterDialog = ({
   };
 
   return (
-    <Dialog
-      open
+    <CustomDialog
+      isOpened
       onClose={close}
-      fullWidth
-      maxWidth="sm"
-      slotProps={{
-        paper: { className: styles["wiki-character-dialog__paper"] },
-        backdrop: { className: styles["wiki-character-dialog__backdrop"] },
-      }}
+      title={translate("wiki.title", "combatTracker")}
     >
       <form className={styles["wiki-character-dialog"]} onSubmit={handleSubmit}>
-        <h2 className={styles["wiki-character-dialog__title"]}>
-          {translate("wiki.title", "combatTracker")}
-        </h2>
         <div className={styles["wiki-character-dialog__field"]}>
           <label
             htmlFor="wiki-url"
@@ -117,47 +112,51 @@ const WikiCharacterDialog = ({
             data-testid="wiki-url"
           />
         </div>
-        <fieldset
-          className={styles["wiki-character-dialog__overrides"]}
-          disabled={isLoading}
-        >
-          <legend className={styles["wiki-character-dialog__label"]}>
-            {translate("wiki.override", "combatTracker")}
-          </legend>
-          <p className={styles["wiki-character-dialog__hint"]}>
-            {translate("wiki.overrideHint", "combatTracker")}
-          </p>
-          <label
-            className={[
-              styles["wiki-character-dialog__checkbox"],
-              styles["wiki-character-dialog__checkbox--all"],
-            ].join(" ")}
+        {displayOverrideFields && (
+          <fieldset
+            className={styles["wiki-character-dialog__overrides"]}
+            disabled={isLoading}
           >
-            <input
-              type="checkbox"
-              checked={areAllFieldsOverridden}
-              onChange={(event) => toggleAllFields(event.target.checked)}
-              data-testid="wiki-override-all"
-            />
-            {translate("wiki.overrideAll", "combatTracker")}
-          </label>
-          <div className={styles["wiki-character-dialog__override-list"]}>
-            {WIKI_IMPORTED_FIELDS.map((field) => (
-              <label
-                key={field}
-                className={styles["wiki-character-dialog__checkbox"]}
-              >
-                <input
-                  type="checkbox"
-                  checked={overrideFields.includes(field)}
-                  onChange={(event) => toggleField(field, event.target.checked)}
-                  data-testid={`wiki-override-${field}`}
-                />
-                {translate(WIKI_FIELD_LABEL_KEYS[field], "combatTracker")}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+            <legend className={styles["wiki-character-dialog__label"]}>
+              {translate("wiki.override", "combatTracker")}
+            </legend>
+            <p className={styles["wiki-character-dialog__hint"]}>
+              {translate("wiki.overrideHint", "combatTracker")}
+            </p>
+            <label
+              className={[
+                styles["wiki-character-dialog__checkbox"],
+                styles["wiki-character-dialog__checkbox--all"],
+              ].join(" ")}
+            >
+              <input
+                type="checkbox"
+                checked={areAllFieldsOverridden}
+                onChange={(event) => toggleAllFields(event.target.checked)}
+                data-testid="wiki-override-all"
+              />
+              {translate("wiki.overrideAll", "combatTracker")}
+            </label>
+            <div className={styles["wiki-character-dialog__override-list"]}>
+              {WIKI_IMPORTED_FIELDS.map((field) => (
+                <label
+                  key={field}
+                  className={styles["wiki-character-dialog__checkbox"]}
+                >
+                  <input
+                    type="checkbox"
+                    checked={overrideFields.includes(field)}
+                    onChange={(event) =>
+                      toggleField(field, event.target.checked)
+                    }
+                    data-testid={`wiki-override-${field}`}
+                  />
+                  {translate(WIKI_FIELD_LABEL_KEYS[field], "combatTracker")}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         {error && (
           <p className={styles["wiki-character-dialog__error"]} role="alert">
             {translate(`wiki.error.${error}`, "combatTracker")}
@@ -190,7 +189,7 @@ const WikiCharacterDialog = ({
           />
         </div>
       </form>
-    </Dialog>
+    </CustomDialog>
   );
 };
 

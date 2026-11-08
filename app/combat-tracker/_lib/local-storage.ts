@@ -1,3 +1,4 @@
+import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { isNpcAttitude } from "@/app/_lib/enums/npc-attitude.enum";
 import { Combat } from "../../_lib/types/combat.type";
 import { CombatCharacter } from "../../_lib/types/combat-character.type";
@@ -23,6 +24,8 @@ const isCombatState = (value: unknown): value is CombatState => {
     typeof value.name === "string" &&
     (value.numberOfTurns === undefined ||
       typeof value.numberOfTurns === "number") &&
+    (value.appliedOnTurn === undefined ||
+      typeof value.appliedOnTurn === "number") &&
     (value.saveThrowStat === undefined ||
       typeof value.saveThrowStat === "string") &&
     (value.saveThrowDc === undefined || typeof value.saveThrowDc === "number")
@@ -138,16 +141,6 @@ const isCombat = (value: unknown): value is Combat => {
   );
 };
 
-const createCharacterId = () =>
-  typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `character-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-const createHistoryEntryId = () =>
-  typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `history-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
 const normalizeStoredCombat = (value: unknown): unknown => {
   if (!isRecord(value)) {
     return value;
@@ -156,7 +149,7 @@ const normalizeStoredCombat = (value: unknown): unknown => {
   const withCharacterIds = (list: unknown[]) =>
     list.map((character) =>
       isRecord(character)
-        ? { ...character, id: character.id || createCharacterId() }
+        ? { ...character, id: character.id || createId() }
         : character,
     );
   const characters = Array.isArray(value.characters)
@@ -167,9 +160,7 @@ const normalizeStoredCombat = (value: unknown): unknown => {
     : value.idleCharacters;
   const history = Array.isArray(value.history)
     ? value.history.map((entry) =>
-        isRecord(entry)
-          ? { ...entry, id: entry.id || createHistoryEntryId() }
-          : entry,
+        isRecord(entry) ? { ...entry, id: entry.id || createId() } : entry,
       )
     : value.history;
 

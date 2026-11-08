@@ -1,3 +1,4 @@
+import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
@@ -5,7 +6,7 @@ import {
   applyAttackFormValues,
   type AttackFormValues,
 } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
-import SubmitButton from "@/app/_components/_basics/submit-button/SubmitButton";
+import SubmitButton from "@/app/_components/_basics/_form/_submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import AttackFields from "./_components/AttackFields";
 import HealFields from "./_components/HealFields";
@@ -19,6 +20,7 @@ type AttackFormProps = {
   selectedCharacter: CombatCharacter;
   onCharactersChange: (characters: CombatCharacter[]) => void;
   onHistoryEdited: (historyEntry: string[]) => void;
+  currentTurn?: number;
 };
 
 type PendingHistoryEntry = {
@@ -34,19 +36,12 @@ type HistoryAction =
   | "spell"
   | "state";
 
-const createUniqueStateId = () => {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-
-  return `state-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
-
 const AttackForm = ({
   characters,
   selectedCharacter,
   onCharactersChange,
   onHistoryEdited,
+  currentTurn,
 }: AttackFormProps) => {
   const formMethods = useForm<AttackFormValues>({
     defaultValues: {
@@ -219,7 +214,8 @@ const AttackForm = ({
       characters,
       selectedCharacter.id,
       formValues,
-      createUniqueStateId,
+      createId,
+      currentTurn,
     );
 
     if (result.missingAttackTargetId) {
@@ -238,11 +234,6 @@ const AttackForm = ({
   return (
     <FormProvider {...formMethods}>
       <form className={styles["attack-form"]} onSubmit={onSubmit}>
-        <h2 className={styles["attack-form__title"]}>
-          {translate("attack.turnTitle", "combatTracker", {
-            character: selectedCharacter.name,
-          })}
-        </h2>
         <div>
           <RecoveryFields
             characters={characters}

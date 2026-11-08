@@ -6,14 +6,29 @@
   --color-background-gradient--borders: var(--color-default-blue--light);
   --color-background-gradient--center: var(--color-default-pink--light);
 
-  --color-button--fab: var(--color-default-purple--primary);
+  --background-button--fab: linear-gradient(
+    95deg,
+    var(--color-default-blue--primary),
+    var(--color-default-coral--primary)
+  );
+  --color-button--fab: var(--color-default-blue--primary);
   --color-button-text--fab: var(--color-default-white);
-  --color-button--secondary: var(--color-default-pink--light);
-  --color-button-text--secondary: var(--color-default-purple--primary);
+  --color-button--secondary: var(--color-default-white);
+  --background-button--secondary: linear-gradient(
+    var(--color-button--secondary),
+    var(--color-button--secondary)
+  );
+  --border-button--secondary: linear-gradient(
+    135deg,
+    var(--color-default-blue--primary),
+    var(--color-default-coral--primary)
+  );
+  --background-size--button: 110% 100%;
+  --color-button-text--secondary: var(--color-default-blue--primary);
   --color-dialog-background: var(--color-default-pink--ultra-light);
   --color-dropdown: var(--color-default-white);
   --color-dropdown-text: var(--color-default-grey--dark);
-  --color-highlight: var(--color-default-pink--light);
+  --color-highlight: var(--color-default-grey--light);
   --color-info: var(--color-default-purple--primary);
   --color-info-opposite: var(--color-default-white);
   --color-link: var(--color-default-purple--primary);
@@ -22,11 +37,16 @@
   --color-text--light: var(--color-default-white);
   --color-border--light: var(--color-default-pink--light);
   --color-border--dark: var(--color-default-purple--primary);
+  --color-separator: var(--color-default-grey--dark);
+  --color-surface--panel: var(--color-default-white--translucent);
+  --color-surface--field: var(--color-default-white);
+  --color-text--muted: var(--color-default-grey--medium);
 
   --font-size--title: var(--font-size--l);
   --font-size--subtitle: var(--font-size--m);
   --font-size--section-title: var(--font-size--m);
   --font-size--section-content-title: var(--font-size--s);
+  --font-size--caption: var(--font-size--xs);
 
   --font-weight--title: var(--font-weight--light);
   --font-weight--subtitle: var(--font-weight--regular);
@@ -39,6 +59,10 @@
 
   --radius--button: var(--radius--s);
   --radius--chip: var(--radius--s);
+  --radius--panel: var(--radius--m);
+  --radius--field: var(--radius--s);
+
+  --shadow--panel: var(--shadow--s);
 
   --spacing-layout-section: var(--spacing--l);
   --spacing-layout-section-margin: var(--spacing--s);
@@ -46,4 +70,5 @@
   --spacing-title: var(--font-size--s);
   --spacing-padding--text: var(--spacing--xs);
   --spacing-padding--button: var(--spacing--xxs);
+  --spacing-panel: var(--spacing--s);
 }

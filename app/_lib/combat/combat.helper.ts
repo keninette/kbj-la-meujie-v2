@@ -1,5 +1,12 @@
+import { CombatStatusEnum } from "../enums/combat-status.enum";
 import { CombatCharacter } from "../types/combat-character.type";
 import { Combat } from "../types/combat.type";
+
+/** The combat's turn while it is ongoing, stored on the states applied then */
+export const getOngoingTurn = (
+  combat: Pick<Combat, "status" | "currentTurn"> | null | undefined,
+): number | undefined =>
+  combat?.status === CombatStatusEnum.ONGOING ? combat.currentTurn : undefined;
 
 export const findCharacterIndexById = (
   characters: CombatCharacter[],

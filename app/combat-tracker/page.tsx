@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CharacterList from "./_components/characters-list/CharacterList";
 import styles from "./combat-tracker.module.scss";
 import CharacterStats from "./_components/character-stats/CharacterStats";
-import CustomDrawer from "../_components/drawer/CustomDrawer";
+import CustomDrawer from "../_components/_basics/custom-drawer/CustomDrawer";
 import EditCharacterForm from "./_components/edit-character-form/EditCharacterForm";
 import { clearCombat, loadCombat, saveCombat } from "./_lib/local-storage";
 import CombatManager from "./_components/combat-manager/CombatManager";
@@ -13,6 +13,7 @@ import { Combat } from "../_lib/types/combat.type";
 import { CombatCharacter } from "../_lib/types/combat-character.type";
 import {
   findCharacterIndexById,
+  getOngoingTurn,
   normalizeCombat,
 } from "../_lib/combat/combat.helper";
 import { translate } from "../_dictionaries/dictionnary";
@@ -220,6 +221,7 @@ const CombatTrackerPage = () => {
                 onCharactersChange={onCharactersChange}
                 onHistoryEdited={onHistoryEdited}
                 isCombatOngoing={combat.status === CombatStatusEnum.ONGOING}
+                currentTurn={getOngoingTurn(combat)}
               />
             </div>
           )}
@@ -228,9 +230,11 @@ const CombatTrackerPage = () => {
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
+        title={translate("form.editCharacter", "combatTracker")}
       >
         <EditCharacterForm
           initialCharacter={characterToEdit}
+          currentTurn={getOngoingTurn(combat)}
           onSubmit={onCharacterEdited}
         />
       </CustomDrawer>

@@ -1,4 +1,8 @@
-import { normalizeCombat } from "@/app/_lib/combat/combat.helper";
+import {
+  getOngoingTurn,
+  normalizeCombat,
+} from "@/app/_lib/combat/combat.helper";
+import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
 import {
   buildCharacter,
   buildCombat,
@@ -53,5 +57,17 @@ describe("normalizeCombat", () => {
     const ids = normalizeCombat(combat)!.characters.map((c) => c.id);
 
     expect(ids).toEqual(["first", "second"]);
+  });
+});
+
+describe("getOngoingTurn", () => {
+  it("gives the turn only while the combat is ongoing", () => {
+    expect(
+      getOngoingTurn({ status: CombatStatusEnum.ONGOING, currentTurn: 3 }),
+    ).toBe(3);
+    expect(
+      getOngoingTurn({ status: CombatStatusEnum.PREPARING, currentTurn: 1 }),
+    ).toBeUndefined();
+    expect(getOngoingTurn(null)).toBeUndefined();
   });
 });
