@@ -39,6 +39,8 @@
   --color-chip: var(--color-default-white);
   --color-chip-border: var(--color-default-grey--medium);
   --color-chip-text: var(--color-default-grey--dark);
+  --color-spell-slot: var(--color-default-cyan--light);
+  --color-spell-slot-text: var(--color-default-grey--dark);
   --color-scrollbar: var(--color-default-grey--light-medium);
   --color-scrollbar--hover: var(--color-default-blue--light);
   --color-text--dark: var(--color-default-grey--dark);
@@ -75,7 +77,10 @@
   --opacity--disabled: var(--opacity--low);
 
   --radius--button: var(--radius--s);
+  --height--chip: var(--size--s);
+
   --radius--chip: var(--radius--s);
+  --radius--spell-level: var(--radius--xs);
   --radius--panel: var(--radius--m);
   --radius--field: var(--radius--s);
 

@@ -2,7 +2,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing--xxs);
-  padding: var(--spacing-padding-chip--y) var(--spacing-padding--text);
+  // Same height everywhere, whatever the icon (a level square, an emoji...)
+  box-sizing: border-box;
+  height: var(--height--chip);
+  padding: 0 var(--spacing-padding--text);
+
+  line-height: 1;
+  white-space: nowrap;
 
   background-color: var(--color-chip);
   border: 1px solid var(--color-chip-border);

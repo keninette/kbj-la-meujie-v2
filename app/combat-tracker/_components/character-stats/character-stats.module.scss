@@ -147,6 +147,25 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     list-style: none;
   }
 
+  // No slot left
+  &__chip--empty {
+    opacity: var(--opacity--disabled);
+  }
+
+  // Level of a spell slot, in a square
+  &__spell-level {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.1rem;
+    height: 1.1rem;
+
+    background-color: var(--color-spell-slot);
+    border-radius: var(--radius--spell-level);
+    color: var(--color-spell-slot-text);
+    font-weight: bold;
+  }
+
   &__abilities-tile {
     grid-column: 1 / -1;
   }

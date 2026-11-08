@@ -1,6 +1,7 @@
 :root {
   --color-default-blue--primary: #3b5bdb;
   --color-default-blue--light: #668bcd;
+  --color-default-cyan--light: #85feff;
   --color-default-blue--ultra-light: #e6ebfb;
   --color-default-purple--primary: #27158fda;
   --color-default-grey--dark: #2f3850;
@@ -31,6 +32,7 @@
   --letter-spacing--m: 0.2rem;
   --letter-spacing--s: 0.1rem;
 
+  --radius--xs: 3px;
   --radius--s: 5px;
   --radius--m: 12px;
 
@@ -41,6 +43,8 @@
   --spacing--s: 1rem;
   --spacing--xs: 0.5rem;
   --spacing--xxs: 0.3rem;
+
+  --size--s: 1.75rem;
 
   --opacity--low: 0.5;
 }

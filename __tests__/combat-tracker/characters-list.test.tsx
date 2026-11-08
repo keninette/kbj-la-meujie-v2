@@ -579,3 +579,49 @@ describe("CharacterStats abilities", () => {
     expect(screen.queryByTestId("saving-throw-str")).not.toBeInTheDocument();
   });
 });
+
+describe("CharacterStats spell slots", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows a chip per spell slot, with the level or a wand", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "druid",
+          spellSlotsLeft: { "1": 4, "2": 0, wldshp: 2 },
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    const spells = await screen.findByTestId("character-spell-slots");
+    expect(spells).toHaveTextContent("stats.spells");
+
+    const level1 = screen.getByTestId("spell-slot-1");
+    expect(level1).toHaveTextContent("14");
+    expect(
+      level1.querySelector(".character-stats__spell-level"),
+    ).toHaveTextContent("1");
+    expect(level1).not.toHaveClass("character-stats__chip--empty");
+    expect(screen.getByTestId("spell-slot-2")).toHaveClass(
+      "character-stats__chip--empty",
+    );
+
+    const wildShape = screen.getByTestId("spell-slot-wldshp");
+    expect(wildShape).toHaveTextContent("wldshp 2");
+    expect(wildShape.querySelector(".fa-wand-sparkles")).toBeInTheDocument();
+    expect(wildShape.querySelector(".character-stats__spell-level")).toBeNull();
+  });
+
+  it("shows nothing without spell slots", async () => {
+    saveCombat(buildCombat([buildCharacter({ id: "fighter" })]));
+    render(<CombatTrackerPage />);
+
+    await screen.findByTestId("ac-tile");
+    expect(
+      screen.queryByTestId("character-spell-slots"),
+    ).not.toBeInTheDocument();
+  });
+});

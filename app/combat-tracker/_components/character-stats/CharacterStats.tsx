@@ -13,6 +13,7 @@ import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
 import PassivesSection from "./_components/passives-section/PassivesSection";
+import SpellSlotsSection from "./_components/spell-slots-section/SpellSlotsSection";
 import ActionsList from "../actions-list/ActionsList";
 import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
 
@@ -43,11 +44,6 @@ const CharacterStats = ({
 }: CharacterStatsProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
   const nameId = useId();
-
-  const emptyStatClass = cx(
-    styles["character-stats__stat--low"],
-    styles["character-stats__stat"],
-  );
 
   const updateCharacter = (updatedCharacter: CombatCharacter) => {
     onCharacterChange(updatedCharacter);
@@ -113,39 +109,7 @@ const CharacterStats = ({
         />
         <StatsSection character={selectedCharacter} />
         <PassivesSection passives={selectedCharacter.passives} />
-        {selectedCharacter.spellSlotsLeft &&
-          Object.entries(selectedCharacter.spellSlotsLeft).length > 0 && (
-            <div
-              className={cx(
-                styles["character-stats__line--vertical"],
-                styles["character-stats__line"],
-              )}
-            >
-              <div>
-                <FontAwesomeIcon
-                  faIcon="wand-sparkles"
-                  faIconStyle={FaIconStyleEnum.SOLID}
-                />
-                {translate("stats.spellSlots", "combatTracker")} :
-              </div>
-              <div className={styles["character-stats__line"]}>
-                {Object.entries(selectedCharacter.spellSlotsLeft).map(
-                  ([name, slots]) => (
-                    <div
-                      className={styles["character-stats__line--indented"]}
-                      key={name}
-                    >
-                      {" "}
-                      ✨ {name} :{" "}
-                      <span className={slots === 0 ? emptyStatClass : ""}>
-                        {slots}
-                      </span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          )}
+        <SpellSlotsSection spellSlotsLeft={selectedCharacter.spellSlotsLeft} />
         {selectedCharacter.actions && selectedCharacter.actions.length > 0 && (
           <div
             className={cx(
