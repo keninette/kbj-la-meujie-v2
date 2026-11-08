@@ -15,6 +15,7 @@ import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import ActionsList from "../actions-list/ActionsList";
 import NpcAttitudeIcon from "../npc-attitude-icon/NpcAttitudeIcon";
 import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
+import { getHpLevel, getHpPercent } from "@/app/combat-tracker/_lib/hp.helper";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -38,21 +39,17 @@ const CharacterStats = ({
   ...restProps
 }: CharacterStatsProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
-  const hpPercent =
-    selectedCharacter.maxHp > 0
-      ? (selectedCharacter.hp / selectedCharacter.maxHp) * 100
-      : 0;
+  const hpPercent = getHpPercent(selectedCharacter);
 
   const emptyStatClass = [
     styles["character-stats__stat--low"],
     styles["character-stats__stat"],
   ].join(" ");
-  const getHpClass = () => {
-    let className = styles["character-stats__stat--low"];
-    if (hpPercent >= 25) className = styles["character-stats__stat--medium"];
-    if (hpPercent > 75) className = styles["character-stats__stat--high"];
-    return [className, styles["character-stats__stat"]].join(" ");
-  };
+  const getHpClass = () =>
+    [
+      styles[`character-stats__stat--${getHpLevel(hpPercent)}`],
+      styles["character-stats__stat"],
+    ].join(" ");
 
   const updateCharacter = (updatedCharacter: CombatCharacter) => {
     onCharacterChange(updatedCharacter);

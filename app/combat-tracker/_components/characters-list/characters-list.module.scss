@@ -2,20 +2,148 @@
   &__title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 1.1rem;
+    gap: var(--spacing-padding--text);
+    margin: 0 0 var(--spacing-padding--button);
+
+    font-size: var(--font-size--section-content-title);
+    font-weight: var(--font-weight--regular);
+    letter-spacing: var(--letter-spacing--section-subtitle);
+    text-transform: uppercase;
+
+    &--idle {
+      color: var(--color-text--muted);
+    }
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-padding--button);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__avatar {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--color-picture-frame);
+    border-radius: 50%;
+    color: var(--color-link);
+    font-size: var(--font-size--caption);
+    font-weight: bold;
+    object-fit: cover;
+  }
+
+  // Same height for every line, active or not
+  &__card,
+  &__item {
+    box-sizing: border-box;
+    height: var(--list-line-height);
+  }
+
+  &__card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-padding--text);
+    padding: var(--spacing-padding--button) var(--spacing-padding--text);
+
+    background-color: var(--color-surface--card);
+    border-radius: var(--radius--panel);
+    box-shadow: var(--shadow--card);
+
+    &--current {
+      outline: 2px solid var(--color-border--dark);
+
+      .characters-list__name {
+        font-weight: bold;
+      }
+    }
+  }
+
+  &__initiative {
+    flex-shrink: 0;
+    width: 1.75rem;
+
+    color: var(--color-text--muted);
+    font-weight: bold;
+    text-align: center;
+
+    .characters-list__card--current & {
+      color: var(--color-link);
+    }
+  }
+
+  &__card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--spacing--xxs);
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-padding--button);
+    min-width: 0;
+  }
+
+  &__hp {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-padding--text);
+
+    color: var(--color-text--muted);
+    font-size: var(--font-size--caption);
+  }
+
+  &__hp-bar {
+    flex: 1;
+    height: 4px;
+    overflow: hidden;
+
+    background-color: var(--color-border--light);
+    border-radius: 2px;
+  }
+
+  &__hp-fill {
+    display: block;
+    height: 100%;
+
+    &--high {
+      background-color: var(--color-hp--high);
+    }
+
+    &--medium {
+      background-color: var(--color-hp--medium);
+    }
+
+    &--low {
+      background-color: var(--color-hp--low);
+    }
+  }
+
+  // The kebab menu, after a thin border
+  &__actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    align-self: stretch;
+    padding-left: var(--spacing-padding--button);
+
+    border-left: 1px solid var(--color-border--light);
   }
 
   &__item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    height: 2rem;
-    width: fit-content;
-
-    &--active {
-      font-weight: bold;
-    }
+    gap: var(--spacing-padding--text);
+    padding: var(--spacing-padding--button) var(--spacing-padding--text);
 
     &--idle {
       opacity: var(--opacity--disabled);
@@ -27,7 +155,7 @@
     }
 
     &--down {
-      color: #b4001e;
+      color: var(--color-hp--low);
     }
   }
 }

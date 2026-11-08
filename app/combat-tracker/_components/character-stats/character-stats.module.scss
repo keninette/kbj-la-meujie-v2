@@ -15,13 +15,13 @@
     font-weight: bold;
 
     &--high {
-      color: #4caf50;
+      color: var(--color-hp--high);
     }
     &--medium {
-      color: #ff8b07;
+      color: var(--color-hp--medium);
     }
     &--low {
-      color: #b4001e;
+      color: var(--color-hp--low);
     }
   }
 

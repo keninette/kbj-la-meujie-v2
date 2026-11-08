@@ -5,11 +5,91 @@
 
   &__root {
     height: 100dvh;
+
     background: radial-gradient(
       circle,
       var(--color-background-gradient--center) 5%,
       var(--color-background-gradient--borders) 85%
     );
+
+    // Scrollbars of the whole site (the page, and every box that scrolls):
+    // thin, light grey, no arrows, clear of the rounded corners and of
+    // the right side of its container.
+    // Chrome, Edge, Safari: ::-webkit-scrollbar (Chrome ignores it when the
+    // standard properties below are set, hence the @supports).
+    &,
+    & * {
+      // Wider than the bar: the gap on its right stays transparent
+      &::-webkit-scrollbar {
+        width: calc(var(--scrollbar-width) + var(--scrollbar-gap));
+        height: calc(var(--scrollbar-width) + var(--scrollbar-gap));
+      }
+
+      &::-webkit-scrollbar-button {
+        display: none;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+        // Keeps the bar away from the rounded corners of its container
+        margin-block: var(--radius--panel);
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-clip: padding-box;
+        background-color: var(--color-scrollbar);
+        border: 0 solid transparent;
+        border-radius: var(--scrollbar-width);
+
+        // The gap: on the right of a vertical bar, under a horizontal one
+        &:vertical {
+          border-right-width: var(--scrollbar-gap);
+        }
+
+        &:horizontal {
+          border-bottom-width: var(--scrollbar-gap);
+        }
+
+        &:hover {
+          background-color: var(--color-scrollbar--hover);
+        }
+      }
+
+      &::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+    }
+
+    // Firefox: the standard properties (never arrows when thin)
+    @supports not selector(::-webkit-scrollbar) {
+      &,
+      & * {
+        scrollbar-color: var(--color-scrollbar) transparent;
+        scrollbar-width: thin;
+      }
+    }
+
+    // A page that fits the screen (combat tracker): no page scroll, its
+    // parts scroll on their own
+    &:has([data-fit-viewport]) {
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      .page {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      main {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+      }
+    }
   }
 
   &__section {

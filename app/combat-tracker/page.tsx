@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import CharacterList from "./_components/characters-list/CharacterList";
 import styles from "./combat-tracker.module.scss";
 import CharacterStats from "./_components/character-stats/CharacterStats";
@@ -176,7 +177,7 @@ const CombatTrackerPage = () => {
 
   return (
     <>
-      <div className={styles["combat-tracker"]}>
+      <div className={styles["combat-tracker"]} data-fit-viewport>
         <CombatManager
           title={translate("title", "combatTracker")}
           ongoingCombat={combat}
@@ -184,7 +185,10 @@ const CombatTrackerPage = () => {
           onCharacterAdded={onCharacterAdded}
         />
         <div className={styles["combat-tracker__container"]}>
-          <div className={styles["combat-tracker__container__left"]}>
+          <ContainerBox
+            as="section"
+            className={styles["combat-tracker__container__left"]}
+          >
             {(combat?.characters.length ?? 0) > 0 && (
               <CharacterList
                 title={translate("list.active", "combatTracker")}
@@ -196,6 +200,7 @@ const CombatTrackerPage = () => {
                 characters={combat?.characters ?? []}
                 allowedActions={["edit", "deactivate"]}
                 selectedCharacter={selectedCharacter}
+                isCombatOngoing={combat?.status === CombatStatusEnum.ONGOING}
                 onEdit={handleCharacterClick}
                 onDeactivate={onCharacterDeactivated}
               />
@@ -203,7 +208,7 @@ const CombatTrackerPage = () => {
             {idleCharacters.length > 0 && (
               <CharacterList
                 title={translate("list.idle", "combatTracker")}
-                titleIcon="couch"
+                titleIcon="pause"
                 characters={idleCharacters}
                 allowedActions={["edit", "reactivate"]}
                 isIdle
@@ -211,7 +216,7 @@ const CombatTrackerPage = () => {
                 onReactivate={onCharacterReactivated}
               />
             )}
-          </div>
+          </ContainerBox>
           {selectedCharacter && combat && (
             <div className={styles["combat-tracker__container__right"]}>
               <CharacterStats
