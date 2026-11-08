@@ -10,7 +10,7 @@
     letter-spacing: var(--letter-spacing--section-subtitle);
     text-transform: uppercase;
 
-    &--idle {
+    &--muted {
       color: var(--color-text--muted);
     }
   }
@@ -38,11 +38,14 @@
     object-fit: cover;
   }
 
-  // Same height for every line, active or not
+  // Same size for every line, active or not: the kebab menus line up
   &__card,
   &__item {
     box-sizing: border-box;
     height: var(--list-line-height);
+
+    border: 1px solid transparent;
+    border-radius: var(--radius--panel);
   }
 
   &__card {
@@ -128,7 +131,6 @@
     }
   }
 
-  // The kebab menu, after a thin border
   &__actions {
     display: flex;
     flex-shrink: 0;
@@ -145,7 +147,13 @@
     gap: var(--spacing-padding--text);
     padding: var(--spacing-padding--button) var(--spacing-padding--text);
 
+    // The name takes the room left: the menu goes to the right end
+    .characters-list__name {
+      flex: 1;
+    }
+
     &--idle {
+      border-color: var(--color-border--light);
       opacity: var(--opacity--disabled);
     }
 

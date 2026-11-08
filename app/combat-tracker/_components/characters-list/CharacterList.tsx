@@ -18,6 +18,8 @@ type CharacterListProps = Omit<ComponentProps<"section">, "title"> & {
   characters: CombatCharacter[];
   allowedActions: CharacterListAction[];
   isIdle?: boolean;
+  /** Grey title, like the inactive characters' one */
+  isTitleMuted?: boolean;
   selectedCharacter?: CombatCharacter | null;
   /** Shows "play" on the selected character instead of its initiative */
   isCombatOngoing?: boolean;
@@ -32,6 +34,7 @@ const CharacterList = ({
   characters,
   allowedActions,
   isIdle = false,
+  isTitleMuted = isIdle,
   selectedCharacter,
   isCombatOngoing = false,
   onEdit,
@@ -47,7 +50,7 @@ const CharacterList = ({
       <h2
         className={[
           styles["characters-list__title"],
-          isIdle && styles["characters-list__title--idle"],
+          isTitleMuted && styles["characters-list__title--muted"],
         ]
           .filter(Boolean)
           .join(" ")}

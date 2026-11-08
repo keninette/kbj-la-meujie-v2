@@ -283,3 +283,84 @@ describe("CharacterList active character cards", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("CharacterList dead characters", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  const boromir = buildCharacter({
+    id: "boromir",
+    name: "Boromir",
+    initiativeScore: 12,
+    hp: 0,
+    isDead: true,
+  });
+
+  it("lists dead characters apart, between active and inactive ones", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      idleCharacters: [buildCharacter({ id: "gandalf", name: "Gandalf" })],
+    });
+    render(<CombatTrackerPage />);
+
+    const deadList = await screen.findByTestId("dead-characters-list");
+    expect(
+      within(deadList).getByTestId("character-item-boromir"),
+    ).toBeInTheDocument();
+    expect(
+      within(activeList()).queryByTestId("character-item-boromir"),
+    ).not.toBeInTheDocument();
+
+    const sections = screen
+      .getAllByTestId(/-characters-list$/)
+      .map((section) => section.getAttribute("data-testid"));
+    expect(sections).toEqual([
+      "active-characters-list",
+      "dead-characters-list",
+      "idle-characters-list",
+    ]);
+  });
+
+  it("has no dead section when nobody is dead", async () => {
+    await renderPageWithCharacters();
+
+    expect(
+      screen.queryByTestId("dead-characters-list"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("still shows whose turn it is when it is a dead character's", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 1,
+      selectedCharacterIndex: 1,
+    });
+    render(<CombatTrackerPage />);
+
+    const deadList = await screen.findByTestId("dead-characters-list");
+    expect(within(deadList).getByTestId("character-item-boromir")).toHaveClass(
+      "characters-list__card--current",
+    );
+  });
+
+  it("skips dead characters when going to the next player", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 1,
+    });
+    render(<CombatTrackerPage />);
+
+    fireEvent.click(
+      within(await screen.findByTestId("combat-turn")).getByText(
+        "manager.nextPlayer",
+      ),
+    );
+
+    expect(screen.getByTestId("character-item-legolas")).toHaveClass(
+      "characters-list__card--current",
+    );
+  });
+});

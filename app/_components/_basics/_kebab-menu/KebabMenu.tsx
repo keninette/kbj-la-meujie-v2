@@ -10,9 +10,7 @@ export type KebabMenuItem = {
   label: string;
   faIcon: string;
   faIconStyle?: FaIconStyleEnum;
-  /** An action... */
   onClick?: () => void;
-  /** ...or a link */
   href?: string;
   openInNewTab?: boolean;
   "data-testid"?: string;
@@ -20,7 +18,6 @@ export type KebabMenuItem = {
 
 type KebabMenuProps = {
   items: KebabMenuItem[];
-  /** Tooltip and accessible name of the ⋮ button */
   label: string;
   className?: string;
   "data-testid"?: string;

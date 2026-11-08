@@ -52,13 +52,6 @@ const CharacterListItem = ({
           tooltip={translate("stats.dying", "combatTracker")}
         />
       )}
-      {character.isDead && (
-        <FontAwesomeIcon
-          faIcon="skull"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          tooltip={translate("stats.dead", "combatTracker")}
-        />
-      )}
     </span>
   );
 
@@ -106,7 +99,6 @@ const CharacterListItem = ({
       : []),
   ];
 
-  // On the right, after a thin border
   const menu = menuItems.length > 0 && (
     <span className={styles["characters-list__actions"]}>
       <KebabMenu
@@ -124,7 +116,6 @@ const CharacterListItem = ({
     character.isDead && styles["characters-list__item--dead"],
   ];
 
-  // Inactive: a simple line
   if (isIdle) {
     return (
       <li
@@ -144,7 +135,6 @@ const CharacterListItem = ({
     );
   }
 
-  // Active: a card, in initiative order
   return (
     <li
       className={[

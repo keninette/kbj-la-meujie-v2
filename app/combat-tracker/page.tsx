@@ -28,6 +28,13 @@ const CombatTrackerPage = () => {
   const selectedCharacter =
     combat?.characters?.[combat.selectedCharacterIndex] ?? null;
   const idleCharacters = combat?.idleCharacters ?? [];
+  const aliveCharacters = (combat?.characters ?? []).filter(
+    (character) => !character.isDead,
+  );
+  const deadCharacters = (combat?.characters ?? []).filter(
+    (character) => character.isDead,
+  );
+  const isCombatOngoing = combat?.status === CombatStatusEnum.ONGOING;
 
   const onCombatChange = (nextCombat: Combat | null) => {
     if (!nextCombat) {
@@ -189,20 +196,30 @@ const CombatTrackerPage = () => {
             as="section"
             className={styles["combat-tracker__container__left"]}
           >
-            {(combat?.characters.length ?? 0) > 0 && (
+            {aliveCharacters.length > 0 && (
               <CharacterList
                 title={translate("list.active", "combatTracker")}
-                titleIcon={
-                  combat?.status === CombatStatusEnum.ONGOING
-                    ? "play"
-                    : undefined
-                }
-                characters={combat?.characters ?? []}
+                titleIcon={isCombatOngoing ? "play" : undefined}
+                characters={aliveCharacters}
                 allowedActions={["edit", "deactivate"]}
                 selectedCharacter={selectedCharacter}
-                isCombatOngoing={combat?.status === CombatStatusEnum.ONGOING}
+                isCombatOngoing={isCombatOngoing}
                 onEdit={handleCharacterClick}
                 onDeactivate={onCharacterDeactivated}
+              />
+            )}
+            {deadCharacters.length > 0 && (
+              <CharacterList
+                title={translate("list.dead", "combatTracker")}
+                titleIcon="cross"
+                characters={deadCharacters}
+                allowedActions={["edit", "deactivate"]}
+                selectedCharacter={selectedCharacter}
+                isCombatOngoing={isCombatOngoing}
+                isTitleMuted
+                onEdit={handleCharacterClick}
+                onDeactivate={onCharacterDeactivated}
+                data-testid="dead-characters-list"
               />
             )}
             {idleCharacters.length > 0 && (

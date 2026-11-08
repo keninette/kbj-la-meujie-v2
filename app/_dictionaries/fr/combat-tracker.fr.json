@@ -124,6 +124,7 @@
   "list.wiki": "Voir la page du wiki",
   "list.active": "Ordre d'initiative",
   "list.idle": "Inactifs",
+  "list.dead": "Morts",
   "list.deactivate": "Désactiver",
   "list.reactivate": "Réactiver",
   "list.currentTurn": "Son tour",
