@@ -1,16 +1,17 @@
-import { useState } from "react";
 import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
-import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
+import AddItemButton from "./AddItemButton";
+import { useNewItem } from "../_hooks/use-new-item.hook";
 import styles from "./fieldsets.module.scss";
 
 type TextListFieldsetProps = {
   title: string;
   titleIcon?: string;
+  /** Also the input's test id, and the base of the button's and the items' ones */
   inputId: string;
   inputLabel: string;
   items: string[];
@@ -18,6 +19,7 @@ type TextListFieldsetProps = {
   isHighlighted?: boolean;
 };
 
+/** A list of names (passives, objects...): removable chips, then an input to add one */
 const TextListFieldset = ({
   title,
   titleIcon,
@@ -27,16 +29,14 @@ const TextListFieldset = ({
   onChange,
   isHighlighted,
 }: TextListFieldsetProps) => {
-  const [name, setName] = useState("");
-
-  const add = () => {
+  const { draft, setDraft, submit, submitOnEnter } = useNewItem("", (name) => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      return;
+      return false;
     }
     onChange([...items, trimmedName]);
-    setName("");
-  };
+    return true;
+  });
 
   return (
     <Fieldset title={title} titleIcon={titleIcon} isHighlighted={isHighlighted}>
@@ -63,26 +63,12 @@ const TextListFieldset = ({
           id={inputId}
           name={inputId}
           label={inputLabel}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              add();
-            }
-          }}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={submitOnEnter}
           data-testid={inputId}
         />
-        <ButtonWithIcon
-          variant={ButtonVariant.SECONDARY}
-          label={translate("form.add", "combatTracker")}
-          faIcon="plus"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          iconPosition="left"
-          type="button"
-          onClick={add}
-          data-testid={`${inputId}-add-button`}
-        />
+        <AddItemButton onClick={submit} data-testid={`${inputId}-add-button`} />
       </div>
     </Fieldset>
   );

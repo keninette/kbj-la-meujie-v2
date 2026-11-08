@@ -1156,11 +1156,37 @@ describe("EditCharacterForm spell slots", () => {
     fireEvent.change(screen.getByLabelText("form.value"), {
       target: { value: "4" },
     });
-    fireEvent.click(screen.getAllByText("form.add")[0]);
+    fireEvent.click(screen.getByTestId("addSpellSlot"));
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ spellSlotsLeft: { Rage: 4 } }),
+    );
+  });
+
+  it("adds a spell slot on Enter, without submitting the form", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("spellSlotName"), {
+      target: { value: "1" },
+    });
+    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+      target: { value: "3" },
+    });
+    fireEvent.keyDown(screen.getByTestId("spellSlotValue"), { key: "Enter" });
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId("spellSlotName")).toHaveValue("");
+
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ spellSlotsLeft: { 1: 3 } }),
     );
   });
 });
@@ -1459,9 +1485,16 @@ describe("EditCharacterForm save and restart", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("name"), {
-      target: { name: "name", value: "Goblin" },
-    });
+    const fillCharacter = (name: string) => {
+      fireEvent.change(screen.getByTestId("name"), {
+        target: { name: "name", value: name },
+      });
+      fireEvent.change(screen.getByTestId("maxHp"), {
+        target: { name: "maxHp", value: "7" },
+      });
+    };
+
+    fillCharacter("Goblin");
     fireEvent.change(screen.getByTestId("passiveName"), {
       target: { value: "Unsaved draft" },
     });
@@ -1474,14 +1507,31 @@ describe("EditCharacterForm save and restart", () => {
     expect(screen.getByTestId("name")).toHaveValue("");
     expect(screen.getByTestId("passiveName")).toHaveValue("");
 
-    fireEvent.change(screen.getByTestId("name"), {
-      target: { name: "name", value: "Goblin 2" },
-    });
+    fillCharacter("Goblin 2");
     fireEvent.click(screen.getByTestId("save-and-restart"));
 
     const [first, second] = onSaveAndRestart.mock.calls.map(([c]) => c);
     expect(second.name).toBe("Goblin 2");
     expect(second.id).not.toBe(first.id);
+  });
+
+  it("is blocked by the same checks as the save button", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    // Max HP stays at 0, under its minimum of 1
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).not.toHaveBeenCalled();
+    expect(screen.getByTestId("name")).toHaveValue("Goblin");
   });
 
   it("does nothing when the form is empty", () => {

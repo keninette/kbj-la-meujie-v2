@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import dndLogo from "@/public/assets/universes/dnd.png";
 import styles from "./edit-character-form.module.scss";
@@ -28,6 +28,7 @@ import SpellSlotsFieldset from "./_components/SpellSlotsFieldset";
 import TextListFieldset from "./_components/TextListFieldset";
 import ActionsFieldset from "./_components/ActionsFieldset";
 import StatesFieldset from "./_components/StatesFieldset";
+import { createId } from "@/app/combat-tracker/_lib/create-id";
 
 type EditCharacterFormProps = {
   initialCharacter: CombatCharacter | null;
@@ -36,11 +37,6 @@ type EditCharacterFormProps = {
    * one. The "save and restart" button is shown only when this is given. */
   onSaveAndRestart?: (character: CombatCharacter) => void;
 };
-
-const createId = () =>
-  typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `character-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 const createEmptyCharacter = (): CombatCharacter => ({
   id: createId(),
@@ -66,6 +62,7 @@ const EditCharacterForm = ({
   const [isWikiDialogOpened, setIsWikiDialogOpened] = useState(false);
   // Changed to remount the fieldsets, which clears their unsaved inputs
   const [formKey, setFormKey] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
   const imageUrl = character?.imageUrl?.trim();
 
   // The character's wiki page, or a guess from its name
@@ -179,6 +176,10 @@ const EditCharacterForm = ({
   };
 
   const saveAndRestart = () => {
+    // Same checks as the submit button (max HP, URLs...)
+    if (!formRef.current?.reportValidity()) {
+      return;
+    }
     const savedCharacter = buildSavedCharacter();
     if (!savedCharacter) {
       return;
@@ -230,12 +231,14 @@ const EditCharacterForm = ({
       )}
       <form
         key={formKey}
+        ref={formRef}
         className={styles["edit-character-form__form"]}
         onSubmit={handleSubmit}
       >
         <IdentityFieldset
           character={character}
           onInputChange={handleInputChange}
+          imageUrl={imageUrl}
           onAttitudeChange={(attitude) => updateCharacter({ attitude })}
           importedClassName={importedClassName}
         />
@@ -276,7 +279,6 @@ const EditCharacterForm = ({
         <StatesFieldset
           states={character?.states ?? []}
           onChange={(states) => updateCharacter({ states })}
-          createId={createId}
         />
         <div className={styles["edit-character-form__footer"]}>
           {onSaveAndRestart && (

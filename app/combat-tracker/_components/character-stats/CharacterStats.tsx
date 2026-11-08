@@ -14,6 +14,7 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import ActionsList from "../actions-list/ActionsList";
 import NpcAttitudeIcon from "../npc-attitude-icon/NpcAttitudeIcon";
+import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -354,25 +355,7 @@ const CharacterStats = ({
                   className={styles["character-stats__line__subcontent"]}
                   key={state.id}
                 >
-                  <span>
-                    {state.name}
-                    {state.numberOfTurns !== undefined && (
-                      <>
-                        {" "}
-                        {translate("stats.stateDuration", "combatTracker", {
-                          duration: String(state.numberOfTurns),
-                        })}
-                      </>
-                    )}
-                    {state.saveThrowStat && <>, {state.saveThrowStat}</>}
-                    {state.saveThrowDc !== undefined && (
-                      <>
-                        {state.saveThrowStat ? " " : ", "}
-                        {translate("stats.saveDc", "combatTracker")}{" "}
-                        {state.saveThrowDc}
-                      </>
-                    )}
-                  </span>
+                  <span>{describeState(state)}</span>
                   <IconButton
                     variant={ButtonVariant.SECONDARY}
                     tooltip={translate("form.remove", "combatTracker")}

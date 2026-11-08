@@ -1,12 +1,12 @@
-import { useState } from "react";
 import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
 import NumberInput from "@/app/_components/_basics/_form/_number-input/NumberInput";
-import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
+import AddItemButton from "./AddItemButton";
+import { useNewItem } from "../_hooks/use-new-item.hook";
 import styles from "./fieldsets.module.scss";
 
 type SpellSlotsFieldsetProps = {
@@ -21,18 +21,17 @@ const SpellSlotsFieldset = ({
   onChange,
   isHighlighted,
 }: SpellSlotsFieldsetProps) => {
-  const [name, setName] = useState("");
-  const [value, setValue] = useState(0);
-
-  const add = () => {
-    const trimmedName = name.trim();
-    if (!trimmedName || !Number.isInteger(value) || value < 0) {
-      return;
-    }
-    onChange({ ...spellSlots, [trimmedName]: value });
-    setName("");
-    setValue(0);
-  };
+  const { draft, setDraft, submit, submitOnEnter } = useNewItem(
+    { name: "", value: 0 },
+    ({ name, value }) => {
+      const trimmedName = name.trim();
+      if (!trimmedName || !Number.isInteger(value) || value < 0) {
+        return false;
+      }
+      onChange({ ...spellSlots, [trimmedName]: value });
+      return true;
+    },
+  );
 
   const remove = (slotName: string) => {
     onChange(
@@ -67,8 +66,12 @@ const SpellSlotsFieldset = ({
           id="slotLevel"
           name="slotLevel"
           label={translate("form.nameOrLevel", "combatTracker")}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
+          value={draft.name}
+          onChange={(event) => {
+            const name = event.target.value;
+            setDraft((slot) => ({ ...slot, name }));
+          }}
+          onKeyDown={submitOnEnter}
           data-testid="spellSlotName"
         />
         <NumberInput
@@ -77,18 +80,15 @@ const SpellSlotsFieldset = ({
           label={translate("form.value", "combatTracker")}
           min="0"
           step="1"
-          value={value}
-          onChange={(event) => setValue(+event.target.value)}
+          value={draft.value}
+          onChange={(event) => {
+            const value = +event.target.value;
+            setDraft((slot) => ({ ...slot, value }));
+          }}
+          onKeyDown={submitOnEnter}
+          data-testid="spellSlotValue"
         />
-        <ButtonWithIcon
-          variant={ButtonVariant.SECONDARY}
-          label={translate("form.add", "combatTracker")}
-          faIcon="plus"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          iconPosition="left"
-          type="button"
-          onClick={add}
-        />
+        <AddItemButton onClick={submit} data-testid="addSpellSlot" />
       </div>
     </Fieldset>
   );

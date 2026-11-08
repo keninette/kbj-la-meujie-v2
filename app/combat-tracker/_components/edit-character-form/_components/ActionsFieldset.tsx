@@ -1,12 +1,10 @@
-import { useState } from "react";
 import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
-import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
-import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import ActionsList from "@/app/combat-tracker/_components/actions-list/ActionsList";
+import AddItemButton from "./AddItemButton";
+import { useNewItem } from "../_hooks/use-new-item.hook";
 import styles from "./fieldsets.module.scss";
 
 type ActionsFieldsetProps = {
@@ -20,16 +18,14 @@ const ActionsFieldset = ({
   onChange,
   isHighlighted,
 }: ActionsFieldsetProps) => {
-  const [name, setName] = useState("");
-
-  const add = () => {
+  const { draft, setDraft, submit, submitOnEnter } = useNewItem("", (name) => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      return;
+      return false;
     }
     onChange([...actions, { name: trimmedName, costs: [] }]);
-    setName("");
-  };
+    return true;
+  });
 
   return (
     <Fieldset
@@ -46,26 +42,12 @@ const ActionsFieldset = ({
           id="actionName"
           name="actionName"
           label={translate("form.actionName", "combatTracker")}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              add();
-            }
-          }}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={submitOnEnter}
           data-testid="actionName"
         />
-        <ButtonWithIcon
-          variant={ButtonVariant.SECONDARY}
-          label={translate("form.add", "combatTracker")}
-          faIcon="plus"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          iconPosition="left"
-          type="button"
-          onClick={add}
-          data-testid="addAction"
-        />
+        <AddItemButton onClick={submit} data-testid="addAction" />
       </div>
     </Fieldset>
   );

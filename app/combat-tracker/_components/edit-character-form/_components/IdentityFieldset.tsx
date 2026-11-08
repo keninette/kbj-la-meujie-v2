@@ -15,6 +15,8 @@ import styles from "./fieldsets.module.scss";
 
 type IdentityFieldsetProps = {
   character: CombatCharacter | null;
+  /** The trimmed image URL, as saved */
+  imageUrl?: string;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onAttitudeChange: (attitude: NpcAttitudeEnum | undefined) => void;
   /** Highlight of a field filled by the wiki import, if any */
@@ -23,12 +25,11 @@ type IdentityFieldsetProps = {
 
 const IdentityFieldset = ({
   character,
+  imageUrl,
   onInputChange,
   onAttitudeChange,
   importedClassName,
 }: IdentityFieldsetProps) => {
-  const imageUrl = character?.imageUrl?.trim();
-
   return (
     <Fieldset
       title={translate("form.basicInfo", "combatTracker")}
