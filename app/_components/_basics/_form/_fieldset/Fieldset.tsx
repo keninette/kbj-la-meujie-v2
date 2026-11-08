@@ -1,3 +1,4 @@
+import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import styles from "./fieldset.module.scss";
@@ -20,14 +21,10 @@ const Fieldset = ({
   className,
   children,
 }: FieldsetProps) => (
-  <fieldset
-    className={[
-      styles["fieldset"],
-      isHighlighted && styles["fieldset--highlighted"],
-      className,
-    ]
-      .filter(Boolean)
-      .join(" ")}
+  <ContainerBox
+    as="fieldset"
+    isHighlighted={isHighlighted}
+    className={[styles["fieldset"], className].filter(Boolean).join(" ")}
   >
     {title && (
       <legend className={styles["fieldset__title"]}>
@@ -42,7 +39,7 @@ const Fieldset = ({
       </legend>
     )}
     {children}
-  </fieldset>
+  </ContainerBox>
 );
 
 export default Fieldset;

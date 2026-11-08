@@ -177,8 +177,8 @@ const CombatTrackerPage = () => {
   return (
     <>
       <div className={styles["combat-tracker"]}>
-        <h1>{translate("title", "combatTracker")}</h1>
         <CombatManager
+          title={translate("title", "combatTracker")}
           ongoingCombat={combat}
           onCombatChange={onCombatChange}
           onCharacterAdded={onCharacterAdded}

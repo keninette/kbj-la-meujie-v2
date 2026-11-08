@@ -536,7 +536,7 @@ describe("EditCharacterForm import from wiki", () => {
     ).toHaveTextContent("2");
     expect(
       screen.getByTestId("actions-list-action").closest("fieldset"),
-    ).toHaveClass("fieldset--highlighted");
+    ).toHaveClass("container-box--highlighted");
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
     expect(onSubmit.mock.calls[0][0].actions).toHaveLength(1);
   });

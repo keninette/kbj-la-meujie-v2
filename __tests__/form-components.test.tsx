@@ -16,13 +16,15 @@ describe("Fieldset", () => {
 
     const group = screen.getByRole("group", { name: "Combat" });
     expect(group).toHaveTextContent("Contenu");
-    expect(group).toHaveClass("fieldset--highlighted");
+    expect(group).toHaveClass("container-box--highlighted");
   });
 
   it("can have no title", () => {
     render(<Fieldset />);
 
-    expect(screen.getByRole("group")).not.toHaveClass("fieldset--highlighted");
+    expect(screen.getByRole("group")).not.toHaveClass(
+      "container-box--highlighted",
+    );
     expect(screen.getByRole("group")).toBeEmptyDOMElement();
   });
 });

@@ -1,0 +1,14 @@
+.container-box {
+  padding: var(--spacing-panel);
+
+  background-color: var(--color-surface--panel);
+  border: none;
+  border-radius: var(--radius--panel);
+  box-shadow: var(--shadow--panel);
+
+  &--highlighted {
+    background-color: var(--color-highlight);
+    outline: 2px solid var(--color-border--dark);
+    outline-offset: -2px;
+  }
+}

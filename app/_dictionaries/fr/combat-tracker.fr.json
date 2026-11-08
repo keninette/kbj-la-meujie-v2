@@ -8,6 +8,7 @@
   "manager.previousPlayer": "Joueur précédent",
   "manager.nextPlayer": "Joueur suivant",
   "manager.turn": "Tour {{turn}}",
+  "manager.currentCharacter": "Au tour de",
   "manager.newCombatConfirmation": "Attention, il y a déjà un combat en cours, continuer ?",
   "manager.stopTitle": "Arrêter le combat",
   "manager.removeAllCharacters": "Supprimer tous les personnages",
