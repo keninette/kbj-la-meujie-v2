@@ -50,6 +50,7 @@
 
   &__hint {
     margin: 0;
+    margin-bottom: var(--spacing-padding--text);
 
     font-size: 0.8rem;
     opacity: 0.8;
@@ -70,9 +71,6 @@
 
     &--all {
       padding-bottom: var(--spacing-padding--button);
-
-      @include mixins.separator--bottom;
-      font-weight: bold;
     }
   }
 
@@ -99,7 +97,5 @@
     gap: var(--spacing-padding--text);
     justify-content: flex-end;
     padding-top: var(--spacing-layout-section-content-margin);
-
-    @include mixins.separator--top;
   }
 }

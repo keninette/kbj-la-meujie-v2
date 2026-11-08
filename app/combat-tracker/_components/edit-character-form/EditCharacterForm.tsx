@@ -22,7 +22,7 @@ import {
   WIKI_FIELD_LABEL_KEYS,
   WikiImportedField,
 } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
-import WikiCharacterDialog from "@/app/combat-tracker/_components/wiki-character-dialog/WikiCharacterDialog";
+import WikiCharacterDialog from "@/app/combat-tracker/_components/edit-character-form/_components/wiki-character-dialog/WikiCharacterDialog";
 import IdentityFieldset from "./_components/IdentityFieldset";
 import CombatFieldset from "./_components/CombatFieldset";
 import SpellSlotsFieldset from "./_components/SpellSlotsFieldset";
@@ -232,6 +232,7 @@ const EditCharacterForm = ({
           initialUrl={wikiUrlGuess}
           onClose={() => setIsWikiDialogOpened(false)}
           onImport={importFromWiki}
+          displayOverrideFields={initialCharacter !== null}
         />
       )}
       <form

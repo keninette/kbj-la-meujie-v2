@@ -35,12 +35,14 @@ type WikiCharacterDialogProps = {
     character: WikiCharacter,
     overrideFields: WikiImportedField[],
   ) => void;
+  displayOverrideFields: boolean;
 };
 
 const WikiCharacterDialog = ({
   onClose,
   initialUrl = "",
   onImport,
+  displayOverrideFields,
 }: WikiCharacterDialogProps) => {
   const [url, setUrl] = useState<string>(initialUrl);
   const [overrideFields, setOverrideFields] = useState<WikiImportedField[]>([]);
@@ -110,47 +112,51 @@ const WikiCharacterDialog = ({
             data-testid="wiki-url"
           />
         </div>
-        <fieldset
-          className={styles["wiki-character-dialog__overrides"]}
-          disabled={isLoading}
-        >
-          <legend className={styles["wiki-character-dialog__label"]}>
-            {translate("wiki.override", "combatTracker")}
-          </legend>
-          <p className={styles["wiki-character-dialog__hint"]}>
-            {translate("wiki.overrideHint", "combatTracker")}
-          </p>
-          <label
-            className={[
-              styles["wiki-character-dialog__checkbox"],
-              styles["wiki-character-dialog__checkbox--all"],
-            ].join(" ")}
+        {displayOverrideFields && (
+          <fieldset
+            className={styles["wiki-character-dialog__overrides"]}
+            disabled={isLoading}
           >
-            <input
-              type="checkbox"
-              checked={areAllFieldsOverridden}
-              onChange={(event) => toggleAllFields(event.target.checked)}
-              data-testid="wiki-override-all"
-            />
-            {translate("wiki.overrideAll", "combatTracker")}
-          </label>
-          <div className={styles["wiki-character-dialog__override-list"]}>
-            {WIKI_IMPORTED_FIELDS.map((field) => (
-              <label
-                key={field}
-                className={styles["wiki-character-dialog__checkbox"]}
-              >
-                <input
-                  type="checkbox"
-                  checked={overrideFields.includes(field)}
-                  onChange={(event) => toggleField(field, event.target.checked)}
-                  data-testid={`wiki-override-${field}`}
-                />
-                {translate(WIKI_FIELD_LABEL_KEYS[field], "combatTracker")}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+            <legend className={styles["wiki-character-dialog__label"]}>
+              {translate("wiki.override", "combatTracker")}
+            </legend>
+            <p className={styles["wiki-character-dialog__hint"]}>
+              {translate("wiki.overrideHint", "combatTracker")}
+            </p>
+            <label
+              className={[
+                styles["wiki-character-dialog__checkbox"],
+                styles["wiki-character-dialog__checkbox--all"],
+              ].join(" ")}
+            >
+              <input
+                type="checkbox"
+                checked={areAllFieldsOverridden}
+                onChange={(event) => toggleAllFields(event.target.checked)}
+                data-testid="wiki-override-all"
+              />
+              {translate("wiki.overrideAll", "combatTracker")}
+            </label>
+            <div className={styles["wiki-character-dialog__override-list"]}>
+              {WIKI_IMPORTED_FIELDS.map((field) => (
+                <label
+                  key={field}
+                  className={styles["wiki-character-dialog__checkbox"]}
+                >
+                  <input
+                    type="checkbox"
+                    checked={overrideFields.includes(field)}
+                    onChange={(event) =>
+                      toggleField(field, event.target.checked)
+                    }
+                    data-testid={`wiki-override-${field}`}
+                  />
+                  {translate(WIKI_FIELD_LABEL_KEYS[field], "combatTracker")}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         {error && (
           <p className={styles["wiki-character-dialog__error"]} role="alert">
             {translate(`wiki.error.${error}`, "combatTracker")}
