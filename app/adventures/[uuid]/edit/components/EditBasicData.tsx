@@ -5,7 +5,7 @@ import { UniverseDto } from "@lib/universe/dtos/universe.dto";
 import styles from "../edit-adventure-page.module.scss";
 import { useState } from "react";
 import BasicDataForm from "@/app/adventures/[uuid]/edit/components/BasicDataForm";
-import CustomDrawer from "@components/drawer/CustomDrawer";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import BasicDataDisplay from "@/app/adventures/[uuid]/edit/components/BasicDataDisplay";
 
 type EditAdventureProps = {

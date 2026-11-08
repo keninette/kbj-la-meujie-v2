@@ -5,7 +5,7 @@ import { Combat } from "@/app/_lib/types/combat.type";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { findCharacterIndexById } from "@/app/_lib/combat/combat.helper";
 import { useState } from "react";
-import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import styles from "./combat-manager.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";

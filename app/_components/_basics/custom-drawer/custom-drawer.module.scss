@@ -20,6 +20,17 @@
     @include mixins.overlay--header;
   }
 
+  &__title-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-padding--text);
+  }
+
+  // On the right, with or without a title
+  &__close {
+    margin-left: auto;
+  }
+
   &__title {
     @include mixins.overlay--title;
   }

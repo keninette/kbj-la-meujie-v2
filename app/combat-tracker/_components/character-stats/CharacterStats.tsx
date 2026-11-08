@@ -6,7 +6,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useState } from "react";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
 import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
-import CustomDrawer from "@/app/_components/drawer/CustomDrawer";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
 import { getMaxAlternativeHp } from "../attack-form/attack-form.helper";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";

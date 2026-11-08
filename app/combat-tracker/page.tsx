@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CharacterList from "./_components/characters-list/CharacterList";
 import styles from "./combat-tracker.module.scss";
 import CharacterStats from "./_components/character-stats/CharacterStats";
-import CustomDrawer from "../_components/drawer/CustomDrawer";
+import CustomDrawer from "../_components/_basics/custom-drawer/CustomDrawer";
 import EditCharacterForm from "./_components/edit-character-form/EditCharacterForm";
 import { clearCombat, loadCombat, saveCombat } from "./_lib/local-storage";
 import CombatManager from "./_components/combat-manager/CombatManager";

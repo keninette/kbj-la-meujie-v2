@@ -19,7 +19,6 @@ import {
 import {
   listUpdatedFields,
   mergeWikiCharacter,
-  WIKI_FIELD_LABEL_KEYS,
   WikiImportedField,
 } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
 import WikiCharacterDialog from "@/app/combat-tracker/_components/edit-character-form/_components/wiki-character-dialog/WikiCharacterDialog";
@@ -217,13 +216,7 @@ const EditCharacterForm = ({
           data-testid="imported-fields"
         >
           {importedFields.length
-            ? translate("form.importedFields", "combatTracker", {
-                fields: importedFields
-                  .map((field) =>
-                    translate(WIKI_FIELD_LABEL_KEYS[field], "combatTracker"),
-                  )
-                  .join(", "),
-              })
+            ? translate("form.importedFields", "combatTracker")
             : translate("form.noImportedFields", "combatTracker")}
         </p>
       )}

@@ -34,7 +34,7 @@
   "form.wikiLink": "Lien du wiki",
   "form.imageUrl": "Portrait (URL)",
   "form.importFromWiki": "Importer depuis le wiki",
-  "form.importedFields": "Mis à jour depuis le wiki : {{fields}}",
+  "form.importedFields": "Mis à jour depuis le wiki",
   "form.noImportedFields": "L'import n'a modifié aucun champ.",
   "form.npc": "PNJ",
   "form.attitude": "Attitude",
