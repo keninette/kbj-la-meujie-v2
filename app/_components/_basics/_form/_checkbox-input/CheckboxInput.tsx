@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import type { InputHTMLAttributes } from "react";
 import styles from "./checkbox-input.module.scss";
 
@@ -16,10 +17,7 @@ const CheckboxInput = ({
   className,
   ...inputProps
 }: CheckboxInputProps) => (
-  <label
-    htmlFor={id}
-    className={[styles["checkbox-input"], className].filter(Boolean).join(" ")}
-  >
+  <label htmlFor={id} className={cx(styles["checkbox-input"], className)}>
     <input
       type="checkbox"
       id={id}

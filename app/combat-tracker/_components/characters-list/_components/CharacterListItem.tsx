@@ -1,12 +1,14 @@
+import { cx } from "@/app/_lib/class-names";
 import styles from "../characters-list.module.scss";
+import KebabMenu, {
+  KebabMenuItem,
+} from "@/app/_components/_basics/_kebab-menu/KebabMenu";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import IconButton from "@/app/_components/_basics/icon-button/IconButton";
-import LinkWithIcon from "@/app/_components/_basics/link-with-icon/LinkWithIcon";
-import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import NpcAttitudeIcon from "@/app/combat-tracker/_components/npc-attitude-icon/NpcAttitudeIcon";
+import { getHpLevel, getHpPercent } from "@/app/combat-tracker/_lib/hp.helper";
+import CharacterAvatar from "./CharacterAvatar";
 
 export type CharacterListAction = "edit" | "deactivate" | "reactivate";
 
@@ -15,6 +17,8 @@ type CharacterListItemProps = {
   allowedActions: CharacterListAction[];
   isIdle?: boolean;
   isSelected?: boolean;
+  /** Shows "play" instead of the initiative of the selected character */
+  isCombatOngoing?: boolean;
   onEdit?: (character: CombatCharacter) => void;
   onDeactivate?: (character: CombatCharacter) => void;
   onReactivate?: (character: CombatCharacter) => void;
@@ -25,91 +29,160 @@ const CharacterListItem = ({
   allowedActions,
   isIdle = false,
   isSelected = false,
+  isCombatOngoing = false,
   onEdit,
   onDeactivate,
   onReactivate,
 }: CharacterListItemProps) => {
+  const hpPercent = Math.min(Math.max(getHpPercent(character), 0), 100);
+
+  const name = (
+    <span className={styles["characters-list__name"]}>
+      {!character.isNpc && (
+        <FontAwesomeIcon
+          faIcon="user"
+          faIconStyle={FaIconStyleEnum.SOLID}
+          tooltip={translate("stats.player", "combatTracker")}
+        />
+      )}
+      <span
+        className={styles["characters-list__name-text"]}
+        title={character.name}
+      >
+        {character.name}
+      </span>
+      {character.isDying && (
+        <FontAwesomeIcon
+          faIcon="hand-holding-heart"
+          faIconStyle={FaIconStyleEnum.SOLID}
+          tooltip={translate("stats.dying", "combatTracker")}
+        />
+      )}
+    </span>
+  );
+
+  const menuItems: KebabMenuItem[] = [
+    ...(character.wikiLink
+      ? [
+          {
+            label: translate("list.wiki", "combatTracker"),
+            faIcon: "arrow-up-right-from-square",
+            href: character.wikiLink,
+            openInNewTab: true,
+            "data-testid": `wiki-link-${character.id}`,
+          },
+        ]
+      : []),
+    ...(allowedActions.includes("edit")
+      ? [
+          {
+            label: translate("list.edit", "combatTracker"),
+            faIcon: "pen",
+            onClick: () => onEdit?.(character),
+            "data-testid": `edit-character-${character.id}`,
+          },
+        ]
+      : []),
+    ...(allowedActions.includes("deactivate")
+      ? [
+          {
+            label: translate("list.deactivate", "combatTracker"),
+            faIcon: "user-minus",
+            onClick: () => onDeactivate?.(character),
+            "data-testid": `deactivate-character-${character.id}`,
+          },
+        ]
+      : []),
+    ...(allowedActions.includes("reactivate")
+      ? [
+          {
+            label: translate("list.reactivate", "combatTracker"),
+            faIcon: "user-plus",
+            onClick: () => onReactivate?.(character),
+            "data-testid": `reactivate-character-${character.id}`,
+          },
+        ]
+      : []),
+  ];
+
+  const menu = menuItems.length > 0 && (
+    <span className={styles["characters-list__actions"]}>
+      <KebabMenu
+        items={menuItems}
+        label={translate("list.actions", "combatTracker", {
+          character: character.name,
+        })}
+        data-testid={`character-menu-${character.id}`}
+      />
+    </span>
+  );
+
+  const stateClasses = [
+    character.isDying && styles["characters-list__item--down"],
+    character.isDead && styles["characters-list__item--dead"],
+  ];
+
+  if (isIdle) {
+    return (
+      <li
+        className={cx(
+          styles["characters-list__item"],
+          styles["characters-list__item--idle"],
+          ...stateClasses,
+        )}
+        data-testid={`character-item-${character.id}`}
+      >
+        <CharacterAvatar character={character} size={32} />
+        {name}
+        {menu}
+      </li>
+    );
+  }
+
   return (
     <li
-      className={isSelected ? styles["characters-list__item--active"] : ""}
+      className={cx(
+        styles["characters-list__card"],
+        isSelected && styles["characters-list__card--current"],
+        ...stateClasses,
+      )}
+      aria-current={isSelected ? "true" : undefined}
       data-testid={`character-item-${character.id}`}
     >
-      <div
-        className={[
-          styles["characters-list__item"],
-          isIdle ? styles["characters-list__item--idle"] : "",
-          character.isDying ? styles["characters-list__item--down"] : "",
-          character.isDead ? styles["characters-list__item--dead"] : "",
-        ].join(" ")}
-      >
-        {character.isDying && (
+      <span className={styles["characters-list__initiative"]}>
+        {isSelected && isCombatOngoing ? (
           <FontAwesomeIcon
-            faIcon="hand-holding-heart"
+            faIcon="play"
             faIconStyle={FaIconStyleEnum.SOLID}
-            tooltip={translate("stats.dying", "combatTracker")}
+            tooltip={translate("list.currentTurn", "combatTracker")}
+            data-testid="current-turn-icon"
           />
+        ) : (
+          character.initiativeScore
         )}
-        {character.isDead && (
-          <FontAwesomeIcon
-            faIcon="skull"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            tooltip={translate("stats.dead", "combatTracker")}
-          />
-        )}
-        {!character.isNpc && (
-          <FontAwesomeIcon
-            faIcon="user"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            tooltip={translate("stats.player", "combatTracker")}
-          />
-        )}
-        {character.isNpc && character.attitude && (
-          <NpcAttitudeIcon attitude={character.attitude} />
-        )}
-        <p>{character.name}</p>
-        {character.wikiLink && (
-          <LinkWithIcon
-            href={character.wikiLink}
-            title={translate("list.wiki", "combatTracker")}
-            faIcon="arrow-up-right-from-square"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            openInNewTab
-            data-testid={`wiki-link-${character.id}`}
-          />
-        )}
-        {allowedActions.includes("edit") && (
-          <IconButton
-            variant={ButtonVariant.TERTIARY}
-            faIcon="pen"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            type="button"
-            tooltip={translate("list.edit", "combatTracker")}
-            onClick={() => onEdit?.(character)}
-          />
-        )}
-        {allowedActions.includes("deactivate") && (
-          <IconButton
-            variant={ButtonVariant.TERTIARY}
-            faIcon="user-minus"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            type="button"
-            tooltip={translate("list.deactivate", "combatTracker")}
-            data-testid={`deactivate-character-${character.id}`}
-            onClick={() => onDeactivate?.(character)}
-          />
-        )}
-        {allowedActions.includes("reactivate") && (
-          <IconButton
-            variant={ButtonVariant.TERTIARY}
-            faIcon="user-plus"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            type="button"
-            tooltip={translate("list.reactivate", "combatTracker")}
-            data-testid={`reactivate-character-${character.id}`}
-            onClick={() => onReactivate?.(character)}
-          />
-        )}
-      </div>
+      </span>
+      <CharacterAvatar character={character} size={32} />
+      <span className={styles["characters-list__card-body"]}>
+        {name}
+        <span className={styles["characters-list__hp"]}>
+          <span className={styles["characters-list__hp-bar"]} aria-hidden>
+            <span
+              className={cx(
+                styles["characters-list__hp-fill"],
+                styles[`characters-list__hp-fill--${getHpLevel(hpPercent)}`],
+              )}
+              style={{ width: `${hpPercent}%` }}
+            />
+          </span>
+          <span
+            title={translate("stats.hp", "combatTracker")}
+            data-testid={`character-hp-${character.id}`}
+          >
+            {character.hp}/{character.maxHp}
+          </span>
+        </span>
+      </span>
+      {menu}
     </li>
   );
 };

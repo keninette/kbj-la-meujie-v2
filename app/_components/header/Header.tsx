@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import styles from "./header.module.scss";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,10 +8,7 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 
 export default function Header() {
   return (
-    <Link
-      href="/"
-      className={[styles["header"], styles["header__link"]].join(" ")}
-    >
+    <Link href="/" className={cx(styles["header"], styles["header__link"])}>
       <div className={styles["header__logo"]}>
         <Image
           src={dog}

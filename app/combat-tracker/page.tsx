@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import CharacterList from "./_components/characters-list/CharacterList";
 import styles from "./combat-tracker.module.scss";
 import CharacterStats from "./_components/character-stats/CharacterStats";
@@ -27,6 +28,13 @@ const CombatTrackerPage = () => {
   const selectedCharacter =
     combat?.characters?.[combat.selectedCharacterIndex] ?? null;
   const idleCharacters = combat?.idleCharacters ?? [];
+  const aliveCharacters = (combat?.characters ?? []).filter(
+    (character) => !character.isDead,
+  );
+  const deadCharacters = (combat?.characters ?? []).filter(
+    (character) => character.isDead,
+  );
+  const isCombatOngoing = combat?.status === CombatStatusEnum.ONGOING;
 
   const onCombatChange = (nextCombat: Combat | null) => {
     if (!nextCombat) {
@@ -98,7 +106,7 @@ const CombatTrackerPage = () => {
         ? findCharacterIndexById(characters, selectedId)
         : -1;
 
-      return {
+      return normalizeCombat({
         ...previousCombat,
         characters,
         idleCharacters: [...(previousCombat.idleCharacters ?? []), character],
@@ -109,7 +117,7 @@ const CombatTrackerPage = () => {
                 previousCombat.selectedCharacterIndex,
                 Math.max(characters.length - 1, 0),
               ),
-      };
+      });
     });
   };
 
@@ -176,7 +184,7 @@ const CombatTrackerPage = () => {
 
   return (
     <>
-      <div className={styles["combat-tracker"]}>
+      <div className={styles["combat-tracker"]} data-fit-viewport>
         <CombatManager
           title={translate("title", "combatTracker")}
           ongoingCombat={combat}
@@ -184,26 +192,40 @@ const CombatTrackerPage = () => {
           onCharacterAdded={onCharacterAdded}
         />
         <div className={styles["combat-tracker__container"]}>
-          <div className={styles["combat-tracker__container__left"]}>
-            {(combat?.characters.length ?? 0) > 0 && (
+          <ContainerBox
+            as="section"
+            className={styles["combat-tracker__container__left"]}
+          >
+            {aliveCharacters.length > 0 && (
               <CharacterList
                 title={translate("list.active", "combatTracker")}
-                titleIcon={
-                  combat?.status === CombatStatusEnum.ONGOING
-                    ? "play"
-                    : undefined
-                }
-                characters={combat?.characters ?? []}
+                titleIcon={isCombatOngoing ? "play" : undefined}
+                characters={aliveCharacters}
                 allowedActions={["edit", "deactivate"]}
                 selectedCharacter={selectedCharacter}
+                isCombatOngoing={isCombatOngoing}
                 onEdit={handleCharacterClick}
                 onDeactivate={onCharacterDeactivated}
+              />
+            )}
+            {deadCharacters.length > 0 && (
+              <CharacterList
+                title={translate("list.dead", "combatTracker")}
+                titleIcon="cross"
+                characters={deadCharacters}
+                allowedActions={["edit", "deactivate"]}
+                selectedCharacter={selectedCharacter}
+                isCombatOngoing={isCombatOngoing}
+                isTitleMuted
+                onEdit={handleCharacterClick}
+                onDeactivate={onCharacterDeactivated}
+                data-testid="dead-characters-list"
               />
             )}
             {idleCharacters.length > 0 && (
               <CharacterList
                 title={translate("list.idle", "combatTracker")}
-                titleIcon="couch"
+                titleIcon="pause"
                 characters={idleCharacters}
                 allowedActions={["edit", "reactivate"]}
                 isIdle
@@ -211,7 +233,7 @@ const CombatTrackerPage = () => {
                 onReactivate={onCharacterReactivated}
               />
             )}
-          </div>
+          </ContainerBox>
           {selectedCharacter && combat && (
             <div className={styles["combat-tracker__container__right"]}>
               <CharacterStats

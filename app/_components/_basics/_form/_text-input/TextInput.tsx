@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import type { InputHTMLAttributes, ReactNode } from "react";
 import styles from "./text-input.module.scss";
 
@@ -33,9 +34,7 @@ const TextInput = ({
   );
 
   return (
-    <div
-      className={[styles["text-input"], className].filter(Boolean).join(" ")}
-    >
+    <div className={cx(styles["text-input"], className)}>
       <label htmlFor={id} className={styles["text-input__label"]}>
         {label}
       </label>

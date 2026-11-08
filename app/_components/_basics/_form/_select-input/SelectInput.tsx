@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import type { ReactNode, SelectHTMLAttributes } from "react";
 import styles from "./select-input.module.scss";
 
@@ -19,9 +20,7 @@ const SelectInput = ({
   children,
   ...selectProps
 }: SelectInputProps) => (
-  <div
-    className={[styles["select-input"], className].filter(Boolean).join(" ")}
-  >
+  <div className={cx(styles["select-input"], className)}>
     <label htmlFor={id} className={styles["select-input__label"]}>
       {label}
     </label>

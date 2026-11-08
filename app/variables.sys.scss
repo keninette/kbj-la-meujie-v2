@@ -2,6 +2,9 @@
 
 :root {
   --button-height--regular: 1.7rem;
+  --list-line-height: 3rem;
+  --scrollbar-width: 8px;
+  --scrollbar-gap: 4px;
 
   --color-background-gradient--borders: var(--color-default-blue--light);
   --color-background-gradient--center: var(--color-default-pink--light);
@@ -33,13 +36,19 @@
   --color-info-opposite: var(--color-default-white);
   --color-link: var(--color-default-purple--primary);
   --color-picture-frame: var(--color-default-pink--light);
+  --color-scrollbar: var(--color-default-grey--light-medium);
+  --color-scrollbar--hover: var(--color-default-blue--light);
   --color-text--dark: var(--color-default-grey--dark);
   --color-text--light: var(--color-default-white);
   --color-border--light: var(--color-default-pink--light);
-  --color-border--dark: var(--color-default-purple--primary);
+  --color-border--dark: var(--color-default-blue--primary);
   --color-separator: var(--color-default-grey--dark);
   --color-surface--panel: var(--color-default-white--translucent);
   --color-surface--field: var(--color-default-white);
+  --color-surface--card: var(--color-default-white);
+  --color-hp--high: var(--color-default-green--primary);
+  --color-hp--medium: var(--color-default-orange--primary);
+  --color-hp--low: var(--color-default-red--primary);
   --color-text--muted: var(--color-default-grey--medium);
 
   --font-size--title: var(--font-size--l);
@@ -47,6 +56,7 @@
   --font-size--section-title: var(--font-size--m);
   --font-size--section-content-title: var(--font-size--s);
   --font-size--caption: var(--font-size--xs);
+  --font-size--icon-small: var(--font-size--xxs);
 
   --font-weight--title: var(--font-weight--light);
   --font-weight--subtitle: var(--font-weight--regular);
@@ -63,6 +73,7 @@
   --radius--field: var(--radius--s);
 
   --shadow--panel: var(--shadow--s);
+  --shadow--card: var(--shadow--s);
 
   --spacing-layout-section: var(--spacing--l);
   --spacing-layout-section-margin: var(--spacing--s);

@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
@@ -5,7 +6,10 @@ import { Combat } from "@/app/_lib/types/combat.type";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import {
   findCharacterIndexById,
+  getFirstTurnPosition,
+  getNextTurnPosition,
   getOngoingTurn,
+  getPreviousTurnPosition,
 } from "@/app/_lib/combat/combat.helper";
 import { useState } from "react";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
@@ -45,10 +49,7 @@ const CombatManager = ({
     null,
   );
   const displayPreviousPlayerButton =
-    ongoingCombat &&
-    (ongoingCombat.currentTurn > 1 ||
-      (ongoingCombat.currentTurn === 1 &&
-        ongoingCombat.selectedCharacterIndex > 0));
+    !!ongoingCombat && getPreviousTurnPosition(ongoingCombat) !== null;
 
   const createNewCombat = () => {
     if (ongoingCombat) {
@@ -76,8 +77,7 @@ const CombatManager = ({
     onCombatChange({
       ...ongoingCombat,
       status: CombatStatusEnum.ONGOING,
-      currentTurn: 1,
-      selectedCharacterIndex: 0,
+      ...getFirstTurnPosition(ongoingCombat.characters),
       history: [],
     });
   };
@@ -100,58 +100,19 @@ const CombatManager = ({
     onCombatChange({ ...ongoingCombat, characters: updatedCharacters });
   };
 
+  // Dead characters are skipped (see combat.helper)
   const selectPreviousCharacter = () => {
-    if (ongoingCombat === null || ongoingCombat?.characters.length === 0) {
-      return;
+    const position = ongoingCombat && getPreviousTurnPosition(ongoingCombat);
+    if (ongoingCombat && position) {
+      onCombatChange({ ...ongoingCombat, ...position });
     }
-
-    // if selected character was the first one, go back to last turn, except if we're still in turn one
-    if (!ongoingCombat) {
-      return;
-    }
-
-    const goBackToPreviousTurn =
-      ongoingCombat.selectedCharacterIndex === 0 &&
-      ongoingCombat.currentTurn > 1;
-    const previousCharacterIndex =
-      ongoingCombat.selectedCharacterIndex === 0
-        ? ongoingCombat.selectedCharacterIndex
-        : ongoingCombat.selectedCharacterIndex - 1;
-
-    onCombatChange({
-      ...ongoingCombat,
-      selectedCharacterIndex: goBackToPreviousTurn
-        ? ongoingCombat.characters.length - 1
-        : previousCharacterIndex,
-      currentTurn: goBackToPreviousTurn
-        ? ongoingCombat.currentTurn - 1
-        : ongoingCombat.currentTurn,
-    });
   };
 
   const selectNextCharacter = () => {
-    if (ongoingCombat === null || ongoingCombat?.characters.length === 0) {
-      return;
+    const position = ongoingCombat && getNextTurnPosition(ongoingCombat);
+    if (ongoingCombat && position) {
+      onCombatChange({ ...ongoingCombat, ...position });
     }
-
-    // if selected character was the last one, start from first character again and add one turn
-    if (!ongoingCombat) {
-      return;
-    }
-
-    const goToNextTurn =
-      ongoingCombat.selectedCharacterIndex ===
-      ongoingCombat.characters.length - 1;
-
-    onCombatChange({
-      ...ongoingCombat,
-      selectedCharacterIndex: goToNextTurn
-        ? 0
-        : ongoingCombat.selectedCharacterIndex + 1,
-      currentTurn: goToNextTurn
-        ? ongoingCombat.currentTurn + 1
-        : ongoingCombat.currentTurn,
-    });
   };
 
   const stopCombat = (removeAllCharacters: boolean) => {
@@ -186,10 +147,10 @@ const CombatManager = ({
   return (
     <div className={styles["combat-manager"]}>
       <div
-        className={[
+        className={cx(
           styles["combat-manager__line"],
           styles["combat-manager__line--header"],
-        ].join(" ")}
+        )}
       >
         <h1 className={styles["combat-manager__title"]}>{title}</h1>
         <div className={styles["combat-manager__actions"]}>

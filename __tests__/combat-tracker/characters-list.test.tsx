@@ -27,6 +27,14 @@ const renderPageWithCharacters = async () => {
   return view;
 };
 
+// The actions of a character are in its kebab menu
+const openMenu = (characterId: string) =>
+  fireEvent.click(screen.getByTestId(`character-menu-${characterId}`));
+const clickMenuItem = (characterId: string, itemTestId: string) => {
+  openMenu(characterId);
+  fireEvent.click(screen.getByTestId(itemTestId));
+};
+
 const activeList = () => screen.getByTestId("active-characters-list");
 const idleList = () => screen.queryByTestId("idle-characters-list");
 
@@ -50,7 +58,7 @@ describe("CharacterList active and idle characters", () => {
   it("moves a character from the active list to the idle list when deactivated", async () => {
     await renderPageWithCharacters();
 
-    fireEvent.click(screen.getByTestId("deactivate-character-legolas"));
+    clickMenuItem("legolas", "deactivate-character-legolas");
 
     expect(
       within(activeList()).queryByTestId("character-item-legolas"),
@@ -65,11 +73,22 @@ describe("CharacterList active and idle characters", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the initial of an inactive character without picture", async () => {
+    await renderPageWithCharacters();
+
+    clickMenuItem("legolas", "deactivate-character-legolas");
+
+    expect(
+      within(screen.getByTestId("idle-characters-list")).getByText("L"),
+    ).toBeInTheDocument();
+    expect(within(activeList()).getByText("A")).toBeInTheDocument();
+  });
+
   it("moves a character back to the active list when reactivated", async () => {
     await renderPageWithCharacters();
-    fireEvent.click(screen.getByTestId("deactivate-character-legolas"));
+    clickMenuItem("legolas", "deactivate-character-legolas");
 
-    fireEvent.click(screen.getByTestId("reactivate-character-legolas"));
+    clickMenuItem("legolas", "reactivate-character-legolas");
 
     expect(
       within(activeList()).getByTestId("character-item-legolas"),
@@ -80,13 +99,13 @@ describe("CharacterList active and idle characters", () => {
   it("selects the next active character when the selected one is deactivated", async () => {
     await renderPageWithCharacters();
     expect(screen.getByTestId("character-item-aragorn")).toHaveClass(
-      "characters-list__item--active",
+      "characters-list__card--current",
     );
 
-    fireEvent.click(screen.getByTestId("deactivate-character-aragorn"));
+    clickMenuItem("aragorn", "deactivate-character-aragorn");
 
     expect(screen.getByTestId("character-item-legolas")).toHaveClass(
-      "characters-list__item--active",
+      "characters-list__card--current",
     );
   });
 
@@ -120,7 +139,8 @@ describe("CharacterList active and idle characters", () => {
     });
     render(<CombatTrackerPage />);
 
-    fireEvent.click(await screen.findByTestId("reactivate-character-aragorn"));
+    await screen.findByTestId("character-menu-aragorn");
+    clickMenuItem("aragorn", "reactivate-character-aragorn");
 
     const ids = within(activeList())
       .getAllByTestId(/^character-item-/)
@@ -130,7 +150,7 @@ describe("CharacterList active and idle characters", () => {
 
   it("keeps a deactivated character idle after a page reload", async () => {
     const { unmount } = await renderPageWithCharacters();
-    fireEvent.click(screen.getByTestId("deactivate-character-legolas"));
+    clickMenuItem("legolas", "deactivate-character-legolas");
     unmount();
 
     render(<CombatTrackerPage />);
@@ -160,18 +180,18 @@ describe("CharacterList wiki link", () => {
     );
     render(<CombatTrackerPage />);
 
-    const link = await screen.findByTestId("wiki-link-kagha");
+    await screen.findByTestId("character-menu-kagha");
+    openMenu("kagha");
+    const link = screen.getByTestId("wiki-link-kagha");
     expect(link).toHaveAttribute("href", "https://bg3.wiki/wiki/Kagha");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    // Icon only: the title is the tooltip and the accessible name
-    expect(link).toHaveAttribute("title", "list.wiki");
-    expect(link).toHaveAccessibleName("list.wiki");
-    expect(link).toHaveTextContent("");
+    expect(link).toHaveTextContent("list.wiki");
   });
 
   it("does not display the wiki link when the character has none", async () => {
     await renderPageWithCharacters();
+    openMenu("aragorn");
 
     expect(screen.queryByTestId("wiki-link-aragorn")).not.toBeInTheDocument();
   });
@@ -199,5 +219,181 @@ describe("Combat turn box", () => {
     expect(
       within(screen.getByTestId("combat-turn")).getByText("Legolas"),
     ).toBeInTheDocument();
+  });
+});
+
+describe("CharacterList active character cards", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the initiative, the hit points and the wiki link", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "aragorn",
+          initiativeScore: 15,
+          hp: 27,
+          maxHp: 31,
+          wikiLink: "https://bg3.wiki/wiki/Aragorn",
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    const card = await screen.findByTestId("character-item-aragorn");
+    expect(within(card).getByText("15")).toBeInTheDocument();
+    expect(within(card).getByTestId("character-hp-aragorn")).toHaveTextContent(
+      "27/31",
+    );
+    // The menu is drawn over the page, outside of the card
+    openMenu("aragorn");
+    expect(screen.getByTestId("wiki-link-aragorn")).toBeInTheDocument();
+    expect(screen.getByTestId("edit-character-aragorn")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("deactivate-character-aragorn"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows play instead of the initiative of the current character", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 1,
+    });
+    render(<CombatTrackerPage />);
+
+    const current = await screen.findByTestId("character-item-aragorn");
+    expect(current).toHaveAttribute("aria-current", "true");
+    expect(
+      within(current).getByTestId("current-turn-icon"),
+    ).toBeInTheDocument();
+    expect(within(current).queryByText("15")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("character-item-legolas")).getByText("10"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the initiative of everyone before the combat starts", async () => {
+    await renderPageWithCharacters();
+
+    expect(screen.queryByTestId("current-turn-icon")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("character-item-aragorn")).getByText("15"),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("CharacterList dead characters", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  const boromir = buildCharacter({
+    id: "boromir",
+    name: "Boromir",
+    initiativeScore: 12,
+    hp: 0,
+    isDead: true,
+  });
+
+  it("lists dead characters apart, between active and inactive ones", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      idleCharacters: [buildCharacter({ id: "gandalf", name: "Gandalf" })],
+    });
+    render(<CombatTrackerPage />);
+
+    const deadList = await screen.findByTestId("dead-characters-list");
+    expect(
+      within(deadList).getByTestId("character-item-boromir"),
+    ).toBeInTheDocument();
+    expect(
+      within(activeList()).queryByTestId("character-item-boromir"),
+    ).not.toBeInTheDocument();
+
+    const sections = screen
+      .getAllByTestId(/-characters-list$/)
+      .map((section) => section.getAttribute("data-testid"));
+    expect(sections).toEqual([
+      "active-characters-list",
+      "dead-characters-list",
+      "idle-characters-list",
+    ]);
+  });
+
+  it("has no dead section when nobody is dead", async () => {
+    await renderPageWithCharacters();
+
+    expect(
+      screen.queryByTestId("dead-characters-list"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("passes the turn of a dead character to the next one who can play", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 1,
+      selectedCharacterIndex: 1,
+    });
+    render(<CombatTrackerPage />);
+
+    expect(await screen.findByTestId("character-item-legolas")).toHaveClass(
+      "characters-list__card--current",
+    );
+    expect(screen.getByTestId("character-item-boromir")).not.toHaveClass(
+      "characters-list__card--current",
+    );
+  });
+
+  it("does not give the turn to a dead character after a deactivation", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 1,
+    });
+    render(<CombatTrackerPage />);
+    await screen.findByTestId("character-item-aragorn");
+
+    clickMenuItem("aragorn", "deactivate-character-aragorn");
+
+    expect(screen.getByTestId("character-item-legolas")).toHaveClass(
+      "characters-list__card--current",
+    );
+  });
+
+  it("skips dead characters when going to the next player", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 1,
+    });
+    render(<CombatTrackerPage />);
+
+    fireEvent.click(
+      within(await screen.findByTestId("combat-turn")).getByText(
+        "manager.nextPlayer",
+      ),
+    );
+
+    expect(screen.getByTestId("character-item-legolas")).toHaveClass(
+      "characters-list__card--current",
+    );
+  });
+});
+
+describe("CharacterList long names", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the full name as a tooltip, as it may be cut", async () => {
+    const name = "Gnoll Flind of the Shattered Sanctum";
+    saveCombat(buildCombat([buildCharacter({ id: "gnoll", name })]));
+    render(<CombatTrackerPage />);
+
+    const card = await screen.findByTestId("character-item-gnoll");
+    expect(within(card).getByText(name)).toHaveAttribute("title", name);
   });
 });

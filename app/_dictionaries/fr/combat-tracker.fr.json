@@ -122,8 +122,11 @@
   "stats.saveDc": "DD",
   "list.edit": "Éditer",
   "list.wiki": "Voir la page du wiki",
-  "list.active": "Personnages actifs",
-  "list.idle": "Personnages inactifs",
+  "list.active": "Ordre d'initiative",
+  "list.idle": "Inactifs",
+  "list.dead": "Morts",
   "list.deactivate": "Désactiver",
-  "list.reactivate": "Réactiver"
+  "list.reactivate": "Réactiver",
+  "list.currentTurn": "Son tour",
+  "list.actions": "Actions de {{character}}"
 }

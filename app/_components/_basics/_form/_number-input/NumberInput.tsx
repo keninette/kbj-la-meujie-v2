@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import type { InputHTMLAttributes } from "react";
 import styles from "./number-input.module.scss";
 
@@ -17,9 +18,7 @@ const NumberInput = ({
   className,
   ...inputProps
 }: NumberInputProps) => (
-  <div
-    className={[styles["number-input"], className].filter(Boolean).join(" ")}
-  >
+  <div className={cx(styles["number-input"], className)}>
     <label htmlFor={id} className={styles["number-input__label"]}>
       {label}
     </label>

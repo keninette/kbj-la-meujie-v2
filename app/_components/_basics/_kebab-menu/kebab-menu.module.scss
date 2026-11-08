@@ -1,0 +1,42 @@
+.kebab-menu {
+  // Small ⋮ icon, no frame
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-padding--button);
+
+    background: transparent;
+    border: none;
+    border-radius: var(--radius--button);
+    color: var(--color-button-text--secondary);
+    cursor: pointer;
+    font-size: var(--font-size--icon-small);
+    line-height: 1;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-border--dark);
+    }
+  }
+
+  // !important: MUI injects its styles after the CSS modules
+  &__paper {
+    background-color: var(--color-dropdown) !important;
+    border-radius: var(--radius--panel) !important;
+    box-shadow: var(--shadow--panel) !important;
+    color: var(--color-dropdown-text) !important;
+  }
+
+  &__item {
+    gap: var(--spacing-padding--text);
+    color: inherit !important;
+    font: inherit !important;
+    font-size: var(--font-size--caption) !important;
+    min-height: auto !important;
+  }
+
+  &__icon {
+    width: 1rem;
+    text-align: center;
+  }
+}

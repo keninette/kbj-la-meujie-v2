@@ -1,5 +1,8 @@
 import {
+  getFirstTurnPosition,
+  getNextTurnPosition,
   getOngoingTurn,
+  getPreviousTurnPosition,
   normalizeCombat,
 } from "@/app/_lib/combat/combat.helper";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
@@ -69,5 +72,93 @@ describe("getOngoingTurn", () => {
       getOngoingTurn({ status: CombatStatusEnum.PREPARING, currentTurn: 1 }),
     ).toBeUndefined();
     expect(getOngoingTurn(null)).toBeUndefined();
+  });
+});
+
+describe("turn order without the dead", () => {
+  // Initiative order: alive, dead, alive, dead
+  const characters = [
+    buildCharacter({ id: "a" }),
+    buildCharacter({ id: "dead-1", isDead: true }),
+    buildCharacter({ id: "c" }),
+    buildCharacter({ id: "dead-2", isDead: true }),
+  ];
+  const at = (selectedCharacterIndex: number, currentTurn: number) => ({
+    characters,
+    selectedCharacterIndex,
+    currentTurn,
+  });
+
+  it("starts with the first character who can play", () => {
+    const deadFirst = [characters[1], characters[0]];
+    expect(getFirstTurnPosition(deadFirst)).toEqual({
+      selectedCharacterIndex: 1,
+      currentTurn: 1,
+    });
+  });
+
+  it("skips the dead to the next one, and the next turn at the end", () => {
+    expect(getNextTurnPosition(at(0, 1))).toEqual({
+      selectedCharacterIndex: 2,
+      currentTurn: 1,
+    });
+    expect(getNextTurnPosition(at(2, 1))).toEqual({
+      selectedCharacterIndex: 0,
+      currentTurn: 2,
+    });
+  });
+
+  it("skips the dead to the previous one, and the previous turn at the top", () => {
+    expect(getPreviousTurnPosition(at(2, 1))).toEqual({
+      selectedCharacterIndex: 0,
+      currentTurn: 1,
+    });
+    expect(getPreviousTurnPosition(at(0, 2))).toEqual({
+      selectedCharacterIndex: 2,
+      currentTurn: 1,
+    });
+  });
+
+  it("has no previous one at the start of the combat", () => {
+    expect(getPreviousTurnPosition(at(0, 1))).toBeNull();
+  });
+
+  it("stays put when everyone is dead", () => {
+    const allDead = {
+      characters: [characters[1], characters[3]],
+      selectedCharacterIndex: 0,
+      currentTurn: 2,
+    };
+    expect(getNextTurnPosition(allDead)).toBeNull();
+    expect(getPreviousTurnPosition(allDead)).toBeNull();
+  });
+});
+
+describe("normalizeCombat and the dead", () => {
+  const characters = [
+    buildCharacter({ id: "a", initiativeScore: 20 }),
+    buildCharacter({ id: "dead", initiativeScore: 15, isDead: true }),
+    buildCharacter({ id: "c", initiativeScore: 10 }),
+  ];
+
+  it("passes the turn of a dead character during the combat", () => {
+    const combat = normalizeCombat({
+      ...buildCombat(characters),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 2,
+      selectedCharacterIndex: 1,
+    });
+
+    expect(combat?.selectedCharacterIndex).toBe(2);
+    expect(combat?.currentTurn).toBe(2);
+  });
+
+  it("leaves the selection alone while preparing the combat", () => {
+    const combat = normalizeCombat({
+      ...buildCombat(characters),
+      selectedCharacterIndex: 1,
+    });
+
+    expect(combat?.selectedCharacterIndex).toBe(1);
   });
 });
