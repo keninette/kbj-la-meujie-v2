@@ -1,3 +1,4 @@
+import { AbilityEnum } from "../enums/ability.enum";
 import { NpcAttitudeEnum } from "../enums/npc-attitude.enum";
 import { CombatAction } from "./combat-action.type";
 import { CombatState } from "./combat-state.type";
@@ -23,6 +24,12 @@ export type CombatCharacter = {
   deathSaveThrowsLeft: number;
   ac: number;
   initiativeScore: number;
+  /** In meters */
+  movement?: number;
+  /** Scores (e.g. 16), the modifiers are computed from them */
+  abilities?: Partial<Record<AbilityEnum, number>>;
+  /** Modifiers (e.g. 5), proficiency included */
+  savingThrows?: Partial<Record<AbilityEnum, number>>;
   spellSlotsLeft?: Record<string, number>;
   states?: CombatState[];
   passives?: string[];

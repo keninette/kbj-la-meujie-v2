@@ -110,10 +110,11 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     letter-spacing: var(--letter-spacing--s);
   }
 
-  // Hit points over two columns, then armor class and initiative
+  // Hit points over two columns, then armor class, initiative and movement.
+  // The abilities below, on the whole width
   &__tiles {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: var(--spacing-padding--text);
   }
 
@@ -140,6 +141,45 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
 
   &__tile-icon {
     color: var(--color-link);
+  }
+
+  &__abilities-tile {
+    grid-column: 1 / -1;
+  }
+
+  // Row titles, then one column per ability
+  &__abilities {
+    display: grid;
+    grid-template-columns: auto repeat(
+        var(--abilities-count, 6),
+        minmax(0, 1fr)
+      );
+    align-items: baseline;
+    justify-items: center;
+    gap: var(--spacing--xxs) var(--spacing-padding--text);
+  }
+
+  // Same style as the abilities names, on the left
+  &__abilities-row-title {
+    justify-self: start;
+  }
+
+  &__ability-name {
+    color: var(--color-text--muted);
+    font-size: var(--font-size--caption-small);
+    letter-spacing: var(--letter-spacing--section-subtitle);
+    text-decoration: none;
+    cursor: help;
+  }
+
+  &__ability-modifier {
+    font-size: var(--font-size--section-title);
+    font-weight: var(--font-weight--title);
+  }
+
+  &__saving-throw {
+    color: var(--color-text--muted);
+    font-size: var(--font-size--caption);
   }
 
   &__initial {

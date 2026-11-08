@@ -518,3 +518,54 @@ describe("CharacterStats tiles", () => {
     );
   });
 });
+
+describe("CharacterStats abilities", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the movement, the ability modifiers and the saving throws", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "druid",
+          movement: 9,
+          abilities: { str: 16, dex: 9 },
+          savingThrows: { str: 5 },
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    expect(await screen.findByTestId("movement-tile")).toBeInTheDocument();
+    expect(screen.getByTestId("ability-str")).toHaveTextContent("+3");
+    expect(screen.getByTestId("saving-throw-str")).toHaveTextContent("+5");
+    expect(screen.getByTestId("ability-dex")).toHaveTextContent("−1");
+    expect(screen.getByTestId("saving-throw-dex")).toBeEmptyDOMElement();
+    expect(screen.getByTestId("abilities-tile")).toHaveTextContent(
+      "stats.savingThrows",
+    );
+    expect(screen.queryByTestId("ability-con")).not.toBeInTheDocument();
+  });
+
+  it("shows nothing when they are unknown", async () => {
+    saveCombat(buildCombat([buildCharacter({ id: "fighter" })]));
+    render(<CombatTrackerPage />);
+
+    await screen.findByTestId("ac-tile");
+    expect(screen.queryByTestId("movement-tile")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("abilities-tile")).not.toBeInTheDocument();
+  });
+
+  it("hides the saving throws row when there are none", async () => {
+    saveCombat(
+      buildCombat([buildCharacter({ id: "fighter", abilities: { str: 16 } })]),
+    );
+    render(<CombatTrackerPage />);
+
+    expect(await screen.findByTestId("abilities-tile")).not.toHaveTextContent(
+      "stats.savingThrows",
+    );
+    expect(screen.queryByTestId("saving-throw-str")).not.toBeInTheDocument();
+  });
+});

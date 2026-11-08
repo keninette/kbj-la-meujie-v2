@@ -1,6 +1,11 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import { BG3_WIKI_HOST } from "./bg3-wiki.images";
+import { ABILITIES, AbilityEnum } from "@/app/_lib/enums/ability.enum";
+import {
+  getAbilityModifier,
+  getProficiencyBonus,
+} from "@/app/combat-tracker/_lib/ability.helper";
 
 export { BG3_WIKI_HOST, isBg3WikiImage } from "./bg3-wiki.images";
 
@@ -289,6 +294,43 @@ export const buildWikiLink = (pageTitle: string): string => {
   return `https://${BG3_WIKI_HOST}/wiki/${path}`;
 };
 
+/** "str = 16, dex = 12..." -> { str: 16, dex: 12 }, missing ones are skipped */
+export const parseAbilities = (
+  get: (field: string) => string | undefined,
+): Partial<Record<AbilityEnum, number>> =>
+  Object.fromEntries(
+    ABILITIES.filter((ability) => toNumber(get(ability)) > 0).map((ability) => [
+      ability,
+      toNumber(get(ability)),
+    ]),
+  );
+
+/**
+ * Ability modifier, plus the proficiency bonus for "int save prof = Yes".
+ * Needs the level (for the bonus) and at least one proficiency: otherwise
+ * the saves would only repeat the ability modifiers.
+ */
+export const parseSavingThrows = (
+  get: (field: string) => string | undefined,
+  abilities: Partial<Record<AbilityEnum, number>>,
+): Partial<Record<AbilityEnum, number>> => {
+  const level = toNumber(get("level"));
+  const isProficient = (ability: AbilityEnum) =>
+    get(`${ability} save prof`)?.toLowerCase() === "yes";
+  if (!level || !ABILITIES.some(isProficient)) {
+    return {};
+  }
+
+  const bonus = getProficiencyBonus(level);
+  return Object.fromEntries(
+    Object.entries(abilities).map(([ability, score]) => [
+      ability,
+      getAbilityModifier(score) +
+        (isProficient(ability as AbilityEnum) ? bonus : 0),
+    ]),
+  );
+};
+
 /**
  * "subrace (or race) class level N", missing parts are skipped:
  * subrace "Wood elf", race "Elf", class "Druid", level "5"
@@ -325,6 +367,9 @@ export const buildCharacterFromInfobox = (
     ...splitList(get("passives")),
     ...splitList(get("resistances")),
   ];
+  const movement = toNumber(get("movement m"));
+  const abilities = parseAbilities(get);
+  const savingThrows = parseSavingThrows(get, abilities);
 
   return {
     name: get("name") || pageTitle.replaceAll("_", " "),
@@ -340,6 +385,9 @@ export const buildCharacterFromInfobox = (
     ac: toNumber(get("ac")),
     // Rolled manually by the game master
     initiativeScore: 0,
+    ...(movement ? { movement } : {}),
+    ...(Object.keys(abilities).length ? { abilities } : {}),
+    ...(Object.keys(savingThrows).length ? { savingThrows } : {}),
     ...(Object.keys(spellSlotsLeft).length ? { spellSlotsLeft } : {}),
     ...(passives.length ? { passives } : {}),
     ...(actions.length ? { actions } : {}),
