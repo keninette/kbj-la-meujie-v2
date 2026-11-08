@@ -1,4 +1,6 @@
 import {
+  applyAttackFormValues,
+  AttackFormValues,
   applyDamageToCharacter,
   applyHealToCharacter,
   resetRevivedCharacter,
@@ -139,5 +141,49 @@ describe("resetRevivedCharacter", () => {
       states: [],
     });
     expect(character.states).toHaveLength(1);
+  });
+});
+
+describe("applyAttackFormValues inflicted state", () => {
+  const values: AttackFormValues = {
+    attackTargetId: "",
+    attackDamage: 0,
+    healTargetId: "",
+    healAmount: 0,
+    spellUsedName: "",
+    spellUsedLevel: null,
+    inflictedStateTargetId: "goblin",
+    inflictedStateName: "Poisoned",
+    inflictedStateDuration: 3,
+    inflictedStateSaveThrowStat: "",
+    inflictedStateSaveThrowDc: null,
+    reviveTargetId: "",
+    reanimateTargetId: "",
+  };
+  const characters = [buildCharacter({ id: "goblin", states: [] })];
+
+  it("stores the turn the state was applied on", () => {
+    const { characters: updated } = applyAttackFormValues(
+      characters,
+      "goblin",
+      values,
+      () => "state-1",
+      2,
+    );
+
+    expect(updated[0].states).toEqual([
+      { id: "state-1", name: "Poisoned", numberOfTurns: 3, appliedOnTurn: 2 },
+    ]);
+  });
+
+  it("has no applied turn outside of a combat", () => {
+    const { characters: updated } = applyAttackFormValues(
+      characters,
+      "goblin",
+      values,
+      () => "state-1",
+    );
+
+    expect(updated[0].states?.[0].appliedOnTurn).toBeUndefined();
   });
 });

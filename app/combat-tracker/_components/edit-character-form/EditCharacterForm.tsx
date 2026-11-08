@@ -36,6 +36,7 @@ type EditCharacterFormProps = {
   /** Saves the character, and keeps the form open and empty for the next
    * one. The "save and restart" button is shown only when this is given. */
   onSaveAndRestart?: (character: CombatCharacter) => void;
+  currentTurn?: number;
 };
 
 const createEmptyCharacter = (): CombatCharacter => ({
@@ -55,6 +56,7 @@ const EditCharacterForm = ({
   initialCharacter,
   onSubmit,
   onSaveAndRestart,
+  currentTurn,
 }: EditCharacterFormProps) => {
   const [character, setCharacter] = useState<CombatCharacter | null>(
     initialCharacter,
@@ -279,6 +281,7 @@ const EditCharacterForm = ({
         <StatesFieldset
           states={character?.states ?? []}
           onChange={(states) => updateCharacter({ states })}
+          currentTurn={currentTurn}
         />
         <div className={styles["edit-character-form__footer"]}>
           {onSaveAndRestart && (

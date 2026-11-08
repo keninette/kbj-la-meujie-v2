@@ -23,6 +23,8 @@ const isCombatState = (value: unknown): value is CombatState => {
     typeof value.name === "string" &&
     (value.numberOfTurns === undefined ||
       typeof value.numberOfTurns === "number") &&
+    (value.appliedOnTurn === undefined ||
+      typeof value.appliedOnTurn === "number") &&
     (value.saveThrowStat === undefined ||
       typeof value.saveThrowStat === "string") &&
     (value.saveThrowDc === undefined || typeof value.saveThrowDc === "number")

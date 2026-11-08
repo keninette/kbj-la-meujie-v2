@@ -220,6 +220,7 @@ const CombatTrackerPage = () => {
                 onCharactersChange={onCharactersChange}
                 onHistoryEdited={onHistoryEdited}
                 isCombatOngoing={combat.status === CombatStatusEnum.ONGOING}
+                currentTurn={combat.currentTurn}
               />
             </div>
           )}
@@ -232,6 +233,11 @@ const CombatTrackerPage = () => {
       >
         <EditCharacterForm
           initialCharacter={characterToEdit}
+          currentTurn={
+            combat?.status === CombatStatusEnum.ONGOING
+              ? combat.currentTurn
+              : undefined
+          }
           onSubmit={onCharacterEdited}
         />
       </CustomDrawer>

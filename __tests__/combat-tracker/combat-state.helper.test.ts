@@ -7,7 +7,11 @@ jest.mock("../../app/_dictionaries/dictionnary", () => ({
     _namespace: string,
     values?: Record<string, string>,
   ) =>
-    key === "stats.stateDuration" ? `pendant ${values?.duration} tours` : "DD",
+    key === "stats.stateDuration"
+      ? `pendant ${values?.duration} tours`
+      : key === "stats.stateAppliedOnTurn"
+        ? `(appliqué au tour ${values?.turn})`
+        : "DD",
 }));
 
 describe("describeState", () => {
@@ -25,5 +29,24 @@ describe("describeState", () => {
       "Prone, DD 10",
     );
     expect(describeState({ id: "s3", name: "Blessed" })).toBe("Blessed");
+  });
+
+  it("adds the turn the state was applied on, when known", () => {
+    expect(
+      describeState({
+        id: "s1",
+        name: "Poisoned",
+        numberOfTurns: 3,
+        appliedOnTurn: 2,
+        saveThrowStat: "CON",
+        saveThrowDc: 13,
+      }),
+    ).toBe("Poisoned pendant 3 tours (appliqué au tour 2), CON DD 13");
+  });
+
+  it("shows the applied turn of a state without duration", () => {
+    expect(describeState({ id: "s4", name: "Prone", appliedOnTurn: 3 })).toBe(
+      "Prone (appliqué au tour 3)",
+    );
   });
 });

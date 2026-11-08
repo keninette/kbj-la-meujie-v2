@@ -117,6 +117,7 @@
   "stats.initiative": "Initiative",
   "stats.spellSlots": "Emplacements de sorts",
   "stats.stateDuration": "pendant {{duration}} tours",
+  "stats.stateAppliedOnTurn": "(appliqué au tour {{turn}})",
   "stats.saveDc": "DD",
   "list.edit": "Éditer",
   "list.wiki": "Voir la page du wiki",

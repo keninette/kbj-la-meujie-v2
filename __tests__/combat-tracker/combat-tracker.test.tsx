@@ -847,6 +847,35 @@ describe("EditCharacterForm states", () => {
       },
     ]);
   });
+
+  it("stores the turn the state was applied on during a combat", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+        currentTurn={4}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("stateName"), {
+      target: { value: "Blessed" },
+    });
+    fireEvent.change(screen.getByTestId("stateDuration"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByTestId("addState"));
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      {
+        id: expect.any(String),
+        name: "Blessed",
+        numberOfTurns: 2,
+        appliedOnTurn: 4,
+      },
+    ]);
+  });
 });
 
 describe("EditCharacterForm passives", () => {

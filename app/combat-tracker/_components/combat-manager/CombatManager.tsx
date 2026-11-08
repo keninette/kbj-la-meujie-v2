@@ -305,6 +305,11 @@ const CombatManager = ({
               setIsDrawerOpened(false);
             }}
             onSaveAndRestart={updateCharacter}
+            currentTurn={
+              ongoingCombat?.status === CombatStatusEnum.ONGOING
+                ? ongoingCombat.currentTurn
+                : undefined
+            }
           />
         )}
         {drawerContent === DrawerContentEnum.COMBAT_HISTORY && (

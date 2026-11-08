@@ -135,6 +135,7 @@ export const applyAttackFormValues = (
   selectedCharacterId: string,
   values: AttackFormValues,
   createStateId: () => string,
+  currentTurn?: number,
 ): ApplyAttackFormResult => {
   const updatedCharacters = [...characters];
   let hasChanges = false;
@@ -205,6 +206,7 @@ export const applyAttackFormValues = (
         ...(!!values.inflictedStateDuration
           ? { numberOfTurns: values.inflictedStateDuration }
           : {}),
+        ...(currentTurn ? { appliedOnTurn: currentTurn } : {}),
         ...(!!values.inflictedStateSaveThrowStat
           ? { saveThrowStat: values.inflictedStateSaveThrowStat }
           : {}),

@@ -23,6 +23,7 @@ type CharacterStatsProps = {
   onCharactersChange: (characters: CombatCharacter[]) => void;
   onHistoryEdited: (historyEntry: string[]) => void;
   isCombatOngoing: boolean;
+  currentTurn?: number;
   [key: string]: unknown;
 };
 
@@ -33,6 +34,7 @@ const CharacterStats = ({
   onCharactersChange,
   onHistoryEdited,
   isCombatOngoing,
+  currentTurn,
   ...restProps
 }: CharacterStatsProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
@@ -384,6 +386,7 @@ const CharacterStats = ({
             setIsDrawerOpened(false);
           }}
           onHistoryEdited={onHistoryEdited}
+          currentTurn={isCombatOngoing ? currentTurn : undefined}
         />
       </CustomDrawer>
     </>

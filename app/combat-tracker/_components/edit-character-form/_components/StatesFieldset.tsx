@@ -15,6 +15,7 @@ import styles from "./fieldsets.module.scss";
 type StatesFieldsetProps = {
   states: CombatState[];
   onChange: (states: CombatState[]) => void;
+  currentTurn?: number;
 };
 
 const EMPTY_STATE = {
@@ -32,7 +33,11 @@ const toOptionalCount = (value: string): number | undefined => {
     : undefined;
 };
 
-const StatesFieldset = ({ states, onChange }: StatesFieldsetProps) => {
+const StatesFieldset = ({
+  states,
+  onChange,
+  currentTurn,
+}: StatesFieldsetProps) => {
   const { draft, setDraft, submit, submitOnEnter } = useNewItem(
     EMPTY_STATE,
     (newState) => {
@@ -50,6 +55,7 @@ const StatesFieldset = ({ states, onChange }: StatesFieldsetProps) => {
           id: createId(),
           name,
           ...(numberOfTurns ? { numberOfTurns } : {}),
+          ...(currentTurn ? { appliedOnTurn: currentTurn } : {}),
           ...(saveThrowStat ? { saveThrowStat } : {}),
           ...(saveThrowDc ? { saveThrowDc } : {}),
         },

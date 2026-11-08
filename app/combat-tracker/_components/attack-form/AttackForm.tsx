@@ -19,6 +19,7 @@ type AttackFormProps = {
   selectedCharacter: CombatCharacter;
   onCharactersChange: (characters: CombatCharacter[]) => void;
   onHistoryEdited: (historyEntry: string[]) => void;
+  currentTurn?: number;
 };
 
 type PendingHistoryEntry = {
@@ -47,6 +48,7 @@ const AttackForm = ({
   selectedCharacter,
   onCharactersChange,
   onHistoryEdited,
+  currentTurn,
 }: AttackFormProps) => {
   const formMethods = useForm<AttackFormValues>({
     defaultValues: {
@@ -220,6 +222,7 @@ const AttackForm = ({
       selectedCharacter.id,
       formValues,
       createUniqueStateId,
+      currentTurn,
     );
 
     if (result.missingAttackTargetId) {
