@@ -12,6 +12,7 @@ import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
+import PassivesSection from "./_components/passives-section/PassivesSection";
 import ActionsList from "../actions-list/ActionsList";
 import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
 
@@ -111,6 +112,7 @@ const CharacterStats = ({
           onDeactivate={onDeactivate}
         />
         <StatsSection character={selectedCharacter} />
+        <PassivesSection passives={selectedCharacter.passives} />
         {selectedCharacter.spellSlotsLeft &&
           Object.entries(selectedCharacter.spellSlotsLeft).length > 0 && (
             <div
@@ -141,34 +143,6 @@ const CharacterStats = ({
                     </div>
                   ),
                 )}
-              </div>
-            </div>
-          )}
-        {selectedCharacter.passives &&
-          selectedCharacter.passives.length > 0 && (
-            <div
-              className={cx(
-                styles["character-stats__line--vertical"],
-                styles["character-stats__line"],
-              )}
-              data-testid="character-passives"
-            >
-              <div>
-                <FontAwesomeIcon
-                  faIcon="book-open"
-                  faIconStyle={FaIconStyleEnum.SOLID}
-                />
-                {translate("stats.passives", "combatTracker")} :
-              </div>
-              <div className={styles["character-stats__line"]}>
-                {selectedCharacter.passives.map((passive, index) => (
-                  <div
-                    className={styles["character-stats__line--indented"]}
-                    key={`${passive}-${index}`}
-                  >
-                    ⚫ {passive}
-                  </div>
-                ))}
               </div>
             </div>
           )}

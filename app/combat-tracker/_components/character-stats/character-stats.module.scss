@@ -136,6 +136,17 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     color: var(--color-link);
   }
 
+  // A list of chips, e.g. the passives
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing--xxs);
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+  }
+
   &__abilities-tile {
     grid-column: 1 / -1;
   }

@@ -1019,6 +1019,19 @@ describe("CharacterStats passives", () => {
     const passives = screen.getByTestId("character-passives");
     expect(passives).toHaveTextContent("Rage");
     expect(passives).toHaveTextContent("Fury");
+    // One chip per passive
+    expect(within(passives).getAllByRole("listitem")).toHaveLength(2);
+  });
+
+  it("displays the passives right after the stats", () => {
+    renderStats(buildCharacter({ passives: ["Rage"] }));
+
+    expect(
+      screen
+        .getByTestId("initiative-tile")
+        .compareDocumentPosition(screen.getByTestId("character-passives")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("displays the actions with an icon per cost", () => {
