@@ -304,6 +304,7 @@ const CombatManager = ({
               updateCharacter(updatedCharacter);
               setIsDrawerOpened(false);
             }}
+            onSaveAndRestart={updateCharacter}
           />
         )}
         {drawerContent === DrawerContentEnum.COMBAT_HISTORY && (

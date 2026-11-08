@@ -56,6 +56,7 @@
   "form.add": "Ajouter",
   "form.remove": "Supprimer",
   "form.states": "États",
+  "form.stateName": "Nom de l'état",
   "form.passives": "Passifs",
   "form.passiveName": "Nom du passif",
   "form.actions": "Actions",

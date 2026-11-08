@@ -756,6 +756,99 @@ describe("EditCharacterForm NPC attitude", () => {
   });
 });
 
+describe("EditCharacterForm states", () => {
+  it("shows the existing states and removes one", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          states: [
+            {
+              id: "s1",
+              name: "Poisoned",
+              numberOfTurns: 2,
+              saveThrowStat: "CON",
+              saveThrowDc: 13,
+            },
+            { id: "s2", name: "Blessed" },
+          ],
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    const [poisoned] = screen.getAllByTestId("state-item");
+    expect(poisoned).toHaveTextContent(
+      "Poisoned stats.stateDuration, CON stats.saveDc 13",
+    );
+    fireEvent.click(within(poisoned).getByRole("button"));
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      { id: "s2", name: "Blessed" },
+    ]);
+  });
+
+  it("adds a state by name, with an id", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("stateName"), {
+      target: { value: "  Hasted  " },
+    });
+    fireEvent.click(screen.getByTestId("addState"));
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      { id: expect.any(String), name: "Hasted" },
+    ]);
+  });
+
+  it("adds a state with its duration and saving throw", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("stateName"), {
+      target: { value: "Poisoned" },
+    });
+    fireEvent.change(screen.getByTestId("stateDuration"), {
+      target: { value: "3" },
+    });
+    fireEvent.change(screen.getByTestId("stateSaveThrowStat"), {
+      target: { value: " CON " },
+    });
+    fireEvent.change(screen.getByTestId("stateSaveThrowDc"), {
+      target: { value: "13" },
+    });
+    fireEvent.click(screen.getByTestId("addState"));
+
+    // The fields are cleared for the next one
+    expect(screen.getByTestId("stateDuration")).toHaveValue(null);
+    expect(screen.getByTestId("stateSaveThrowStat")).toHaveValue("");
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].states).toEqual([
+      {
+        id: expect.any(String),
+        name: "Poisoned",
+        numberOfTurns: 3,
+        saveThrowStat: "CON",
+        saveThrowDc: 13,
+      },
+    ]);
+  });
+});
+
 describe("EditCharacterForm passives", () => {
   it("adds a passive and submits it with the character", () => {
     const onSubmit = jest.fn();
@@ -769,7 +862,7 @@ describe("EditCharacterForm passives", () => {
     fireEvent.change(screen.getByTestId("passiveName"), {
       target: { value: "  Rage  " },
     });
-    fireEvent.click(screen.getByTestId("addPassive"));
+    fireEvent.click(screen.getByTestId("passiveName-add-button"));
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
     expect(onSubmit).toHaveBeenCalledWith(
@@ -789,11 +882,11 @@ describe("EditCharacterForm passives", () => {
     fireEvent.change(screen.getByTestId("passiveName"), {
       target: { value: "   " },
     });
-    fireEvent.click(screen.getByTestId("addPassive"));
-    expect(screen.getAllByTestId("passive-item")).toHaveLength(2);
+    fireEvent.click(screen.getByTestId("passiveName-add-button"));
+    expect(screen.getAllByTestId(/^passiveName-item-/)).toHaveLength(2);
 
     fireEvent.click(
-      within(screen.getAllByTestId("passive-item")[0]).getByRole("button"),
+      within(screen.getByTestId("passiveName-item-0")).getByRole("button"),
     );
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
@@ -1000,17 +1093,15 @@ describe("EditCharacterForm usable objects", () => {
     fireEvent.change(screen.getByTestId("usableObjectName"), {
       target: { value: "   " },
     });
-    fireEvent.click(screen.getByTestId("addUsableObject"));
-    expect(screen.getAllByTestId("usable-object-item")).toHaveLength(1);
+    fireEvent.click(screen.getByTestId("usableObjectName-add-button"));
+    expect(screen.getAllByTestId(/^usableObjectName-item-/)).toHaveLength(1);
 
     fireEvent.change(screen.getByTestId("usableObjectName"), {
       target: { value: "  Potion  " },
     });
-    fireEvent.click(screen.getByTestId("addUsableObject"));
+    fireEvent.click(screen.getByTestId("usableObjectName-add-button"));
     fireEvent.click(
-      within(screen.getAllByTestId("usable-object-item")[0]).getByRole(
-        "button",
-      ),
+      within(screen.getByTestId("usableObjectName-item-0")).getByRole("button"),
     );
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
 
@@ -1347,5 +1438,63 @@ describe("AttackForm isDying/isDead behavior", () => {
     expect(updatedCharacter.isDying).toBe(false);
     expect(updatedCharacter.isDead).toBe(false);
     expect(updatedCharacter.deathSaveThrowsLeft).toBe(3);
+  });
+});
+
+describe("EditCharacterForm save and restart", () => {
+  it("is hidden when the parent does not handle it", () => {
+    render(<EditCharacterForm initialCharacter={null} />);
+
+    expect(screen.queryByTestId("save-and-restart")).not.toBeInTheDocument();
+  });
+
+  it("saves the character, then empties the form for the next one", () => {
+    const onSubmit = jest.fn();
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSubmit={onSubmit}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin" },
+    });
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "Unsaved draft" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(onSaveAndRestart).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Goblin" }),
+    );
+    expect(screen.getByTestId("name")).toHaveValue("");
+    expect(screen.getByTestId("passiveName")).toHaveValue("");
+
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin 2" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    const [first, second] = onSaveAndRestart.mock.calls.map(([c]) => c);
+    expect(second.name).toBe("Goblin 2");
+    expect(second.id).not.toBe(first.id);
+  });
+
+  it("does nothing when the form is empty", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).not.toHaveBeenCalled();
   });
 });
