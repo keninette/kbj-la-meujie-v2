@@ -55,7 +55,7 @@ const StatesFieldset = ({
           id: createId(),
           name,
           ...(numberOfTurns ? { numberOfTurns } : {}),
-          ...(currentTurn ? { appliedOnTurn: currentTurn } : {}),
+          ...(currentTurn !== undefined ? { appliedOnTurn: currentTurn } : {}),
           ...(saveThrowStat ? { saveThrowStat } : {}),
           ...(saveThrowDc ? { saveThrowDc } : {}),
         },
@@ -108,8 +108,7 @@ const StatesFieldset = ({
           id="stateDuration"
           name="stateDuration"
           label={translate("attack.duration", "combatTracker")}
-          min="1"
-          step="1"
+          step="any"
           value={draft.duration}
           onChange={setField("duration")}
           onKeyDown={submitOnEnter}
@@ -129,8 +128,7 @@ const StatesFieldset = ({
           id="stateSaveThrowDc"
           name="stateSaveThrowDc"
           label={translate("attack.saveDc", "combatTracker")}
-          min="1"
-          step="1"
+          step="any"
           value={draft.saveThrowDc}
           onChange={setField("saveThrowDc")}
           onKeyDown={submitOnEnter}

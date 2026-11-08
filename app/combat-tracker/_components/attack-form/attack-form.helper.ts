@@ -206,7 +206,7 @@ export const applyAttackFormValues = (
         ...(!!values.inflictedStateDuration
           ? { numberOfTurns: values.inflictedStateDuration }
           : {}),
-        ...(currentTurn ? { appliedOnTurn: currentTurn } : {}),
+        ...(currentTurn !== undefined ? { appliedOnTurn: currentTurn } : {}),
         ...(!!values.inflictedStateSaveThrowStat
           ? { saveThrowStat: values.inflictedStateSaveThrowStat }
           : {}),

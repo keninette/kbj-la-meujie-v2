@@ -1,3 +1,4 @@
+import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
@@ -34,14 +35,6 @@ type HistoryAction =
   | "revive"
   | "spell"
   | "state";
-
-const createUniqueStateId = () => {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-
-  return `state-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
 
 const AttackForm = ({
   characters,
@@ -221,7 +214,7 @@ const AttackForm = ({
       characters,
       selectedCharacter.id,
       formValues,
-      createUniqueStateId,
+      createId,
       currentTurn,
     );
 

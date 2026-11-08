@@ -1563,6 +1563,30 @@ describe("EditCharacterForm save and restart", () => {
     expect(screen.getByTestId("name")).toHaveValue("Goblin");
   });
 
+  it("is not blocked by a state or spell slot that was never added", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ maxHp: 7 })}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    // Invalid drafts, left without clicking "Add"
+    fireEvent.change(screen.getByTestId("stateDuration"), {
+      target: { value: "0" },
+    });
+    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+      target: { value: "-1" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).toHaveBeenCalledTimes(1);
+    const [saved] = onSaveAndRestart.mock.calls[0];
+    expect(saved.states ?? []).toEqual([]);
+    expect(saved.spellSlotsLeft ?? {}).toEqual({});
+  });
+
   it("does nothing when the form is empty", () => {
     const onSaveAndRestart = jest.fn();
     render(

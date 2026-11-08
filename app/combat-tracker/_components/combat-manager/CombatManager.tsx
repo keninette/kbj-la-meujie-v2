@@ -3,7 +3,10 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
 import { Combat } from "@/app/_lib/types/combat.type";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import { findCharacterIndexById } from "@/app/_lib/combat/combat.helper";
+import {
+  findCharacterIndexById,
+  getOngoingTurn,
+} from "@/app/_lib/combat/combat.helper";
 import { useState } from "react";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import styles from "./combat-manager.module.scss";
@@ -24,19 +27,11 @@ enum DrawerContentEnum {
   STOP_COMBAT_CONFIRMATION = "stop-combat-confirmation",
 }
 
-const DRAWER_TITLES: Record<DrawerContentEnum, string> = {
-  [DrawerContentEnum.CHARACTER_FORM]: translate(
-    "form.addCharacter",
-    "combatTracker",
-  ),
-  [DrawerContentEnum.COMBAT_HISTORY]: translate(
-    "history.title",
-    "combatTracker",
-  ),
-  [DrawerContentEnum.STOP_COMBAT_CONFIRMATION]: translate(
-    "manager.stopTitle",
-    "combatTracker",
-  ),
+// Translated at render, like the other texts
+const DRAWER_TITLE_KEYS: Record<DrawerContentEnum, string> = {
+  [DrawerContentEnum.CHARACTER_FORM]: "form.addCharacter",
+  [DrawerContentEnum.COMBAT_HISTORY]: "history.title",
+  [DrawerContentEnum.STOP_COMBAT_CONFIRMATION]: "manager.stopTitle",
 };
 
 const CombatManager = ({
@@ -295,7 +290,11 @@ const CombatManager = ({
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
-        title={drawerContent ? DRAWER_TITLES[drawerContent] : undefined}
+        title={
+          drawerContent
+            ? translate(DRAWER_TITLE_KEYS[drawerContent], "combatTracker")
+            : undefined
+        }
       >
         {drawerContent === DrawerContentEnum.CHARACTER_FORM && (
           <EditCharacterForm
@@ -305,11 +304,7 @@ const CombatManager = ({
               setIsDrawerOpened(false);
             }}
             onSaveAndRestart={updateCharacter}
-            currentTurn={
-              ongoingCombat?.status === CombatStatusEnum.ONGOING
-                ? ongoingCombat.currentTurn
-                : undefined
-            }
+            currentTurn={getOngoingTurn(ongoingCombat)}
           />
         )}
         {drawerContent === DrawerContentEnum.COMBAT_HISTORY && (

@@ -78,8 +78,7 @@ const SpellSlotsFieldset = ({
           id="slotValue"
           name="slotValue"
           label={translate("form.value", "combatTracker")}
-          min="0"
-          step="1"
+          step="any"
           value={draft.value}
           onChange={(event) => {
             const value = +event.target.value;

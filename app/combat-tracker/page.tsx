@@ -13,6 +13,7 @@ import { Combat } from "../_lib/types/combat.type";
 import { CombatCharacter } from "../_lib/types/combat-character.type";
 import {
   findCharacterIndexById,
+  getOngoingTurn,
   normalizeCombat,
 } from "../_lib/combat/combat.helper";
 import { translate } from "../_dictionaries/dictionnary";
@@ -220,7 +221,7 @@ const CombatTrackerPage = () => {
                 onCharactersChange={onCharactersChange}
                 onHistoryEdited={onHistoryEdited}
                 isCombatOngoing={combat.status === CombatStatusEnum.ONGOING}
-                currentTurn={combat.currentTurn}
+                currentTurn={getOngoingTurn(combat)}
               />
             </div>
           )}
@@ -233,11 +234,7 @@ const CombatTrackerPage = () => {
       >
         <EditCharacterForm
           initialCharacter={characterToEdit}
-          currentTurn={
-            combat?.status === CombatStatusEnum.ONGOING
-              ? combat.currentTurn
-              : undefined
-          }
+          currentTurn={getOngoingTurn(combat)}
           onSubmit={onCharacterEdited}
         />
       </CustomDrawer>

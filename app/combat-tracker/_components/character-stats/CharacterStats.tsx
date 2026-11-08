@@ -386,7 +386,7 @@ const CharacterStats = ({
             setIsDrawerOpened(false);
           }}
           onHistoryEdited={onHistoryEdited}
-          currentTurn={isCombatOngoing ? currentTurn : undefined}
+          currentTurn={currentTurn}
         />
       </CustomDrawer>
     </>
