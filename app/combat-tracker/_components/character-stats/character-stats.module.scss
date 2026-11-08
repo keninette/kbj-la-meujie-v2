@@ -1,11 +1,22 @@
 @use "../../../variables.sys.scss";
 
+// Ornament of the picture frame (corners and middles), used as a mask
+$frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><g id='c'><path d='M17 7C22 3 28 3 33 8M7 17C3 22 3 28 8 33' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/><path d='M33 8C31 3 26 2 23 3C25 7 29 9 33 8ZM8 33C3 31 2 26 3 23C7 25 9 29 8 33Z'/></g><g id='m'><path d='M50 0L54.5 4.5L50 9L45.5 4.5ZM45.5 4.5C41 1 36 1 33 4.5C36 8 41 8 45.5 4.5ZM54.5 4.5C59 1 64 1 67 4.5C64 8 59 8 54.5 4.5Z'/></g></defs><rect x='4.5' y='4.5' width='91' height='91' fill='none' stroke='black' stroke-width='1.8'/><rect x='8.5' y='8.5' width='83' height='83' fill='none' stroke='black' stroke-width='2.6'/><use href='%23c'/><use href='%23c' transform='rotate(90 50 50)'/><use href='%23c' transform='rotate(180 50 50)'/><use href='%23c' transform='rotate(270 50 50)'/><use href='%23m'/><use href='%23m' transform='rotate(90 50 50)'/><use href='%23m' transform='rotate(180 50 50)'/><use href='%23m' transform='rotate(270 50 50)'/></svg>";
+
 .character-stats {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 0.5rem;
   justify-items: space-evenly;
-  padding: 0.5rem;
+  box-sizing: border-box;
+  min-height: 0;
+  overflow-y: auto;
+
+  // Its content scrolls instead of being squeezed into the box
+  > * {
+    flex-shrink: 0;
+  }
 
   &--disabled-like {
     opacity: var(--opacity--disabled);
@@ -50,23 +61,15 @@
 
   // Elven frame: the SVG is only used as a mask (its shape), the colour comes
   // from the background (a gradient of the sys variable).
-  // Corners: curling vines ending in a leaf. Sides: lozenge between two leaves.
+  // The ornate frame, in the blue to coral gradient of the main buttons
   &__picture-frame {
-    $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><g id='c'><path d='M17 7C22 3 28 3 33 8M7 17C3 22 3 28 8 33' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/><path d='M33 8C31 3 26 2 23 3C25 7 29 9 33 8ZM8 33C3 31 2 26 3 23C7 25 9 29 8 33Z'/></g><g id='m'><path d='M50 0L54.5 4.5L50 9L45.5 4.5ZM45.5 4.5C41 1 36 1 33 4.5C36 8 41 8 45.5 4.5ZM54.5 4.5C59 1 64 1 67 4.5C64 8 59 8 54.5 4.5Z'/></g></defs><rect x='4.5' y='4.5' width='91' height='91' fill='none' stroke='black' stroke-width='1.8'/><rect x='8.5' y='8.5' width='83' height='83' fill='none' stroke='black' stroke-width='2.6'/><use href='%23c'/><use href='%23c' transform='rotate(90 50 50)'/><use href='%23c' transform='rotate(180 50 50)'/><use href='%23c' transform='rotate(270 50 50)'/><use href='%23m'/><use href='%23m' transform='rotate(90 50 50)'/><use href='%23m' transform='rotate(180 50 50)'/><use href='%23m' transform='rotate(270 50 50)'/></svg>";
-
     display: inline-flex;
     flex-shrink: 0;
     padding: 8px;
     position: relative;
 
-    // 1. darker edge (from the frame colour) that outlines every detail
-    // 2. close shadow that lifts the relief
-    // 3. soft, wider shadow that detaches the frame from the page
-    filter: drop-shadow(
-        0 0 0.6px color-mix(in srgb, var(--color-picture-frame), black 70%)
-      )
-      drop-shadow(0 1px 1px rgba(47, 56, 80, 0.55))
-      drop-shadow(0 2px 5px rgba(47, 56, 80, 0.35));
+    filter: drop-shadow(0 1px 1px rgba(47, 56, 80, 0.35))
+      drop-shadow(0 2px 4px rgba(47, 56, 80, 0.2));
 
     &::after {
       content: "";
@@ -74,25 +77,68 @@
       pointer-events: none;
       position: absolute;
 
-      // Metallic sheen: light and dark shades of the frame colour
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-picture-frame), white 45%) 0%,
-        var(--color-picture-frame) 30%,
-        color-mix(in srgb, var(--color-picture-frame), black 25%) 55%,
-        var(--color-picture-frame) 75%,
-        color-mix(in srgb, var(--color-picture-frame), white 35%) 100%
-      );
+      background: var(--background-button--fab);
       -webkit-mask: url($frame-svg) center / 100% 100% no-repeat;
       mask: url($frame-svg) center / 100% 100% no-repeat;
     }
   }
 
-  // Name + short description, stacked next to the portrait
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-panel);
+  }
+
   &__identity {
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: var(--spacing-padding--button);
+    min-width: 12rem;
+  }
+
+  &__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-padding--text);
+    margin: 0;
+
+    font-size: var(--font-size--section-title);
+    font-weight: var(--font-weight--title);
+    letter-spacing: var(--letter-spacing--s);
+  }
+
+  &__initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 75px;
+    height: 75px;
+
+    background-color: var(--color-surface--card);
+    color: var(--color-link);
+    font-size: var(--font-size--section-title);
+  }
+
+  &__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing--xxs);
+
+    font-size: var(--font-size--caption);
+
+    button,
+    a {
+      height: auto;
+      padding: var(--spacing--xxs);
+      line-height: 1;
+    }
+
+    a {
+      color: var(--color-button-text--secondary);
+    }
   }
 
   &__short-description {

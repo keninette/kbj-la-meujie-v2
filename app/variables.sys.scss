@@ -6,17 +6,11 @@
   --scrollbar-width: 8px;
   --scrollbar-gap: 4px;
 
-  --color-background-gradient--borders: var(--color-default-blue--light);
-  --color-background-gradient--center: var(--color-default-pink--light);
-
   --background-button--fab: linear-gradient(
     95deg,
     var(--color-default-blue--primary),
     var(--color-default-coral--primary)
   );
-  --color-button--fab: var(--color-default-blue--primary);
-  --color-button-text--fab: var(--color-default-white);
-  --color-button--secondary: var(--color-default-white);
   --background-button--secondary: linear-gradient(
     var(--color-button--secondary),
     var(--color-button--secondary)
@@ -27,7 +21,13 @@
     var(--color-default-coral--primary)
   );
   --background-size--button: 110% 100%;
+
+  --color-background-gradient--borders: var(--color-default-blue--light);
+  --color-background-gradient--center: var(--color-default-pink--light);
+  --color-button--fab: var(--color-default-blue--primary);
+  --color-button-text--fab: var(--color-default-white);
   --color-button-text--secondary: var(--color-default-blue--primary);
+  --color-button--secondary: var(--color-default-white);
   --color-dialog-background: var(--color-default-pink--ultra-light);
   --color-dropdown: var(--color-default-white);
   --color-dropdown-text: var(--color-default-grey--dark);
@@ -36,6 +36,9 @@
   --color-info-opposite: var(--color-default-white);
   --color-link: var(--color-default-purple--primary);
   --color-picture-frame: var(--color-default-pink--light);
+  --color-chip: var(--color-default-white);
+  --color-chip-border: var(--color-default-grey--medium);
+  --color-chip-text: var(--color-default-grey--dark);
   --color-scrollbar: var(--color-default-grey--light-medium);
   --color-scrollbar--hover: var(--color-default-blue--light);
   --color-text--dark: var(--color-default-grey--dark);
@@ -81,5 +84,6 @@
   --spacing-title: var(--font-size--s);
   --spacing-padding--text: var(--spacing--xs);
   --spacing-padding--button: var(--spacing--xxs);
+  --spacing-padding-chip--y: var(--spacing--xxs);
   --spacing-panel: var(--spacing--s);
 }

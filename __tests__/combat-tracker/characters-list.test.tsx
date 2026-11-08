@@ -3,6 +3,7 @@ import { render, screen, fireEvent, within } from "@testing-library/react";
 import CombatTrackerPage from "@/app/combat-tracker/page";
 import { saveCombat } from "@/app/combat-tracker/_lib/local-storage";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
+import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
 import {
   buildCharacter,
   buildCombat,
@@ -395,5 +396,57 @@ describe("CharacterList long names", () => {
 
     const card = await screen.findByTestId("character-item-gnoll");
     expect(within(card).getByText(name)).toHaveAttribute("title", name);
+  });
+});
+
+describe("CharacterStats header", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the name, the initial without picture, and the actions", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "kagha",
+          name: "Kagha",
+          wikiLink: "https://bg3.wiki/wiki/Kagha",
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    const stats = await screen.findByRole("region", { name: "Kagha" });
+    expect(within(stats).getByText("K")).toBeInTheDocument();
+
+    expect(screen.getByTestId("character-stats-wiki-link")).toHaveAttribute(
+      "href",
+      "https://bg3.wiki/wiki/Kagha",
+    );
+
+    fireEvent.click(screen.getByTestId("character-stats-deactivate"));
+    expect(
+      within(screen.getByTestId("idle-characters-list")).getByTestId(
+        "character-item-kagha",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the attitude of an NPC with its name", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "kagha",
+          name: "Kagha",
+          isNpc: true,
+          attitude: NpcAttitudeEnum.ENEMY,
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    expect(await screen.findByTestId("character-attitude")).toHaveTextContent(
+      "attitude.enemy",
+    );
   });
 });
