@@ -1,21 +1,11 @@
+@use "app/mixins";
+
 .fieldset {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-padding--text);
   margin: 0;
   min-width: 0;
-  padding: var(--spacing-panel);
-
-  background-color: var(--color-surface--panel);
-  border: none;
-  border-radius: var(--radius--panel);
-  box-shadow: var(--shadow--panel);
-
-  &--highlighted {
-    background-color: var(--color-highlight);
-    outline: 2px solid var(--color-border--dark);
-    outline-offset: -2px;
-  }
 
   // Floated, so that it sits inside the card like the rest of its content
   &__title {
@@ -27,9 +17,6 @@
     padding: 0;
     width: 100%;
 
-    color: var(--color-text--muted);
-    font-size: var(--font-size--caption);
-    letter-spacing: var(--letter-spacing--section-subtitle);
-    text-transform: uppercase;
+    @include mixins.caption;
   }
 }

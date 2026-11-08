@@ -12,17 +12,51 @@
     height: 1.8rem;
     padding: var(--spacing-layout-section-margin);
 
-    &--even {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    &--header {
+      height: auto;
+      min-height: 1.8rem;
     }
+  }
 
-    &--border-bottom {
-      @include mixins.border--thin--light;
-      border-left: none;
-      border-top: none;
-      border-right: none;
-    }
+  &__title {
+    margin: 0;
+
+    font-weight: normal;
+    text-transform: uppercase;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  &__turn {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--spacing-padding--text);
+    margin: 0 var(--spacing-layout-section-margin);
+  }
+
+  &__turn-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing--xxs);
+    margin: 0;
+  }
+
+  &__turn-number {
+    @include mixins.caption;
+  }
+
+  &__current-character {
+    font-size: var(--font-size--section-title);
+    letter-spacing: var(--letter-spacing--s);
   }
 
   &__navigation-slot {

@@ -8,6 +8,7 @@ import {
   getOngoingTurn,
 } from "@/app/_lib/combat/combat.helper";
 import { useState } from "react";
+import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import styles from "./combat-manager.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
@@ -16,6 +17,7 @@ import CombatHistory from "../combat-history/CombatHistory";
 import EditCharacterForm from "../edit-character-form/EditCharacterForm";
 
 type CombatManagerProps = {
+  title: string;
   ongoingCombat: Combat | null;
   onCombatChange: (combat: Combat | null) => void;
   onCharacterAdded: (character: CombatCharacter) => void;
@@ -27,7 +29,6 @@ enum DrawerContentEnum {
   STOP_COMBAT_CONFIRMATION = "stop-combat-confirmation",
 }
 
-// Translated at render, like the other texts
 const DRAWER_TITLE_KEYS: Record<DrawerContentEnum, string> = {
   [DrawerContentEnum.CHARACTER_FORM]: "form.addCharacter",
   [DrawerContentEnum.COMBAT_HISTORY]: "history.title",
@@ -35,6 +36,7 @@ const DRAWER_TITLE_KEYS: Record<DrawerContentEnum, string> = {
 };
 
 const CombatManager = ({
+  title,
   ongoingCombat,
   onCombatChange,
 }: CombatManagerProps) => {
@@ -178,84 +180,92 @@ const CombatManager = ({
     setIsDrawerOpened(false);
   };
 
+  const currentCharacter =
+    ongoingCombat?.characters[ongoingCombat.selectedCharacterIndex];
+
   return (
     <div className={styles["combat-manager"]}>
       <div
         className={[
           styles["combat-manager__line"],
-          styles["combat-manager__line--border-bottom"],
+          styles["combat-manager__line--header"],
         ].join(" ")}
       >
-        {!ongoingCombat && (
-          <ButtonWithIcon
-            label={translate("manager.newCombat", "combatTracker")}
-            onClick={createNewCombat}
-            faIcon="plus"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            iconPosition="left"
-            variant={
-              ongoingCombat ? ButtonVariant.SECONDARY : ButtonVariant.FAB
-            }
-          />
-        )}
-        {ongoingCombat && (
-          <ButtonWithIcon
-            label={translate("manager.addCharacter", "combatTracker")}
-            onClick={() => {
-              setDrawerContent(DrawerContentEnum.CHARACTER_FORM);
-              setIsDrawerOpened(true);
-            }}
-            faIcon="plus"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            iconPosition="left"
-            variant={ButtonVariant.SECONDARY}
-          />
-        )}
-        {ongoingCombat &&
-          ongoingCombat.status !== CombatStatusEnum.ONGOING &&
-          ongoingCombat.characters.length > 0 && (
+        <h1 className={styles["combat-manager__title"]}>{title}</h1>
+        <div className={styles["combat-manager__actions"]}>
+          {!ongoingCombat && (
             <ButtonWithIcon
-              label={translate("manager.startCombat", "combatTracker")}
-              onClick={startCombat}
-              faIcon="play"
+              label={translate("manager.newCombat", "combatTracker")}
+              onClick={createNewCombat}
+              faIcon="plus"
               faIconStyle={FaIconStyleEnum.SOLID}
               iconPosition="left"
+              variant={
+                ongoingCombat ? ButtonVariant.SECONDARY : ButtonVariant.FAB
+              }
             />
           )}
-        {ongoingCombat?.status === CombatStatusEnum.ONGOING && (
-          <ButtonWithIcon
-            label={translate("manager.stopCombat", "combatTracker")}
-            data-testid="stop-combat"
-            onClick={() => {
-              setDrawerContent(DrawerContentEnum.STOP_COMBAT_CONFIRMATION);
-              setIsDrawerOpened(true);
-            }}
-            faIcon="stop"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            iconPosition="left"
-            variant={ButtonVariant.SECONDARY}
-          />
-        )}
-        {ongoingCombat?.status === CombatStatusEnum.ONGOING && (
-          <ButtonWithIcon
-            label={translate("manager.history", "combatTracker")}
-            onClick={() => {
-              setDrawerContent(DrawerContentEnum.COMBAT_HISTORY);
-              setIsDrawerOpened(true);
-            }}
-            faIcon="clock-rotate-left"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            iconPosition="left"
-            variant={ButtonVariant.SECONDARY}
-          />
-        )}
+          {ongoingCombat && (
+            <ButtonWithIcon
+              label={translate("manager.addCharacter", "combatTracker")}
+              onClick={() => {
+                setDrawerContent(DrawerContentEnum.CHARACTER_FORM);
+                setIsDrawerOpened(true);
+              }}
+              faIcon="plus"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              variant={ButtonVariant.SECONDARY}
+            />
+          )}
+          {ongoingCombat &&
+            ongoingCombat.status !== CombatStatusEnum.ONGOING &&
+            ongoingCombat.characters.length > 0 && (
+              <ButtonWithIcon
+                label={translate("manager.startCombat", "combatTracker")}
+                onClick={startCombat}
+                faIcon="play"
+                faIconStyle={FaIconStyleEnum.SOLID}
+                iconPosition="left"
+              />
+            )}
+          {ongoingCombat?.status === CombatStatusEnum.ONGOING && (
+            <ButtonWithIcon
+              label={translate("manager.stopCombat", "combatTracker")}
+              data-testid="stop-combat"
+              onClick={() => {
+                setDrawerContent(DrawerContentEnum.STOP_COMBAT_CONFIRMATION);
+                setIsDrawerOpened(true);
+              }}
+              faIcon="stop"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              variant={ButtonVariant.SECONDARY}
+            />
+          )}
+          {ongoingCombat?.status === CombatStatusEnum.ONGOING && (
+            <ButtonWithIcon
+              label={translate("manager.history", "combatTracker")}
+              onClick={() => {
+                setDrawerContent(DrawerContentEnum.COMBAT_HISTORY);
+                setIsDrawerOpened(true);
+              }}
+              faIcon="clock-rotate-left"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              variant={ButtonVariant.SECONDARY}
+            />
+          )}
+        </div>
       </div>
       {ongoingCombat?.status === CombatStatusEnum.ONGOING && (
-        <div
-          className={[
-            styles["combat-manager__line"],
-            styles["combat-manager__line--even"],
-          ].join(" ")}
+        <ContainerBox
+          as="section"
+          className={styles["combat-manager__turn"]}
+          aria-label={translate("manager.turn", "combatTracker", {
+            turn: String(ongoingCombat.currentTurn),
+          })}
+          data-testid="combat-turn"
         >
           <div className={styles["combat-manager__navigation-slot"]}>
             {displayPreviousPlayerButton && (
@@ -265,14 +275,23 @@ const CombatManager = ({
                 faIcon="backward"
                 faIconStyle={FaIconStyleEnum.SOLID}
                 iconPosition="left"
+                variant={ButtonVariant.SECONDARY}
               />
             )}
           </div>
-          <h3>
-            {translate("manager.turn", "combatTracker", {
-              turn: String(ongoingCombat.currentTurn),
-            })}
-          </h3>
+          <p className={styles["combat-manager__turn-info"]}>
+            <span className={styles["combat-manager__turn-number"]}>
+              {translate("manager.turn", "combatTracker", {
+                turn: String(ongoingCombat.currentTurn),
+              })}
+            </span>
+            {currentCharacter && (
+              <span className={styles["combat-manager__current-character"]}>
+                {translate("manager.currentCharacter", "combatTracker")}{" "}
+                <strong>{currentCharacter.name}</strong>
+              </span>
+            )}
+          </p>
           <div
             className={`${styles["combat-manager__navigation-slot"]} ${styles["combat-manager__navigation-slot--right"]}`}
           >
@@ -284,7 +303,7 @@ const CombatManager = ({
               iconPosition="right"
             />
           </div>
-        </div>
+        </ContainerBox>
       )}
 
       <CustomDrawer

@@ -176,3 +176,28 @@ describe("CharacterList wiki link", () => {
     expect(screen.queryByTestId("wiki-link-aragorn")).not.toBeInTheDocument();
   });
 });
+
+describe("Combat turn box", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the turn and whose turn it is, and follows the next player", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 2,
+    });
+    render(<CombatTrackerPage />);
+
+    const turnBox = await screen.findByTestId("combat-turn");
+    expect(turnBox).toHaveTextContent("manager.turn");
+    expect(within(turnBox).getByText(aragorn.name)).toBeInTheDocument();
+
+    fireEvent.click(within(turnBox).getByText("manager.nextPlayer"));
+
+    expect(
+      within(screen.getByTestId("combat-turn")).getByText("Legolas"),
+    ).toBeInTheDocument();
+  });
+});
