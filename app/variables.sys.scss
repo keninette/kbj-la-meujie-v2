@@ -39,6 +39,11 @@
   --color-chip: var(--color-default-white);
   --color-chip-border: var(--color-default-grey--medium);
   --color-chip-text: var(--color-default-grey--dark);
+  // Costs of the actions, like the icons of the game
+  --color-cost--action: var(--color-default-green--dark);
+  --color-cost--bonus: var(--color-default-orange--dark);
+  --color-cost--reaction: var(--color-default-purple--medium);
+  --color-cost-text: var(--color-default-white);
   --color-spell-slot: var(--color-default-cyan--light);
   --color-spell-slot-text: var(--color-default-grey--dark);
   --color-scrollbar: var(--color-default-grey--light-medium);
@@ -78,6 +83,7 @@
 
   --radius--button: var(--radius--s);
   --height--chip: var(--size--s);
+  --height--action-chip: var(--size--m);
 
   --radius--chip: var(--radius--s);
   --radius--spell-level: var(--radius--xs);

@@ -58,3 +58,19 @@ export const describeActionDetails = (action: CombatAction): string =>
   ]
     .filter(Boolean)
     .join(" · ");
+
+/** Groups of the actions section */
+export enum ActionGroupEnum {
+  ACTION = "action",
+  BONUS = "bonus",
+}
+
+export const ACTION_GROUPS = Object.values(ActionGroupEnum);
+
+/** Bonus actions apart, everything else (reactions included) with the actions */
+export const getActionGroup = (action: CombatAction): ActionGroupEnum =>
+  action.costs.some(
+    (cost) => parseActionCost(cost).kind === ActionCostKind.BONUS,
+  )
+    ? ActionGroupEnum.BONUS
+    : ActionGroupEnum.ACTION;

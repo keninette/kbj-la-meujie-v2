@@ -155,6 +155,15 @@ describe("bg3-wiki combat actions parser", () => {
       );
     });
 
+    it("removes the &NoBreak; between dice and their damage type", () => {
+      // Trimmed from the Produce Flame row (e.g. used by Tahan)
+      expect(
+        cleanDescription(
+          "deals &lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;1d8&lt;/span&gt;&amp;NoBreak;&lt;span class=&quot;bg3wiki-icontext-icon nowrap&quot; &gt;[[File:Fire Damage Icon.png|x20px|link=Fire|alt=&lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;Fire&lt;/span&gt;|class=bg3wiki-icon]]&lt;/span&gt;&amp;NoBreak;[[Fire|&lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;Fire&lt;/span&gt;]] damage when thrown.",
+        ),
+      ).toBe("deals 1d8 Fire damage when thrown.");
+    });
+
     it("decodes the characters escaped by the export", () => {
       expect(
         cleanDescription(

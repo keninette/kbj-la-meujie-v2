@@ -524,7 +524,7 @@ describe("EditCharacterForm import from wiki", () => {
 
     await runImport(false);
 
-    const moonbeam = screen.getByTestId("actions-list-action");
+    const moonbeam = screen.getByTestId("action-chip");
     expect(moonbeam).toHaveTextContent(
       "2d10 Radiant · CON · actions.concentration",
     );
@@ -534,9 +534,9 @@ describe("EditCharacterForm import from wiki", () => {
     expect(
       within(moonbeam).getByTestId("action-cost-spellSlot"),
     ).toHaveTextContent("2");
-    expect(
-      screen.getByTestId("actions-list-action").closest("fieldset"),
-    ).toHaveClass("container-box--highlighted");
+    expect(screen.getByTestId("action-chip").closest("fieldset")).toHaveClass(
+      "container-box--highlighted",
+    );
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
     expect(onSubmit.mock.calls[0][0].actions).toHaveLength(1);
   });
@@ -985,12 +985,9 @@ describe("EditCharacterForm actions", () => {
     });
     fireEvent.click(screen.getByTestId("addAction"));
     fireEvent.click(
-      within(screen.getAllByTestId("actions-list-action")[0]).getByRole(
-        "button",
-        {
-          name: "form.remove",
-        },
-      ),
+      within(screen.getAllByTestId("action-chip")[0]).getByRole("button", {
+        name: "form.remove",
+      }),
     );
     submit();
 
@@ -1052,13 +1049,25 @@ describe("CharacterStats passives", () => {
       }),
     );
 
-    const [moonbeam, layOnHands, mistyStep, rebuke] = within(
-      screen.getByTestId("character-actions"),
-    ).getAllByTestId("actions-list-action");
+    // Actions (reactions included), then bonus actions
+    const actionsGroup = screen.getByTestId("action-group-action");
+    const [moonbeam, layOnHands, rebuke] =
+      within(actionsGroup).getAllByTestId("action-chip");
+    const mistyStep = within(
+      screen.getByTestId("action-group-bonus"),
+    ).getByTestId("action-chip");
+    expect(
+      screen
+        .getAllByTestId(/^action-group-/)
+        .map((group) => group.dataset.testid),
+    ).toEqual(["action-group-action", "action-group-bonus"]);
+    expect(layOnHands).toHaveTextContent("Lay on Hands");
+    expect(rebuke).toHaveTextContent("Hellish Rebuke");
+    expect(mistyStep).toHaveTextContent("Misty Step");
 
     expect(moonbeam).toHaveTextContent("Moonbeam");
+    // The details are on the chip, as in the actions list
     expect(moonbeam).toHaveTextContent("2d10 Radiant · actions.concentration");
-    expect(moonbeam).toHaveAttribute("title", "Call down a beam of light.");
     // An action that also uses a spell slot shows both icons
     expect(
       within(moonbeam).getByTestId("action-cost-action"),
@@ -1069,12 +1078,47 @@ describe("CharacterStats passives", () => {
     expect(
       within(layOnHands).getByTestId("action-cost-resource"),
     ).toHaveAttribute("title", "layonh ×2");
+    // Same wand as the other resources of the spells section
+    expect(
+      within(layOnHands)
+        .getByTestId("action-cost-resource")
+        .querySelector(".fa-wand-sparkles"),
+    ).toBeInTheDocument();
     expect(
       within(mistyStep).getByTestId("action-cost-bonus"),
     ).toBeInTheDocument();
     expect(
       within(rebuke).getByTestId("action-cost-reaction"),
     ).toBeInTheDocument();
+  });
+
+  it("shows the description of an action in its tooltip", async () => {
+    renderStats(
+      buildCharacter({
+        actions: [
+          {
+            name: "Moonbeam",
+            costs: ["action", "2"],
+            description: "Call down a beam of light.",
+          },
+        ],
+      }),
+    );
+
+    fireEvent.mouseOver(screen.getByTestId("action-chip"));
+
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      "Call down a beam of light.",
+    );
+  });
+
+  it("skips the groups without actions", () => {
+    renderStats(
+      buildCharacter({ actions: [{ name: "Misty Step", costs: ["bonus"] }] }),
+    );
+
+    expect(screen.getByTestId("action-group-bonus")).toBeInTheDocument();
+    expect(screen.queryByTestId("action-group-action")).not.toBeInTheDocument();
   });
 
   it("does not display the actions block when there are none", () => {

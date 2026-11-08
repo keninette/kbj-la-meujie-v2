@@ -14,7 +14,7 @@ import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
 import PassivesSection from "./_components/passives-section/PassivesSection";
 import SpellSlotsSection from "./_components/spell-slots-section/SpellSlotsSection";
-import ActionsList from "../actions-list/ActionsList";
+import ActionsSection from "./_components/actions-section/ActionsSection";
 import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
 
 type CharacterStatsProps = {
@@ -110,27 +110,7 @@ const CharacterStats = ({
         <StatsSection character={selectedCharacter} />
         <PassivesSection passives={selectedCharacter.passives} />
         <SpellSlotsSection spellSlotsLeft={selectedCharacter.spellSlotsLeft} />
-        {selectedCharacter.actions && selectedCharacter.actions.length > 0 && (
-          <div
-            className={cx(
-              styles["character-stats__line--vertical"],
-              styles["character-stats__line"],
-            )}
-            data-testid="character-actions"
-          >
-            <div>
-              <FontAwesomeIcon
-                faIcon="hand-fist"
-                faIconStyle={FaIconStyleEnum.SOLID}
-              />
-              {translate("stats.actions", "combatTracker")} :
-            </div>
-            <ActionsList
-              actions={selectedCharacter.actions}
-              className={styles["character-stats__line--indented"]}
-            />
-          </div>
-        )}
+        <ActionsSection actions={selectedCharacter.actions} />
         {selectedCharacter.usableObjects &&
           selectedCharacter.usableObjects.length > 0 && (
             <div

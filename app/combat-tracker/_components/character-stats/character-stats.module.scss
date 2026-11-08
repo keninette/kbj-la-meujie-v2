@@ -166,6 +166,46 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     font-weight: bold;
   }
 
+  // One group per line: actions, then bonus actions
+  &__action-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-panel);
+  }
+
+  &__action-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing--xxs);
+    min-width: 0;
+  }
+
+  // Same style as the abilities names
+  &__action-group-title {
+    margin: 0;
+
+    color: var(--color-text--muted);
+    font-size: var(--font-size--caption-small);
+    font-weight: var(--font-weight--regular);
+    letter-spacing: var(--letter-spacing--section-subtitle);
+    text-transform: uppercase;
+  }
+
+  // The actions of a group side by side, wrapping
+  &__action-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing--xxs);
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    li {
+      max-width: 100%;
+    }
+  }
+
   &__abilities-tile {
     grid-column: 1 / -1;
   }

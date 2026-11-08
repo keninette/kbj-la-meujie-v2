@@ -4,6 +4,7 @@
   --color-default-cyan--light: #85feff;
   --color-default-blue--ultra-light: #e6ebfb;
   --color-default-purple--primary: #27158fda;
+  --color-default-purple--medium: #9c4dcc;
   --color-default-grey--dark: #2f3850;
   --color-default-grey--medium: #59627a;
   --color-default-grey--light: #e8e8e9;
@@ -16,7 +17,9 @@
   --color-default-coral--medium: #fabcbc;
   --color-default-coral--ultra-light: #fef0f0;
   --color-default-green--primary: #4caf50;
+  --color-default-green--dark: #1f5230;
   --color-default-orange--primary: #ff8b07;
+  --color-default-orange--dark: #da5100;
   --color-default-red--primary: #b4001e;
 
   --font-size--l: 3rem;
@@ -45,6 +48,7 @@
   --spacing--xxs: 0.3rem;
 
   --size--s: 1.75rem;
+  --size--m: 2.75rem;
 
   --opacity--low: 0.5;
 }

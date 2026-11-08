@@ -213,6 +213,9 @@ const decodeHtmlEntities = (value: string): string => {
     quot: '"',
     apos: "'",
     nbsp: " ",
+    // Joins the dice to their damage type icon: "1d8&NoBreak;<icon>Fire".
+    // The icon is removed, so it becomes a space: "1d8 Fire"
+    nobreak: " ",
   };
   let previous;
   // Some text is escaped twice ("&amp;#8239;")

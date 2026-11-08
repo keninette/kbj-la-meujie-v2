@@ -6,7 +6,7 @@ import {
   ActionCost,
   ActionCostKind,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
-import styles from "./actions-list.module.scss";
+import styles from "./action-cost.module.scss";
 
 const getLabel = ({ kind, resource }: ActionCost): string => {
   switch (kind) {
@@ -25,9 +25,9 @@ const getLabel = ({ kind, resource }: ActionCost): string => {
 type ActionCostIconProps = { cost: ActionCost };
 
 /**
- * Cost icon, like in the game: green circle for an action, red triangle for
- * a bonus action, purple diamond for a reaction, blue square for a spell slot
- * (with its level) and a yellow wand for any other resource.
+ * Cost icon, like in the game: green circle for an action, orange triangle
+ * for a bonus action, purple diamond for a reaction, light blue square for a spell
+ * slot (with its level) and a wand for any other resource, as in the spells.
  */
 const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
   const label = getLabel(cost);
@@ -43,7 +43,7 @@ const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
     >
       {cost.kind === ActionCostKind.RESOURCE ? (
         <FontAwesomeIcon
-          faIcon="wand-magic-sparkles"
+          faIcon="wand-sparkles"
           faIconStyle={FaIconStyleEnum.SOLID}
           className={styles["action-cost__wand"]}
           aria-hidden
