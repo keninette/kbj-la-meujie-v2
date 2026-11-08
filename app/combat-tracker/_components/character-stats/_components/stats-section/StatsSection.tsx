@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { cx } from "@/app/_lib/class-names";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import Tile from "@/app/_components/_basics/tile/Tile";
@@ -25,6 +25,11 @@ type StatsSectionProps = {
 const StatsSection = ({ character }: StatsSectionProps) => {
   const hasAlternativeHp =
     typeof character.alternativeHp === "number" && character.alternativeHp > 0;
+  // The alternative hit points are shown first, the regular ones on demand.
+  // Kept per character: selecting another one shows its alternative ones.
+  const [regularHpShownFor, setRegularHpShownFor] = useState<string>();
+  const showAlternativeHp =
+    hasAlternativeHp && regularHpShownFor !== character.id;
   const abilities = ABILITIES.filter(
     (ability) => typeof character.abilities?.[ability] === "number",
   );
@@ -33,31 +38,45 @@ const StatsSection = ({ character }: StatsSectionProps) => {
   );
 
   // Lost in this order: temporary, alternative, then normal hit points.
-  // The temporary ones go on the first bar.
+  // The temporary ones always go on the alternative bar when there are
+  // alternative hit points, even while the regular bar is shown.
   return (
     <div className={styles["character-stats__tiles"]}>
       <Tile
-        title={translate("stats.hitPoints", "combatTracker")}
+        title={translate(
+          showAlternativeHp ? "stats.alternativeHitPoints" : "stats.hitPoints",
+          "combatTracker",
+        )}
         className={styles["character-stats__hp-tile"]}
       >
-        <div className={styles["character-stats__hp-bars"]}>
-          {hasAlternativeHp && (
-            <HpBar
-              label={translate("stats.alternativeHp", "combatTracker")}
-              hp={character.alternativeHp ?? 0}
-              maxHp={getMaxAlternativeHp(character) ?? 0}
-              tempHp={character.tempHp}
-              data-testid="alternative-hp-bar"
-            />
-          )}
+        {showAlternativeHp ? (
+          <HpBar
+            label={translate("stats.alternativeHp", "combatTracker")}
+            hp={character.alternativeHp ?? 0}
+            maxHp={getMaxAlternativeHp(character) ?? 0}
+            tempHp={character.tempHp}
+            onSwitch={() => setRegularHpShownFor(character.id)}
+            switchTooltip={translate("stats.showHp", "combatTracker")}
+            data-testid="alternative-hp-bar"
+          />
+        ) : (
           <HpBar
             label={translate("stats.hp", "combatTracker")}
             hp={+character.hp}
             maxHp={character.maxHp}
             tempHp={hasAlternativeHp ? undefined : character.tempHp}
+            onSwitch={
+              hasAlternativeHp
+                ? () => setRegularHpShownFor(undefined)
+                : undefined
+            }
+            switchTooltip={translate(
+              "stats.showAlternativeHp",
+              "combatTracker",
+            )}
             data-testid="hp-bar"
           />
-        </div>
+        )}
       </Tile>
       <Tile
         title={translate("stats.ac", "combatTracker")}

@@ -23,8 +23,10 @@ describe("HpBar", () => {
     expect(screen.getByTestId("bar")).toHaveTextContent("9 / 40");
     // Under 25 %
     expect(screen.getByText("9")).toHaveClass("hp-bar__value--low");
-    expect(fills()).toHaveLength(1);
-    expect(fills()[0]).toHaveStyle({ width: "22.5%" });
+    // The temporary fill is kept empty, to animate when some are gained
+    const [temp, hp] = fills();
+    expect(temp).toHaveStyle({ width: "0%" });
+    expect(hp).toHaveStyle({ width: "22.5%" });
     expect(screen.queryByTestId("bar-temp")).not.toBeInTheDocument();
   });
 

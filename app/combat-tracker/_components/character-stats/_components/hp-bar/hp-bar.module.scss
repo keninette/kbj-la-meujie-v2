@@ -11,6 +11,8 @@
     justify-content: space-between;
 
     line-height: 1.2;
+
+    animation: hp-bar-fade-in var(--transition-duration--hp-bar) ease-out;
   }
 
   // The number, then the temporary hit points
@@ -47,14 +49,22 @@
     font-size: var(--font-size--caption);
   }
 
-  // Like the title of the tile, but smaller
-  &__label {
-    flex-shrink: 0;
+  // Shows the other hit points
+  &__switch {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
 
+    background: none;
+    border: none;
     color: var(--color-text--muted);
+    cursor: pointer;
     font-size: var(--font-size--caption-small);
-    letter-spacing: var(--letter-spacing--section-subtitle);
-    text-transform: uppercase;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-link);
+    }
   }
 
   // Temporary hit points first (lost first), then the hit points
@@ -69,6 +79,10 @@
 
   &__fill {
     height: 100%;
+
+    transition:
+      width var(--transition-duration--hp-bar) ease-in-out,
+      background-color var(--transition-duration--hp-bar) ease-in-out;
 
     &--temp {
       background-color: var(--color-hp--temp);
@@ -85,5 +99,23 @@
     &--low {
       background-color: var(--color-hp--low);
     }
+  }
+}
+
+@keyframes hp-bar-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-bar__header,
+  .hp-bar__fill {
+    animation: none;
+    transition: none;
   }
 }

@@ -456,7 +456,7 @@ describe("CharacterStats hit points bars", () => {
     localStorage.clear();
   });
 
-  it("shows the alternative hit points first, with the temporary ones", async () => {
+  it("shows only the alternative hit points, and switches to the regular ones", async () => {
     saveCombat(
       buildCombat([
         buildCharacter({
@@ -472,15 +472,24 @@ describe("CharacterStats hit points bars", () => {
     render(<CombatTrackerPage />);
 
     const alternative = await screen.findByTestId("alternative-hp-bar");
-    const hp = screen.getByTestId("hp-bar");
-    expect(
-      alternative.compareDocumentPosition(hp) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
     expect(alternative).toHaveTextContent("12 / 20");
+    expect(screen.getByText("stats.alternativeHitPoints")).toBeInTheDocument();
     expect(screen.getByTestId("alternative-hp-bar-temp")).toBeInTheDocument();
-    expect(hp).toHaveTextContent("30 / 30");
+    expect(screen.queryByTestId("hp-bar")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("alternative-hp-bar-switch"));
+    expect(screen.getByTestId("hp-bar")).toHaveTextContent("30 / 30");
+    expect(screen.getByText("stats.hitPoints")).toBeInTheDocument();
+    // Temporary > alternative > regular: never on the regular bar while
+    // there are alternative hit points
     expect(screen.queryByTestId("hp-bar-temp")).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("hp-bar").querySelector(".hp-bar__fill--temp"),
+    ).toHaveStyle({ width: "0%" });
+    expect(screen.queryByTestId("alternative-hp-bar")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("hp-bar-switch"));
+    expect(screen.getByTestId("alternative-hp-bar")).toBeInTheDocument();
   });
 
   it("shows only the hit points bar, with the temporary ones, otherwise", async () => {
@@ -494,6 +503,7 @@ describe("CharacterStats hit points bars", () => {
     await screen.findByTestId("hp-bar");
     expect(screen.queryByTestId("alternative-hp-bar")).not.toBeInTheDocument();
     expect(screen.getByTestId("hp-bar-temp")).toBeInTheDocument();
+    expect(screen.queryByTestId("hp-bar-switch")).not.toBeInTheDocument();
   });
 });
 

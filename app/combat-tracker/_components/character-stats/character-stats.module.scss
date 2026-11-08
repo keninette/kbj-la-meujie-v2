@@ -122,13 +122,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     grid-column: span 2;
   }
 
-  // Alternative hit points first, then the hit points
-  &__hp-bars {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-padding--text);
-  }
-
   // Armor class and initiative
   &__tile-value {
     display: flex;
@@ -167,19 +160,18 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
   &__ability-name {
     color: var(--color-text--muted);
     font-size: var(--font-size--caption-small);
+    font-weight: bold;
     letter-spacing: var(--letter-spacing--section-subtitle);
     text-decoration: none;
     cursor: help;
   }
 
   &__ability-modifier {
-    font-size: var(--font-size--section-title);
-    font-weight: var(--font-weight--title);
+    font-weight: bold;
   }
 
   &__saving-throw {
     color: var(--color-text--muted);
-    font-size: var(--font-size--caption);
   }
 
   &__initial {
