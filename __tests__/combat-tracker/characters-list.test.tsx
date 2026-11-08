@@ -450,3 +450,71 @@ describe("CharacterStats header", () => {
     );
   });
 });
+
+describe("CharacterStats hit points bars", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the alternative hit points first, with the temporary ones", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "druid",
+          hp: 30,
+          maxHp: 30,
+          alternativeHp: 12,
+          maxAlternativeHp: 20,
+          tempHp: 5,
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    const alternative = await screen.findByTestId("alternative-hp-bar");
+    const hp = screen.getByTestId("hp-bar");
+    expect(
+      alternative.compareDocumentPosition(hp) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(alternative).toHaveTextContent("12 / 20");
+    expect(screen.getByTestId("alternative-hp-bar-temp")).toBeInTheDocument();
+    expect(hp).toHaveTextContent("30 / 30");
+    expect(screen.queryByTestId("hp-bar-temp")).not.toBeInTheDocument();
+  });
+
+  it("shows only the hit points bar, with the temporary ones, otherwise", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({ id: "fighter", hp: 8, maxHp: 10, tempHp: 4 }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    await screen.findByTestId("hp-bar");
+    expect(screen.queryByTestId("alternative-hp-bar")).not.toBeInTheDocument();
+    expect(screen.getByTestId("hp-bar-temp")).toBeInTheDocument();
+  });
+});
+
+describe("CharacterStats tiles", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the armor class and the initiative", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({ id: "fighter", ac: 16, initiativeScore: 19 }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    expect(await screen.findByTestId("ac-tile")).toHaveTextContent(
+      "stats.ac16",
+    );
+    expect(screen.getByTestId("initiative-tile")).toHaveTextContent(
+      "stats.initiative19",
+    );
+  });
+});

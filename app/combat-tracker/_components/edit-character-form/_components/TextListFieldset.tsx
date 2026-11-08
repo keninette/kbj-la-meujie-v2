@@ -1,5 +1,5 @@
-import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
-import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
+import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";

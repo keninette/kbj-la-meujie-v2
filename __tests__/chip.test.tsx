@@ -23,10 +23,8 @@ describe("Chip", () => {
     );
 
     const chip = screen.getByTestId("chip");
-    // In its own wrapper, which centres it with the label
-    const iconWrapper = chip.firstChild as HTMLElement;
-    expect(iconWrapper).toHaveClass("chip__icon");
-    expect(iconWrapper.firstChild).toBe(screen.getByTestId("icon"));
+    // In its own wrapper, before the label
+    expect(chip.firstChild?.firstChild).toBe(screen.getByTestId("icon"));
     expect(chip).toHaveAttribute("title", "Attitude");
   });
 });

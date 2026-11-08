@@ -1,5 +1,5 @@
-import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
-import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
+import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import ActionsList from "@/app/combat-tracker/_components/actions-list/ActionsList";

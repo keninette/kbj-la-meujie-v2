@@ -1,6 +1,6 @@
-import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
-import NumberInput from "@/app/_components/_basics/_form/_number-input/NumberInput";
-import CheckboxInput from "@/app/_components/_basics/_form/_checkbox-input/CheckboxInput";
+import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import NumberInput from "@/app/_components/_basics/form/number-input/NumberInput";
+import CheckboxInput from "@/app/_components/_basics/form/checkbox-input/CheckboxInput";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { WikiImportedField } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";

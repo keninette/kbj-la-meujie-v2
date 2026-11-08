@@ -7,7 +7,7 @@ import styles from "./edit-character-form.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
-import SubmitButton from "@/app/_components/_basics/_form/_submit-button/SubmitButton";
+import SubmitButton from "@/app/_components/_basics/form/submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";

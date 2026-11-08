@@ -110,6 +110,38 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     letter-spacing: var(--letter-spacing--s);
   }
 
+  // Hit points over two columns, then armor class and initiative
+  &__tiles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-padding--text);
+  }
+
+  &__hp-tile {
+    grid-column: span 2;
+  }
+
+  // Alternative hit points first, then the hit points
+  &__hp-bars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-padding--text);
+  }
+
+  // Armor class and initiative
+  &__tile-value {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-padding--text);
+
+    font-size: var(--font-size--section-title);
+    font-weight: var(--font-weight--title);
+  }
+
+  &__tile-icon {
+    color: var(--color-link);
+  }
+
   &__initial {
     display: flex;
     align-items: center;

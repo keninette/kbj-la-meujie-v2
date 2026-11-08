@@ -1,10 +1,10 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
-import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
-import NumberInput from "@/app/_components/_basics/_form/_number-input/NumberInput";
-import CheckboxInput from "@/app/_components/_basics/_form/_checkbox-input/CheckboxInput";
-import SelectInput from "@/app/_components/_basics/_form/_select-input/SelectInput";
+import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
+import NumberInput from "@/app/_components/_basics/form/number-input/NumberInput";
+import CheckboxInput from "@/app/_components/_basics/form/checkbox-input/CheckboxInput";
+import SelectInput from "@/app/_components/_basics/form/select-input/SelectInput";
 
 describe("Fieldset", () => {
   it("is named by its title and holds its content", () => {
