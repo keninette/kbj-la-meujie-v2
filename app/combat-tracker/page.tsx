@@ -106,7 +106,7 @@ const CombatTrackerPage = () => {
         ? findCharacterIndexById(characters, selectedId)
         : -1;
 
-      return {
+      return normalizeCombat({
         ...previousCombat,
         characters,
         idleCharacters: [...(previousCombat.idleCharacters ?? []), character],
@@ -117,7 +117,7 @@ const CombatTrackerPage = () => {
                 previousCombat.selectedCharacterIndex,
                 Math.max(characters.length - 1, 0),
               ),
-      };
+      });
     });
   };
 

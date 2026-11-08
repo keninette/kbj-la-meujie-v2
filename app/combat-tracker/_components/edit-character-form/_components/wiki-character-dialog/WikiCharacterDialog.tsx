@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/app/_lib/class-names";
 import { useState, useTransition } from "react";
 import { CircularProgress } from "@mui/material";
 import CustomDialog from "@/app/_components/_basics/custom-dialog/CustomDialog";
@@ -124,10 +125,10 @@ const WikiCharacterDialog = ({
               {translate("wiki.overrideHint", "combatTracker")}
             </p>
             <label
-              className={[
+              className={cx(
                 styles["wiki-character-dialog__checkbox"],
                 styles["wiki-character-dialog__checkbox--all"],
-              ].join(" ")}
+              )}
             >
               <input
                 type="checkbox"

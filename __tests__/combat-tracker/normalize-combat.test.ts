@@ -133,3 +133,32 @@ describe("turn order without the dead", () => {
     expect(getPreviousTurnPosition(allDead)).toBeNull();
   });
 });
+
+describe("normalizeCombat and the dead", () => {
+  const characters = [
+    buildCharacter({ id: "a", initiativeScore: 20 }),
+    buildCharacter({ id: "dead", initiativeScore: 15, isDead: true }),
+    buildCharacter({ id: "c", initiativeScore: 10 }),
+  ];
+
+  it("passes the turn of a dead character during the combat", () => {
+    const combat = normalizeCombat({
+      ...buildCombat(characters),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 2,
+      selectedCharacterIndex: 1,
+    });
+
+    expect(combat?.selectedCharacterIndex).toBe(2);
+    expect(combat?.currentTurn).toBe(2);
+  });
+
+  it("leaves the selection alone while preparing the combat", () => {
+    const combat = normalizeCombat({
+      ...buildCombat(characters),
+      selectedCharacterIndex: 1,
+    });
+
+    expect(combat?.selectedCharacterIndex).toBe(1);
+  });
+});

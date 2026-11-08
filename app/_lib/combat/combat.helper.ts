@@ -36,14 +36,24 @@ export const normalizeCombat = (nextCombat: Combat | null): Combat | null => {
         )
       : 0;
 
-  return {
+  return passTurnOfDeadCharacter({
     ...nextCombat,
     characters,
     selectedCharacterIndex:
       selectedCharacterIndex >= 0
         ? selectedCharacterIndex
         : fallbackCharacterIndex,
-  };
+  });
+};
+
+/** During the combat, the turn of a dead character (killed during its turn,
+ * or reached after a deactivation...) goes to the next one who can play */
+const passTurnOfDeadCharacter = (combat: Combat): Combat => {
+  const isCurrentDead =
+    combat.status === CombatStatusEnum.ONGOING &&
+    !canPlay(combat.characters[combat.selectedCharacterIndex]);
+  const next = isCurrentDead ? getNextTurnPosition(combat) : null;
+  return next ? { ...combat, ...next } : combat;
 };
 
 /** Where the turn order is: whose turn it is, in which turn */

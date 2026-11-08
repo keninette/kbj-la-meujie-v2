@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import styles from "../characters-list.module.scss";
 import KebabMenu, {
   KebabMenuItem,
@@ -44,7 +45,12 @@ const CharacterListItem = ({
           tooltip={translate("stats.player", "combatTracker")}
         />
       )}
-      <span>{character.name}</span>
+      <span
+        className={styles["characters-list__name-text"]}
+        title={character.name}
+      >
+        {character.name}
+      </span>
       {character.isDying && (
         <FontAwesomeIcon
           faIcon="hand-holding-heart"
@@ -119,13 +125,11 @@ const CharacterListItem = ({
   if (isIdle) {
     return (
       <li
-        className={[
+        className={cx(
           styles["characters-list__item"],
           styles["characters-list__item--idle"],
           ...stateClasses,
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
         data-testid={`character-item-${character.id}`}
       >
         <CharacterAvatar character={character} size={32} />
@@ -137,13 +141,11 @@ const CharacterListItem = ({
 
   return (
     <li
-      className={[
+      className={cx(
         styles["characters-list__card"],
         isSelected && styles["characters-list__card--current"],
         ...stateClasses,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       aria-current={isSelected ? "true" : undefined}
       data-testid={`character-item-${character.id}`}
     >
@@ -165,10 +167,10 @@ const CharacterListItem = ({
         <span className={styles["characters-list__hp"]}>
           <span className={styles["characters-list__hp-bar"]} aria-hidden>
             <span
-              className={[
+              className={cx(
                 styles["characters-list__hp-fill"],
                 styles[`characters-list__hp-fill--${getHpLevel(hpPercent)}`],
-              ].join(" ")}
+              )}
               style={{ width: `${hpPercent}%` }}
             />
           </span>

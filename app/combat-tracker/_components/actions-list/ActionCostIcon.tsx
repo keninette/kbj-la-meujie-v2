@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
@@ -49,10 +50,10 @@ const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
         />
       ) : (
         <span
-          className={[
+          className={cx(
             styles["action-cost__shape"],
             styles[`action-cost__shape--${cost.kind}`],
-          ].join(" ")}
+          )}
           aria-hidden
         >
           {cost.kind === ActionCostKind.SPELL_SLOT ? cost.resource : null}

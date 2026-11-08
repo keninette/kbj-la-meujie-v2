@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
@@ -24,7 +25,7 @@ const Fieldset = ({
   <ContainerBox
     as="fieldset"
     isHighlighted={isHighlighted}
-    className={[styles["fieldset"], className].filter(Boolean).join(" ")}
+    className={cx(styles["fieldset"], className)}
   >
     {title && (
       <legend className={styles["fieldset__title"]}>

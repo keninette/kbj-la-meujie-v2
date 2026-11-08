@@ -96,6 +96,14 @@
     min-width: 0;
   }
 
+  // One line, whatever the length: lines have a fixed height
+  &__name-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &__hp {
     display: flex;
     align-items: center;

@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
@@ -146,10 +147,10 @@ const CombatManager = ({
   return (
     <div className={styles["combat-manager"]}>
       <div
-        className={[
+        className={cx(
           styles["combat-manager__line"],
           styles["combat-manager__line--header"],
-        ].join(" ")}
+        )}
       >
         <h1 className={styles["combat-manager__title"]}>{title}</h1>
         <div className={styles["combat-manager__actions"]}>

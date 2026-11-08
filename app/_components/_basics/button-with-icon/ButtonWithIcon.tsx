@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import { ButtonVariant } from "@lib/enums/button-variant.enum";
 import styles from "./button-with-icon.module.scss";
@@ -31,11 +32,11 @@ const ButtonWithIcon = ({
 
   return (
     <div
-      className={[
+      className={cx(
         styles["button-with-icon"],
         styles[splitButtonVariantClass],
-        disabled ? styles["button-with-icon--disabled"] : "",
-      ].join(" ")}
+        disabled ? styles["button-with-icon--disabled"] : undefined,
+      )}
     >
       {iconPosition === "left" && (
         <FontAwesomeIcon

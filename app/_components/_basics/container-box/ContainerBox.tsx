@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import styles from "./container-box.module.scss";
 
 type ContainerBoxProps = React.HTMLAttributes<HTMLElement> & {
@@ -16,13 +17,11 @@ const ContainerBox = ({
   ...props
 }: ContainerBoxProps) => (
   <Element
-    className={[
+    className={cx(
       styles["container-box"],
       isHighlighted && styles["container-box--highlighted"],
       className,
-    ]
-      .filter(Boolean)
-      .join(" ")}
+    )}
     {...props}
   >
     {children}

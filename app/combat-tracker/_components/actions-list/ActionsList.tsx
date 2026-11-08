@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
@@ -22,7 +23,7 @@ type ActionsListProps = {
 /** The actions of a character: icon, name, costs and details */
 const ActionsList = ({ actions, onRemove, className }: ActionsListProps) => (
   <ul
-    className={[styles["actions-list"], className].filter(Boolean).join(" ")}
+    className={cx(styles["actions-list"], className)}
     data-testid="actions-list"
   >
     {actions.map((action, index) => {

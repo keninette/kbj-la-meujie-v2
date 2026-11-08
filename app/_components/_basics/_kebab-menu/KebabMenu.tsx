@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/app/_lib/class-names";
 import { useId, useState } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
@@ -41,9 +42,7 @@ const KebabMenu = ({
     <>
       <button
         type="button"
-        className={[styles["kebab-menu__button"], className]
-          .filter(Boolean)
-          .join(" ")}
+        className={cx(styles["kebab-menu__button"], className)}
         title={label}
         aria-label={label}
         aria-haspopup="menu"
@@ -80,23 +79,21 @@ const KebabMenu = ({
             </>
           );
 
-          return item.href ? (
+          // A link is drawn as <a>, an action as a menu item
+          const linkProps = item.href
+            ? {
+                component: "a" as const,
+                href: item.href,
+                ...(item.openInNewTab
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {}),
+              }
+            : {};
+
+          return (
             <MenuItem
               key={item.label}
-              component="a"
-              href={item.href}
-              {...(item.openInNewTab
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {})}
-              onClick={close}
-              className={styles["kebab-menu__item"]}
-              data-testid={item["data-testid"]}
-            >
-              {content}
-            </MenuItem>
-          ) : (
-            <MenuItem
-              key={item.label}
+              {...linkProps}
               onClick={() => {
                 close();
                 item.onClick?.();

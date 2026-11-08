@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import styles from "./character-stats.module.scss";
@@ -41,15 +42,15 @@ const CharacterStats = ({
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
   const hpPercent = getHpPercent(selectedCharacter);
 
-  const emptyStatClass = [
+  const emptyStatClass = cx(
     styles["character-stats__stat--low"],
     styles["character-stats__stat"],
-  ].join(" ");
+  );
   const getHpClass = () =>
-    [
+    cx(
       styles[`character-stats__stat--${getHpLevel(hpPercent)}`],
       styles["character-stats__stat"],
-    ].join(" ");
+    );
 
   const updateCharacter = (updatedCharacter: CombatCharacter) => {
     onCharacterChange(updatedCharacter);
@@ -94,12 +95,12 @@ const CharacterStats = ({
   return (
     <>
       <div
-        className={[
+        className={cx(
           styles["character-stats"],
           selectedCharacter.isDead
             ? styles["character-stats--disabled-like"]
-            : "",
-        ].join(" ")}
+            : undefined,
+        )}
         {...restProps}
       >
         <div className={styles["character-stats__line"]}>
@@ -222,10 +223,10 @@ const CharacterStats = ({
         {selectedCharacter.spellSlotsLeft &&
           Object.entries(selectedCharacter.spellSlotsLeft).length > 0 && (
             <div
-              className={[
+              className={cx(
                 styles["character-stats__line--vertical"],
                 styles["character-stats__line"],
-              ].join(" ")}
+              )}
             >
               <div>
                 <FontAwesomeIcon
@@ -255,10 +256,10 @@ const CharacterStats = ({
         {selectedCharacter.passives &&
           selectedCharacter.passives.length > 0 && (
             <div
-              className={[
+              className={cx(
                 styles["character-stats__line--vertical"],
                 styles["character-stats__line"],
-              ].join(" ")}
+              )}
               data-testid="character-passives"
             >
               <div>
@@ -282,10 +283,10 @@ const CharacterStats = ({
           )}
         {selectedCharacter.actions && selectedCharacter.actions.length > 0 && (
           <div
-            className={[
+            className={cx(
               styles["character-stats__line--vertical"],
               styles["character-stats__line"],
-            ].join(" ")}
+            )}
             data-testid="character-actions"
           >
             <div>
@@ -304,10 +305,10 @@ const CharacterStats = ({
         {selectedCharacter.usableObjects &&
           selectedCharacter.usableObjects.length > 0 && (
             <div
-              className={[
+              className={cx(
                 styles["character-stats__line--vertical"],
                 styles["character-stats__line"],
-              ].join(" ")}
+              )}
               data-testid="character-usable-objects"
             >
               <div>
@@ -331,10 +332,10 @@ const CharacterStats = ({
           )}
         {selectedCharacter.states && selectedCharacter.states.length > 0 && (
           <div
-            className={[
+            className={cx(
               styles["character-stats__line--vertical"],
               styles["character-stats__line"],
-            ].join(" ")}
+            )}
           >
             <div>
               <FontAwesomeIcon
@@ -344,10 +345,10 @@ const CharacterStats = ({
               {translate("form.states", "combatTracker")} :
             </div>
             <div
-              className={[
+              className={cx(
                 styles["character-stats__line"],
                 styles["character-stats__line--vertical-content"],
-              ].join(" ")}
+              )}
             >
               {selectedCharacter.states.map((state) => (
                 <div

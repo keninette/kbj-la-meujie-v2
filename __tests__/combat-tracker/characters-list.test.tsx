@@ -330,7 +330,7 @@ describe("CharacterList dead characters", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("still shows whose turn it is when it is a dead character's", async () => {
+  it("passes the turn of a dead character to the next one who can play", async () => {
     saveCombat({
       ...buildCombat([aragorn, boromir, legolas]),
       status: CombatStatusEnum.ONGOING,
@@ -339,8 +339,26 @@ describe("CharacterList dead characters", () => {
     });
     render(<CombatTrackerPage />);
 
-    const deadList = await screen.findByTestId("dead-characters-list");
-    expect(within(deadList).getByTestId("character-item-boromir")).toHaveClass(
+    expect(await screen.findByTestId("character-item-legolas")).toHaveClass(
+      "characters-list__card--current",
+    );
+    expect(screen.getByTestId("character-item-boromir")).not.toHaveClass(
+      "characters-list__card--current",
+    );
+  });
+
+  it("does not give the turn to a dead character after a deactivation", async () => {
+    saveCombat({
+      ...buildCombat([aragorn, boromir, legolas]),
+      status: CombatStatusEnum.ONGOING,
+      currentTurn: 1,
+    });
+    render(<CombatTrackerPage />);
+    await screen.findByTestId("character-item-aragorn");
+
+    clickMenuItem("aragorn", "deactivate-character-aragorn");
+
+    expect(screen.getByTestId("character-item-legolas")).toHaveClass(
       "characters-list__card--current",
     );
   });
@@ -362,5 +380,20 @@ describe("CharacterList dead characters", () => {
     expect(screen.getByTestId("character-item-legolas")).toHaveClass(
       "characters-list__card--current",
     );
+  });
+});
+
+describe("CharacterList long names", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("shows the full name as a tooltip, as it may be cut", async () => {
+    const name = "Gnoll Flind of the Shattered Sanctum";
+    saveCombat(buildCombat([buildCharacter({ id: "gnoll", name })]));
+    render(<CombatTrackerPage />);
+
+    const card = await screen.findByTestId("character-item-gnoll");
+    expect(within(card).getByText(name)).toHaveAttribute("title", name);
   });
 });

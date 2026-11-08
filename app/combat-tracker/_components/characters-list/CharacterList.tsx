@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/app/_lib/class-names";
 import type { ComponentProps } from "react";
 import styles from "./characters-list.module.scss";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
@@ -48,12 +49,10 @@ const CharacterList = ({
       {...restProps}
     >
       <h2
-        className={[
+        className={cx(
           styles["characters-list__title"],
           isTitleMuted && styles["characters-list__title--muted"],
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         {titleIcon && (
           <FontAwesomeIcon
