@@ -1,25 +1,44 @@
+// Fills the drawer: only the body scrolls, the footer stays visible
 .edit-character-form {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: var(--spacing-layout-section-content-margin);
-  position: relative;
+  min-height: 0;
 
   &__logo {
     height: auto;
     pointer-events: none;
+    // Next to the drawer title (outside the scrolling body), left of the close button
     position: absolute;
-    right: 0;
-    top: 0;
+    right: calc(
+      var(--spacing--m) + var(--button-height--regular) +
+        var(--spacing-padding--text)
+    );
+    top: var(--spacing-layout-section-margin);
   }
 
   &__form {
     display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
     flex-direction: column;
     gap: var(--spacing-layout-section-content-margin);
+    min-height: 0;
+    padding-right: var(--scrollbar-gap);
+    overflow-y: auto;
   }
 
   &__footer {
     display: flex;
+    flex-shrink: 0;
+    padding-top: var(--spacing-padding--text);
+    border-top: 1px solid var(--color-border--light);
     flex-wrap: wrap;
     gap: var(--spacing-padding--text);
     justify-content: flex-end;

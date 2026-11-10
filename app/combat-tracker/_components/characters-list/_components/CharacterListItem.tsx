@@ -118,7 +118,6 @@ const CharacterListItem = ({
   );
 
   const stateClasses = [
-    character.isDying && styles["characters-list__item--down"],
     character.isDead && styles["characters-list__item--dead"],
   ];
 

@@ -1,4 +1,5 @@
 @use "./variables.sys";
+@use "./mixins";
 
 .page {
   color: var(--color-text--dark);
@@ -12,53 +13,7 @@
       var(--color-background-gradient--borders) 85%
     );
 
-    &,
-    & * {
-      &::-webkit-scrollbar {
-        width: calc(var(--scrollbar-width) + var(--scrollbar-gap));
-        height: calc(var(--scrollbar-width) + var(--scrollbar-gap));
-      }
-
-      &::-webkit-scrollbar-button {
-        display: none;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: transparent;
-        margin-block: var(--radius--panel);
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-clip: padding-box;
-        background-color: var(--color-scrollbar);
-        border: 0 solid transparent;
-        border-radius: var(--scrollbar-width);
-
-        &:vertical {
-          border-right-width: var(--scrollbar-gap);
-        }
-
-        &:horizontal {
-          border-bottom-width: var(--scrollbar-gap);
-        }
-
-        &:hover {
-          background-color: var(--color-scrollbar--hover);
-        }
-      }
-
-      &::-webkit-scrollbar-corner {
-        background: transparent;
-      }
-    }
-
-    @supports not selector(::-webkit-scrollbar) {
-      &,
-      & * {
-        scrollbar-color: var(--color-scrollbar) transparent;
-        scrollbar-width: thin;
-      }
-    }
+    @include mixins.scrollbar;
 
     &:has([data-fit-viewport]) {
       body {

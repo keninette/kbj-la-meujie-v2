@@ -6,6 +6,8 @@
   border-top: none;
   border-right: none;
   border-bottom: none;
+  // Rendered outside the page root, so it doesn't get its scrollbar
+  @include mixins.scrollbar;
 
   &__backdrop {
     @include mixins.overlay--backdrop;
@@ -13,6 +15,11 @@
 
   &__content {
     @include mixins.overlay--content;
+    // Fills the drawer, so a child can scroll under a fixed header
+    flex: 1;
+    min-height: 0;
+    // Lets children be positioned against the header
+    position: relative;
   }
 
   &__header {
