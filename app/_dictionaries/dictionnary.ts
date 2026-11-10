@@ -13,6 +13,12 @@ const dictionaries = {
   },
 };
 
+const pluralRules = new Intl.PluralRules("fr");
+
+/**
+ * With a `count` placeholder, uses "key.one" or "key.other" when they exist,
+ * following the french rules (0 and 1 are singular)
+ */
 export const translate = (
   key: string,
   namespace: string,
@@ -23,6 +29,14 @@ export const translate = (
     console.error(`${namespace} key missing in dictionaries.fr`);
   }
   const dictionary = dictionaries.fr[namespace as keyof typeof dictionaries.fr];
+
+  const count = placeholderValues?.count;
+  if (count !== undefined) {
+    const pluralKey = `${key}.${pluralRules.select(Number(count)) === "one" ? "one" : "other"}`;
+    if (pluralKey in dictionary) {
+      key = pluralKey;
+    }
+  }
   translation = dictionary[key as keyof typeof dictionary];
 
   for (const placeholder in placeholderValues) {

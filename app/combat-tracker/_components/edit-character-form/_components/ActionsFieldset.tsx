@@ -1,8 +1,8 @@
-import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
-import TextInput from "@/app/_components/_basics/_form/_text-input/TextInput";
+import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
-import ActionsList from "@/app/combat-tracker/_components/actions-list/ActionsList";
+import ActionChip from "@/app/combat-tracker/_components/action-chip/ActionChip";
 import AddItemButton from "./AddItemButton";
 import { useNewItem } from "../_hooks/use-new-item.hook";
 import styles from "./fieldsets.module.scss";
@@ -33,10 +33,17 @@ const ActionsFieldset = ({
       titleIcon="hand-fist"
       isHighlighted={isHighlighted}
     >
-      <ActionsList
-        actions={actions}
-        onRemove={(index) => onChange(actions.filter((_, i) => i !== index))}
-      />
+      {/* The same chips as in the character stats, with a remove button */}
+      <ul className={styles["fieldsets__chips"]}>
+        {actions.map((action, index) => (
+          <li key={`${action.name}-${index}`}>
+            <ActionChip
+              action={action}
+              onRemove={() => onChange(actions.filter((_, i) => i !== index))}
+            />
+          </li>
+        ))}
+      </ul>
       <div className={styles["fieldsets__row"]}>
         <TextInput
           id="actionName"

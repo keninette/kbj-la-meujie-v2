@@ -1,0 +1,45 @@
+.action-cost {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.1rem;
+
+  &__shape {
+    align-items: center;
+    color: var(--color-cost-text);
+    display: inline-flex;
+    font-size: 0.7rem;
+    font-weight: bold;
+    height: 0.9rem;
+    justify-content: center;
+    width: 0.9rem;
+
+    &--action {
+      background: var(--color-cost--action);
+      border-radius: 50%;
+    }
+
+    &--bonus {
+      background: var(--color-cost--bonus);
+      clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    }
+
+    &--reaction {
+      background: var(--color-cost--reaction);
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+
+    &--spellSlot {
+      background: var(--color-spell-slot);
+      border-radius: var(--radius--spell-level);
+      color: var(--color-spell-slot-text);
+    }
+  }
+
+  &__wand {
+    color: var(--color-link);
+  }
+
+  &__amount {
+    font-size: 0.75rem;
+  }
+}

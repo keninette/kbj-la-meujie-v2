@@ -29,7 +29,15 @@
     align-items: center;
     display: inline-flex;
     gap: var(--spacing-padding--button);
+    box-sizing: border-box;
+    height: var(--height--chip);
     padding-left: var(--spacing-padding--text);
+
+    white-space: nowrap;
+
+    button {
+      height: 100%;
+    }
 
     background-color: var(--color-surface--field);
     border: 1px solid var(--color-border--light);

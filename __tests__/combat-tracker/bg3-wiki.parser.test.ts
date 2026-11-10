@@ -23,7 +23,15 @@ const KAGHA_WIKITEXT = `{{Infobox creature
 | e hp = 45
 | hp = 65
 | t hp = 84
+| movement m = 9
 | str = 16
+| dex = 16
+| con = 14
+| int = 14
+| wis = 16
+| cha = 14
+| int save prof = Yes
+| wis save prof = Yes
 | resources = spell1:4, spell2:3, spell3:2, wldshp:2
 | resistances = poison resistant full
 | passives = Darkvision, Fey Ancestry, Opportunity Attack, Venomous Revenge
@@ -257,6 +265,12 @@ describe("bg3 wiki parser", () => {
         deathSaveThrowsLeft: 3,
         ac: 14,
         initiativeScore: 0,
+        initiativeRoll: 0,
+        movement: 9,
+        proficiencyBonus: 3,
+        abilities: { str: 16, dex: 16, con: 14, int: 14, wis: 16, cha: 14 },
+        // Level 5: proficiency bonus of 3 for intelligence and wisdom
+        savingThrows: { str: 3, dex: 3, con: 2, int: 5, wis: 6, cha: 2 },
         spellSlotsLeft: { "1": 4, "2": 3, "3": 2, wldshp: 2 },
         passives: [
           "Darkvision",
@@ -266,6 +280,32 @@ describe("bg3 wiki parser", () => {
           "poison resistant full",
         ],
       });
+    });
+
+    it("skips the saving throws without level or proficiency", () => {
+      const withoutLevel = buildCharacterFromInfobox(
+        parseInfobox(
+          "{{Infobox creature\n| str = 12\n| str save prof = Yes\n}}",
+        ),
+        "Goblin",
+      );
+      expect(withoutLevel.abilities).toEqual({ str: 12 });
+      expect(withoutLevel).not.toHaveProperty("savingThrows");
+
+      const withoutProficiency = buildCharacterFromInfobox(
+        parseInfobox("{{Infobox creature\n| level = 3\n| str = 12\n}}"),
+        "Goblin",
+      );
+      expect(withoutProficiency).not.toHaveProperty("savingThrows");
+      expect(withoutProficiency).not.toHaveProperty("movement");
+    });
+
+    it("keeps a decimal movement", () => {
+      const dwarf = buildCharacterFromInfobox(
+        parseInfobox("{{Infobox creature\n| movement m = 7.5\n}}"),
+        "Dwarf",
+      );
+      expect(dwarf.movement).toBe(7.5);
     });
 
     it("uses Honour values when present and falls back on the page title", () => {

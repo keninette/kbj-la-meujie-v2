@@ -15,6 +15,7 @@ export const buildCharacter = (
   deathSaveThrowsLeft: 3,
   ac: 15,
   initiativeScore: 12,
+  initiativeRoll: 12,
   ...overrides,
 });
 

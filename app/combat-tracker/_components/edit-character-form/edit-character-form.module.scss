@@ -4,7 +4,6 @@
   gap: var(--spacing-layout-section-content-margin);
   position: relative;
 
-  // Decoration in the top right corner: never in the way of a click
   &__logo {
     height: auto;
     pointer-events: none;
@@ -26,7 +25,6 @@
     justify-content: flex-end;
   }
 
-  // Fields changed by the last wiki import, until edited by hand
   &__field--imported,
   &__import-summary {
     background-color: var(--color-highlight);

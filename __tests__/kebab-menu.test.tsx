@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
-import KebabMenu from "@/app/_components/_basics/_kebab-menu/KebabMenu";
+import KebabMenu from "@/app/_components/_basics/kebab-menu/KebabMenu";
 
 describe("KebabMenu", () => {
   const renderMenu = (onEdit = jest.fn()) =>

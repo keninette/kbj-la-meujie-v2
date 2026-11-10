@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "../font-awesome-icon/FontAwesomeIcon";
@@ -23,21 +24,21 @@ const IconButton = ({
   className,
   tooltip,
   "data-testid": dataTestId,
-}: IconButtonProps) => {
-  const variantClassName = styles[`icon-button--${variant}`];
-
-  return (
-    <button
-      className={`${styles["icon-button"]} ${variantClassName} ${className ?? ""}`}
-      onClick={onClick}
-      title={tooltip}
-      type={type}
-      aria-label={tooltip}
-      data-testid={dataTestId}
-    >
-      <FontAwesomeIcon faIcon={faIcon} faIconStyle={faIconStyle} />
-    </button>
-  );
-};
+}: IconButtonProps) => (
+  <button
+    className={cx(
+      styles["icon-button"],
+      styles[`icon-button--${variant}`],
+      className,
+    )}
+    onClick={onClick}
+    title={tooltip}
+    type={type}
+    aria-label={tooltip}
+    data-testid={dataTestId}
+  >
+    <FontAwesomeIcon faIcon={faIcon} faIconStyle={faIconStyle} />
+  </button>
+);
 
 export default IconButton;

@@ -6,17 +6,11 @@
   --scrollbar-width: 8px;
   --scrollbar-gap: 4px;
 
-  --color-background-gradient--borders: var(--color-default-blue--light);
-  --color-background-gradient--center: var(--color-default-pink--light);
-
   --background-button--fab: linear-gradient(
     95deg,
     var(--color-default-blue--primary),
     var(--color-default-coral--primary)
   );
-  --color-button--fab: var(--color-default-blue--primary);
-  --color-button-text--fab: var(--color-default-white);
-  --color-button--secondary: var(--color-default-white);
   --background-button--secondary: linear-gradient(
     var(--color-button--secondary),
     var(--color-button--secondary)
@@ -27,7 +21,13 @@
     var(--color-default-coral--primary)
   );
   --background-size--button: 110% 100%;
+
+  --color-background-gradient--borders: var(--color-default-blue--light);
+  --color-background-gradient--center: var(--color-default-pink--light);
+  --color-button--fab: var(--color-default-blue--primary);
+  --color-button-text--fab: var(--color-default-white);
   --color-button-text--secondary: var(--color-default-blue--primary);
+  --color-button--secondary: var(--color-default-white);
   --color-dialog-background: var(--color-default-pink--ultra-light);
   --color-dropdown: var(--color-default-white);
   --color-dropdown-text: var(--color-default-grey--dark);
@@ -36,6 +36,15 @@
   --color-info-opposite: var(--color-default-white);
   --color-link: var(--color-default-purple--primary);
   --color-picture-frame: var(--color-default-pink--light);
+  --color-chip: var(--color-default-white);
+  --color-chip-border: var(--color-default-grey--medium);
+  --color-chip-text: var(--color-default-grey--dark);
+  --color-cost--action: var(--color-default-green--dark);
+  --color-cost--bonus: var(--color-default-orange--dark);
+  --color-cost--reaction: var(--color-default-purple--medium);
+  --color-cost-text: var(--color-default-white);
+  --color-spell-slot: var(--color-default-cyan--light);
+  --color-spell-slot-text: var(--color-default-grey--dark);
   --color-scrollbar: var(--color-default-grey--light-medium);
   --color-scrollbar--hover: var(--color-default-blue--light);
   --color-text--dark: var(--color-default-grey--dark);
@@ -49,6 +58,7 @@
   --color-hp--high: var(--color-default-green--primary);
   --color-hp--medium: var(--color-default-orange--primary);
   --color-hp--low: var(--color-default-red--primary);
+  --color-hp--temp: var(--color-default-blue--light);
   --color-text--muted: var(--color-default-grey--medium);
 
   --font-size--title: var(--font-size--l);
@@ -56,6 +66,9 @@
   --font-size--section-title: var(--font-size--m);
   --font-size--section-content-title: var(--font-size--s);
   --font-size--caption: var(--font-size--xs);
+  --font-size--caption-small: var(--font-size--xxs);
+
+  --transition-duration--hp-bar: 400ms;
   --font-size--icon-small: var(--font-size--xxs);
 
   --font-weight--title: var(--font-weight--light);
@@ -68,7 +81,11 @@
   --opacity--disabled: var(--opacity--low);
 
   --radius--button: var(--radius--s);
+  --height--chip: var(--size--s);
+  --height--action-chip: var(--size--m);
+
   --radius--chip: var(--radius--s);
+  --radius--spell-level: var(--radius--xs);
   --radius--panel: var(--radius--m);
   --radius--field: var(--radius--s);
 
@@ -81,5 +98,6 @@
   --spacing-title: var(--font-size--s);
   --spacing-padding--text: var(--spacing--xs);
   --spacing-padding--button: var(--spacing--xxs);
+  --spacing-padding-chip--y: var(--spacing--xxs);
   --spacing-panel: var(--spacing--s);
 }

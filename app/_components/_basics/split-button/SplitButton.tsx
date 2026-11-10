@@ -4,6 +4,7 @@ import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import styles from "./split-button.module.scss";
 import { useState } from "react";
 import { ButtonVariant } from "@lib/enums/button-variant.enum";
+import { cx } from "@/app/_lib/class-names";
 
 type SplitButtonOption = {
   label: string;
@@ -31,7 +32,7 @@ const SplitButton = ({
 
   return (
     <div
-      className={`${styles["split-button"]} ${styles[splitButtonVariantClass]}`}
+      className={cx(styles["split-button"], styles[splitButtonVariantClass])}
     >
       <div className={styles["split-button__buttons"]}>
         <div>

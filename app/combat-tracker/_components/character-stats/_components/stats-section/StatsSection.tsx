@@ -1,0 +1,238 @@
+import { useState, type CSSProperties } from "react";
+import { cx } from "@/app/_lib/class-names";
+import Tile from "@/app/_components/_basics/tile/Tile";
+import { translate } from "@/app/_dictionaries/dictionnary";
+import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
+import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+import { ABILITIES } from "@/app/_lib/enums/ability.enum";
+import {
+  formatModifier,
+  getAbilityModifier,
+  getInitiativeBonus,
+} from "@/app/combat-tracker/_lib/ability.helper";
+import HpBar from "../hp-bar/HpBar";
+import DeathSaves from "../death-saves/DeathSaves";
+import StatTile from "./StatTile";
+import styles from "../../character-stats.module.scss";
+
+type StatsSectionProps = {
+  character: CombatCharacter;
+  /** Both given, e.g. during the combat: death saving throws can be recorded */
+  onDeathSaveSuccess?: () => void;
+  onDeathSaveFail?: () => void;
+};
+
+/**
+ * Hit points (or the death saving throws of a downed character), armor
+ * class, initiative, movement, and the ability modifiers with the saving
+ * throws
+ */
+const StatsSection = ({
+  character,
+  onDeathSaveSuccess,
+  onDeathSaveFail,
+}: StatsSectionProps) => {
+  const hasAlternativeHp =
+    typeof character.alternativeHp === "number" && character.alternativeHp > 0;
+  // The alternative hit points are shown first, the regular ones on demand.
+  // Kept per character: selecting another one shows its alternative ones.
+  const [regularHpShownFor, setRegularHpShownFor] = useState<string>();
+  const showAlternativeHp =
+    hasAlternativeHp && regularHpShownFor !== character.id;
+  const abilities = ABILITIES.filter(
+    (ability) => typeof character.abilities?.[ability] === "number",
+  );
+  const hasSavingThrows = abilities.some(
+    (ability) => typeof character.savingThrows?.[ability] === "number",
+  );
+  const initiativeBonus = getInitiativeBonus(character);
+  const hasInitiativeBonus = initiativeBonus !== undefined;
+
+  // Lost in this order: temporary, alternative, then normal hit points.
+  // The temporary ones always go on the alternative bar when there are
+  // alternative hit points, even while the regular bar is shown.
+  return (
+    <div className={styles["character-stats__tiles"]}>
+      <Tile
+        title={translate(
+          character.isDying
+            ? "stats.deathSaves"
+            : showAlternativeHp
+              ? "stats.alternativeHitPoints"
+              : "stats.hitPoints",
+          "combatTracker",
+        )}
+        className={styles["character-stats__hp-tile"]}
+      >
+        {/* Down: no hit points left to show */}
+        {character.isDying ? (
+          <DeathSaves
+            key={character.id}
+            savesLeft={character.deathSaveThrowsLeft}
+            onSuccess={onDeathSaveSuccess}
+            onFail={onDeathSaveFail}
+          />
+        ) : showAlternativeHp ? (
+          <HpBar
+            label={translate("stats.alternativeHp", "combatTracker")}
+            hp={character.alternativeHp ?? 0}
+            maxHp={getMaxAlternativeHp(character) ?? 0}
+            tempHp={character.tempHp}
+            onSwitch={() => setRegularHpShownFor(character.id)}
+            switchTooltip={translate("stats.showHp", "combatTracker")}
+            data-testid="alternative-hp-bar"
+          />
+        ) : (
+          <HpBar
+            label={translate("stats.hp", "combatTracker")}
+            hp={+character.hp}
+            maxHp={character.maxHp}
+            tempHp={hasAlternativeHp ? undefined : character.tempHp}
+            onSwitch={
+              hasAlternativeHp
+                ? () => setRegularHpShownFor(undefined)
+                : undefined
+            }
+            switchTooltip={translate(
+              "stats.showAlternativeHp",
+              "combatTracker",
+            )}
+            data-testid="hp-bar"
+          />
+        )}
+      </Tile>
+      <StatTile
+        title={translate("stats.ac", "combatTracker")}
+        icon="shield-halved"
+        value={+character.ac}
+        data-testid="ac-tile"
+      />
+      <StatTile
+        title={translate("stats.initiative", "combatTracker")}
+        icon="dice-d20"
+        value={character.initiativeScore}
+        data-testid="initiative-tile"
+      />
+      {!!character.movement && (
+        <StatTile
+          title={translate("stats.movement", "combatTracker")}
+          icon="person-running"
+          value={translate("stats.movementValue", "combatTracker", {
+            movement: String(character.movement),
+          })}
+          data-testid="movement-tile"
+        />
+      )}
+      {typeof character.proficiencyBonus === "number" && (
+        <StatTile
+          title={translate("stats.proficiencyBonus", "combatTracker")}
+          icon="medal"
+          value={formatModifier(character.proficiencyBonus)}
+          valueTitle={translate(
+            "stats.proficiencyBonusTooltip",
+            "combatTracker",
+          )}
+          data-testid="proficiency-bonus-tile"
+        />
+      )}
+      {abilities.length > 0 && (
+        <Tile
+          title={translate("stats.abilities", "combatTracker")}
+          className={styles["character-stats__abilities-tile"]}
+          data-testid="abilities-tile"
+        >
+          {/*
+           * One column per ability, the row titles on the left, then the
+           * initiative bonus after a separator
+           */}
+          <div
+            className={cx(
+              styles["character-stats__abilities"],
+              hasInitiativeBonus &&
+                styles["character-stats__abilities--with-initiative"],
+            )}
+            style={
+              {
+                "--abilities-count": abilities.length,
+                "--abilities-rows": hasSavingThrows ? 3 : 2,
+              } as CSSProperties
+            }
+          >
+            {hasInitiativeBonus && (
+              <span
+                className={styles["character-stats__abilities-separator"]}
+                aria-hidden
+              />
+            )}
+            <span />
+            {abilities.map((ability) => (
+              <abbr
+                key={ability}
+                className={styles["character-stats__ability-name"]}
+                title={translate(`ability.${ability}.name`, "combatTracker")}
+              >
+                {translate(`ability.${ability}`, "combatTracker")}
+              </abbr>
+            ))}
+            {hasInitiativeBonus && (
+              <abbr
+                className={styles["character-stats__ability-name"]}
+                title={translate("stats.initiativeBonus.name", "combatTracker")}
+              >
+                {translate("stats.initiativeBonus", "combatTracker")}
+              </abbr>
+            )}
+            <span />
+            {abilities.map((ability) => (
+              <span
+                key={ability}
+                className={styles["character-stats__ability-modifier"]}
+                data-testid={`ability-${ability}`}
+              >
+                {formatModifier(
+                  getAbilityModifier(character.abilities![ability]!),
+                )}
+              </span>
+            ))}
+            {hasInitiativeBonus && (
+              <span
+                className={styles["character-stats__ability-modifier"]}
+                data-testid="initiative-bonus"
+              >
+                {formatModifier(initiativeBonus)}
+              </span>
+            )}
+            {hasSavingThrows && (
+              <>
+                <abbr
+                  className={cx(
+                    styles["character-stats__ability-name"],
+                    styles["character-stats__abilities-row-title"],
+                  )}
+                  title={translate("stats.savingThrows.name", "combatTracker")}
+                >
+                  {translate("stats.savingThrows", "combatTracker")}
+                </abbr>
+                {abilities.map((ability) => {
+                  const savingThrow = character.savingThrows?.[ability];
+                  return (
+                    <span
+                      key={ability}
+                      className={styles["character-stats__saving-throw"]}
+                      data-testid={`saving-throw-${ability}`}
+                    >
+                      {typeof savingThrow === "number" &&
+                        formatModifier(savingThrow)}
+                    </span>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        </Tile>
+      )}
+    </div>
+  );
+};
+
+export default StatsSection;

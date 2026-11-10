@@ -1,0 +1,25 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing--xxs);
+  box-sizing: border-box;
+  height: var(--height--chip);
+  padding: 0 var(--spacing-padding--text);
+
+  line-height: 1;
+  white-space: nowrap;
+
+  background-color: var(--color-chip);
+  border: 1px solid var(--color-chip-border);
+  border-radius: var(--radius--chip);
+  color: var(--color-chip-text);
+  font-size: var(--font-size--caption);
+  font-weight: 600;
+  letter-spacing: 0.2;
+}
+
+.chip__delete {
+  flex-shrink: 0;
+  height: 100%;
+  margin-right: calc(-1 * var(--spacing-padding--text));
+}

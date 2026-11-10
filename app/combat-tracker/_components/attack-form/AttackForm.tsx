@@ -6,7 +6,7 @@ import {
   applyAttackFormValues,
   type AttackFormValues,
 } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
-import SubmitButton from "@/app/_components/_basics/_form/_submit-button/SubmitButton";
+import SubmitButton from "@/app/_components/_basics/form/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import AttackFields from "./_components/AttackFields";
 import HealFields from "./_components/HealFields";

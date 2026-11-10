@@ -77,6 +77,20 @@ describe("loadCombat", () => {
     expect(loadCombat()).toEqual(combat);
   });
 
+  it("uses the initiative as roll for characters saved without roll", () => {
+    // As saved before the roll existed
+    const withoutRoll = {
+      ...buildCharacter({ initiativeScore: 17 }),
+      initiativeRoll: undefined,
+    } as unknown as CombatCharacter;
+    saveCombat(buildCombat([withoutRoll]));
+
+    expect(loadCombat()?.characters[0]).toMatchObject({
+      initiativeScore: 17,
+      initiativeRoll: 17,
+    });
+  });
+
   it("round-trips the actions", () => {
     const combat = buildCombat([
       buildCharacter({
@@ -159,6 +173,23 @@ describe("loadCombat", () => {
     localStorage.setItem(
       "scratchie-combat-tracker",
       JSON.stringify({ status: "unknown-status" }),
+    );
+
+    expect(loadCombat()).toBeNull();
+  });
+
+  it.each([
+    ["movement", { movement: "9" }],
+    ["abilities", { abilities: { dex: "16" } }],
+    ["saving throws", { savingThrows: { wis: "6" } }],
+  ])("returns null when the stored %s are invalid", (_, invalid) => {
+    localStorage.setItem(
+      "scratchie-combat-tracker",
+      JSON.stringify(
+        buildCombat([
+          buildCharacter(invalid as unknown as Partial<CombatCharacter>),
+        ]),
+      ),
     );
 
     expect(loadCombat()).toBeNull();
@@ -412,6 +443,7 @@ describe("EditCharacterForm import from wiki", () => {
     ac: 14,
     isNpc: true,
     initiativeScore: 0,
+    initiativeRoll: 0,
   });
 
   beforeEach(() => {
@@ -524,7 +556,7 @@ describe("EditCharacterForm import from wiki", () => {
 
     await runImport(false);
 
-    const moonbeam = screen.getByTestId("actions-list-action");
+    const moonbeam = screen.getByTestId("action-chip");
     expect(moonbeam).toHaveTextContent(
       "2d10 Radiant · CON · actions.concentration",
     );
@@ -534,9 +566,9 @@ describe("EditCharacterForm import from wiki", () => {
     expect(
       within(moonbeam).getByTestId("action-cost-spellSlot"),
     ).toHaveTextContent("2");
-    expect(
-      screen.getByTestId("actions-list-action").closest("fieldset"),
-    ).toHaveClass("container-box--highlighted");
+    expect(screen.getByTestId("action-chip").closest("fieldset")).toHaveClass(
+      "container-box--highlighted",
+    );
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
     expect(onSubmit.mock.calls[0][0].actions).toHaveLength(1);
   });
@@ -637,6 +669,31 @@ describe("EditCharacterForm import from wiki", () => {
   const lineOf = (testId: string) => screen.getByTestId(testId).closest("div");
   const IMPORTED = "edit-character-form__field--imported";
 
+  it("highlights the imported stats until they are edited", async () => {
+    mockedCreateFromWiki.mockResolvedValueOnce({
+      character: { ...kaghaFromWiki, movement: 9, abilities: { dex: 16 } },
+    });
+    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+
+    await runImport(true);
+
+    const abilitiesFieldset = screen
+      .getByTestId("abilityScore-dex")
+      .closest("fieldset");
+    expect(lineOf("movement")).toHaveClass(IMPORTED);
+    expect(abilitiesFieldset).toHaveClass("container-box--highlighted");
+
+    fireEvent.change(screen.getByTestId("movement"), {
+      target: { name: "movement", value: "6" },
+    });
+    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
+      target: { value: "14" },
+    });
+
+    expect(lineOf("movement")).not.toHaveClass(IMPORTED);
+    expect(abilitiesFieldset).not.toHaveClass("container-box--highlighted");
+  });
+
   it("lists and highlights the fields replaced by the import", async () => {
     render(
       <EditCharacterForm
@@ -655,7 +712,7 @@ describe("EditCharacterForm import from wiki", () => {
     // Same value as before (14): not highlighted
     expect(lineOf("ac")).not.toHaveClass(IMPORTED);
     // Never imported
-    expect(lineOf("initiativeScore")).not.toHaveClass(IMPORTED);
+    expect(lineOf("initiativeRoll")).not.toHaveClass(IMPORTED);
   });
 
   it("removes the highlight of a field edited by hand", async () => {
@@ -937,6 +994,9 @@ describe("EditCharacterForm actions", () => {
       target: { value: "Dodge" },
     });
     fireEvent.click(screen.getByTestId("addAction"));
+    fireEvent.change(screen.getByTestId("initiativeRoll"), {
+      target: { name: "initiativeRoll", value: "10" },
+    });
     submit();
 
     expect(onSubmit.mock.calls[0][0]).toMatchObject({
@@ -985,12 +1045,9 @@ describe("EditCharacterForm actions", () => {
     });
     fireEvent.click(screen.getByTestId("addAction"));
     fireEvent.click(
-      within(screen.getAllByTestId("actions-list-action")[0]).getByRole(
-        "button",
-        {
-          name: "form.remove",
-        },
-      ),
+      within(screen.getAllByTestId("action-chip")[0]).getByRole("button", {
+        name: "form.remove",
+      }),
     );
     submit();
 
@@ -1019,6 +1076,19 @@ describe("CharacterStats passives", () => {
     const passives = screen.getByTestId("character-passives");
     expect(passives).toHaveTextContent("Rage");
     expect(passives).toHaveTextContent("Fury");
+    // One chip per passive
+    expect(within(passives).getAllByRole("listitem")).toHaveLength(2);
+  });
+
+  it("displays the passives right after the stats", () => {
+    renderStats(buildCharacter({ passives: ["Rage"] }));
+
+    expect(
+      screen
+        .getByTestId("initiative-tile")
+        .compareDocumentPosition(screen.getByTestId("character-passives")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("displays the actions with an icon per cost", () => {
@@ -1039,13 +1109,25 @@ describe("CharacterStats passives", () => {
       }),
     );
 
-    const [moonbeam, layOnHands, mistyStep, rebuke] = within(
-      screen.getByTestId("character-actions"),
-    ).getAllByTestId("actions-list-action");
+    // Actions (reactions included), then bonus actions
+    const actionsGroup = screen.getByTestId("action-group-action");
+    const [moonbeam, layOnHands, rebuke] =
+      within(actionsGroup).getAllByTestId("action-chip");
+    const mistyStep = within(
+      screen.getByTestId("action-group-bonus"),
+    ).getByTestId("action-chip");
+    expect(
+      screen
+        .getAllByTestId(/^action-group-/)
+        .map((group) => group.dataset.testid),
+    ).toEqual(["action-group-action", "action-group-bonus"]);
+    expect(layOnHands).toHaveTextContent("Lay on Hands");
+    expect(rebuke).toHaveTextContent("Hellish Rebuke");
+    expect(mistyStep).toHaveTextContent("Misty Step");
 
     expect(moonbeam).toHaveTextContent("Moonbeam");
+    // The details are on the chip, as in the actions list
     expect(moonbeam).toHaveTextContent("2d10 Radiant · actions.concentration");
-    expect(moonbeam).toHaveAttribute("title", "Call down a beam of light.");
     // An action that also uses a spell slot shows both icons
     expect(
       within(moonbeam).getByTestId("action-cost-action"),
@@ -1056,12 +1138,47 @@ describe("CharacterStats passives", () => {
     expect(
       within(layOnHands).getByTestId("action-cost-resource"),
     ).toHaveAttribute("title", "layonh ×2");
+    // Same wand as the other resources of the spells section
+    expect(
+      within(layOnHands)
+        .getByTestId("action-cost-resource")
+        .querySelector(".fa-wand-sparkles"),
+    ).toBeInTheDocument();
     expect(
       within(mistyStep).getByTestId("action-cost-bonus"),
     ).toBeInTheDocument();
     expect(
       within(rebuke).getByTestId("action-cost-reaction"),
     ).toBeInTheDocument();
+  });
+
+  it("shows the description of an action in its tooltip", async () => {
+    renderStats(
+      buildCharacter({
+        actions: [
+          {
+            name: "Moonbeam",
+            costs: ["action", "2"],
+            description: "Call down a beam of light.",
+          },
+        ],
+      }),
+    );
+
+    fireEvent.mouseOver(screen.getByTestId("action-chip"));
+
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      "Call down a beam of light.",
+    );
+  });
+
+  it("skips the groups without actions", () => {
+    renderStats(
+      buildCharacter({ actions: [{ name: "Misty Step", costs: ["bonus"] }] }),
+    );
+
+    expect(screen.getByTestId("action-group-bonus")).toBeInTheDocument();
+    expect(screen.queryByTestId("action-group-action")).not.toBeInTheDocument();
   });
 
   it("does not display the actions block when there are none", () => {
@@ -1153,19 +1270,85 @@ describe("CharacterStats usable objects", () => {
       />,
     );
 
-  it("displays usable objects only when there are some", () => {
+  it("displays consumables as chips, only when there are some", () => {
     const { unmount } = renderStats(
-      buildCharacter({ usableObjects: ["Potion"] }),
+      buildCharacter({ usableObjects: ["Potion", "Torche"] }),
     );
-    expect(screen.getByTestId("character-usable-objects")).toHaveTextContent(
-      "Potion",
-    );
+    const consumables = screen.getByTestId("character-consumables");
+    expect(consumables).toHaveTextContent("Potion");
+    expect(consumables).toHaveTextContent("Torche");
+    // One chip per consumable
+    expect(within(consumables).getAllByRole("listitem")).toHaveLength(2);
     unmount();
 
     renderStats(buildCharacter());
     expect(
-      screen.queryByTestId("character-usable-objects"),
+      screen.queryByTestId("character-consumables"),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("CharacterStats states", () => {
+  const renderStats = (character: CombatCharacter) => {
+    const onCharacterChange = jest.fn();
+    const onHistoryEdited = jest.fn();
+    const result = render(
+      <CharacterStats
+        selectedCharacter={character}
+        characters={[character]}
+        onCharacterChange={onCharacterChange}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={onHistoryEdited}
+        isCombatOngoing={false}
+      />,
+    );
+    return { ...result, onCharacterChange, onHistoryEdited };
+  };
+
+  it("displays one chip per state", () => {
+    renderStats(
+      buildCharacter({
+        states: [
+          { id: "s1", name: "Poisoned" },
+          { id: "s2", name: "Prone" },
+        ],
+      }),
+    );
+
+    const states = screen.getByTestId("character-states");
+    expect(within(states).getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.getByTestId("state-s1")).toHaveTextContent("Poisoned");
+    expect(screen.getByTestId("state-s2")).toHaveTextContent("Prone");
+  });
+
+  it("displays no states section when there are none", () => {
+    renderStats(buildCharacter({ states: [] }));
+
+    expect(screen.queryByTestId("character-states")).not.toBeInTheDocument();
+  });
+
+  it("removes a state from its chip and logs it in the history", () => {
+    const character = buildCharacter({
+      name: "Goblin",
+      states: [
+        { id: "s1", name: "Poisoned" },
+        { id: "s2", name: "Prone" },
+      ],
+    });
+    const { onCharacterChange, onHistoryEdited } = renderStats(character);
+
+    fireEvent.click(
+      within(screen.getByTestId("state-s1")).getByRole("button", {
+        name: "form.remove",
+      }),
+    );
+
+    expect(onCharacterChange).toHaveBeenCalledWith(
+      expect.objectContaining({ states: [{ id: "s2", name: "Prone" }] }),
+    );
+    expect(onHistoryEdited).toHaveBeenCalledWith([
+      "Goblin perd l'état Poisoned",
+    ]);
   });
 });
 
@@ -1521,6 +1704,9 @@ describe("EditCharacterForm save and restart", () => {
       fireEvent.change(screen.getByTestId("maxHp"), {
         target: { name: "maxHp", value: "7" },
       });
+      fireEvent.change(screen.getByTestId("initiativeRoll"), {
+        target: { name: "initiativeRoll", value: "10" },
+      });
     };
 
     fillCharacter("Goblin");
@@ -1599,5 +1785,307 @@ describe("EditCharacterForm save and restart", () => {
     fireEvent.click(screen.getByTestId("save-and-restart"));
 
     expect(onSaveAndRestart).not.toHaveBeenCalled();
+  });
+});
+
+describe("EditCharacterForm initiative", () => {
+  const submit = () =>
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+  const enterRoll = (value: string) =>
+    fireEvent.change(screen.getByTestId("initiativeRoll"), {
+      target: { name: "initiativeRoll", value },
+    });
+
+  it("saves the roll plus the dexterity modifier as initiative", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ abilities: { dex: 16 } })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    enterRoll("14");
+    submit();
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ initiativeRoll: 14, initiativeScore: 17 }),
+    );
+  });
+
+  it("saves the roll as initiative without dexterity", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    enterRoll("9");
+    submit();
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ initiativeRoll: 9, initiativeScore: 9 }),
+    );
+  });
+
+  it("shows the saved roll, not the initiative, when editing again", () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          abilities: { dex: 16 },
+          initiativeRoll: 14,
+          initiativeScore: 17,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("initiativeRoll")).toHaveValue(14);
+  });
+
+  it("reminds to roll the initiative, then saves anyway on confirm", () => {
+    const onSubmit = jest.fn();
+    render(<EditCharacterForm initialCharacter={null} onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin" },
+    });
+    submit();
+
+    expect(screen.getByTestId("initiative-reminder")).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("initiative-reminder-confirm"));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Goblin",
+        initiativeRoll: 0,
+        initiativeScore: 0,
+      }),
+    );
+  });
+
+  it("goes back to the roll field without saving", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ initiativeRoll: 0 })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    submit();
+    fireEvent.click(screen.getByTestId("initiative-reminder-back"));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.getByTestId("initiativeRoll")).toHaveFocus(),
+    );
+  });
+
+  it("reminds to roll the initiative on save and restart too", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin" },
+    });
+    // Max HP is required by the form, before the reminder
+    fireEvent.change(screen.getByTestId("maxHp"), {
+      target: { name: "maxHp", value: "7" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("initiative-reminder-confirm"));
+    expect(onSaveAndRestart).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Goblin" }),
+    );
+    expect(screen.getByTestId("name")).toHaveValue("");
+  });
+});
+
+describe("CharacterStats death saves", () => {
+  const renderStats = (character: CombatCharacter, isCombatOngoing = true) => {
+    const onCharacterChange = jest.fn();
+    render(
+      <CharacterStats
+        selectedCharacter={character}
+        characters={[character]}
+        onCharacterChange={onCharacterChange}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={jest.fn()}
+        isCombatOngoing={isCombatOngoing}
+      />,
+    );
+    return onCharacterChange;
+  };
+  const dying = (deathSaveThrowsLeft: number) =>
+    buildCharacter({ hp: 0, isDying: true, deathSaveThrowsLeft });
+
+  it("shows the death saves instead of the hit points of a downed character", () => {
+    renderStats(dying(2));
+
+    expect(screen.queryByTestId("hp-bar")).not.toBeInTheDocument();
+    const track = screen.getByTestId("death-saves");
+    expect(within(track).getAllByTestId("death-save-success")).toHaveLength(1);
+    // The next save, then the last one
+    expect(within(track).getByTestId("death-save-next")).toBeInTheDocument();
+    expect(within(track).getAllByTestId("death-save-left")).toHaveLength(1);
+    expect(track).toHaveAttribute("aria-label", "stats.deathSavesLeft");
+  });
+
+  it("shows the hit points of a character who is not down", () => {
+    renderStats(buildCharacter());
+
+    expect(screen.getByTestId("hp-bar")).toBeInTheDocument();
+    expect(screen.queryByTestId("death-saves")).not.toBeInTheDocument();
+  });
+
+  it("records death saves during the combat only", () => {
+    renderStats(dying(3), false);
+
+    expect(screen.getAllByTestId("death-save-left")).toHaveLength(3);
+    expect(screen.queryByTestId("death-save-next")).not.toBeInTheDocument();
+  });
+
+  it("asks whether the next death save succeeded, then records a success", () => {
+    const onCharacterChange = renderStats(dying(3));
+
+    expect(
+      screen.queryByTestId("death-save-choice-success"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("death-save-next"));
+    fireEvent.click(screen.getByTestId("death-save-choice-success"));
+
+    expect(onCharacterChange).toHaveBeenCalledWith(
+      expect.objectContaining({ deathSaveThrowsLeft: 2, isDying: true }),
+    );
+  });
+
+  it("makes the character dead on the first failed death save", () => {
+    const onCharacterChange = renderStats(dying(3));
+
+    fireEvent.click(screen.getByTestId("death-save-next"));
+    fireEvent.click(screen.getByTestId("death-save-choice-fail"));
+
+    expect(onCharacterChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isDead: true,
+        isDying: false,
+        deathSaveThrowsLeft: 3,
+      }),
+    );
+  });
+
+  it("closes the choice when another downed character is selected", () => {
+    const props = {
+      onCharacterChange: jest.fn(),
+      onCharactersChange: jest.fn(),
+      onHistoryEdited: jest.fn(),
+      isCombatOngoing: true,
+    };
+    const first = { ...dying(3), id: "first" };
+    const second = { ...dying(3), id: "second" };
+    const { rerender } = render(
+      <CharacterStats selectedCharacter={first} {...props} />,
+    );
+
+    fireEvent.click(screen.getByTestId("death-save-next"));
+    expect(screen.getByTestId("death-save-choice-fail")).toBeInTheDocument();
+
+    rerender(<CharacterStats selectedCharacter={second} {...props} />);
+
+    expect(
+      screen.queryByTestId("death-save-choice-fail"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("has nothing left to record after three successes", () => {
+    renderStats(dying(0));
+
+    expect(screen.getAllByTestId("death-save-success")).toHaveLength(3);
+    expect(screen.queryByTestId("death-save-next")).not.toBeInTheDocument();
+  });
+});
+
+describe("EditCharacterForm stats", () => {
+  const submit = () =>
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+  it("saves the movement, proficiency bonus, abilities and saving throws", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("movement"), {
+      target: { name: "movement", value: "7.5" },
+    });
+    // A decimal movement, e.g. of a dwarf, is a valid value
+    expect(screen.getByTestId("movement")).toBeValid();
+    fireEvent.change(screen.getByTestId("proficiencyBonus"), {
+      target: { name: "proficiencyBonus", value: "3" },
+    });
+    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
+      target: { value: "16" },
+    });
+    fireEvent.change(screen.getByTestId("savingThrow-wis"), {
+      target: { value: "6" },
+    });
+    submit();
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        movement: 7.5,
+        proficiencyBonus: 3,
+        abilities: { dex: 16 },
+        savingThrows: { wis: 6 },
+        // The new dexterity gives the initiative bonus: 12 + 3
+        initiativeScore: 15,
+      }),
+    );
+  });
+
+  it("removes a value when its field is cleared", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          movement: 9,
+          abilities: { str: 10, dex: 16 },
+          savingThrows: { dex: 5 },
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("movement"), {
+      target: { name: "movement", value: "" },
+    });
+    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByTestId("savingThrow-dex"), {
+      target: { value: "" },
+    });
+    submit();
+
+    const saved = onSubmit.mock.calls[0][0];
+    expect(saved.movement).toBeUndefined();
+    expect(saved.abilities).toEqual({ str: 10 });
+    expect(saved.savingThrows).toBeUndefined();
+    // No dexterity, no initiative bonus anymore
+    expect(saved.initiativeScore).toBe(12);
   });
 });

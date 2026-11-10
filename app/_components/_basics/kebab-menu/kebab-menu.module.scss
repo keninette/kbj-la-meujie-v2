@@ -1,5 +1,4 @@
 .kebab-menu {
-  // Small ⋮ icon, no frame
   &__button {
     display: inline-flex;
     align-items: center;
@@ -19,7 +18,6 @@
     }
   }
 
-  // !important: MUI injects its styles after the CSS modules
   &__paper {
     background-color: var(--color-dropdown) !important;
     border-radius: var(--radius--panel) !important;

@@ -1,6 +1,6 @@
-import Fieldset from "@/app/_components/_basics/_form/_fieldset/Fieldset";
-import NumberInput from "@/app/_components/_basics/_form/_number-input/NumberInput";
-import CheckboxInput from "@/app/_components/_basics/_form/_checkbox-input/CheckboxInput";
+import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import NumberInput from "@/app/_components/_basics/form/number-input/NumberInput";
+import CheckboxInput from "@/app/_components/_basics/form/checkbox-input/CheckboxInput";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { WikiImportedField } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
@@ -8,6 +8,7 @@ import styles from "./fieldsets.module.scss";
 
 type CombatFieldsetProps = {
   character: CombatCharacter | null;
+  initiativeRoll: number;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   /** Highlight of a field filled by the wiki import, if any */
   importedClassName: (field: WikiImportedField) => string | undefined;
@@ -15,6 +16,7 @@ type CombatFieldsetProps = {
 
 const CombatFieldset = ({
   character,
+  initiativeRoll,
   onInputChange,
   importedClassName,
 }: CombatFieldsetProps) => (
@@ -60,12 +62,32 @@ const CombatFieldset = ({
         data-testid="ac"
       />
       <NumberInput
-        id="initiativeScore"
-        name="initiativeScore"
-        label={translate("form.initiative", "combatTracker")}
-        value={character?.initiativeScore ?? 0}
+        id="initiativeRoll"
+        name="initiativeRoll"
+        label={translate("form.initiativeRoll", "combatTracker")}
+        value={initiativeRoll}
         onChange={onInputChange}
-        data-testid="initiativeScore"
+        data-testid="initiativeRoll"
+      />
+      <NumberInput
+        id="movement"
+        name="movement"
+        label={translate("form.movement", "combatTracker")}
+        min="0"
+        step="0.5"
+        value={character?.movement ?? ""}
+        onChange={onInputChange}
+        className={importedClassName("movement")}
+        data-testid="movement"
+      />
+      <NumberInput
+        id="proficiencyBonus"
+        name="proficiencyBonus"
+        label={translate("form.proficiencyBonus", "combatTracker")}
+        value={character?.proficiencyBonus ?? ""}
+        onChange={onInputChange}
+        className={importedClassName("proficiencyBonus")}
+        data-testid="proficiencyBonus"
       />
       <NumberInput
         id="alternativeHp"

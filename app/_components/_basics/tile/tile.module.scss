@@ -1,0 +1,18 @@
+.tile {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-padding--text) var(--spacing-panel);
+
+  background-color: var(--color-surface--card);
+  border-radius: var(--radius--panel);
+  box-shadow: var(--shadow--card);
+
+  &__title {
+    margin-bottom: var(--spacing-title);
+
+    color: var(--color-text--muted);
+    font-size: var(--font-size--caption);
+    letter-spacing: var(--letter-spacing--section-subtitle);
+    text-transform: uppercase;
+  }
+}

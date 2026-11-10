@@ -1,6 +1,5 @@
 @use "app/mixins";
 
-// Same look as the custom dialog: see the overlay mixins
 .custom-drawer {
   @include mixins.overlay--paper;
   max-width: 50%;
@@ -26,7 +25,6 @@
     gap: var(--spacing-padding--text);
   }
 
-  // On the right, with or without a title
   &__close {
     margin-left: auto;
   }

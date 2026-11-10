@@ -2,7 +2,7 @@ import { cx } from "@/app/_lib/class-names";
 import styles from "../characters-list.module.scss";
 import KebabMenu, {
   KebabMenuItem,
-} from "@/app/_components/_basics/_kebab-menu/KebabMenu";
+} from "@/app/_components/_basics/kebab-menu/KebabMenu";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";

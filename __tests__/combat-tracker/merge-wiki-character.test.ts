@@ -17,6 +17,7 @@ const kagha = buildCharacter({
   ac: 14,
   isNpc: true,
   initiativeScore: 0,
+  initiativeRoll: 0,
   spellSlotsLeft: { "1": 4, wldshp: 2 },
   passives: ["Darkvision"],
 });

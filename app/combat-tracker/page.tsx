@@ -244,6 +244,8 @@ const CombatTrackerPage = () => {
                 onHistoryEdited={onHistoryEdited}
                 isCombatOngoing={combat.status === CombatStatusEnum.ONGOING}
                 currentTurn={getOngoingTurn(combat)}
+                onEdit={handleCharacterClick}
+                onDeactivate={onCharacterDeactivated}
               />
             </div>
           )}
