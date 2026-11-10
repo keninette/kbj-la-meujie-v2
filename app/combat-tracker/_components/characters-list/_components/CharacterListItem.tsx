@@ -7,7 +7,8 @@ import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { getHpLevel, getHpPercent } from "@/app/combat-tracker/_lib/hp.helper";
+import HpBar from "@/app/combat-tracker/_components/hp-bar/HpBar";
+import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
 import CharacterAvatar from "./CharacterAvatar";
 
 export type CharacterListAction = "edit" | "deactivate" | "reactivate";
@@ -34,7 +35,7 @@ const CharacterListItem = ({
   onDeactivate,
   onReactivate,
 }: CharacterListItemProps) => {
-  const hpPercent = Math.min(Math.max(getHpPercent(character), 0), 100);
+  const hasAlternativeHp = (character.alternativeHp ?? 0) > 0;
 
   const name = (
     <span className={styles["characters-list__name"]}>
@@ -163,23 +164,22 @@ const CharacterListItem = ({
       <CharacterAvatar character={character} size={32} />
       <span className={styles["characters-list__card-body"]}>
         {name}
-        <span className={styles["characters-list__hp"]}>
-          <span className={styles["characters-list__hp-bar"]} aria-hidden>
-            <span
-              className={cx(
-                styles["characters-list__hp-fill"],
-                styles[`characters-list__hp-fill--${getHpLevel(hpPercent)}`],
-              )}
-              style={{ width: `${hpPercent}%` }}
-            />
-          </span>
-          <span
-            title={translate("stats.hp", "combatTracker")}
-            data-testid={`character-hp-${character.id}`}
-          >
-            {character.hp}/{character.maxHp}
-          </span>
-        </span>
+        {/* Like the stats: the alternative hit points first, if any */}
+        <HpBar
+          isCompact
+          label={translate(
+            hasAlternativeHp ? "stats.alternativeHp" : "stats.hp",
+            "combatTracker",
+          )}
+          hp={hasAlternativeHp ? (character.alternativeHp ?? 0) : character.hp}
+          maxHp={
+            hasAlternativeHp
+              ? (getMaxAlternativeHp(character) ?? 0)
+              : character.maxHp
+          }
+          tempHp={character.tempHp}
+          data-testid={`character-hp-${character.id}`}
+        />
       </span>
       {menu}
     </li>

@@ -132,6 +132,7 @@
   "stats.tempHpBonus.one": "+ {{count}} PV temporaire",
   "stats.tempHpBonus.other": "+ {{count}} PV temporaires",
   "stats.alternativeHp": "PV alternatifs",
+  "stats.hpSummary": "{{label}} : {{hp}} / {{maxHp}}",
   "stats.showHp": "Afficher les PV",
   "stats.showAlternativeHp": "Afficher les PV alternatifs",
   "stats.ac": "CA",

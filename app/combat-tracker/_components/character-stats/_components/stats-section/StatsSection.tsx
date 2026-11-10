@@ -10,7 +10,7 @@ import {
   getAbilityModifier,
   getInitiativeBonus,
 } from "@/app/combat-tracker/_lib/ability.helper";
-import HpBar from "../hp-bar/HpBar";
+import HpBar from "@/app/combat-tracker/_components/hp-bar/HpBar";
 import DeathSaves from "../death-saves/DeathSaves";
 import StatTile from "./StatTile";
 import styles from "../../character-stats.module.scss";
