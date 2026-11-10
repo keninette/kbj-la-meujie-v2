@@ -6,10 +6,11 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
-import { ABILITIES, AbilityEnum } from "@/app/_lib/enums/ability.enum";
+import { ABILITIES } from "@/app/_lib/enums/ability.enum";
 import {
   formatModifier,
   getAbilityModifier,
+  getInitiativeBonus,
 } from "@/app/combat-tracker/_lib/ability.helper";
 import HpBar from "../hp-bar/HpBar";
 import styles from "../../character-stats.module.scss";
@@ -36,10 +37,7 @@ const StatsSection = ({ character }: StatsSectionProps) => {
   const hasSavingThrows = abilities.some(
     (ability) => typeof character.savingThrows?.[ability] === "number",
   );
-  // The initiative bonus is the dexterity modifier
-  const dexterity = character.abilities?.[AbilityEnum.DEXTERITY];
-  const initiativeBonus =
-    typeof dexterity === "number" ? getAbilityModifier(dexterity) : undefined;
+  const initiativeBonus = getInitiativeBonus(character);
   const hasInitiativeBonus = initiativeBonus !== undefined;
 
   // Lost in this order: temporary, alternative, then normal hit points.

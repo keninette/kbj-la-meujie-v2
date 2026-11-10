@@ -77,6 +77,17 @@ describe("loadCombat", () => {
     expect(loadCombat()).toEqual(combat);
   });
 
+  it("uses the initiative as roll for characters saved without roll", () => {
+    const withoutRoll = buildCharacter({ initiativeScore: 17 });
+    delete withoutRoll.initiativeRoll;
+    saveCombat(buildCombat([withoutRoll]));
+
+    expect(loadCombat()?.characters[0]).toMatchObject({
+      initiativeScore: 17,
+      initiativeRoll: 17,
+    });
+  });
+
   it("round-trips the actions", () => {
     const combat = buildCombat([
       buildCharacter({
@@ -655,7 +666,7 @@ describe("EditCharacterForm import from wiki", () => {
     // Same value as before (14): not highlighted
     expect(lineOf("ac")).not.toHaveClass(IMPORTED);
     // Never imported
-    expect(lineOf("initiativeScore")).not.toHaveClass(IMPORTED);
+    expect(lineOf("initiativeRoll")).not.toHaveClass(IMPORTED);
   });
 
   it("removes the highlight of a field edited by hand", async () => {
@@ -937,6 +948,9 @@ describe("EditCharacterForm actions", () => {
       target: { value: "Dodge" },
     });
     fireEvent.click(screen.getByTestId("addAction"));
+    fireEvent.change(screen.getByTestId("initiativeRoll"), {
+      target: { name: "initiativeRoll", value: "10" },
+    });
     submit();
 
     expect(onSubmit.mock.calls[0][0]).toMatchObject({
@@ -1642,6 +1656,9 @@ describe("EditCharacterForm save and restart", () => {
       fireEvent.change(screen.getByTestId("maxHp"), {
         target: { name: "maxHp", value: "7" },
       });
+      fireEvent.change(screen.getByTestId("initiativeRoll"), {
+        target: { name: "initiativeRoll", value: "10" },
+      });
     };
 
     fillCharacter("Goblin");
@@ -1720,5 +1737,131 @@ describe("EditCharacterForm save and restart", () => {
     fireEvent.click(screen.getByTestId("save-and-restart"));
 
     expect(onSaveAndRestart).not.toHaveBeenCalled();
+  });
+});
+
+describe("EditCharacterForm initiative", () => {
+  const submit = () =>
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+  const enterRoll = (value: string) =>
+    fireEvent.change(screen.getByTestId("initiativeRoll"), {
+      target: { name: "initiativeRoll", value },
+    });
+
+  it("saves the roll plus the dexterity modifier as initiative", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ abilities: { dex: 16 } })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    enterRoll("14");
+    expect(screen.getByTestId("initiative-total")).toBeInTheDocument();
+    submit();
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ initiativeRoll: 14, initiativeScore: 17 }),
+    );
+  });
+
+  it("saves the roll as initiative without dexterity", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    enterRoll("9");
+    expect(screen.queryByTestId("initiative-total")).not.toBeInTheDocument();
+    submit();
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ initiativeRoll: 9, initiativeScore: 9 }),
+    );
+  });
+
+  it("shows the saved roll, not the initiative, when editing again", () => {
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          abilities: { dex: 16 },
+          initiativeRoll: 14,
+          initiativeScore: 17,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("initiativeRoll")).toHaveValue(14);
+  });
+
+  it("reminds to roll the initiative, then saves anyway on confirm", () => {
+    const onSubmit = jest.fn();
+    render(<EditCharacterForm initialCharacter={null} onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin" },
+    });
+    submit();
+
+    expect(screen.getByTestId("initiative-reminder")).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("initiative-reminder-confirm"));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Goblin",
+        initiativeRoll: 0,
+        initiativeScore: 0,
+      }),
+    );
+  });
+
+  it("goes back to the roll field without saving", async () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({ initiativeRoll: 0 })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    submit();
+    fireEvent.click(screen.getByTestId("initiative-reminder-back"));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.getByTestId("initiativeRoll")).toHaveFocus(),
+    );
+  });
+
+  it("reminds to roll the initiative on save and restart too", () => {
+    const onSaveAndRestart = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={null}
+        onSaveAndRestart={onSaveAndRestart}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("name"), {
+      target: { name: "name", value: "Goblin" },
+    });
+    // Max HP is required by the form, before the reminder
+    fireEvent.change(screen.getByTestId("maxHp"), {
+      target: { name: "maxHp", value: "7" },
+    });
+    fireEvent.click(screen.getByTestId("save-and-restart"));
+
+    expect(onSaveAndRestart).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("initiative-reminder-confirm"));
+    expect(onSaveAndRestart).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Goblin" }),
+    );
+    expect(screen.getByTestId("name")).toHaveValue("");
   });
 });

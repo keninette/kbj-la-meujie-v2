@@ -29,6 +29,8 @@ import TextListFieldset from "./_components/TextListFieldset";
 import ActionsFieldset from "./_components/ActionsFieldset";
 import StatesFieldset from "./_components/StatesFieldset";
 import { createId } from "@/app/combat-tracker/_lib/create-id";
+import { getInitiativeBonus } from "@/app/combat-tracker/_lib/ability.helper";
+import InitiativeReminderDialog from "./_components/initiative-reminder-dialog/InitiativeReminderDialog";
 
 type EditCharacterFormProps = {
   initialCharacter: CombatCharacter | null;
@@ -142,8 +144,7 @@ const EditCharacterForm = ({
     );
   };
 
-  // Replaces the given fields, and the highlight of the imported field they
-  // belong to, if any
+  // Replaces the given fields, and the highlight of the imported field they belong to, if any
   const updateCharacter = (
     changes: Partial<CombatCharacter>,
     importedField?: WikiImportedField,
@@ -157,24 +158,72 @@ const EditCharacterForm = ({
     }));
   };
 
-  // The character as saved, or null when nothing was entered
+  const initiativeRoll =
+    character?.initiativeRoll ?? character?.initiativeScore ?? 0;
+  const initiativeBonus = getInitiativeBonus(character);
+
   const buildSavedCharacter = (): CombatCharacter | null =>
     character && {
       ...character,
       id: character.id || createId(),
       maxAlternativeHp: getMaxAlternativeHp(character),
-      // A cleared field means "no link" / "no picture"
       wikiLink: character.wikiLink?.trim() || undefined,
       imageUrl: imageUrl || undefined,
+      initiativeRoll,
+      initiativeScore: initiativeRoll + (initiativeBonus ?? 0),
     };
+
+  // The save waiting for the initiative reminder to be answered
+  const [pendingSave, setPendingSave] = useState<"submit" | "restart" | null>(
+    null,
+  );
+
+  const submit = (savedCharacter: CombatCharacter) => {
+    onSubmit?.(savedCharacter);
+  };
+
+  const restart = (savedCharacter: CombatCharacter) => {
+    onSaveAndRestart?.(savedCharacter);
+    setCharacter(null);
+    setImportedFields(null);
+    setHighlightedFields([]);
+    setFormKey((key) => key + 1);
+  };
+
+  // Asks first when there is no initiative roll (a d20 never rolls 0)
+  const save = (kind: "submit" | "restart") => {
+    const savedCharacter = buildSavedCharacter();
+    if (!savedCharacter) {
+      return;
+    }
+    if (!initiativeRoll) {
+      setPendingSave(kind);
+      return;
+    }
+    (kind === "submit" ? submit : restart)(savedCharacter);
+  };
+
+  const confirmPendingSave = () => {
+    const savedCharacter = buildSavedCharacter();
+    if (pendingSave && savedCharacter) {
+      (pendingSave === "submit" ? submit : restart)(savedCharacter);
+    }
+    setPendingSave(null);
+  };
+
+  const backToInitiativeRoll = () => {
+    setPendingSave(null);
+    // After the dialog gave the focus back to the save button
+    setTimeout(() =>
+      formRef.current
+        ?.querySelector<HTMLInputElement>("#initiativeRoll")
+        ?.focus(),
+    );
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const savedCharacter = buildSavedCharacter();
-    if (savedCharacter) {
-      onSubmit?.(savedCharacter);
-    }
+    save("submit");
   };
 
   const saveAndRestart = () => {
@@ -182,16 +231,7 @@ const EditCharacterForm = ({
     if (!formRef.current?.reportValidity()) {
       return;
     }
-    const savedCharacter = buildSavedCharacter();
-    if (!savedCharacter) {
-      return;
-    }
-
-    onSaveAndRestart?.(savedCharacter);
-    setCharacter(null);
-    setImportedFields(null);
-    setHighlightedFields([]);
-    setFormKey((key) => key + 1);
+    save("restart");
   };
 
   return (
@@ -223,6 +263,11 @@ const EditCharacterForm = ({
             : translate("form.noImportedFields", "combatTracker")}
         </p>
       )}
+      <InitiativeReminderDialog
+        isOpened={pendingSave !== null}
+        onBack={backToInitiativeRoll}
+        onConfirm={confirmPendingSave}
+      />
       {isWikiDialogOpened && (
         <WikiCharacterDialog
           initialUrl={wikiUrlGuess}
@@ -246,6 +291,8 @@ const EditCharacterForm = ({
         />
         <CombatFieldset
           character={character}
+          initiativeRoll={initiativeRoll}
+          initiativeBonus={initiativeBonus}
           onInputChange={handleInputChange}
           importedClassName={importedClassName}
         />

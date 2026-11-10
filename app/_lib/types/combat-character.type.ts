@@ -22,7 +22,10 @@ export type CombatCharacter = {
   attitude?: NpcAttitudeEnum;
   deathSaveThrowsLeft: number;
   ac: number;
+  /** The initiative roll plus the initiative bonus: sorts the turn order */
   initiativeScore: number;
+  /** The d20 roll entered in the form, without the bonus */
+  initiativeRoll?: number;
   /** In meters */
   movement?: number;
   proficiencyBonus?: number;

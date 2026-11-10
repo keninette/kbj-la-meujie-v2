@@ -4,10 +4,14 @@ import CheckboxInput from "@/app/_components/_basics/form/checkbox-input/Checkbo
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { WikiImportedField } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
+import { formatModifier } from "@/app/combat-tracker/_lib/ability.helper";
 import styles from "./fieldsets.module.scss";
 
 type CombatFieldsetProps = {
   character: CombatCharacter | null;
+  initiativeRoll: number;
+  /** The dexterity modifier, undefined when the dexterity is unknown */
+  initiativeBonus?: number;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   /** Highlight of a field filled by the wiki import, if any */
   importedClassName: (field: WikiImportedField) => string | undefined;
@@ -15,6 +19,8 @@ type CombatFieldsetProps = {
 
 const CombatFieldset = ({
   character,
+  initiativeRoll,
+  initiativeBonus,
   onInputChange,
   importedClassName,
 }: CombatFieldsetProps) => (
@@ -60,12 +66,12 @@ const CombatFieldset = ({
         data-testid="ac"
       />
       <NumberInput
-        id="initiativeScore"
-        name="initiativeScore"
-        label={translate("form.initiative", "combatTracker")}
-        value={character?.initiativeScore ?? 0}
+        id="initiativeRoll"
+        name="initiativeRoll"
+        label={translate("form.initiativeRoll", "combatTracker")}
+        value={initiativeRoll}
         onChange={onInputChange}
-        data-testid="initiativeScore"
+        data-testid="initiativeRoll"
       />
       <NumberInput
         id="alternativeHp"
@@ -87,6 +93,15 @@ const CombatFieldset = ({
         data-testid="maxAlternativeHp"
       />
     </div>
+    {initiativeBonus !== undefined && (
+      <p className={styles["fieldsets__hint"]} data-testid="initiative-total">
+        {translate("form.initiativeTotal", "combatTracker", {
+          roll: String(initiativeRoll),
+          bonus: formatModifier(initiativeBonus),
+          total: String(initiativeRoll + initiativeBonus),
+        })}
+      </p>
+    )}
     {character?.isDying && (
       <div className={styles["fieldsets__row"]}>
         <CheckboxInput

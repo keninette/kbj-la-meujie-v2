@@ -107,6 +107,8 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     typeof value.deathSaveThrowsLeft === "number" &&
     typeof value.ac === "number" &&
     typeof value.initiativeScore === "number" &&
+    (value.initiativeRoll === undefined ||
+      typeof value.initiativeRoll === "number") &&
     spellSlotsAreValid &&
     statesAreValid &&
     passivesAreValid &&
@@ -146,17 +148,25 @@ const normalizeStoredCombat = (value: unknown): unknown => {
     return value;
   }
 
-  const withCharacterIds = (list: unknown[]) =>
+  // Characters saved before the initiative roll existed: their initiative
+  // was entered as is, so it becomes their roll
+  const normalizeCharacters = (list: unknown[]) =>
     list.map((character) =>
       isRecord(character)
-        ? { ...character, id: character.id || createId() }
+        ? {
+            ...character,
+            id: character.id || createId(),
+            ...(character.initiativeRoll === undefined && {
+              initiativeRoll: character.initiativeScore,
+            }),
+          }
         : character,
     );
   const characters = Array.isArray(value.characters)
-    ? withCharacterIds(value.characters)
+    ? normalizeCharacters(value.characters)
     : value.characters;
   const idleCharacters = Array.isArray(value.idleCharacters)
-    ? withCharacterIds(value.idleCharacters)
+    ? normalizeCharacters(value.idleCharacters)
     : value.idleCharacters;
   const history = Array.isArray(value.history)
     ? value.history.map((entry) =>
