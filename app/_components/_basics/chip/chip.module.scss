@@ -18,3 +18,9 @@
   font-weight: 600;
   letter-spacing: 0.2;
 }
+
+.chip__delete {
+  flex-shrink: 0;
+  height: 100%;
+  margin-right: calc(-1 * var(--spacing-padding--text));
+}

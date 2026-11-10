@@ -1226,6 +1226,70 @@ describe("CharacterStats usable objects", () => {
   });
 });
 
+describe("CharacterStats states", () => {
+  const renderStats = (character: CombatCharacter) => {
+    const onCharacterChange = jest.fn();
+    const onHistoryEdited = jest.fn();
+    const result = render(
+      <CharacterStats
+        selectedCharacter={character}
+        characters={[character]}
+        onCharacterChange={onCharacterChange}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={onHistoryEdited}
+        isCombatOngoing={false}
+      />,
+    );
+    return { ...result, onCharacterChange, onHistoryEdited };
+  };
+
+  it("displays one chip per state", () => {
+    renderStats(
+      buildCharacter({
+        states: [
+          { id: "s1", name: "Poisoned" },
+          { id: "s2", name: "Prone" },
+        ],
+      }),
+    );
+
+    const states = screen.getByTestId("character-states");
+    expect(within(states).getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.getByTestId("state-s1")).toHaveTextContent("Poisoned");
+    expect(screen.getByTestId("state-s2")).toHaveTextContent("Prone");
+  });
+
+  it("displays no states section when there are none", () => {
+    renderStats(buildCharacter({ states: [] }));
+
+    expect(screen.queryByTestId("character-states")).not.toBeInTheDocument();
+  });
+
+  it("removes a state from its chip and logs it in the history", () => {
+    const character = buildCharacter({
+      name: "Goblin",
+      states: [
+        { id: "s1", name: "Poisoned" },
+        { id: "s2", name: "Prone" },
+      ],
+    });
+    const { onCharacterChange, onHistoryEdited } = renderStats(character);
+
+    fireEvent.click(
+      within(screen.getByTestId("state-s1")).getByRole("button", {
+        name: "form.remove",
+      }),
+    );
+
+    expect(onCharacterChange).toHaveBeenCalledWith(
+      expect.objectContaining({ states: [{ id: "s2", name: "Prone" }] }),
+    );
+    expect(onHistoryEdited).toHaveBeenCalledWith([
+      "Goblin perd l'état Poisoned",
+    ]);
+  });
+});
+
 describe("EditCharacterForm spell slots", () => {
   it("adds a spell slot with a free-text name", () => {
     const onSubmit = jest.fn();

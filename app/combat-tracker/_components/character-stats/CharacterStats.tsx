@@ -1,21 +1,19 @@
 import { cx } from "@/app/_lib/class-names";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import styles from "./character-stats.module.scss";
-import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useId, useState } from "react";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import IconButton from "@/app/_components/_basics/icon-button/IconButton";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
 import PassivesSection from "./_components/passives-section/PassivesSection";
 import SpellSlotsSection from "./_components/spell-slots-section/SpellSlotsSection";
 import ActionsSection from "./_components/actions-section/ActionsSection";
-import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
+import StatesSection from "./_components/states-section/StatesSection";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -111,6 +109,10 @@ const CharacterStats = ({
         <PassivesSection passives={selectedCharacter.passives} />
         <SpellSlotsSection spellSlotsLeft={selectedCharacter.spellSlotsLeft} />
         <ActionsSection actions={selectedCharacter.actions} />
+        <StatesSection
+          states={selectedCharacter.states}
+          onRemoveState={onRemoveState}
+        />
         {selectedCharacter.usableObjects &&
           selectedCharacter.usableObjects.length > 0 && (
             <div
@@ -139,44 +141,6 @@ const CharacterStats = ({
               </div>
             </div>
           )}
-        {selectedCharacter.states && selectedCharacter.states.length > 0 && (
-          <div
-            className={cx(
-              styles["character-stats__line--vertical"],
-              styles["character-stats__line"],
-            )}
-          >
-            <div>
-              <FontAwesomeIcon
-                faIcon="fire-flame-curved"
-                faIconStyle={FaIconStyleEnum.SOLID}
-              />
-              {translate("form.states", "combatTracker")} :
-            </div>
-            <div
-              className={cx(
-                styles["character-stats__line"],
-                styles["character-stats__line--vertical-content"],
-              )}
-            >
-              {selectedCharacter.states.map((state) => (
-                <div
-                  className={styles["character-stats__line__subcontent"]}
-                  key={state.id}
-                >
-                  <span>{describeState(state)}</span>
-                  <IconButton
-                    variant={ButtonVariant.SECONDARY}
-                    tooltip={translate("form.remove", "combatTracker")}
-                    faIcon="xmark"
-                    faIconStyle={FaIconStyleEnum.SOLID}
-                    onClick={() => onRemoveState(state.id)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </ContainerBox>
       <CustomDrawer
         isOpened={isDrawerOpened}

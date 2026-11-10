@@ -1,4 +1,7 @@
 import { cx } from "@/app/_lib/class-names";
+import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
+import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
+import IconButton from "../icon-button/IconButton";
 import styles from "./chip.module.scss";
 
 type ChipProps = {
@@ -6,6 +9,7 @@ type ChipProps = {
   /** Shown before the label, e.g. a FontAwesomeIcon */
   icon?: React.ReactNode;
   tooltip?: string;
+  deleteAction?: { onClick: () => void; tooltip: string };
   className?: string;
   "data-testid"?: string;
 };
@@ -15,6 +19,7 @@ const Chip = ({
   label,
   icon,
   tooltip,
+  deleteAction,
   className,
   "data-testid": dataTestId,
 }: ChipProps) => (
@@ -25,6 +30,16 @@ const Chip = ({
   >
     {icon && <span>{icon}</span>}
     {label}
+    {deleteAction && (
+      <IconButton
+        variant={ButtonVariant.TERTIARY}
+        tooltip={deleteAction.tooltip}
+        faIcon="xmark"
+        faIconStyle={FaIconStyleEnum.SOLID}
+        onClick={deleteAction.onClick}
+        className={styles["chip__delete"]}
+      />
+    )}
   </span>
 );
 
