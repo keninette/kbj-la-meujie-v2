@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
+import CustomDialog from "@/app/_components/_basics/custom-dialog/CustomDialog";
 import styles from "./combat-manager.module.scss";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
@@ -30,13 +31,11 @@ type CombatManagerProps = {
 enum DrawerContentEnum {
   CHARACTER_FORM = "character-form",
   COMBAT_HISTORY = "combat-history",
-  STOP_COMBAT_CONFIRMATION = "stop-combat-confirmation",
 }
 
 const DRAWER_TITLE_KEYS: Record<DrawerContentEnum, string> = {
   [DrawerContentEnum.CHARACTER_FORM]: "form.addCharacter",
   [DrawerContentEnum.COMBAT_HISTORY]: "history.title",
-  [DrawerContentEnum.STOP_COMBAT_CONFIRMATION]: "manager.stopTitle",
 };
 
 const CombatManager = ({
@@ -48,6 +47,7 @@ const CombatManager = ({
   const [drawerContent, setDrawerContent] = useState<DrawerContentEnum | null>(
     null,
   );
+  const [isStopDialogOpened, setIsStopDialogOpened] = useState(false);
   // Changed on each opening of the character form: remounts it, which clears it
   const [characterFormOpeningCount, setCharacterFormOpeningCount] = useState(0);
   const isCharacterFormOpened =
@@ -142,7 +142,7 @@ const CombatManager = ({
       });
     }
 
-    setIsDrawerOpened(false);
+    setIsStopDialogOpened(false);
   };
 
   const currentCharacter =
@@ -199,10 +199,7 @@ const CombatManager = ({
             <ButtonWithIcon
               label={translate("manager.stopCombat", "combatTracker")}
               data-testid="stop-combat"
-              onClick={() => {
-                setDrawerContent(DrawerContentEnum.STOP_COMBAT_CONFIRMATION);
-                setIsDrawerOpened(true);
-              }}
+              onClick={() => setIsStopDialogOpened(true)}
               faIcon="stop"
               faIconStyle={FaIconStyleEnum.SOLID}
               iconPosition="left"
@@ -301,16 +298,13 @@ const CombatManager = ({
         {drawerContent === DrawerContentEnum.COMBAT_HISTORY && (
           <CombatHistory combatHistory={ongoingCombat?.history ?? []} />
         )}
-        {drawerContent === DrawerContentEnum.STOP_COMBAT_CONFIRMATION && (
-          <div>
-            <ButtonWithIcon
-              label={translate("manager.removeAllCharacters", "combatTracker")}
-              onClick={() => stopCombat(true)}
-              faIcon="trash"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              iconPosition="left"
-              variant={ButtonVariant.SECONDARY}
-            />
+      </CustomDrawer>
+      <CustomDialog
+        isOpened={isStopDialogOpened}
+        onClose={() => setIsStopDialogOpened(false)}
+        title={translate("manager.stopTitle", "combatTracker")}
+        actions={
+          <>
             <ButtonWithIcon
               label={translate("manager.removeOnlyNpcs", "combatTracker")}
               data-testid="stop-combat-keep-players"
@@ -321,16 +315,16 @@ const CombatManager = ({
               variant={ButtonVariant.SECONDARY}
             />
             <ButtonWithIcon
-              label={translate("manager.cancel", "combatTracker")}
-              onClick={() => setIsDrawerOpened(false)}
-              faIcon="arrow-left"
+              label={translate("manager.removeAllCharacters", "combatTracker")}
+              onClick={() => stopCombat(true)}
+              faIcon="trash"
               faIconStyle={FaIconStyleEnum.SOLID}
               iconPosition="left"
               variant={ButtonVariant.SECONDARY}
             />
-          </div>
-        )}
-      </CustomDrawer>
+          </>
+        }
+      />
     </div>
   );
 };
