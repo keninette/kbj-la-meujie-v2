@@ -1,11 +1,9 @@
 import { cx } from "@/app/_lib/class-names";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import styles from "./character-stats.module.scss";
-import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { useId, useState } from "react";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import AttackForm from "../attack-form/AttackForm";
-import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
@@ -14,6 +12,7 @@ import PassivesSection from "./_components/passives-section/PassivesSection";
 import SpellSlotsSection from "./_components/spell-slots-section/SpellSlotsSection";
 import ActionsSection from "./_components/actions-section/ActionsSection";
 import StatesSection from "./_components/states-section/StatesSection";
+import ConsumablesSection from "./_components/consumables-section/ConsumablesSection";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -113,34 +112,7 @@ const CharacterStats = ({
           states={selectedCharacter.states}
           onRemoveState={onRemoveState}
         />
-        {selectedCharacter.usableObjects &&
-          selectedCharacter.usableObjects.length > 0 && (
-            <div
-              className={cx(
-                styles["character-stats__line--vertical"],
-                styles["character-stats__line"],
-              )}
-              data-testid="character-usable-objects"
-            >
-              <div>
-                <FontAwesomeIcon
-                  faIcon="bag-shopping"
-                  faIconStyle={FaIconStyleEnum.SOLID}
-                />
-                {translate("stats.usableObjects", "combatTracker")} :
-              </div>
-              <div className={styles["character-stats__line"]}>
-                {selectedCharacter.usableObjects.map((usableObject, index) => (
-                  <div
-                    className={styles["character-stats__line--indented"]}
-                    key={`${usableObject}-${index}`}
-                  >
-                    ⚫ {usableObject}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        <ConsumablesSection consumables={selectedCharacter.usableObjects} />
       </ContainerBox>
       <CustomDrawer
         isOpened={isDrawerOpened}

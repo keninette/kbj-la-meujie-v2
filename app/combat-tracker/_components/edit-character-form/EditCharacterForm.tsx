@@ -319,7 +319,7 @@ const EditCharacterForm = ({
         />
         <TextListFieldset
           title={translate("form.usableObjects", "combatTracker")}
-          titleIcon="bag-shopping"
+          titleIcon="flask"
           inputId="usableObjectName"
           inputLabel={translate("form.usableObjectName", "combatTracker")}
           items={character?.usableObjects ?? []}

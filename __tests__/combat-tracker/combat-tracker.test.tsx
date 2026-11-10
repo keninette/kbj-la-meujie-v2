@@ -1224,18 +1224,20 @@ describe("CharacterStats usable objects", () => {
       />,
     );
 
-  it("displays usable objects only when there are some", () => {
+  it("displays consumables as chips, only when there are some", () => {
     const { unmount } = renderStats(
-      buildCharacter({ usableObjects: ["Potion"] }),
+      buildCharacter({ usableObjects: ["Potion", "Torche"] }),
     );
-    expect(screen.getByTestId("character-usable-objects")).toHaveTextContent(
-      "Potion",
-    );
+    const consumables = screen.getByTestId("character-consumables");
+    expect(consumables).toHaveTextContent("Potion");
+    expect(consumables).toHaveTextContent("Torche");
+    // One chip per consumable
+    expect(within(consumables).getAllByRole("listitem")).toHaveLength(2);
     unmount();
 
     renderStats(buildCharacter());
     expect(
-      screen.queryByTestId("character-usable-objects"),
+      screen.queryByTestId("character-consumables"),
     ).not.toBeInTheDocument();
   });
 });
