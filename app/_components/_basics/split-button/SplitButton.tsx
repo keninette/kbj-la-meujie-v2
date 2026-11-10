@@ -32,10 +32,7 @@ const SplitButton = ({
 
   return (
     <div
-      className={cx(
-        styles["split-button"],
-        styles[splitButtonVariantClass],
-      )}
+      className={cx(styles["split-button"], styles[splitButtonVariantClass])}
     >
       <div className={styles["split-button__buttons"]}>
         <div>

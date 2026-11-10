@@ -2,7 +2,6 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing--xxs);
-  // Same height everywhere, whatever the icon (a level square, an emoji...)
   box-sizing: border-box;
   height: var(--height--chip);
   padding: 0 var(--spacing-padding--text);

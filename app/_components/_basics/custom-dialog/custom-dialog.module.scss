@@ -1,6 +1,5 @@
 @use "app/mixins";
 
-// Same look as the custom drawer: see the overlay mixins
 .custom-dialog {
   @include mixins.overlay--content;
 

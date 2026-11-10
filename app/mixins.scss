@@ -6,8 +6,6 @@
   border: solid 1px var(--color-default-pink--light);
 }
 
-// Windows over the page (CustomDialog, CustomDrawer). MUI injects its own
-// styles after the CSS modules, hence the !important on what it also sets.
 @mixin overlay--paper {
   background-color: var(--color-dialog-background) !important;
   backdrop-filter: blur(6px);
@@ -117,9 +115,6 @@
   color: var(--color-button-text--fab);
 }
 
-// The border is a gradient too: CSS borders can't be, so it is a second
-// background layer, painted under the whole box (border-box) and showing
-// through the transparent border, while the fill stays inside (padding-box).
 @mixin button--secondary {
   border: 1px solid transparent;
   background-color: var(--color-button--secondary);
@@ -143,7 +138,6 @@
   text-transform: uppercase;
 }
 
-// Small uppercase label: fieldset titles, turn number...
 @mixin caption {
   color: var(--color-text--muted);
   font-size: var(--font-size--caption);

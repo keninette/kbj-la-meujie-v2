@@ -38,7 +38,6 @@
     object-fit: cover;
   }
 
-  // Same size for every line, active or not: the kebab menus line up
   &__card,
   &__item {
     box-sizing: border-box;
@@ -96,7 +95,6 @@
     min-width: 0;
   }
 
-  // One line, whatever the length: lines have a fixed height
   &__name-text {
     min-width: 0;
     overflow: hidden;
@@ -155,7 +153,6 @@
     gap: var(--spacing-padding--text);
     padding: var(--spacing-padding--button) var(--spacing-padding--text);
 
-    // The name takes the room left: the menu goes to the right end
     .characters-list__name {
       flex: 1;
     }

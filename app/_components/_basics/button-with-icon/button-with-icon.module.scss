@@ -15,7 +15,6 @@
     @include mixins.button--secondary;
   }
 
-  // On the wrapper so the icon, which sits outside the <button>, fades too
   &--disabled {
     cursor: not-allowed;
     opacity: var(--opacity--disabled);

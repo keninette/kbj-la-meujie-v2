@@ -25,7 +25,6 @@
     }
   }
 
-  // Same height as the other chips of the app (see Chip)
   &__chip {
     align-items: center;
     display: inline-flex;
@@ -36,7 +35,6 @@
 
     white-space: nowrap;
 
-    // The remove button fits in the chip
     button {
       height: 100%;
     }

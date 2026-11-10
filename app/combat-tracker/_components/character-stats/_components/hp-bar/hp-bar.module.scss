@@ -1,10 +1,8 @@
-// The tile around the bars is given by the parent
 .hp-bar {
   display: flex;
   flex-direction: column;
   gap: 0;
 
-  // The number on the left, the label on the right, just above the bar
   &__header {
     display: flex;
     align-items: baseline;
@@ -15,7 +13,6 @@
     animation: hp-bar-fade-in var(--transition-duration--hp-bar) ease-out;
   }
 
-  // The number, then the temporary hit points
   &__amount {
     display: flex;
     align-items: baseline;
@@ -30,7 +27,6 @@
       font-weight: bold;
     }
 
-    // Same colors as the hit points of the characters list
     &--high {
       color: var(--color-hp--high);
     }
@@ -49,7 +45,6 @@
     font-size: var(--font-size--caption);
   }
 
-  // Shows the other hit points
   &__switch {
     display: inline-flex;
     align-items: center;
@@ -67,7 +62,6 @@
     }
   }
 
-  // Temporary hit points first (lost first), then the hit points
   &__track {
     display: flex;
     height: 8px;

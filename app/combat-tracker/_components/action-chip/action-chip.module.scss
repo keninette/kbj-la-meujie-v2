@@ -1,5 +1,3 @@
-// Looks like a chip (same frame), with the content of the actions list.
-// All the same height, with or without details.
 .action-chip {
   display: inline-flex;
   align-items: center;
@@ -62,14 +60,12 @@
     white-space: nowrap;
   }
 
-  // At the end, as tall as the chip
   &__remove {
     flex-shrink: 0;
     height: 100%;
     margin-right: calc(-1 * var(--spacing-padding--text));
   }
 
-  // !important: MUI injects its styles after the CSS modules
   &__tooltip {
     max-width: 18rem !important;
     padding: var(--spacing-padding--text) var(--spacing-panel) !important;
