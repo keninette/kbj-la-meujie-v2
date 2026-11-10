@@ -45,7 +45,10 @@ const ButtonWithIcon = ({
         <FontAwesomeIcon
           faIcon={faIcon}
           faIconStyle={faIconStyle}
-          className={styles["button-with-icon__icon--left"]}
+          className={cx(
+            styles["button-with-icon__icon"],
+            styles["button-with-icon__icon--left"],
+          )}
         />
       )}
       <button
@@ -62,7 +65,10 @@ const ButtonWithIcon = ({
         <FontAwesomeIcon
           faIcon={faIcon}
           faIconStyle={faIconStyle}
-          className={styles["button-with-icon__icon--right"]}
+          className={cx(
+            styles["button-with-icon__icon"],
+            styles["button-with-icon__icon--right"],
+          )}
         />
       )}
     </div>

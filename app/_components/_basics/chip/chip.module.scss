@@ -1,9 +1,9 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing--xxs);
+  gap: var(--spacing-padding--button);
   box-sizing: border-box;
-  height: 25px;
+  height: var(--height--chip);
   padding: 2px var(--spacing-padding--text) 0 var(--spacing-padding--text);
 
   line-height: 1;
@@ -15,7 +15,6 @@
   color: var(--color-chip-text);
   font-size: var(--font-size--caption);
   font-weight: 600;
-  letter-spacing: 0.2;
 }
 
 .chip__delete {

@@ -1,8 +1,10 @@
+@use "app/mixins";
+
 .death-saves {
   --death-save-size: 0.85rem;
 
   display: flex;
-  gap: var(--spacing--xxs);
+  gap: var(--spacing-padding--button);
 
   &__save {
     display: inline-flex;
@@ -15,10 +17,10 @@
 
     background: none;
     border: 1px solid var(--color-border--light);
-    border-radius: var(--radius--s);
+    border-radius: var(--radius--button);
     color: inherit;
     font: inherit;
-    font-size: var(--font-size--xxs);
+    font-size: var(--font-size--icon-small);
 
     &--button {
       cursor: pointer;
@@ -48,23 +50,15 @@
 
   &__choices {
     display: flex;
-    gap: var(--spacing--xxs);
+    gap: var(--spacing-padding--button);
   }
 
   &__tooltip {
-    padding: var(--spacing--xxs) !important;
-
-    background-color: var(--color-dropdown) !important;
-    border: 1px solid var(--color-chip-border);
-    border-radius: var(--radius--panel) !important;
-    box-shadow: var(--shadow--panel);
+    padding: var(--spacing-padding--button) !important;
+    @include mixins.tooltip;
   }
 
   &__tooltip-arrow {
-    color: var(--color-dropdown) !important;
-
-    &::before {
-      border: 1px solid var(--color-chip-border);
-    }
+    @include mixins.tooltip--arrow;
   }
 }

@@ -22,10 +22,10 @@
   &__value {
     font-size: var(--font-size--caption);
     font-weight: var(--font-weight--title);
+  }
 
-    strong {
-      font-weight: bold;
-    }
+  &__current {
+    font-weight: bold;
 
     &--high {
       color: var(--color-hp--high);

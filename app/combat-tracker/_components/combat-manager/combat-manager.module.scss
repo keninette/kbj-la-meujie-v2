@@ -3,12 +3,12 @@
 .combat-manager {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-padding--text);
 
   &__line {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--spacing-padding--text);
     height: 1.8rem;
     padding: var(--spacing-layout-section-margin);
 
@@ -30,7 +30,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: var(--spacing-padding--text);
     margin-left: auto;
   }
 
@@ -46,7 +46,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing--xxs);
+    gap: var(--spacing-padding--button);
     margin: 0;
   }
 
@@ -56,7 +56,7 @@
 
   &__current-character {
     font-size: var(--font-size--section-title);
-    letter-spacing: var(--letter-spacing--s);
+    letter-spacing: var(--letter-spacing--name);
   }
 
   &__navigation-slot {

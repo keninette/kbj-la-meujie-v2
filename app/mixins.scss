@@ -1,9 +1,9 @@
 @mixin border--regular--dark {
-  border: solid 2px var(--color-default-grey--dark);
+  border: solid 2px var(--color-border--strong);
 }
 
 @mixin border--thin--light {
-  border: solid 1px var(--color-default-pink--light);
+  border: solid 1px var(--color-border--light);
 }
 
 // Thin scrollbar with a gap on its left, for the element and its descendants
@@ -60,19 +60,19 @@
 @mixin overlay--paper {
   background-color: var(--color-dialog-background) !important;
   backdrop-filter: blur(6px);
-  box-shadow: 0 0.5rem 2rem rgba(47, 56, 80, 0.25) !important;
+  box-shadow: var(--shadow--overlay) !important;
   @include border--thin--light;
 }
 
 @mixin overlay--backdrop {
-  background-color: rgba(47, 56, 80, 0.35) !important;
+  background-color: var(--color-backdrop) !important;
 }
 
 @mixin overlay--content {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-layout-section-content-margin);
-  padding: var(--spacing-layout-section-margin) var(--spacing--m);
+  padding: var(--spacing-layout-section-margin) var(--spacing-overlay);
 
   color: var(--color-text--dark);
 }
@@ -83,11 +83,49 @@
   gap: var(--spacing-padding--text);
 }
 
+@mixin overlay--title-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-padding--text);
+}
+
+@mixin overlay--close {
+  margin-left: auto;
+}
+
+@mixin overlay--actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-padding--text);
+  justify-content: flex-end;
+}
+
 @mixin overlay--title {
   @include section__title;
   margin: 0;
 
   font-weight: var(--font-weight--title);
+}
+
+// Surface of the menus and tooltips (Material UI: hence the !important)
+@mixin dropdown {
+  background-color: var(--color-dropdown) !important;
+  border-radius: var(--radius--panel) !important;
+  box-shadow: var(--shadow--panel) !important;
+  color: var(--color-dropdown-text) !important;
+}
+
+@mixin tooltip {
+  @include dropdown;
+  border: 1px solid var(--color-chip-border);
+}
+
+@mixin tooltip--arrow {
+  color: var(--color-dropdown) !important;
+
+  &::before {
+    border: 1px solid var(--color-chip-border);
+  }
 }
 
 @mixin form-field {

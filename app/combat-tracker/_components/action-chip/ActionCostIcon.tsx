@@ -52,7 +52,10 @@ const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
         <span
           className={cx(
             styles["action-cost__shape"],
-            styles[`action-cost__shape--${cost.kind}`],
+            // BEM modifiers are in kebab-case: "spellSlot" -> "spell-slot"
+            styles[
+              `action-cost__shape--${cost.kind === ActionCostKind.SPELL_SLOT ? "spell-slot" : cost.kind}`
+            ],
           )}
           aria-hidden
         >

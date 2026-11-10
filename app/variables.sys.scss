@@ -33,7 +33,6 @@
   --color-dropdown-text: var(--color-default-grey--dark);
   --color-highlight: var(--color-default-grey--light);
   --color-info: var(--color-default-purple--primary);
-  --color-info-opposite: var(--color-default-white);
   --color-link: var(--color-default-purple--primary);
   --color-picture-frame: var(--color-default-pink--light);
   --color-chip: var(--color-default-white);
@@ -51,6 +50,8 @@
   --color-text--light: var(--color-default-white);
   --color-border--light: var(--color-default-pink--light);
   --color-border--dark: var(--color-default-blue--primary);
+  --color-border--strong: var(--color-default-grey--dark);
+  --color-backdrop: var(--color-default-grey--dark-translucent);
   --color-separator: var(--color-default-grey--dark);
   --color-surface--panel: var(--color-default-white--translucent);
   --color-surface--field: var(--color-default-white);
@@ -60,6 +61,9 @@
   --color-hp--low: var(--color-default-red--primary);
   --color-hp--temp: var(--color-default-blue--light);
   --color-text--muted: var(--color-default-grey--medium);
+  --color-attitude--friend: var(--color-default-green--primary);
+  --color-attitude--neutral: var(--color-default-grey--neutral);
+  --color-attitude--enemy: var(--color-default-red--primary);
 
   --font-size--title: var(--font-size--l);
   --font-size--subtitle: var(--font-size--m);
@@ -77,19 +81,24 @@
   --letter-spacing--title: var(--letter-spacing--l);
   --letter-spacing--section-title: var(--letter-spacing--m);
   --letter-spacing--section-subtitle: var(--letter-spacing--s);
+  --letter-spacing--name: var(--letter-spacing--s);
 
   --opacity--disabled: var(--opacity--low);
 
   --radius--button: var(--radius--s);
   --height--action-chip: var(--size--m);
 
+  --height--chip: var(--size--s);
   --radius--chip: var(--radius--s);
   --radius--spell-level: var(--radius--xs);
   --radius--panel: var(--radius--m);
   --radius--field: var(--radius--s);
+  --radius--dialog: var(--radius--s);
 
   --shadow--panel: var(--shadow--s);
   --shadow--card: var(--shadow--s);
+  --shadow--overlay: var(--shadow--l);
+  --shadow--picture-frame: var(--shadow--drop-m);
 
   --spacing-layout-section: var(--spacing--l);
   --spacing-layout-section-margin: var(--spacing--s);
@@ -97,6 +106,7 @@
   --spacing-title: var(--font-size--s);
   --spacing-padding--text: var(--spacing--xs);
   --spacing-padding--button: var(--spacing--xxs);
-  --spacing-padding-chip--y: var(--spacing--xxs);
   --spacing-panel: var(--spacing--s);
+  --spacing-overlay: var(--spacing--m);
+  --spacing-gap--tight: var(--spacing--xxxs);
 }

@@ -1,3 +1,5 @@
+@use "app/mixins";
+
 .action-chip {
   display: inline-flex;
   align-items: center;
@@ -5,7 +7,7 @@
   box-sizing: border-box;
   max-width: 100%;
   height: var(--height--action-chip);
-  padding: 0 var(--spacing-padding--text) 0 var(--spacing--xxs);
+  padding: 0 var(--spacing-padding--text) 0 var(--spacing-padding--button);
 
   background-color: var(--color-chip);
   border: 1px solid var(--color-chip-border);
@@ -38,7 +40,7 @@
   &__title {
     display: flex;
     align-items: center;
-    gap: var(--spacing--xxs);
+    gap: var(--spacing-padding--button);
   }
 
   &__name {
@@ -70,21 +72,14 @@
     max-width: 18rem !important;
     padding: var(--spacing-padding--text) var(--spacing-panel) !important;
 
-    background-color: var(--color-dropdown) !important;
-    border: 1px solid var(--color-chip-border);
-    border-radius: var(--radius--panel) !important;
-    box-shadow: var(--shadow--panel);
-    color: var(--color-dropdown-text) !important;
+    @include mixins.tooltip;
+
     font-family: inherit !important;
     font-size: var(--font-size--caption) !important;
     line-height: 1.4 !important;
   }
 
   &__tooltip-arrow {
-    color: var(--color-dropdown) !important;
-
-    &::before {
-      border: 1px solid var(--color-chip-border);
-    }
+    @include mixins.tooltip--arrow;
   }
 }

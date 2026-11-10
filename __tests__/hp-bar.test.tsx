@@ -22,7 +22,7 @@ describe("HpBar", () => {
 
     expect(screen.getByTestId("bar")).toHaveTextContent("9 / 40");
     // Under 25 %
-    expect(screen.getByText("9")).toHaveClass("hp-bar__value--low");
+    expect(screen.getByText("9")).toHaveClass("hp-bar__current--low");
     // The temporary fill is kept empty, to animate when some are gained
     const [temp, hp] = fills();
     expect(temp).toHaveStyle({ width: "0%" });
@@ -55,7 +55,7 @@ describe("HpBar", () => {
     expect(hp).toHaveStyle({ width: "80%" });
     // The color follows the hit points only
     expect(screen.getByText("40", { selector: "strong" })).toHaveClass(
-      "hp-bar__value--high",
+      "hp-bar__current--high",
     );
   });
 });

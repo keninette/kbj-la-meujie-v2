@@ -72,7 +72,12 @@ const HpBar = ({
         <span className={styles["hp-bar__header"]} key={label}>
           <span className={styles["hp-bar__amount"]}>
             <span className={styles["hp-bar__value"]}>
-              <strong className={styles[`hp-bar__value--${level}`]}>
+              <strong
+                className={cx(
+                  styles["hp-bar__current"],
+                  styles[`hp-bar__current--${level}`],
+                )}
+              >
                 {hp}
               </strong>{" "}
               / {maxHp}

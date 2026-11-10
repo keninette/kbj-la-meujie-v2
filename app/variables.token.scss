@@ -3,19 +3,19 @@
   --color-default-blue--light: #668bcd;
   --color-default-cyan--light: #85feff;
   --color-default-blue--pale: #b8c7f1;
-  --color-default-blue--ultra-light: #e6ebfb;
   --color-default-purple--primary: #27158fda;
   --color-default-purple--medium: #9c4dcc;
   --color-default-grey--dark: #2f3850;
+  --color-default-grey--dark-translucent: rgba(47, 56, 80, 0.35);
   --color-default-grey--medium: #59627a;
   --color-default-grey--light: #e8e8e9;
   --color-default-grey--light-medium: #d3d4d8;
+  --color-default-grey--neutral: #8a8a8a;
   --color-default-white: #fffbf5;
   --color-default-white--translucent: rgba(255, 251, 245, 0.7);
   --color-default-pink--light: #fde5ea;
   --color-default-pink--ultra-light: rgba(255, 246, 248, 0.8);
   --color-default-coral--primary: #f78989;
-  --color-default-coral--ultra-light: #fef0f0;
   --color-default-green--primary: #4caf50;
   --color-default-green--dark: #1f5230;
   --color-default-orange--primary: #ff8b07;
@@ -40,14 +40,18 @@
   --radius--m: 12px;
 
   --shadow--s: 0 1px 3px rgba(47, 56, 80, 0.12);
+  --shadow--l: 0 0.5rem 2rem rgba(47, 56, 80, 0.25);
+  --shadow--drop-m: drop-shadow(0 1px 1px rgba(47, 56, 80, 0.35))
+    drop-shadow(0 2px 4px rgba(47, 56, 80, 0.2));
 
   --spacing--l: 4rem;
   --spacing--m: 2rem;
   --spacing--s: 1rem;
   --spacing--xs: 0.5rem;
   --spacing--xxs: 0.3rem;
+  --spacing--xxxs: 0.1rem;
 
-  --size--s: 1.75rem;
+  --size--s: 25px;
   --size--m: 2.75rem;
 
   --opacity--low: 0.5;
