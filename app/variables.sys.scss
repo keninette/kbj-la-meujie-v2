@@ -2,6 +2,7 @@
 
 :root {
   --button-height--regular: 1.7rem;
+  --button-height--xs: 0.85rem;
   --list-line-height: 3rem;
   --scrollbar-width: 8px;
   --scrollbar-gap: 4px;
@@ -99,6 +100,8 @@
   --spacing-title: var(--font-size--s);
   --spacing-padding--text: var(--spacing--xs);
   --spacing-padding--button: var(--spacing--xxs);
+  // No vertical padding: the height is fixed and the content centered
+  --spacing-padding--button-xs: 0 var(--spacing--xxs);
   --spacing-padding-chip--y: var(--spacing--xxs);
   --spacing-panel: var(--spacing--s);
 }

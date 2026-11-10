@@ -13,17 +13,21 @@ import {
   getInitiativeBonus,
 } from "@/app/combat-tracker/_lib/ability.helper";
 import HpBar from "../hp-bar/HpBar";
+import DeathSaves from "../death-saves/DeathSaves";
 import styles from "../../character-stats.module.scss";
 
 type StatsSectionProps = {
   character: CombatCharacter;
+  /** Adds the button to fail a death saving throw, e.g. during the combat */
+  onDeathSaveFail?: () => void;
 };
 
 /**
- * Hit points, armor class, initiative, movement, and the ability modifiers
- * with the saving throws
+ * Hit points (or the death saving throws of a downed character), armor
+ * class, initiative, movement, and the ability modifiers with the saving
+ * throws
  */
-const StatsSection = ({ character }: StatsSectionProps) => {
+const StatsSection = ({ character, onDeathSaveFail }: StatsSectionProps) => {
   const hasAlternativeHp =
     typeof character.alternativeHp === "number" && character.alternativeHp > 0;
   // The alternative hit points are shown first, the regular ones on demand.
@@ -47,12 +51,22 @@ const StatsSection = ({ character }: StatsSectionProps) => {
     <div className={styles["character-stats__tiles"]}>
       <Tile
         title={translate(
-          showAlternativeHp ? "stats.alternativeHitPoints" : "stats.hitPoints",
+          character.isDying
+            ? "stats.deathSaves"
+            : showAlternativeHp
+              ? "stats.alternativeHitPoints"
+              : "stats.hitPoints",
           "combatTracker",
         )}
         className={styles["character-stats__hp-tile"]}
       >
-        {showAlternativeHp ? (
+        {/* Down: no hit points left to show */}
+        {character.isDying ? (
+          <DeathSaves
+            savesLeft={character.deathSaveThrowsLeft}
+            onFail={onDeathSaveFail}
+          />
+        ) : showAlternativeHp ? (
           <HpBar
             label={translate("stats.alternativeHp", "combatTracker")}
             hp={character.alternativeHp ?? 0}

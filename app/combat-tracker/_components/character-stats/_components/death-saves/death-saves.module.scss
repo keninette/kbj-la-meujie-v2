@@ -1,0 +1,35 @@
+// The track on the left, the button on the right, on one line
+.death-saves {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-padding--text);
+
+  &__track {
+    display: flex;
+    gap: var(--spacing--xxs);
+  }
+
+  &__save {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    // Squares, as high as the extra small button next to them (border
+    // included, like the button)
+    box-sizing: border-box;
+    width: var(--button-height--xs);
+    height: var(--button-height--xs);
+
+    font-size: var(--font-size--xxs);
+
+    border: 1px solid var(--color-border--light);
+    border-radius: var(--radius--s);
+
+    // Same red as the low hit points
+    &--failed {
+      background-color: var(--color-hp--low);
+      border-color: var(--color-hp--low);
+      color: var(--color-surface--card);
+    }
+  }
+}

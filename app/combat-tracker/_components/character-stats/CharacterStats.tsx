@@ -100,11 +100,13 @@ const CharacterStats = ({
           nameId={nameId}
           isCombatOngoing={isCombatOngoing}
           onPlay={() => setIsDrawerOpened(true)}
-          onDeathSaveFail={onDeathSaveFail}
           onEdit={onEdit}
           onDeactivate={onDeactivate}
         />
-        <StatsSection character={selectedCharacter} />
+        <StatsSection
+          character={selectedCharacter}
+          onDeathSaveFail={isCombatOngoing ? onDeathSaveFail : undefined}
+        />
         <PassivesSection passives={selectedCharacter.passives} />
         <SpellSlotsSection spellSlotsLeft={selectedCharacter.spellSlotsLeft} />
         <ActionsSection actions={selectedCharacter.actions} />

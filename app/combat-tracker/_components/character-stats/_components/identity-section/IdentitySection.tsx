@@ -19,18 +19,16 @@ type IdentitySectionProps = {
   nameId: string;
   isCombatOngoing: boolean;
   onPlay: () => void;
-  onDeathSaveFail: () => void;
   onEdit?: (character: CombatCharacter) => void;
   onDeactivate?: (character: CombatCharacter) => void;
 };
 
-/** Portrait, name, description and actions of the character, then whether it is down or dead */
+/** Portrait, name, description and actions of the character, then whether it is dead */
 const IdentitySection = ({
   character,
   nameId,
   isCombatOngoing,
   onPlay,
-  onDeathSaveFail,
   onEdit,
   onDeactivate,
 }: IdentitySectionProps) => (
@@ -127,30 +125,8 @@ const IdentitySection = ({
           onClick={onPlay}
         />
       )}
-      {isCombatOngoing && character.isDying && (
-        <ButtonWithIcon
-          variant={ButtonVariant.SECONDARY}
-          label={translate("stats.deathSaveFail", "combatTracker")}
-          faIcon="heart-circle-minus"
-          iconPosition="left"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          type="button"
-          onClick={onDeathSaveFail}
-        />
-      )}
     </header>
 
-    {character.isDying && (
-      <div className={styles["character-stats__line"]}>
-        <FontAwesomeIcon
-          faIcon="hand-holding-heart"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          tooltip={translate("stats.dying", "combatTracker")}
-        />
-        {translate("stats.downDescription", "combatTracker")}{" "}
-        {character.deathSaveThrowsLeft}
-      </div>
-    )}
     {character.isDead && (
       <div className={styles["character-stats__line"]}>
         <FontAwesomeIcon

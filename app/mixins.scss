@@ -100,6 +100,15 @@
   justify-content: center;
 }
 
+// About half the regular height, see ButtonSize
+@mixin button--xs {
+  height: var(--button-height--xs);
+  padding: var(--spacing-padding--button-xs);
+  font-size: var(--font-size--xxs);
+  // Too low for a second line of text
+  white-space: nowrap;
+}
+
 @mixin button--reset-style {
   background: none;
   color: inherit;

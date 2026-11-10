@@ -15,6 +15,10 @@
     @include mixins.button--secondary;
   }
 
+  &--xs {
+    @include mixins.button--xs;
+  }
+
   // On the wrapper so the icon, which sits outside the <button>, fades too
   &--disabled {
     cursor: not-allowed;

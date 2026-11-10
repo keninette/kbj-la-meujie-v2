@@ -1867,3 +1867,70 @@ describe("EditCharacterForm initiative", () => {
     expect(screen.getByTestId("name")).toHaveValue("");
   });
 });
+
+describe("CharacterStats death saves", () => {
+  const renderStats = (character: CombatCharacter, isCombatOngoing = true) => {
+    const onCharacterChange = jest.fn();
+    render(
+      <CharacterStats
+        selectedCharacter={character}
+        characters={[character]}
+        onCharacterChange={onCharacterChange}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={jest.fn()}
+        isCombatOngoing={isCombatOngoing}
+      />,
+    );
+    return onCharacterChange;
+  };
+  const dying = (deathSaveThrowsLeft: number) =>
+    buildCharacter({ hp: 0, isDying: true, deathSaveThrowsLeft });
+
+  it("shows the death saves instead of the hit points of a downed character", () => {
+    renderStats(dying(2));
+
+    expect(screen.queryByTestId("hp-bar")).not.toBeInTheDocument();
+    const track = screen.getByTestId("death-saves");
+    expect(within(track).getAllByTestId("death-save-failed")).toHaveLength(1);
+    expect(within(track).getAllByTestId("death-save-left")).toHaveLength(2);
+    expect(track).toHaveAttribute("aria-label", "stats.deathSavesLeft");
+  });
+
+  it("shows the hit points of a character who is not down", () => {
+    renderStats(buildCharacter());
+
+    expect(screen.getByTestId("hp-bar")).toBeInTheDocument();
+    expect(screen.queryByTestId("death-saves")).not.toBeInTheDocument();
+  });
+
+  it("shows the fail button during the combat only", () => {
+    renderStats(dying(3), false);
+
+    expect(screen.getByTestId("death-saves")).toBeInTheDocument();
+    expect(screen.queryByTestId("death-save-fail")).not.toBeInTheDocument();
+  });
+
+  it("fails a death save", () => {
+    const onCharacterChange = renderStats(dying(3));
+
+    fireEvent.click(screen.getByTestId("death-save-fail"));
+
+    expect(onCharacterChange).toHaveBeenCalledWith(
+      expect.objectContaining({ deathSaveThrowsLeft: 2, isDying: true }),
+    );
+  });
+
+  it("makes the character dead on the last failed death save", () => {
+    const onCharacterChange = renderStats(dying(1));
+
+    fireEvent.click(screen.getByTestId("death-save-fail"));
+
+    expect(onCharacterChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isDead: true,
+        isDying: false,
+        deathSaveThrowsLeft: 3,
+      }),
+    );
+  });
+});

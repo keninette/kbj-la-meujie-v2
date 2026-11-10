@@ -13,6 +13,10 @@
     @include mixins.button--secondary;
   }
 
+  &--xs {
+    @include mixins.button--xs;
+  }
+
   &--tertiary {
     background: transparent;
     border: none;
