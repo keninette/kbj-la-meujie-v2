@@ -6,6 +6,7 @@ import styles from "../edit-adventure-page.module.scss";
 import { useState } from "react";
 import BasicDataForm from "@/app/adventures/[uuid]/edit/components/BasicDataForm";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
+import { translate } from "@/app/_dictionaries/dictionnary";
 import BasicDataDisplay from "@/app/adventures/[uuid]/edit/components/BasicDataDisplay";
 
 type EditAdventureProps = {
@@ -31,6 +32,7 @@ const EditBasicData = ({ adventure, universes }: EditAdventureProps) => {
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
+        title={translate("basicData.edit", "editAdventure")}
       >
         {formToDisplay === EditAdventureForm.BASIC_DATA && (
           <BasicDataForm

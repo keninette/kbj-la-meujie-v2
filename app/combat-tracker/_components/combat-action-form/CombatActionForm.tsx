@@ -1,5 +1,6 @@
 import { createId } from "@/app/combat-tracker/_lib/create-id";
-import { useState } from "react";
+import { useId, useState } from "react";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import { FormProvider, useForm } from "react-hook-form";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import {
@@ -16,6 +17,10 @@ import StateFields from "./_components/StateFields";
 import styles from "./combat-action-form.module.scss";
 
 type CombatActionFormProps = {
+  /** Shown in a drawer, with the save button always visible at the bottom */
+  isOpened: boolean;
+  onClose: () => void;
+  title: string;
   characters: CombatCharacter[];
   selectedCharacter: CombatCharacter;
   onCharactersChange: (characters: CombatCharacter[]) => void;
@@ -37,12 +42,16 @@ type HistoryAction =
   | "state";
 
 const CombatActionForm = ({
+  isOpened,
+  onClose,
+  title,
   characters,
   selectedCharacter,
   onCharactersChange,
   onHistoryEdited,
   currentTurn,
 }: CombatActionFormProps) => {
+  const formId = useId();
   const formMethods = useForm<CombatActionFormValues>({
     defaultValues: {
       attackTargetId: "",
@@ -232,9 +241,25 @@ const CombatActionForm = ({
   });
 
   return (
-    <FormProvider {...formMethods}>
-      <form className={styles["combat-action-form"]} onSubmit={onSubmit}>
-        <div>
+    <CustomDrawer
+      isOpened={isOpened}
+      onClose={onClose}
+      title={title}
+      actions={
+        <SubmitButton
+          label={translate("form.save", "combatTracker")}
+          disabled={disabledActions.submit}
+          form={formId}
+        />
+      }
+    >
+      <FormProvider {...formMethods}>
+        {/* The save button is in the drawer actions: it submits it by its id */}
+        <form
+          id={formId}
+          className={styles["combat-action-form"]}
+          onSubmit={onSubmit}
+        >
           <RecoveryFields
             characters={characters}
             disabledRevive={disabledActions.revive}
@@ -262,8 +287,6 @@ const CombatActionForm = ({
             disabled={disabledActions.state}
             onAddHistory={addInflictedStateHistoryEntry}
           />
-        </div>
-        <div>
           <fieldset className={styles["combat-action-form__fieldset"]}>
             {historyEntries.map((entry) => (
               <p
@@ -274,13 +297,9 @@ const CombatActionForm = ({
               </p>
             ))}
           </fieldset>
-          <SubmitButton
-            label={translate("form.save", "combatTracker")}
-            disabled={disabledActions.submit}
-          />
-        </div>
-      </form>
-    </FormProvider>
+        </form>
+      </FormProvider>
+    </CustomDrawer>
   );
 };
 

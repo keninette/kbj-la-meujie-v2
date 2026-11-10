@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import Image from "next/image";
 import dndLogo from "@/public/assets/universes/dnd.png";
 import styles from "./edit-character-form.module.scss";
@@ -34,6 +35,10 @@ import { getInitiativeBonus } from "@/app/combat-tracker/_lib/ability.helper";
 import InitiativeReminderDialog from "./_components/initiative-reminder-dialog/InitiativeReminderDialog";
 
 type EditCharacterFormProps = {
+  /** Shown in a drawer, with the buttons always visible at the bottom */
+  isOpened: boolean;
+  onClose: () => void;
+  title: string;
   initialCharacter: CombatCharacter | null;
   onSubmit?: (character: CombatCharacter) => void;
   /** Saves the character, and keeps the form open and empty for the next
@@ -59,11 +64,15 @@ const createEmptyCharacter = (): CombatCharacter => ({
 });
 
 const EditCharacterForm = ({
+  isOpened,
+  onClose,
+  title,
   initialCharacter,
   onSubmit,
   onSaveAndRestart,
   currentTurn,
 }: EditCharacterFormProps) => {
+  const formId = useId();
   const [character, setCharacter] = useState<CombatCharacter | null>(
     initialCharacter,
   );
@@ -234,7 +243,29 @@ const EditCharacterForm = ({
   };
 
   return (
-    <div className={styles["edit-character-form"]}>
+    <CustomDrawer
+      isOpened={isOpened}
+      onClose={onClose}
+      title={title}
+      actions={
+        <>
+          {onSaveAndRestart && (
+            <ButtonWithIcon
+              label={translate("form.saveAndRestart", "combatTracker")}
+              onClick={saveAndRestart}
+              faIcon="refresh"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              iconPosition="left"
+              data-testid="save-and-restart"
+            />
+          )}
+          <SubmitButton
+            label={translate("form.save", "combatTracker")}
+            form={formId}
+          />
+        </>
+      }
+    >
       <Image
         src={dndLogo}
         alt=""
@@ -255,110 +286,96 @@ const EditCharacterForm = ({
           displayOverrideFields={initialCharacter !== null}
         />
       )}
+      <ButtonWithIcon
+        label={translate("form.importFromWiki", "combatTracker")}
+        onClick={() => setIsWikiDialogOpened(true)}
+        faIcon="book-open"
+        faIconStyle={FaIconStyleEnum.SOLID}
+        iconPosition="left"
+        variant={ButtonVariant.SECONDARY}
+        data-testid="import-from-wiki"
+      />
+      {importedFields && (
+        <p
+          className={styles["edit-character-form__import-summary"]}
+          role="status"
+          data-testid="imported-fields"
+        >
+          {importedFields.length
+            ? translate("form.importedFields", "combatTracker")
+            : translate("form.noImportedFields", "combatTracker")}
+        </p>
+      )}
+      {/* The buttons are in the drawer actions: they submit it by its id */}
       <form
         key={formKey}
+        id={formId}
         ref={formRef}
         className={styles["edit-character-form__form"]}
         onSubmit={handleSubmit}
       >
-        {/* Only this part scrolls: the drawer title and the buttons stay visible */}
-        <div className={styles["edit-character-form__body"]}>
-          <ButtonWithIcon
-            label={translate("form.importFromWiki", "combatTracker")}
-            onClick={() => setIsWikiDialogOpened(true)}
-            faIcon="book-open"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            iconPosition="left"
-            variant={ButtonVariant.SECONDARY}
-            data-testid="import-from-wiki"
-          />
-          {importedFields && (
-            <p
-              className={styles["edit-character-form__import-summary"]}
-              role="status"
-              data-testid="imported-fields"
-            >
-              {importedFields.length
-                ? translate("form.importedFields", "combatTracker")
-                : translate("form.noImportedFields", "combatTracker")}
-            </p>
-          )}
-          <IdentityFieldset
-            character={character}
-            onInputChange={handleInputChange}
-            imageUrl={imageUrl}
-            onAttitudeChange={(attitude) => updateCharacter({ attitude })}
-            importedClassName={importedClassName}
-          />
-          <CombatFieldset
-            character={character}
-            initiativeRoll={initiativeRoll}
-            onInputChange={handleInputChange}
-            importedClassName={importedClassName}
-          />
-          <AbilitiesFieldset
-            abilities={character?.abilities}
-            savingThrows={character?.savingThrows}
-            onChange={(changes) => {
-              clearHighlight("abilities");
-              clearHighlight("savingThrows");
-              updateCharacter(changes);
-            }}
-            isHighlighted={
-              highlightedFields.includes("abilities") ||
-              highlightedFields.includes("savingThrows")
-            }
-          />
-          <SpellSlotsFieldset
-            spellSlots={character?.spellSlotsLeft ?? {}}
-            onChange={(spellSlotsLeft) =>
-              updateCharacter({ spellSlotsLeft }, "spellSlotsLeft")
-            }
-            isHighlighted={highlightedFields.includes("spellSlotsLeft")}
-          />
-          <TextListFieldset
-            title={translate("form.passives", "combatTracker")}
-            titleIcon="book-open"
-            inputId="passiveName"
-            inputLabel={translate("form.passiveName", "combatTracker")}
-            items={character?.passives ?? []}
-            onChange={(passives) => updateCharacter({ passives }, "passives")}
-            isHighlighted={highlightedFields.includes("passives")}
-          />
-          <ActionsFieldset
-            actions={character?.actions ?? []}
-            onChange={(actions) => updateCharacter({ actions }, "actions")}
-            isHighlighted={highlightedFields.includes("actions")}
-          />
-          <TextListFieldset
-            title={translate("form.usableObjects", "combatTracker")}
-            titleIcon="flask"
-            inputId="usableObjectName"
-            inputLabel={translate("form.usableObjectName", "combatTracker")}
-            items={character?.usableObjects ?? []}
-            onChange={(usableObjects) => updateCharacter({ usableObjects })}
-          />
-          <StatesFieldset
-            states={character?.states ?? []}
-            onChange={(states) => updateCharacter({ states })}
-            currentTurn={currentTurn}
-          />
-        </div>
-        <div className={styles["edit-character-form__footer"]}>
-          {onSaveAndRestart && (
-            <ButtonWithIcon
-              label={translate("form.saveAndRestart", "combatTracker")}
-              onClick={saveAndRestart}
-              faIcon="refresh"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              iconPosition="left"
-              data-testid="save-and-restart"
-            />
-          )}
-          <SubmitButton label={translate("form.save", "combatTracker")} />
-        </div>
+        <IdentityFieldset
+          character={character}
+          onInputChange={handleInputChange}
+          imageUrl={imageUrl}
+          onAttitudeChange={(attitude) => updateCharacter({ attitude })}
+          importedClassName={importedClassName}
+        />
+        <CombatFieldset
+          character={character}
+          initiativeRoll={initiativeRoll}
+          onInputChange={handleInputChange}
+          importedClassName={importedClassName}
+        />
+        <AbilitiesFieldset
+          abilities={character?.abilities}
+          savingThrows={character?.savingThrows}
+          onChange={(changes) => {
+            clearHighlight("abilities");
+            clearHighlight("savingThrows");
+            updateCharacter(changes);
+          }}
+          isHighlighted={
+            highlightedFields.includes("abilities") ||
+            highlightedFields.includes("savingThrows")
+          }
+        />
+        <SpellSlotsFieldset
+          spellSlots={character?.spellSlotsLeft ?? {}}
+          onChange={(spellSlotsLeft) =>
+            updateCharacter({ spellSlotsLeft }, "spellSlotsLeft")
+          }
+          isHighlighted={highlightedFields.includes("spellSlotsLeft")}
+        />
+        <TextListFieldset
+          title={translate("form.passives", "combatTracker")}
+          titleIcon="book-open"
+          inputId="passiveName"
+          inputLabel={translate("form.passiveName", "combatTracker")}
+          items={character?.passives ?? []}
+          onChange={(passives) => updateCharacter({ passives }, "passives")}
+          isHighlighted={highlightedFields.includes("passives")}
+        />
+        <ActionsFieldset
+          actions={character?.actions ?? []}
+          onChange={(actions) => updateCharacter({ actions }, "actions")}
+          isHighlighted={highlightedFields.includes("actions")}
+        />
+        <TextListFieldset
+          title={translate("form.usableObjects", "combatTracker")}
+          titleIcon="flask"
+          inputId="usableObjectName"
+          inputLabel={translate("form.usableObjectName", "combatTracker")}
+          items={character?.usableObjects ?? []}
+          onChange={(usableObjects) => updateCharacter({ usableObjects })}
+        />
+        <StatesFieldset
+          states={character?.states ?? []}
+          onChange={(states) => updateCharacter({ states })}
+          currentTurn={currentTurn}
+        />
       </form>
-    </div>
+    </CustomDrawer>
   );
 };
 

@@ -33,6 +33,9 @@ jest.mock("../../app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions", () => ({
 }));
 const mockedCreateFromWiki = jest.mocked(createCharacterFromWiki);
 
+// The forms are shown in their own drawer, opened here
+const drawerProps = { isOpened: true, onClose: jest.fn(), title: "Drawer" };
+
 // Note: these test only cover important behaviors and do not provide exhaustive coverage of all edge cases.
 describe("findCharacterIndexById", () => {
   it("returns the index of the character matching the given id", () => {
@@ -260,7 +263,12 @@ describe("loadCombat", () => {
 
 describe("EditCharacterForm hp/isDying/isDead behavior", () => {
   it("sets isDying to true and reveals the isDead checkbox when hp is set to 0", () => {
-    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={buildCharacter()}
+      />,
+    );
 
     expect(screen.queryByTestId("isDead")).not.toBeInTheDocument();
 
@@ -274,6 +282,7 @@ describe("EditCharacterForm hp/isDying/isDead behavior", () => {
   it("clears isDying and forces isDead back to false when hp goes back to 1 or more", () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           hp: 0,
           isDying: true,
@@ -294,6 +303,7 @@ describe("EditCharacterForm hp/isDying/isDead behavior", () => {
   it("keeps isDead checked while hp stays at 0 or less across unrelated field edits", () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           hp: 0,
           isDying: true,
@@ -315,6 +325,7 @@ describe("EditCharacterForm short description", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -333,6 +344,7 @@ describe("EditCharacterForm short description", () => {
   it("prefills the short description of an existing character", () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ shortDescription: "Elf Druid" })}
       />,
     );
@@ -346,6 +358,7 @@ describe("EditCharacterForm wiki link", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -367,6 +380,7 @@ describe("EditCharacterForm wiki link", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           wikiLink: "https://bg3.wiki/wiki/Kagha",
         })}
@@ -391,7 +405,11 @@ describe("EditCharacterForm portrait", () => {
   const submitWith = (character: CombatCharacter) => {
     const onSubmit = jest.fn();
     render(
-      <EditCharacterForm initialCharacter={character} onSubmit={onSubmit} />,
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={character}
+        onSubmit={onSubmit}
+      />,
     );
     fireEvent.submit(screen.getByTestId("name").closest("form")!);
     return onSubmit;
@@ -411,6 +429,7 @@ describe("EditCharacterForm portrait", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           wikiLink: "https://bg3.wiki/wiki/Halsin",
           imageUrl: "https://bg3.wiki/w/images/a/a1/Portrait_Halsin.png",
@@ -480,6 +499,7 @@ describe("EditCharacterForm import from wiki", () => {
   it("pre-fills the URL from the character's name, editable", () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ name: "Kagha" })}
       />,
     );
@@ -496,6 +516,7 @@ describe("EditCharacterForm import from wiki", () => {
   it("pre-fills the URL with the wiki link when there is one", () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           name: "Archdruid",
           wikiLink: "https://bg3.wiki/wiki/Kagha",
@@ -510,6 +531,7 @@ describe("EditCharacterForm import from wiki", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ name: "My Kagha", ac: 16 })}
         onSubmit={onSubmit}
       />,
@@ -549,6 +571,7 @@ describe("EditCharacterForm import from wiki", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -574,7 +597,7 @@ describe("EditCharacterForm import from wiki", () => {
   });
 
   it("marks a new character imported from the wiki as an NPC", async () => {
-    render(<EditCharacterForm initialCharacter={null} />);
+    render(<EditCharacterForm {...drawerProps} initialCharacter={null} />);
     expect(screen.getByLabelText("form.npc")).not.toBeChecked();
 
     await runImport(false);
@@ -585,7 +608,10 @@ describe("EditCharacterForm import from wiki", () => {
 
   it("keeps the NPC status of an existing character", async () => {
     render(
-      <EditCharacterForm initialCharacter={buildCharacter({ isNpc: false })} />,
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={buildCharacter({ isNpc: false })}
+      />,
     );
 
     await runImport(true);
@@ -594,7 +620,12 @@ describe("EditCharacterForm import from wiki", () => {
   });
 
   it("lets every field be selected at once, or one by one", () => {
-    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={buildCharacter()}
+      />,
+    );
     openImport();
 
     const all = screen.getByTestId("wiki-override-all");
@@ -620,6 +651,7 @@ describe("EditCharacterForm import from wiki", () => {
   it("only replaces the fields selected in the dialog", async () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ name: "My Kagha", ac: 16 })}
       />,
     );
@@ -638,6 +670,7 @@ describe("EditCharacterForm import from wiki", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ name: "My Kagha", ac: 16 })}
         onSubmit={onSubmit}
       />,
@@ -673,7 +706,12 @@ describe("EditCharacterForm import from wiki", () => {
     mockedCreateFromWiki.mockResolvedValueOnce({
       character: { ...kaghaFromWiki, movement: 9, abilities: { dex: 16 } },
     });
-    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={buildCharacter()}
+      />,
+    );
 
     await runImport(true);
 
@@ -697,6 +735,7 @@ describe("EditCharacterForm import from wiki", () => {
   it("lists and highlights the fields replaced by the import", async () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ name: "My Kagha", ac: 14 })}
       />,
     );
@@ -718,6 +757,7 @@ describe("EditCharacterForm import from wiki", () => {
   it("removes the highlight of a field edited by hand", async () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ name: "My Kagha" })}
       />,
     );
@@ -734,7 +774,9 @@ describe("EditCharacterForm import from wiki", () => {
   });
 
   it("says so when the import changed nothing", async () => {
-    render(<EditCharacterForm initialCharacter={kaghaFromWiki} />);
+    render(
+      <EditCharacterForm {...drawerProps} initialCharacter={kaghaFromWiki} />,
+    );
 
     await runImport(true);
 
@@ -744,7 +786,12 @@ describe("EditCharacterForm import from wiki", () => {
   });
 
   it("shows the portrait next to its field", () => {
-    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={buildCharacter()}
+      />,
+    );
 
     expect(screen.queryByTestId("imageUrl-preview")).not.toBeInTheDocument();
 
@@ -758,7 +805,12 @@ describe("EditCharacterForm import from wiki", () => {
   it.each(["https://bg3.wiki/w/images/", "//cdn.example/x.png", "htt"])(
     "does not preview the half-typed URL %s",
     (value) => {
-      render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+      render(
+        <EditCharacterForm
+          {...drawerProps}
+          initialCharacter={buildCharacter()}
+        />,
+      );
 
       fireEvent.change(screen.getByTestId("imageUrl"), {
         target: { value },
@@ -774,6 +826,7 @@ describe("EditCharacterForm NPC attitude", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ isNpc: false })}
         onSubmit={onSubmit}
       />,
@@ -796,6 +849,7 @@ describe("EditCharacterForm NPC attitude", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           isNpc: true,
           attitude: NpcAttitudeEnum.ENEMY,
@@ -818,6 +872,7 @@ describe("EditCharacterForm states", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           states: [
             {
@@ -850,6 +905,7 @@ describe("EditCharacterForm states", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -870,6 +926,7 @@ describe("EditCharacterForm states", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -909,6 +966,7 @@ describe("EditCharacterForm states", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
         currentTurn={4}
@@ -940,6 +998,7 @@ describe("EditCharacterForm passives", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -960,6 +1019,7 @@ describe("EditCharacterForm passives", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ passives: ["Rage", "Fury"] })}
         onSubmit={onSubmit}
       />,
@@ -988,7 +1048,13 @@ describe("EditCharacterForm actions", () => {
 
   it("keeps a whole character when an action is the first thing added", () => {
     const onSubmit = jest.fn();
-    render(<EditCharacterForm initialCharacter={null} onSubmit={onSubmit} />);
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={null}
+        onSubmit={onSubmit}
+      />,
+    );
 
     fireEvent.change(screen.getByTestId("actionName"), {
       target: { value: "Dodge" },
@@ -1010,6 +1076,7 @@ describe("EditCharacterForm actions", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -1030,6 +1097,7 @@ describe("EditCharacterForm actions", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           actions: [
             { name: "Moonbeam", costs: ["action", "2"] },
@@ -1231,6 +1299,7 @@ describe("EditCharacterForm usable objects", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ usableObjects: ["Torche"] })}
         onSubmit={onSubmit}
       />,
@@ -1357,6 +1426,7 @@ describe("EditCharacterForm spell slots", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -1380,6 +1450,7 @@ describe("EditCharacterForm spell slots", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -1415,6 +1486,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
     render(
       <CombatActionForm
+        {...drawerProps}
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1458,6 +1530,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
     render(
       <CombatActionForm
+        {...drawerProps}
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={jest.fn()}
@@ -1499,6 +1572,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
     render(
       <CombatActionForm
+        {...drawerProps}
         characters={[healer, target, dead]}
         selectedCharacter={healer}
         onCharactersChange={onCharactersChange}
@@ -1538,6 +1612,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
     render(
       <CombatActionForm
+        {...drawerProps}
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1577,6 +1652,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
     render(
       <CombatActionForm
+        {...drawerProps}
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1616,6 +1692,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
     render(
       <CombatActionForm
+        {...drawerProps}
         characters={[attacker, dyingCharacter]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1653,6 +1730,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
     render(
       <CombatActionForm
+        {...drawerProps}
         characters={[attacker, deadCharacter]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1681,7 +1759,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
 
 describe("EditCharacterForm save and restart", () => {
   it("is hidden when the parent does not handle it", () => {
-    render(<EditCharacterForm initialCharacter={null} />);
+    render(<EditCharacterForm {...drawerProps} initialCharacter={null} />);
 
     expect(screen.queryByTestId("save-and-restart")).not.toBeInTheDocument();
   });
@@ -1691,6 +1769,7 @@ describe("EditCharacterForm save and restart", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={null}
         onSubmit={onSubmit}
         onSaveAndRestart={onSaveAndRestart}
@@ -1734,6 +1813,7 @@ describe("EditCharacterForm save and restart", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={null}
         onSaveAndRestart={onSaveAndRestart}
       />,
@@ -1753,6 +1833,7 @@ describe("EditCharacterForm save and restart", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ maxHp: 7 })}
         onSaveAndRestart={onSaveAndRestart}
       />,
@@ -1777,6 +1858,7 @@ describe("EditCharacterForm save and restart", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={null}
         onSaveAndRestart={onSaveAndRestart}
       />,
@@ -1800,6 +1882,7 @@ describe("EditCharacterForm initiative", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ abilities: { dex: 16 } })}
         onSubmit={onSubmit}
       />,
@@ -1817,6 +1900,7 @@ describe("EditCharacterForm initiative", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -1833,6 +1917,7 @@ describe("EditCharacterForm initiative", () => {
   it("shows the saved roll, not the initiative, when editing again", () => {
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           abilities: { dex: 16 },
           initiativeRoll: 14,
@@ -1846,7 +1931,13 @@ describe("EditCharacterForm initiative", () => {
 
   it("reminds to roll the initiative, then saves anyway on confirm", () => {
     const onSubmit = jest.fn();
-    render(<EditCharacterForm initialCharacter={null} onSubmit={onSubmit} />);
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={null}
+        onSubmit={onSubmit}
+      />,
+    );
 
     fireEvent.change(screen.getByTestId("name"), {
       target: { name: "name", value: "Goblin" },
@@ -1871,6 +1962,7 @@ describe("EditCharacterForm initiative", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({ initiativeRoll: 0 })}
         onSubmit={onSubmit}
       />,
@@ -1889,6 +1981,7 @@ describe("EditCharacterForm initiative", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={null}
         onSaveAndRestart={onSaveAndRestart}
       />,
@@ -2024,6 +2117,7 @@ describe("EditCharacterForm stats", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter()}
         onSubmit={onSubmit}
       />,
@@ -2061,6 +2155,7 @@ describe("EditCharacterForm stats", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
+        {...drawerProps}
         initialCharacter={buildCharacter({
           movement: 9,
           abilities: { str: 10, dex: 16 },
