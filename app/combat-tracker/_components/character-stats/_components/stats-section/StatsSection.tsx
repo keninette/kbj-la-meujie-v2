@@ -18,7 +18,8 @@ import styles from "../../character-stats.module.scss";
 
 type StatsSectionProps = {
   character: CombatCharacter;
-  /** Adds the button to fail a death saving throw, e.g. during the combat */
+  /** Both given, e.g. during the combat: death saving throws can be recorded */
+  onDeathSaveSuccess?: () => void;
   onDeathSaveFail?: () => void;
 };
 
@@ -27,7 +28,11 @@ type StatsSectionProps = {
  * class, initiative, movement, and the ability modifiers with the saving
  * throws
  */
-const StatsSection = ({ character, onDeathSaveFail }: StatsSectionProps) => {
+const StatsSection = ({
+  character,
+  onDeathSaveSuccess,
+  onDeathSaveFail,
+}: StatsSectionProps) => {
   const hasAlternativeHp =
     typeof character.alternativeHp === "number" && character.alternativeHp > 0;
   // The alternative hit points are shown first, the regular ones on demand.
@@ -64,6 +69,7 @@ const StatsSection = ({ character, onDeathSaveFail }: StatsSectionProps) => {
         {character.isDying ? (
           <DeathSaves
             savesLeft={character.deathSaveThrowsLeft}
+            onSuccess={onDeathSaveSuccess}
             onFail={onDeathSaveFail}
           />
         ) : showAlternativeHp ? (

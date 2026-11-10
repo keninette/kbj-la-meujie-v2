@@ -46,19 +46,22 @@ const CharacterStats = ({
     onCharacterChange(updatedCharacter);
   };
 
+  // After the third success, the character is stabilized: nothing changes
+  const onDeathSaveSuccess = () => {
+    updateCharacter({
+      ...selectedCharacter,
+      deathSaveThrowsLeft: Math.max(selectedCharacter.deathSaveThrowsLeft - 1, 0),
+    });
+  };
+
+  // A single failed death saving throw is enough to die
   const onDeathSaveFail = () => {
-    const updatedCharacter = { ...selectedCharacter };
-    if (updatedCharacter.deathSaveThrowsLeft > 0) {
-      updatedCharacter.deathSaveThrowsLeft -= 1;
-    }
-
-    if (updatedCharacter.deathSaveThrowsLeft <= 0) {
-      updatedCharacter.isDead = true;
-      updatedCharacter.isDying = false;
-      updatedCharacter.deathSaveThrowsLeft = 3;
-    }
-
-    updateCharacter(updatedCharacter);
+    updateCharacter({
+      ...selectedCharacter,
+      isDead: true,
+      isDying: false,
+      deathSaveThrowsLeft: 3,
+    });
   };
 
   const onRemoveState = (stateId: string) => {
@@ -105,6 +108,7 @@ const CharacterStats = ({
         />
         <StatsSection
           character={selectedCharacter}
+          onDeathSaveSuccess={isCombatOngoing ? onDeathSaveSuccess : undefined}
           onDeathSaveFail={isCombatOngoing ? onDeathSaveFail : undefined}
         />
         <PassivesSection passives={selectedCharacter.passives} />

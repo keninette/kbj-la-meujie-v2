@@ -1891,8 +1891,10 @@ describe("CharacterStats death saves", () => {
 
     expect(screen.queryByTestId("hp-bar")).not.toBeInTheDocument();
     const track = screen.getByTestId("death-saves");
-    expect(within(track).getAllByTestId("death-save-failed")).toHaveLength(1);
-    expect(within(track).getAllByTestId("death-save-left")).toHaveLength(2);
+    expect(within(track).getAllByTestId("death-save-success")).toHaveLength(1);
+    // The next save, then the last one
+    expect(within(track).getByTestId("death-save-next")).toBeInTheDocument();
+    expect(within(track).getAllByTestId("death-save-left")).toHaveLength(1);
     expect(track).toHaveAttribute("aria-label", "stats.deathSavesLeft");
   });
 
@@ -1903,27 +1905,32 @@ describe("CharacterStats death saves", () => {
     expect(screen.queryByTestId("death-saves")).not.toBeInTheDocument();
   });
 
-  it("shows the fail button during the combat only", () => {
+  it("records death saves during the combat only", () => {
     renderStats(dying(3), false);
 
-    expect(screen.getByTestId("death-saves")).toBeInTheDocument();
-    expect(screen.queryByTestId("death-save-fail")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("death-save-left")).toHaveLength(3);
+    expect(screen.queryByTestId("death-save-next")).not.toBeInTheDocument();
   });
 
-  it("fails a death save", () => {
+  it("asks whether the next death save succeeded, then records a success", () => {
     const onCharacterChange = renderStats(dying(3));
 
-    fireEvent.click(screen.getByTestId("death-save-fail"));
+    expect(
+      screen.queryByTestId("death-save-choice-success"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("death-save-next"));
+    fireEvent.click(screen.getByTestId("death-save-choice-success"));
 
     expect(onCharacterChange).toHaveBeenCalledWith(
       expect.objectContaining({ deathSaveThrowsLeft: 2, isDying: true }),
     );
   });
 
-  it("makes the character dead on the last failed death save", () => {
-    const onCharacterChange = renderStats(dying(1));
+  it("makes the character dead on the first failed death save", () => {
+    const onCharacterChange = renderStats(dying(3));
 
-    fireEvent.click(screen.getByTestId("death-save-fail"));
+    fireEvent.click(screen.getByTestId("death-save-next"));
+    fireEvent.click(screen.getByTestId("death-save-choice-fail"));
 
     expect(onCharacterChange).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1932,5 +1939,12 @@ describe("CharacterStats death saves", () => {
         deathSaveThrowsLeft: 3,
       }),
     );
+  });
+
+  it("has nothing left to record after three successes", () => {
+    renderStats(dying(0));
+
+    expect(screen.getAllByTestId("death-save-success")).toHaveLength(3);
+    expect(screen.queryByTestId("death-save-next")).not.toBeInTheDocument();
   });
 });

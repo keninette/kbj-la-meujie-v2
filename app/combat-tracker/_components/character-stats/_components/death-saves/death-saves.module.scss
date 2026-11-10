@@ -1,35 +1,76 @@
-// The track on the left, the button on the right, on one line
+// One square per save, on one line
 .death-saves {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-padding--text);
+  gap: var(--spacing--xxs);
 
-  &__track {
-    display: flex;
-    gap: var(--spacing--xxs);
-  }
-
+  // Also the choices in the tooltip, which are buttons
   &__save {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    // Squares, as high as the extra small button next to them (border
-    // included, like the button)
+    // Squares, as high as an extra small button (border included)
     box-sizing: border-box;
     width: var(--button-height--xs);
     height: var(--button-height--xs);
+    padding: 0;
 
-    font-size: var(--font-size--xxs);
-
+    background: none;
     border: 1px solid var(--color-border--light);
     border-radius: var(--radius--s);
+    color: inherit;
+    font: inherit;
+    font-size: var(--font-size--xxs);
 
-    // Same red as the low hit points
-    &--failed {
+    &--button {
+      cursor: pointer;
+
+      &:hover,
+      &:focus-visible {
+        border-color: var(--color-link);
+      }
+    }
+
+    // Same green and red as the high and low hit points
+    &--success {
+      background-color: var(--color-hp--high);
+      border-color: var(--color-hp--high);
+      color: var(--color-surface--card);
+    }
+
+    &--fail {
       background-color: var(--color-hp--low);
       border-color: var(--color-hp--low);
       color: var(--color-surface--card);
+    }
+  }
+
+  // Wraps the next save for the tooltip. Flex, so that it is as high as the
+  // save: inline, the save would sit on the text baseline, lower than the others
+  &__next {
+    display: flex;
+  }
+
+  &__choices {
+    display: flex;
+    gap: var(--spacing--xxs);
+  }
+
+  // Same look as the tooltip of the action chips.
+  // !important: MUI injects its styles after the CSS modules
+  &__tooltip {
+    padding: var(--spacing--xxs) !important;
+
+    background-color: var(--color-dropdown) !important;
+    border: 1px solid var(--color-chip-border);
+    border-radius: var(--radius--panel) !important;
+    box-shadow: var(--shadow--panel);
+  }
+
+  &__tooltip-arrow {
+    color: var(--color-dropdown) !important;
+
+    &::before {
+      border: 1px solid var(--color-chip-border);
     }
   }
 }
