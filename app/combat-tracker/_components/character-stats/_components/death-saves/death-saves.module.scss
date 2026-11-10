@@ -1,5 +1,8 @@
 // One square per save, on one line
 .death-saves {
+  // About half the height of a regular button
+  --death-save-size: 0.85rem;
+
   display: flex;
   gap: var(--spacing--xxs);
 
@@ -8,10 +11,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    // Squares, as high as an extra small button (border included)
+    // Squares, border included
     box-sizing: border-box;
-    width: var(--button-height--xs);
-    height: var(--button-height--xs);
+    width: var(--death-save-size);
+    height: var(--death-save-size);
     padding: 0;
 
     background: none;

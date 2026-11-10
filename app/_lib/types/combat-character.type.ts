@@ -18,15 +18,13 @@ export type CombatCharacter = {
   isDying: boolean;
   isDead: boolean;
   isNpc: boolean;
-  /** Only used for NPCs, unknown when missing */
   attitude?: NpcAttitudeEnum;
   deathSaveThrowsLeft: number;
   ac: number;
   /** The initiative roll plus the initiative bonus: sorts the turn order */
   initiativeScore: number;
   /** The d20 roll entered in the form, without the bonus */
-  initiativeRoll?: number;
-  /** In meters */
+  initiativeRoll: number;
   movement?: number;
   proficiencyBonus?: number;
   abilities?: Partial<Record<AbilityEnum, number>>;

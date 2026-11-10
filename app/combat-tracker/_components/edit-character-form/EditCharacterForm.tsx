@@ -24,6 +24,7 @@ import {
 import WikiCharacterDialog from "@/app/combat-tracker/_components/edit-character-form/_components/wiki-character-dialog/WikiCharacterDialog";
 import IdentityFieldset from "./_components/IdentityFieldset";
 import CombatFieldset from "./_components/CombatFieldset";
+import AbilitiesFieldset from "./_components/AbilitiesFieldset";
 import SpellSlotsFieldset from "./_components/SpellSlotsFieldset";
 import TextListFieldset from "./_components/TextListFieldset";
 import ActionsFieldset from "./_components/ActionsFieldset";
@@ -41,6 +42,8 @@ type EditCharacterFormProps = {
   currentTurn?: number;
 };
 
+type SaveKind = "submit" | "restart";
+
 const createEmptyCharacter = (): CombatCharacter => ({
   id: createId(),
   name: "",
@@ -52,6 +55,7 @@ const createEmptyCharacter = (): CombatCharacter => ({
   deathSaveThrowsLeft: 3,
   ac: 0,
   initiativeScore: 0,
+  initiativeRoll: 0,
 });
 
 const EditCharacterForm = ({
@@ -113,13 +117,17 @@ const EditCharacterForm = ({
     const { name, value } = event.target;
     clearHighlight(name);
 
-    let formattedValue: string | number | boolean = value;
+    let formattedValue: string | number | boolean | undefined = value;
     switch (name) {
       case "name":
       case "shortDescription":
       case "wikiLink":
       case "imageUrl":
         formattedValue = value;
+        break;
+      case "movement":
+      case "proficiencyBonus":
+        formattedValue = value === "" ? undefined : +value;
         break;
       case "isNpc":
       case "isDead":
@@ -158,12 +166,24 @@ const EditCharacterForm = ({
     }));
   };
 
-  const initiativeRoll =
-    character?.initiativeRoll ?? character?.initiativeScore ?? 0;
+  const initiativeRoll = character?.initiativeRoll ?? 0;
   const initiativeBonus = getInitiativeBonus(character);
 
-  const buildSavedCharacter = (): CombatCharacter | null =>
-    character && {
+  // The save waiting for the initiative reminder to be answered
+  const [pendingSave, setPendingSave] = useState<SaveKind | null>(null);
+
+  // Asks first when there is no initiative roll (a d20 never rolls 0),
+  // unless the reminder was already answered
+  const save = (kind: SaveKind, skipReminder = false) => {
+    if (!character) {
+      return;
+    }
+    if (!initiativeRoll && !skipReminder) {
+      setPendingSave(kind);
+      return;
+    }
+
+    const savedCharacter: CombatCharacter = {
       ...character,
       id: character.id || createId(),
       maxAlternativeHp: getMaxAlternativeHp(character),
@@ -173,16 +193,10 @@ const EditCharacterForm = ({
       initiativeScore: initiativeRoll + (initiativeBonus ?? 0),
     };
 
-  // The save waiting for the initiative reminder to be answered
-  const [pendingSave, setPendingSave] = useState<"submit" | "restart" | null>(
-    null,
-  );
-
-  const submit = (savedCharacter: CombatCharacter) => {
-    onSubmit?.(savedCharacter);
-  };
-
-  const restart = (savedCharacter: CombatCharacter) => {
+    if (kind === "submit") {
+      onSubmit?.(savedCharacter);
+      return;
+    }
     onSaveAndRestart?.(savedCharacter);
     setCharacter(null);
     setImportedFields(null);
@@ -190,23 +204,9 @@ const EditCharacterForm = ({
     setFormKey((key) => key + 1);
   };
 
-  // Asks first when there is no initiative roll (a d20 never rolls 0)
-  const save = (kind: "submit" | "restart") => {
-    const savedCharacter = buildSavedCharacter();
-    if (!savedCharacter) {
-      return;
-    }
-    if (!initiativeRoll) {
-      setPendingSave(kind);
-      return;
-    }
-    (kind === "submit" ? submit : restart)(savedCharacter);
-  };
-
   const confirmPendingSave = () => {
-    const savedCharacter = buildSavedCharacter();
-    if (pendingSave && savedCharacter) {
-      (pendingSave === "submit" ? submit : restart)(savedCharacter);
+    if (pendingSave) {
+      save(pendingSave, true);
     }
     setPendingSave(null);
   };
@@ -227,7 +227,6 @@ const EditCharacterForm = ({
   };
 
   const saveAndRestart = () => {
-    // Same checks as the submit button (max HP, URLs...)
     if (!formRef.current?.reportValidity()) {
       return;
     }
@@ -292,9 +291,21 @@ const EditCharacterForm = ({
         <CombatFieldset
           character={character}
           initiativeRoll={initiativeRoll}
-          initiativeBonus={initiativeBonus}
           onInputChange={handleInputChange}
           importedClassName={importedClassName}
+        />
+        <AbilitiesFieldset
+          abilities={character?.abilities}
+          savingThrows={character?.savingThrows}
+          onChange={(changes) => {
+            clearHighlight("abilities");
+            clearHighlight("savingThrows");
+            updateCharacter(changes);
+          }}
+          isHighlighted={
+            highlightedFields.includes("abilities") ||
+            highlightedFields.includes("savingThrows")
+          }
         />
         <SpellSlotsFieldset
           spellSlots={character?.spellSlotsLeft ?? {}}

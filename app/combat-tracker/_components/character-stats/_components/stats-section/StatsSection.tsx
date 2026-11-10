@@ -1,9 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import { cx } from "@/app/_lib/class-names";
-import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import Tile from "@/app/_components/_basics/tile/Tile";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
 import { ABILITIES } from "@/app/_lib/enums/ability.enum";
@@ -14,6 +12,7 @@ import {
 } from "@/app/combat-tracker/_lib/ability.helper";
 import HpBar from "../hp-bar/HpBar";
 import DeathSaves from "../death-saves/DeathSaves";
+import StatTile from "./StatTile";
 import styles from "../../character-stats.module.scss";
 
 type StatsSectionProps = {
@@ -68,6 +67,7 @@ const StatsSection = ({
         {/* Down: no hit points left to show */}
         {character.isDying ? (
           <DeathSaves
+            key={character.id}
             savesLeft={character.deathSaveThrowsLeft}
             onSuccess={onDeathSaveSuccess}
             onFail={onDeathSaveFail}
@@ -101,70 +101,39 @@ const StatsSection = ({
           />
         )}
       </Tile>
-      <Tile
+      <StatTile
         title={translate("stats.ac", "combatTracker")}
+        icon="shield-halved"
+        value={+character.ac}
         data-testid="ac-tile"
-      >
-        <span className={styles["character-stats__tile-value"]}>
-          <FontAwesomeIcon
-            faIcon="shield-halved"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            className={styles["character-stats__tile-icon"]}
-            aria-hidden
-          />
-          {+character.ac}
-        </span>
-      </Tile>
-      <Tile
+      />
+      <StatTile
         title={translate("stats.initiative", "combatTracker")}
+        icon="dice-d20"
+        value={character.initiativeScore}
         data-testid="initiative-tile"
-      >
-        <span className={styles["character-stats__tile-value"]}>
-          <FontAwesomeIcon
-            faIcon="dice-d20"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            className={styles["character-stats__tile-icon"]}
-            aria-hidden
-          />
-          {character.initiativeScore}
-        </span>
-      </Tile>
+      />
       {!!character.movement && (
-        <Tile
+        <StatTile
           title={translate("stats.movement", "combatTracker")}
+          icon="person-running"
+          value={translate("stats.movementValue", "combatTracker", {
+            movement: String(character.movement),
+          })}
           data-testid="movement-tile"
-        >
-          <span className={styles["character-stats__tile-value"]}>
-            <FontAwesomeIcon
-              faIcon="person-running"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              className={styles["character-stats__tile-icon"]}
-              aria-hidden
-            />
-            {translate("stats.movementValue", "combatTracker", {
-              movement: String(character.movement),
-            })}
-          </span>
-        </Tile>
+        />
       )}
       {typeof character.proficiencyBonus === "number" && (
-        <Tile
+        <StatTile
           title={translate("stats.proficiencyBonus", "combatTracker")}
+          icon="medal"
+          value={formatModifier(character.proficiencyBonus)}
+          valueTitle={translate(
+            "stats.proficiencyBonusTooltip",
+            "combatTracker",
+          )}
           data-testid="proficiency-bonus-tile"
-        >
-          <span
-            className={styles["character-stats__tile-value"]}
-            title={translate("stats.proficiencyBonusTooltip", "combatTracker")}
-          >
-            <FontAwesomeIcon
-              faIcon="medal"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              className={styles["character-stats__tile-icon"]}
-              aria-hidden
-            />
-            {formatModifier(character.proficiencyBonus)}
-          </span>
-        </Tile>
+        />
       )}
       {abilities.length > 0 && (
         <Tile

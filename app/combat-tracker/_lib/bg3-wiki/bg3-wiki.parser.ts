@@ -299,10 +299,9 @@ export const parseAbilities = (
   get: (field: string) => string | undefined,
 ): Partial<Record<AbilityEnum, number>> =>
   Object.fromEntries(
-    ABILITIES.filter((ability) => toNumber(get(ability)) > 0).map((ability) => [
-      ability,
-      toNumber(get(ability)),
-    ]),
+    ABILITIES.map(
+      (ability) => [ability, toNumber(get(ability))] as const,
+    ).filter(([, score]) => score > 0),
   );
 
 /**
@@ -313,8 +312,8 @@ export const parseAbilities = (
 export const parseSavingThrows = (
   get: (field: string) => string | undefined,
   abilities: Partial<Record<AbilityEnum, number>>,
+  level: number,
 ): Partial<Record<AbilityEnum, number>> => {
-  const level = toNumber(get("level"));
   const isProficient = (ability: AbilityEnum) =>
     get(`${ability} save prof`)?.toLowerCase() === "yes";
   if (!level || !ABILITIES.some(isProficient)) {
@@ -367,11 +366,12 @@ export const buildCharacterFromInfobox = (
     ...splitList(get("passives")),
     ...splitList(get("resistances")),
   ];
-  const movement = toNumber(get("movement m"));
-  // Not in the infobox: computed from the level
+  // Can be decimal, e.g. 7.5 m for a dwarf
+  const movement = parseFloat(get("movement m") ?? "") || 0;
+  // The proficiency bonus is not in the infobox: computed from the level
   const level = toNumber(get("level"));
   const abilities = parseAbilities(get);
-  const savingThrows = parseSavingThrows(get, abilities);
+  const savingThrows = parseSavingThrows(get, abilities, level);
 
   return {
     name: get("name") || pageTitle.replaceAll("_", " "),
@@ -387,6 +387,7 @@ export const buildCharacterFromInfobox = (
     ac: toNumber(get("ac")),
     // Rolled manually by the game master
     initiativeScore: 0,
+    initiativeRoll: 0,
     ...(movement ? { movement } : {}),
     ...(level ? { proficiencyBonus: getProficiencyBonus(level) } : {}),
     ...(Object.keys(abilities).length ? { abilities } : {}),

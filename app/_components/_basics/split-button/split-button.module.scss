@@ -10,10 +10,6 @@
     @include mixins.button--fab;
   }
 
-  &--xs {
-    @include mixins.button--xs;
-  }
-
   &__button {
     @include mixins.button--reset-style;
   }

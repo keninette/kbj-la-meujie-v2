@@ -78,8 +78,11 @@ describe("loadCombat", () => {
   });
 
   it("uses the initiative as roll for characters saved without roll", () => {
-    const withoutRoll = buildCharacter({ initiativeScore: 17 });
-    delete withoutRoll.initiativeRoll;
+    // As saved before the roll existed
+    const withoutRoll = {
+      ...buildCharacter({ initiativeScore: 17 }),
+      initiativeRoll: undefined,
+    } as unknown as CombatCharacter;
     saveCombat(buildCombat([withoutRoll]));
 
     expect(loadCombat()?.characters[0]).toMatchObject({
@@ -170,6 +173,23 @@ describe("loadCombat", () => {
     localStorage.setItem(
       "scratchie-combat-tracker",
       JSON.stringify({ status: "unknown-status" }),
+    );
+
+    expect(loadCombat()).toBeNull();
+  });
+
+  it.each([
+    ["movement", { movement: "9" }],
+    ["abilities", { abilities: { dex: "16" } }],
+    ["saving throws", { savingThrows: { wis: "6" } }],
+  ])("returns null when the stored %s are invalid", (_, invalid) => {
+    localStorage.setItem(
+      "scratchie-combat-tracker",
+      JSON.stringify(
+        buildCombat([
+          buildCharacter(invalid as unknown as Partial<CombatCharacter>),
+        ]),
+      ),
     );
 
     expect(loadCombat()).toBeNull();
@@ -423,6 +443,7 @@ describe("EditCharacterForm import from wiki", () => {
     ac: 14,
     isNpc: true,
     initiativeScore: 0,
+    initiativeRoll: 0,
   });
 
   beforeEach(() => {
@@ -647,6 +668,31 @@ describe("EditCharacterForm import from wiki", () => {
 
   const lineOf = (testId: string) => screen.getByTestId(testId).closest("div");
   const IMPORTED = "edit-character-form__field--imported";
+
+  it("highlights the imported stats until they are edited", async () => {
+    mockedCreateFromWiki.mockResolvedValueOnce({
+      character: { ...kaghaFromWiki, movement: 9, abilities: { dex: 16 } },
+    });
+    render(<EditCharacterForm initialCharacter={buildCharacter()} />);
+
+    await runImport(true);
+
+    const abilitiesFieldset = screen
+      .getByTestId("abilityScore-dex")
+      .closest("fieldset");
+    expect(lineOf("movement")).toHaveClass(IMPORTED);
+    expect(abilitiesFieldset).toHaveClass("container-box--highlighted");
+
+    fireEvent.change(screen.getByTestId("movement"), {
+      target: { name: "movement", value: "6" },
+    });
+    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
+      target: { value: "14" },
+    });
+
+    expect(lineOf("movement")).not.toHaveClass(IMPORTED);
+    expect(abilitiesFieldset).not.toHaveClass("container-box--highlighted");
+  });
 
   it("lists and highlights the fields replaced by the import", async () => {
     render(
@@ -1760,7 +1806,6 @@ describe("EditCharacterForm initiative", () => {
     );
 
     enterRoll("14");
-    expect(screen.getByTestId("initiative-total")).toBeInTheDocument();
     submit();
 
     expect(onSubmit).toHaveBeenCalledWith(
@@ -1778,7 +1823,6 @@ describe("EditCharacterForm initiative", () => {
     );
 
     enterRoll("9");
-    expect(screen.queryByTestId("initiative-total")).not.toBeInTheDocument();
     submit();
 
     expect(onSubmit).toHaveBeenCalledWith(
@@ -1941,10 +1985,107 @@ describe("CharacterStats death saves", () => {
     );
   });
 
+  it("closes the choice when another downed character is selected", () => {
+    const props = {
+      onCharacterChange: jest.fn(),
+      onCharactersChange: jest.fn(),
+      onHistoryEdited: jest.fn(),
+      isCombatOngoing: true,
+    };
+    const first = { ...dying(3), id: "first" };
+    const second = { ...dying(3), id: "second" };
+    const { rerender } = render(
+      <CharacterStats selectedCharacter={first} {...props} />,
+    );
+
+    fireEvent.click(screen.getByTestId("death-save-next"));
+    expect(screen.getByTestId("death-save-choice-fail")).toBeInTheDocument();
+
+    rerender(<CharacterStats selectedCharacter={second} {...props} />);
+
+    expect(
+      screen.queryByTestId("death-save-choice-fail"),
+    ).not.toBeInTheDocument();
+  });
+
   it("has nothing left to record after three successes", () => {
     renderStats(dying(0));
 
     expect(screen.getAllByTestId("death-save-success")).toHaveLength(3);
     expect(screen.queryByTestId("death-save-next")).not.toBeInTheDocument();
+  });
+});
+
+describe("EditCharacterForm stats", () => {
+  const submit = () =>
+    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+
+  it("saves the movement, proficiency bonus, abilities and saving throws", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("movement"), {
+      target: { name: "movement", value: "7.5" },
+    });
+    // A decimal movement, e.g. of a dwarf, is a valid value
+    expect(screen.getByTestId("movement")).toBeValid();
+    fireEvent.change(screen.getByTestId("proficiencyBonus"), {
+      target: { name: "proficiencyBonus", value: "3" },
+    });
+    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
+      target: { value: "16" },
+    });
+    fireEvent.change(screen.getByTestId("savingThrow-wis"), {
+      target: { value: "6" },
+    });
+    submit();
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        movement: 7.5,
+        proficiencyBonus: 3,
+        abilities: { dex: 16 },
+        savingThrows: { wis: 6 },
+        // The new dexterity gives the initiative bonus: 12 + 3
+        initiativeScore: 15,
+      }),
+    );
+  });
+
+  it("removes a value when its field is cleared", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        initialCharacter={buildCharacter({
+          movement: 9,
+          abilities: { str: 10, dex: 16 },
+          savingThrows: { dex: 5 },
+        })}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId("movement"), {
+      target: { name: "movement", value: "" },
+    });
+    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByTestId("savingThrow-dex"), {
+      target: { value: "" },
+    });
+    submit();
+
+    const saved = onSubmit.mock.calls[0][0];
+    expect(saved.movement).toBeUndefined();
+    expect(saved.abilities).toEqual({ str: 10 });
+    expect(saved.savingThrows).toBeUndefined();
+    // No dexterity, no initiative bonus anymore
+    expect(saved.initiativeScore).toBe(12);
   });
 });

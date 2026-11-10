@@ -1,7 +1,6 @@
 import { cx } from "@/app/_lib/class-names";
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import { ButtonVariant } from "@lib/enums/button-variant.enum";
-import { ButtonSize } from "@lib/enums/button-size.enum";
 import styles from "./button-with-icon.module.scss";
 import FontAwesomeIcon from "../font-awesome-icon/FontAwesomeIcon";
 
@@ -11,7 +10,6 @@ type ButtonWithIconProps = {
   iconPosition?: "left" | "right";
   faIconStyle?: FaIconStyleEnum;
   variant?: ButtonVariant;
-  size?: ButtonSize;
   onClick?: () => void;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
@@ -25,7 +23,6 @@ const ButtonWithIcon = ({
   iconPosition,
   faIconStyle = FaIconStyleEnum.REGULAR,
   variant = ButtonVariant.FAB,
-  size = ButtonSize.M,
   onClick,
   disabled = false,
   type = "button",
@@ -38,7 +35,6 @@ const ButtonWithIcon = ({
       className={cx(
         styles["button-with-icon"],
         styles[splitButtonVariantClass],
-        size === ButtonSize.XS && styles["button-with-icon--xs"],
         disabled ? styles["button-with-icon--disabled"] : undefined,
       )}
     >

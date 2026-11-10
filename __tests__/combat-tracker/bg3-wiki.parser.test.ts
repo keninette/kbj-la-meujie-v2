@@ -265,6 +265,7 @@ describe("bg3 wiki parser", () => {
         deathSaveThrowsLeft: 3,
         ac: 14,
         initiativeScore: 0,
+        initiativeRoll: 0,
         movement: 9,
         proficiencyBonus: 3,
         abilities: { str: 16, dex: 16, con: 14, int: 14, wis: 16, cha: 14 },
@@ -297,6 +298,14 @@ describe("bg3 wiki parser", () => {
       );
       expect(withoutProficiency).not.toHaveProperty("savingThrows");
       expect(withoutProficiency).not.toHaveProperty("movement");
+    });
+
+    it("keeps a decimal movement", () => {
+      const dwarf = buildCharacterFromInfobox(
+        parseInfobox("{{Infobox creature\n| movement m = 7.5\n}}"),
+        "Dwarf",
+      );
+      expect(dwarf.movement).toBe(7.5);
     });
 
     it("uses Honour values when present and falls back on the page title", () => {

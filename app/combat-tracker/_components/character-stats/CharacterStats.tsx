@@ -8,11 +8,10 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
-import PassivesSection from "./_components/passives-section/PassivesSection";
+import ChipListSection from "./_components/chip-list-section/ChipListSection";
 import SpellSlotsSection from "./_components/spell-slots-section/SpellSlotsSection";
 import ActionsSection from "./_components/actions-section/ActionsSection";
 import StatesSection from "./_components/states-section/StatesSection";
-import ConsumablesSection from "./_components/consumables-section/ConsumablesSection";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -46,11 +45,14 @@ const CharacterStats = ({
     onCharacterChange(updatedCharacter);
   };
 
-  // After the third success, the character is stabilized: nothing changes
+  // After the third success, the character is stabilized: nothing changes until helped by other character
   const onDeathSaveSuccess = () => {
     updateCharacter({
       ...selectedCharacter,
-      deathSaveThrowsLeft: Math.max(selectedCharacter.deathSaveThrowsLeft - 1, 0),
+      deathSaveThrowsLeft: Math.max(
+        selectedCharacter.deathSaveThrowsLeft - 1,
+        0,
+      ),
     });
   };
 
@@ -111,14 +113,22 @@ const CharacterStats = ({
           onDeathSaveSuccess={isCombatOngoing ? onDeathSaveSuccess : undefined}
           onDeathSaveFail={isCombatOngoing ? onDeathSaveFail : undefined}
         />
-        <PassivesSection passives={selectedCharacter.passives} />
+        <ChipListSection
+          title={translate("stats.passives", "combatTracker")}
+          items={selectedCharacter.passives}
+          data-testid="character-passives"
+        />
         <SpellSlotsSection spellSlotsLeft={selectedCharacter.spellSlotsLeft} />
         <ActionsSection actions={selectedCharacter.actions} />
         <StatesSection
           states={selectedCharacter.states}
           onRemoveState={onRemoveState}
         />
-        <ConsumablesSection consumables={selectedCharacter.usableObjects} />
+        <ChipListSection
+          title={translate("stats.usableObjects", "combatTracker")}
+          items={selectedCharacter.usableObjects}
+          data-testid="character-consumables"
+        />
       </ContainerBox>
       <CustomDrawer
         isOpened={isDrawerOpened}

@@ -55,7 +55,6 @@
   "form.abilities": "Caractéristiques",
   "form.savingThrows": "Jets de sauvegarde",
   "form.initiativeRoll": "Jet d'initiative",
-  "form.initiativeTotal": "Initiative : {{roll}} {{bonus}} = {{total}}",
   "form.initiativeReminder.title": "Jet d'initiative manquant",
   "form.initiativeReminder.message": "Aucun jet d'initiative n'a été saisi.",
   "form.initiativeReminder.back": "Revenir au formulaire",
