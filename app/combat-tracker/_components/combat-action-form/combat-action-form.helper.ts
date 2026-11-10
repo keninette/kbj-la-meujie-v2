@@ -1,7 +1,8 @@
 import { findCharacterIndexById } from "@/app/_lib/combat/combat.helper";
 import type { CombatCharacter } from "@/app/_lib/types/combat-character.type";
+import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
 
-export type AttackFormValues = {
+export type CombatActionFormValues = {
   attackTargetId: string;
   attackDamage: number;
   healTargetId: string;
@@ -17,16 +18,11 @@ export type AttackFormValues = {
   reanimateTargetId: string;
 };
 
-export type ApplyAttackFormResult = {
+export type ApplyCombatActionFormResult = {
   characters: CombatCharacter[];
   hasChanges: boolean;
   missingAttackTargetId: string | null;
 };
-
-// Defaults to the alternative HP value when no maximum was set.
-export const getMaxAlternativeHp = (
-  character: CombatCharacter,
-): number | undefined => character.maxAlternativeHp || character.alternativeHp;
 
 export const applyDamageToCharacter = (
   damagedCharacter: CombatCharacter,
@@ -130,13 +126,13 @@ export const resetRevivedCharacter = (
   states: [],
 });
 
-export const applyAttackFormValues = (
+export const applyCombatActionFormValues = (
   characters: CombatCharacter[],
   selectedCharacterId: string,
-  values: AttackFormValues,
+  values: CombatActionFormValues,
   createStateId: () => string,
   currentTurn?: number,
-): ApplyAttackFormResult => {
+): ApplyCombatActionFormResult => {
   const updatedCharacters = [...characters];
   let hasChanges = false;
   let missingAttackTargetId: string | null = null;

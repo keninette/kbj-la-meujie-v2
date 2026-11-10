@@ -107,7 +107,7 @@ const StatesFieldset = ({
         <NumberInput
           id="stateDuration"
           name="stateDuration"
-          label={translate("attack.duration", "combatTracker")}
+          label={translate("combatAction.duration", "combatTracker")}
           step="any"
           value={draft.duration}
           onChange={setField("duration")}
@@ -117,7 +117,7 @@ const StatesFieldset = ({
         <TextInput
           id="stateSaveThrowStat"
           name="stateSaveThrowStat"
-          label={translate("attack.saveStat", "combatTracker")}
+          label={translate("combatAction.saveStat", "combatTracker")}
           placeholder="CON"
           value={draft.saveThrowStat}
           onChange={setField("saveThrowStat")}
@@ -127,7 +127,7 @@ const StatesFieldset = ({
         <NumberInput
           id="stateSaveThrowDc"
           name="stateSaveThrowDc"
-          label={translate("attack.saveDc", "combatTracker")}
+          label={translate("combatAction.saveDc", "combatTracker")}
           step="any"
           value={draft.saveThrowDc}
           onChange={setField("saveThrowDc")}

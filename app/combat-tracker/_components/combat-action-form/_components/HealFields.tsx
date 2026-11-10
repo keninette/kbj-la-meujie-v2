@@ -4,48 +4,48 @@ import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { useFormContext } from "react-hook-form";
-import type { AttackFormValues } from "../attack-form.helper";
+import type { CombatActionFormValues } from "../combat-action-form.helper";
 import TargetInput from "./TargetInput";
-import styles from "../attack-form.module.scss";
+import styles from "../combat-action-form.module.scss";
 
-type AttackFieldsProps = {
+type HealFieldsProps = {
   characters: CombatCharacter[];
   disabled: boolean;
   onAddHistory: () => void;
 };
 
-const AttackFields = ({
+const HealFields = ({
   characters,
   disabled,
   onAddHistory,
-}: AttackFieldsProps) => {
-  const { register } = useFormContext<AttackFormValues>();
+}: HealFieldsProps) => {
+  const { register } = useFormContext<CombatActionFormValues>();
 
   return (
-    <fieldset className={styles["attack-form__fieldset"]}>
-      <h3 className={styles["attack-form__fieldset-title"]}>
-        {translate("attack.attack", "combatTracker")}
+    <fieldset className={styles["combat-action-form__fieldset"]}>
+      <h3 className={styles["combat-action-form__fieldset-title"]}>
+        {translate("combatAction.heal", "combatTracker")}
       </h3>
       <TargetInput
-        characters={characters}
-        registration={register("attackTargetId")}
-        inputName="targetName"
+        characters={characters.filter((character) => !character.isDead)}
+        registration={register("healTargetId")}
+        inputName="healTargetId"
       />
-      <label htmlFor="damage">
-        {translate("attack.damage", "combatTracker")}
+      <label htmlFor="healAmount">
+        {translate("combatAction.healAmount", "combatTracker")}
       </label>
       <input
-        {...register("attackDamage", {
+        {...register("healAmount", {
           setValueAs: (value) => (value === "" ? 0 : Number(value)),
         })}
         type="number"
-        id="attackDamage"
+        id="healAmount"
         min="0"
-        data-testid="attackDamage"
+        data-testid="healAmount"
       />
       <ButtonWithIcon
         variant={ButtonVariant.SECONDARY}
-        label={translate("attack.validate", "combatTracker")}
+        label={translate("combatAction.validate", "combatTracker")}
         faIcon="check"
         faIconStyle={FaIconStyleEnum.SOLID}
         iconPosition="left"
@@ -57,4 +57,4 @@ const AttackFields = ({
   );
 };
 
-export default AttackFields;
+export default HealFields;

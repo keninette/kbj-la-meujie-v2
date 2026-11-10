@@ -10,7 +10,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import SubmitButton from "@/app/_components/_basics/form/submit-button/SubmitButton";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
 import {
   BG3_WIKI_HOST,
   buildWikiLink,

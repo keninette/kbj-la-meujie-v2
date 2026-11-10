@@ -3,9 +3,9 @@ import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import {
-  applyAttackFormValues,
-  type AttackFormValues,
-} from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+  applyCombatActionFormValues,
+  type CombatActionFormValues,
+} from "@/app/combat-tracker/_components/combat-action-form/combat-action-form.helper";
 import SubmitButton from "@/app/_components/_basics/form/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import AttackFields from "./_components/AttackFields";
@@ -13,9 +13,9 @@ import HealFields from "./_components/HealFields";
 import RecoveryFields from "./_components/RecoveryFields";
 import SpellFields from "./_components/SpellFields";
 import StateFields from "./_components/StateFields";
-import styles from "./attack-form.module.scss";
+import styles from "./combat-action-form.module.scss";
 
-type AttackFormProps = {
+type CombatActionFormProps = {
   characters: CombatCharacter[];
   selectedCharacter: CombatCharacter;
   onCharactersChange: (characters: CombatCharacter[]) => void;
@@ -36,14 +36,14 @@ type HistoryAction =
   | "spell"
   | "state";
 
-const AttackForm = ({
+const CombatActionForm = ({
   characters,
   selectedCharacter,
   onCharactersChange,
   onHistoryEdited,
   currentTurn,
-}: AttackFormProps) => {
-  const formMethods = useForm<AttackFormValues>({
+}: CombatActionFormProps) => {
+  const formMethods = useForm<CombatActionFormValues>({
     defaultValues: {
       attackTargetId: "",
       attackDamage: 0,
@@ -210,7 +210,7 @@ const AttackForm = ({
       return;
     }
     setDisabledActions((prev) => ({ ...prev, submit: true }));
-    const result = applyAttackFormValues(
+    const result = applyCombatActionFormValues(
       characters,
       selectedCharacter.id,
       formValues,
@@ -233,7 +233,7 @@ const AttackForm = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form className={styles["attack-form"]} onSubmit={onSubmit}>
+      <form className={styles["combat-action-form"]} onSubmit={onSubmit}>
         <div>
           <RecoveryFields
             characters={characters}
@@ -264,10 +264,10 @@ const AttackForm = ({
           />
         </div>
         <div>
-          <fieldset className={styles["attack-form__fieldset"]}>
+          <fieldset className={styles["combat-action-form__fieldset"]}>
             {historyEntries.map((entry) => (
               <p
-                className={styles["attack-form__history-entry"]}
+                className={styles["combat-action-form__history-entry"]}
                 key={entry.id}
               >
                 {entry.action}
@@ -284,4 +284,4 @@ const AttackForm = ({
   );
 };
 
-export default AttackForm;
+export default CombatActionForm;

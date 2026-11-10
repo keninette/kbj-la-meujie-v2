@@ -3,7 +3,7 @@ import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import styles from "./character-stats.module.scss";
 import { useId, useState } from "react";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
-import AttackForm from "../attack-form/AttackForm";
+import CombatActionForm from "../combat-action-form/CombatActionForm";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
@@ -133,11 +133,11 @@ const CharacterStats = ({
       <CustomDrawer
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
-        title={translate("attack.turnTitle", "combatTracker", {
+        title={translate("combatAction.turnTitle", "combatTracker", {
           character: selectedCharacter.name,
         })}
       >
-        <AttackForm
+        <CombatActionForm
           characters={characters!}
           selectedCharacter={selectedCharacter}
           onCharactersChange={(updatedCharacters) => {

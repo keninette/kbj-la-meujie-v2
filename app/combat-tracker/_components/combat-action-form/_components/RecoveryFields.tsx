@@ -4,9 +4,9 @@ import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { useFormContext } from "react-hook-form";
-import type { AttackFormValues } from "../attack-form.helper";
+import type { CombatActionFormValues } from "../combat-action-form.helper";
 import TargetInput from "./TargetInput";
-import styles from "../attack-form.module.scss";
+import styles from "../combat-action-form.module.scss";
 
 type RecoveryFieldsProps = {
   characters: CombatCharacter[];
@@ -23,14 +23,14 @@ const RecoveryFields = ({
   onAddRevive,
   onAddReanimate,
 }: RecoveryFieldsProps) => {
-  const { register } = useFormContext<AttackFormValues>();
+  const { register } = useFormContext<CombatActionFormValues>();
 
   return (
     <>
       {characters.some((character) => character.isDying) && (
-        <fieldset className={styles["attack-form__fieldset"]}>
-          <h3 className={styles["attack-form__fieldset-title"]}>
-            {translate("attack.reviveTitle", "combatTracker")}
+        <fieldset className={styles["combat-action-form__fieldset"]}>
+          <h3 className={styles["combat-action-form__fieldset-title"]}>
+            {translate("combatAction.reviveTitle", "combatTracker")}
           </h3>
           <TargetInput
             characters={characters.filter((character) => character.isDying)}
@@ -39,7 +39,7 @@ const RecoveryFields = ({
           />
           <ButtonWithIcon
             variant={ButtonVariant.SECONDARY}
-            label={translate("attack.revive", "combatTracker")}
+            label={translate("combatAction.revive", "combatTracker")}
             faIcon="hand-holding-medical"
             faIconStyle={FaIconStyleEnum.SOLID}
             iconPosition="left"
@@ -50,9 +50,9 @@ const RecoveryFields = ({
         </fieldset>
       )}
       {characters.some((character) => character.isDead) && (
-        <fieldset className={styles["attack-form__fieldset"]}>
-          <h3 className={styles["attack-form__fieldset-title"]}>
-            {translate("attack.reanimateTitle", "combatTracker")}
+        <fieldset className={styles["combat-action-form__fieldset"]}>
+          <h3 className={styles["combat-action-form__fieldset-title"]}>
+            {translate("combatAction.reanimateTitle", "combatTracker")}
           </h3>
           <TargetInput
             characters={characters.filter((character) => character.isDead)}
@@ -61,7 +61,7 @@ const RecoveryFields = ({
           />
           <ButtonWithIcon
             variant={ButtonVariant.SECONDARY}
-            label={translate("attack.reanimate", "combatTracker")}
+            label={translate("combatAction.reanimate", "combatTracker")}
             faIcon="heart-pulse"
             faIconStyle={FaIconStyleEnum.SOLID}
             iconPosition="left"

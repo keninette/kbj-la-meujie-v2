@@ -8,7 +8,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import HpBar from "@/app/combat-tracker/_components/hp-bar/HpBar";
-import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
 import CharacterAvatar from "./CharacterAvatar";
 
 export type CharacterListAction = "edit" | "deactivate" | "reactivate";

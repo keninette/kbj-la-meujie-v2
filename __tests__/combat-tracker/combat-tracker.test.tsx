@@ -14,7 +14,7 @@ import {
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
-import AttackForm from "@/app/combat-tracker/_components/attack-form/AttackForm";
+import CombatActionForm from "@/app/combat-tracker/_components/combat-action-form/CombatActionForm";
 import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
 import CharacterStats from "@/app/combat-tracker/_components/character-stats/CharacterStats";
 import {
@@ -1403,7 +1403,7 @@ describe("EditCharacterForm spell slots", () => {
   });
 });
 
-describe("AttackForm isDying/isDead behavior", () => {
+describe("CombatActionForm isDying/isDead behavior", () => {
   it("submits registered spell and timed-state values", async () => {
     const attacker = buildCharacter({
       id: "attacker",
@@ -1414,7 +1414,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     const onCharactersChange = jest.fn();
 
     render(
-      <AttackForm
+      <CombatActionForm
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1431,7 +1431,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     fireEvent.change(screen.getAllByLabelText("form.name")[1], {
       target: { value: "Restrained" },
     });
-    fireEvent.change(screen.getByLabelText("attack.duration"), {
+    fireEvent.change(screen.getByLabelText("combatAction.duration"), {
       target: { value: "2" },
     });
     fireEvent.click(screen.getByRole("button", { name: "form.save" }));
@@ -1457,7 +1457,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     const onHistoryEdited = jest.fn();
 
     render(
-      <AttackForm
+      <CombatActionForm
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={jest.fn()}
@@ -1472,7 +1472,7 @@ describe("AttackForm isDying/isDead behavior", () => {
       target: { value: "3" },
     });
     fireEvent.click(
-      screen.getAllByRole("button", { name: "attack.validate" })[0],
+      screen.getAllByRole("button", { name: "combatAction.validate" })[0],
     );
 
     expect(screen.getByText("history.attack")).toBeInTheDocument();
@@ -1498,7 +1498,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     const onHistoryEdited = jest.fn();
 
     render(
-      <AttackForm
+      <CombatActionForm
         characters={[healer, target, dead]}
         selectedCharacter={healer}
         onCharactersChange={onCharactersChange}
@@ -1516,7 +1516,7 @@ describe("AttackForm isDying/isDead behavior", () => {
       target: { value: "4" },
     });
     fireEvent.click(
-      screen.getAllByRole("button", { name: "attack.validate" })[1],
+      screen.getAllByRole("button", { name: "combatAction.validate" })[1],
     );
     fireEvent.click(screen.getByRole("button", { name: "form.save" }));
 
@@ -1537,7 +1537,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     const onCharactersChange = jest.fn();
 
     render(
-      <AttackForm
+      <CombatActionForm
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1576,7 +1576,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     const onCharactersChange = jest.fn();
 
     render(
-      <AttackForm
+      <CombatActionForm
         characters={[attacker, target]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1615,7 +1615,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     const onCharactersChange = jest.fn();
 
     render(
-      <AttackForm
+      <CombatActionForm
         characters={[attacker, dyingCharacter]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}
@@ -1652,7 +1652,7 @@ describe("AttackForm isDying/isDead behavior", () => {
     const onCharactersChange = jest.fn();
 
     render(
-      <AttackForm
+      <CombatActionForm
         characters={[attacker, deadCharacter]}
         selectedCharacter={attacker}
         onCharactersChange={onCharactersChange}

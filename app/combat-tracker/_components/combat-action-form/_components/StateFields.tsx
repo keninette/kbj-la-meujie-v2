@@ -4,9 +4,9 @@ import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { useFormContext } from "react-hook-form";
-import type { AttackFormValues } from "../attack-form.helper";
+import type { CombatActionFormValues } from "../combat-action-form.helper";
 import TargetInput from "./TargetInput";
-import styles from "../attack-form.module.scss";
+import styles from "../combat-action-form.module.scss";
 
 type StateFieldsProps = {
   characters: CombatCharacter[];
@@ -19,12 +19,12 @@ const StateFields = ({
   disabled,
   onAddHistory,
 }: StateFieldsProps) => {
-  const { register } = useFormContext<AttackFormValues>();
+  const { register } = useFormContext<CombatActionFormValues>();
 
   return (
-    <fieldset className={styles["attack-form__fieldset"]}>
-      <h3 className={styles["attack-form__fieldset-title"]}>
-        {translate("attack.states", "combatTracker")}
+    <fieldset className={styles["combat-action-form__fieldset"]}>
+      <h3 className={styles["combat-action-form__fieldset-title"]}>
+        {translate("combatAction.states", "combatTracker")}
       </h3>
       <TargetInput
         characters={characters}
@@ -40,7 +40,7 @@ const StateFields = ({
         type="text"
       />
       <label htmlFor="inflictedStateDuration">
-        {translate("attack.duration", "combatTracker")}
+        {translate("combatAction.duration", "combatTracker")}
       </label>
       <input
         {...register("inflictedStateDuration", {
@@ -50,7 +50,7 @@ const StateFields = ({
         type="number"
       />
       <label htmlFor="inflictedStateSaveThrowStat">
-        {translate("attack.saveStat", "combatTracker")}
+        {translate("combatAction.saveStat", "combatTracker")}
       </label>
       <input
         {...register("inflictedStateSaveThrowStat")}
@@ -58,7 +58,7 @@ const StateFields = ({
         type="text"
       />
       <label htmlFor="inflictedStateSaveThrowDc">
-        {translate("attack.saveDc", "combatTracker")}
+        {translate("combatAction.saveDc", "combatTracker")}
       </label>
       <input
         {...register("inflictedStateSaveThrowDc", {

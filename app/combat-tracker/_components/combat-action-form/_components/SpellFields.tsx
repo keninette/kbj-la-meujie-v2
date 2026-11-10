@@ -4,8 +4,8 @@ import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { useFormContext } from "react-hook-form";
-import type { AttackFormValues } from "../attack-form.helper";
-import styles from "../attack-form.module.scss";
+import type { CombatActionFormValues } from "../combat-action-form.helper";
+import styles from "../combat-action-form.module.scss";
 
 type SpellFieldsProps = {
   selectedCharacter: CombatCharacter;
@@ -18,12 +18,12 @@ const SpellFields = ({
   disabled,
   onAddHistory,
 }: SpellFieldsProps) => {
-  const { register } = useFormContext<AttackFormValues>();
+  const { register } = useFormContext<CombatActionFormValues>();
 
   return (
-    <fieldset className={styles["attack-form__fieldset"]}>
-      <h3 className={styles["attack-form__fieldset-title"]}>
-        {translate("attack.spellUsed", "combatTracker")}
+    <fieldset className={styles["combat-action-form__fieldset"]}>
+      <h3 className={styles["combat-action-form__fieldset-title"]}>
+        {translate("combatAction.spellUsed", "combatTracker")}
       </h3>
       {!!Object.values(selectedCharacter.spellSlotsLeft ?? {}).length && (
         <>
@@ -37,13 +37,13 @@ const SpellFields = ({
             id="spellUsedLevel"
           >
             <option value="">
-              {translate("attack.chooseLevel", "combatTracker")}
+              {translate("combatAction.chooseLevel", "combatTracker")}
             </option>
             {Object.entries(selectedCharacter.spellSlotsLeft ?? {}).map(
               ([name, slots]) => (
                 <option key={name} value={name} disabled={slots <= 0}>
                   {name} (
-                  {translate("attack.slotsRemaining", "combatTracker", {
+                  {translate("combatAction.slotsRemaining", "combatTracker", {
                     count: String(slots),
                   })}
                   )
@@ -59,7 +59,7 @@ const SpellFields = ({
       <input {...register("spellUsedName")} type="text" id="spellUsedName" />
       <ButtonWithIcon
         variant={ButtonVariant.SECONDARY}
-        label={translate("attack.validate", "combatTracker")}
+        label={translate("combatAction.validate", "combatTracker")}
         faIcon="check"
         faIconStyle={FaIconStyleEnum.SOLID}
         iconPosition="left"

@@ -16,7 +16,7 @@ export const TargetInput = ({
   return (
     <>
       <label htmlFor={inputName}>
-        {translate("attack.target", "combatTracker")}
+        {translate("combatAction.target", "combatTracker")}
       </label>
       <select {...registration} id={inputName} data-testid={inputName}>
         <option value="">-</option>
