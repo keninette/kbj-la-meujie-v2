@@ -11,6 +11,13 @@
     top: var(--spacing-layout-section-margin);
   }
 
+  // Preview of the image URL, next to its input
+  &__picture {
+    border-radius: var(--radius--s);
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+
   &__form {
     display: flex;
     flex-direction: column;

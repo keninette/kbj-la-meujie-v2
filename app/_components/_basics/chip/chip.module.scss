@@ -3,8 +3,8 @@
   align-items: center;
   gap: var(--spacing--xxs);
   box-sizing: border-box;
-  height: var(--height--chip);
-  padding: 0 var(--spacing-padding--text);
+  height: 25px;
+  padding: 2px var(--spacing-padding--text) 0 var(--spacing-padding--text);
 
   line-height: 1;
   white-space: nowrap;

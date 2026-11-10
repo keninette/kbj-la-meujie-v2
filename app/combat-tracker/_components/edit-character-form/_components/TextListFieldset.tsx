@@ -1,12 +1,12 @@
-import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import Fieldset, {
+  FieldsetChips,
+  FieldsetRow,
+} from "@/app/_components/_basics/form/fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
-import IconButton from "@/app/_components/_basics/icon-button/IconButton";
+import Chip from "@/app/_components/_basics/chip/Chip";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
-import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import AddItemButton from "./AddItemButton";
 import { useNewItem } from "../_hooks/use-new-item.hook";
-import styles from "./fieldsets.module.scss";
 
 type TextListFieldsetProps = {
   title: string;
@@ -40,25 +40,21 @@ const TextListFieldset = ({
 
   return (
     <Fieldset title={title} titleIcon={titleIcon} isHighlighted={isHighlighted}>
-      <ul className={styles["fieldsets__chips"]}>
+      <FieldsetChips>
         {items.map((item, index) => (
-          <li
-            key={`${item}-${index}`}
-            className={styles["fieldsets__chip"]}
-            data-testid={`${inputId}-item-${index}`}
-          >
-            {item}
-            <IconButton
-              variant={ButtonVariant.TERTIARY}
-              tooltip={translate("form.remove", "combatTracker")}
-              faIcon="xmark"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              onClick={() => onChange(items.filter((_, i) => i !== index))}
+          <li key={`${item}-${index}`}>
+            <Chip
+              label={item}
+              deleteAction={{
+                onClick: () => onChange(items.filter((_, i) => i !== index)),
+                tooltip: translate("form.remove", "combatTracker"),
+              }}
+              data-testid={`${inputId}-item-${index}`}
             />
           </li>
         ))}
-      </ul>
-      <div className={styles["fieldsets__row"]}>
+      </FieldsetChips>
+      <FieldsetRow>
         <TextInput
           id={inputId}
           name={inputId}
@@ -69,7 +65,7 @@ const TextListFieldset = ({
           data-testid={inputId}
         />
         <AddItemButton onClick={submit} data-testid={`${inputId}-add-button`} />
-      </div>
+      </FieldsetRow>
     </Fieldset>
   );
 };

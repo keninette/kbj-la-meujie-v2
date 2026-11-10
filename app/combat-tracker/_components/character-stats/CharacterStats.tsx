@@ -141,7 +141,7 @@ const CharacterStats = ({
         title={translate("combatAction.turnTitle", "combatTracker", {
           character: selectedCharacter.name,
         })}
-        characters={characters!}
+        characters={characters ?? []}
         selectedCharacter={selectedCharacter}
         onCharactersChange={(updatedCharacters) => {
           onCharactersChange(updatedCharacters);

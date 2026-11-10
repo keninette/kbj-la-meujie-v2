@@ -1,5 +1,6 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { translate } from "@/app/_dictionaries/dictionnary";
+import SelectInput from "@/app/_components/_basics/form/select-input/SelectInput";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
 type TargetInputProps = {
@@ -12,22 +13,20 @@ export const TargetInput = ({
   inputName,
   characters,
   registration,
-}: TargetInputProps) => {
-  return (
-    <>
-      <label htmlFor={inputName}>
-        {translate("combatAction.target", "combatTracker")}
-      </label>
-      <select {...registration} id={inputName} data-testid={inputName}>
-        <option value="">-</option>
-        {characters?.map((char) => (
-          <option key={char.id} value={char.id}>
-            {char.name}
-          </option>
-        ))}
-      </select>
-    </>
-  );
-};
+}: TargetInputProps) => (
+  <SelectInput
+    id={inputName}
+    label={translate("combatAction.target", "combatTracker")}
+    {...registration}
+    data-testid={inputName}
+  >
+    <option value="">-</option>
+    {characters.map((character) => (
+      <option key={character.id} value={character.id}>
+        {character.name}
+      </option>
+    ))}
+  </SelectInput>
+);
 
 export default TargetInput;

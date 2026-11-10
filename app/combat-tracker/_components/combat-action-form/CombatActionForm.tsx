@@ -9,11 +9,12 @@ import {
 } from "@/app/combat-tracker/_components/combat-action-form/combat-action-form.helper";
 import SubmitButton from "@/app/_components/_basics/form/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import AttackFields from "./_components/AttackFields";
-import HealFields from "./_components/HealFields";
-import RecoveryFields from "./_components/RecoveryFields";
-import SpellFields from "./_components/SpellFields";
-import StateFields from "./_components/StateFields";
+import AttackFieldset from "./_components/AttackFieldset";
+import HealFieldset from "./_components/HealFieldset";
+import ReanimateFieldset from "./_components/ReanimateFieldset";
+import ReviveFieldset from "./_components/ReviveFieldset";
+import SpellFieldset from "./_components/SpellFieldset";
+import StateFieldset from "./_components/StateFieldset";
 import styles from "./combat-action-form.module.scss";
 
 type CombatActionFormProps = {
@@ -52,6 +53,8 @@ const CombatActionForm = ({
   currentTurn,
 }: CombatActionFormProps) => {
   const formId = useId();
+  const dyingCharacters = characters.filter((character) => character.isDying);
+  const deadCharacters = characters.filter((character) => character.isDead);
   const formMethods = useForm<CombatActionFormValues>({
     defaultValues: {
       attackTargetId: "",
@@ -260,43 +263,47 @@ const CombatActionForm = ({
           className={styles["combat-action-form"]}
           onSubmit={onSubmit}
         >
-          <RecoveryFields
-            characters={characters}
-            disabledRevive={disabledActions.revive}
-            disabledReanimate={disabledActions.reanimate}
-            onAddRevive={addReviveHistoryEntry}
-            onAddReanimate={addReanimateHistoryEntry}
-          />
-          <AttackFields
+          {dyingCharacters.length > 0 && (
+            <ReviveFieldset
+              characters={dyingCharacters}
+              disabled={disabledActions.revive}
+              onAddHistory={addReviveHistoryEntry}
+            />
+          )}
+          {deadCharacters.length > 0 && (
+            <ReanimateFieldset
+              characters={deadCharacters}
+              disabled={disabledActions.reanimate}
+              onAddHistory={addReanimateHistoryEntry}
+            />
+          )}
+          <AttackFieldset
             characters={characters}
             disabled={disabledActions.attack}
             onAddHistory={addAttackHistoryEntry}
           />
-          <HealFields
+          <HealFieldset
             characters={characters}
             disabled={disabledActions.heal}
             onAddHistory={addHealHistoryEntry}
           />
-          <SpellFields
+          <SpellFieldset
             selectedCharacter={selectedCharacter}
             disabled={disabledActions.spell}
             onAddHistory={addSpellUsedHistoryEntry}
           />
-          <StateFields
+          <StateFieldset
             characters={characters}
             disabled={disabledActions.state}
             onAddHistory={addInflictedStateHistoryEntry}
           />
-          <fieldset className={styles["combat-action-form__fieldset"]}>
-            {historyEntries.map((entry) => (
-              <p
-                className={styles["combat-action-form__history-entry"]}
-                key={entry.id}
-              >
-                {entry.action}
-              </p>
-            ))}
-          </fieldset>
+          {historyEntries.length > 0 && (
+            <ul className={styles["combat-action-form__history"]}>
+              {historyEntries.map((entry) => (
+                <li key={entry.id}>{entry.action}</li>
+              ))}
+            </ul>
+          )}
         </form>
       </FormProvider>
     </CustomDrawer>

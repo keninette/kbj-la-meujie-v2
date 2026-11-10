@@ -1,4 +1,6 @@
-import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import Fieldset, {
+  FieldsetRow,
+} from "@/app/_components/_basics/form/fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import CheckboxInput from "@/app/_components/_basics/form/checkbox-input/CheckboxInput";
 import SelectInput from "@/app/_components/_basics/form/select-input/SelectInput";
@@ -11,7 +13,7 @@ import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
 import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
 import { WikiImportedField } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
-import styles from "./fieldsets.module.scss";
+import formStyles from "../edit-character-form.module.scss";
 
 type IdentityFieldsetProps = {
   character: CombatCharacter | null;
@@ -81,13 +83,13 @@ const IdentityFieldset = ({
               alt={character?.name ?? ""}
               width={40}
               height={40}
-              className={styles["fieldsets__picture"]}
+              className={formStyles["edit-character-form__picture"]}
               data-testid="imageUrl-preview"
             />
           )
         }
       />
-      <div className={styles["fieldsets__row"]}>
+      <FieldsetRow>
         <CheckboxInput
           id="isNpc"
           name="isNpc"
@@ -117,7 +119,7 @@ const IdentityFieldset = ({
             ))}
           </SelectInput>
         )}
-      </div>
+      </FieldsetRow>
     </Fieldset>
   );
 };

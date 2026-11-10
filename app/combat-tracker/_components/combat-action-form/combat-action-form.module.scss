@@ -1,22 +1,18 @@
+// Same layout as the character form: one section after another
 .combat-action-form {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-layout-section-content-margin);
   min-width: 25rem;
 
-  &__title {
-    margin: 0;
-    text-align: center;
-  }
-
-  &__fieldset {
+  // The actions validated so far, saved with the form
+  &__history {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-layout-section-content-margin);
-    border: 0;
-    margin-top: var(--spacing-layout-section-content-margin);
-  }
-
-  &__history-entry {
+    gap: var(--spacing-padding--button);
     margin: 0;
+    padding: 0;
+
+    list-style: none;
   }
 }
