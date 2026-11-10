@@ -110,11 +110,9 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     letter-spacing: var(--letter-spacing--s);
   }
 
-  // Hit points over two columns, then armor class, initiative and movement.
-  // The abilities below, on the whole width
   &__tiles {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--spacing-padding--text);
   }
 
@@ -122,7 +120,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     grid-column: span 2;
   }
 
-  // Armor class and initiative
   &__tile-value {
     display: flex;
     align-items: center;
@@ -136,7 +133,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     color: var(--color-link);
   }
 
-  // A list of chips, e.g. the passives
   &__chips {
     display: flex;
     flex-wrap: wrap;
@@ -147,12 +143,10 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     list-style: none;
   }
 
-  // No slot left
   &__chip--empty {
     opacity: var(--opacity--disabled);
   }
 
-  // Level of a spell slot, in a square
   &__spell-level {
     display: inline-flex;
     align-items: center;
@@ -166,7 +160,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     font-weight: bold;
   }
 
-  // One group per line: actions, then bonus actions
   &__action-groups {
     display: flex;
     flex-direction: column;
@@ -180,7 +173,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     min-width: 0;
   }
 
-  // Same style as the abilities names
   &__action-group-title {
     margin: 0;
 
@@ -191,7 +183,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     text-transform: uppercase;
   }
 
-  // The actions of a group side by side, wrapping
   &__action-chips {
     display: flex;
     flex-wrap: wrap;
@@ -210,7 +201,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     grid-column: 1 / -1;
   }
 
-  // Row titles, then one column per ability
   &__abilities {
     display: grid;
     grid-template-columns: auto repeat(
@@ -222,7 +212,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     gap: var(--spacing--xxs) var(--spacing-padding--text);
   }
 
-  // Same style as the abilities names, on the left
   &__abilities-row-title {
     justify-self: start;
   }

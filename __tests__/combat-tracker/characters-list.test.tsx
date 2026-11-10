@@ -540,6 +540,7 @@ describe("CharacterStats abilities", () => {
         buildCharacter({
           id: "druid",
           movement: 9,
+          proficiencyBonus: 3,
           abilities: { str: 16, dex: 9 },
           savingThrows: { str: 5 },
         }),
@@ -548,6 +549,9 @@ describe("CharacterStats abilities", () => {
     render(<CombatTrackerPage />);
 
     expect(await screen.findByTestId("movement-tile")).toBeInTheDocument();
+    expect(screen.getByTestId("proficiency-bonus-tile")).toHaveTextContent(
+      "+3",
+    );
     expect(screen.getByTestId("ability-str")).toHaveTextContent("+3");
     expect(screen.getByTestId("saving-throw-str")).toHaveTextContent("+5");
     expect(screen.getByTestId("ability-dex")).toHaveTextContent("−1");
@@ -564,6 +568,9 @@ describe("CharacterStats abilities", () => {
 
     await screen.findByTestId("ac-tile");
     expect(screen.queryByTestId("movement-tile")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("proficiency-bonus-tile"),
+    ).not.toBeInTheDocument();
     expect(screen.queryByTestId("abilities-tile")).not.toBeInTheDocument();
   });
 

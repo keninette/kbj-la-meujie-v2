@@ -124,6 +124,25 @@ const StatsSection = ({ character }: StatsSectionProps) => {
           </span>
         </Tile>
       )}
+      {typeof character.proficiencyBonus === "number" && (
+        <Tile
+          title={translate("stats.proficiencyBonus", "combatTracker")}
+          data-testid="proficiency-bonus-tile"
+        >
+          <span
+            className={styles["character-stats__tile-value"]}
+            title={translate("stats.proficiencyBonusTooltip", "combatTracker")}
+          >
+            <FontAwesomeIcon
+              faIcon="medal"
+              faIconStyle={FaIconStyleEnum.SOLID}
+              className={styles["character-stats__tile-icon"]}
+              aria-hidden
+            />
+            {formatModifier(character.proficiencyBonus)}
+          </span>
+        </Tile>
+      )}
       {abilities.length > 0 && (
         <Tile
           title={translate("stats.abilities", "combatTracker")}

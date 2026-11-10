@@ -266,6 +266,7 @@ describe("bg3 wiki parser", () => {
         ac: 14,
         initiativeScore: 0,
         movement: 9,
+        proficiencyBonus: 3,
         abilities: { str: 16, dex: 16, con: 14, int: 14, wis: 16, cha: 14 },
         // Level 5: proficiency bonus of 3 for intelligence and wisdom
         savingThrows: { str: 3, dex: 3, con: 2, int: 5, wis: 6, cha: 2 },

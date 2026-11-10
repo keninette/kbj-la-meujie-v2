@@ -7,7 +7,6 @@ export type CombatCharacter = {
   id: string;
   name: string;
   shortDescription?: string;
-  /** Remote picture, e.g. the portrait from bg3.wiki */
   imageUrl?: string;
   /** Page the character was imported from, e.g. https://bg3.wiki/wiki/Kagha */
   wikiLink?: string;
@@ -26,9 +25,8 @@ export type CombatCharacter = {
   initiativeScore: number;
   /** In meters */
   movement?: number;
-  /** Scores (e.g. 16), the modifiers are computed from them */
+  proficiencyBonus?: number;
   abilities?: Partial<Record<AbilityEnum, number>>;
-  /** Modifiers (e.g. 5), proficiency included */
   savingThrows?: Partial<Record<AbilityEnum, number>>;
   spellSlotsLeft?: Record<string, number>;
   states?: CombatState[];

@@ -368,6 +368,8 @@ export const buildCharacterFromInfobox = (
     ...splitList(get("resistances")),
   ];
   const movement = toNumber(get("movement m"));
+  // Not in the infobox: computed from the level
+  const level = toNumber(get("level"));
   const abilities = parseAbilities(get);
   const savingThrows = parseSavingThrows(get, abilities);
 
@@ -386,6 +388,7 @@ export const buildCharacterFromInfobox = (
     // Rolled manually by the game master
     initiativeScore: 0,
     ...(movement ? { movement } : {}),
+    ...(level ? { proficiencyBonus: getProficiencyBonus(level) } : {}),
     ...(Object.keys(abilities).length ? { abilities } : {}),
     ...(Object.keys(savingThrows).length ? { savingThrows } : {}),
     ...(Object.keys(spellSlotsLeft).length ? { spellSlotsLeft } : {}),
