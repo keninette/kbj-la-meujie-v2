@@ -6,7 +6,7 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
-import { ABILITIES } from "@/app/_lib/enums/ability.enum";
+import { ABILITIES, AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   formatModifier,
   getAbilityModifier,
@@ -36,6 +36,11 @@ const StatsSection = ({ character }: StatsSectionProps) => {
   const hasSavingThrows = abilities.some(
     (ability) => typeof character.savingThrows?.[ability] === "number",
   );
+  // The initiative bonus is the dexterity modifier
+  const dexterity = character.abilities?.[AbilityEnum.DEXTERITY];
+  const initiativeBonus =
+    typeof dexterity === "number" ? getAbilityModifier(dexterity) : undefined;
+  const hasInitiativeBonus = initiativeBonus !== undefined;
 
   // Lost in this order: temporary, alternative, then normal hit points.
   // The temporary ones always go on the alternative bar when there are
@@ -149,11 +154,29 @@ const StatsSection = ({ character }: StatsSectionProps) => {
           className={styles["character-stats__abilities-tile"]}
           data-testid="abilities-tile"
         >
-          {/* One column per ability, the row titles on the left */}
+          {/*
+           * One column per ability, the row titles on the left, then the
+           * initiative bonus after a separator
+           */}
           <div
-            className={styles["character-stats__abilities"]}
-            style={{ "--abilities-count": abilities.length } as CSSProperties}
+            className={cx(
+              styles["character-stats__abilities"],
+              hasInitiativeBonus &&
+                styles["character-stats__abilities--with-initiative"],
+            )}
+            style={
+              {
+                "--abilities-count": abilities.length,
+                "--abilities-rows": hasSavingThrows ? 3 : 2,
+              } as CSSProperties
+            }
           >
+            {hasInitiativeBonus && (
+              <span
+                className={styles["character-stats__abilities-separator"]}
+                aria-hidden
+              />
+            )}
             <span />
             {abilities.map((ability) => (
               <abbr
@@ -164,6 +187,14 @@ const StatsSection = ({ character }: StatsSectionProps) => {
                 {translate(`ability.${ability}`, "combatTracker")}
               </abbr>
             ))}
+            {hasInitiativeBonus && (
+              <abbr
+                className={styles["character-stats__ability-name"]}
+                title={translate("stats.initiativeBonus.name", "combatTracker")}
+              >
+                {translate("stats.initiativeBonus", "combatTracker")}
+              </abbr>
+            )}
             <span />
             {abilities.map((ability) => (
               <span
@@ -176,6 +207,14 @@ const StatsSection = ({ character }: StatsSectionProps) => {
                 )}
               </span>
             ))}
+            {hasInitiativeBonus && (
+              <span
+                className={styles["character-stats__ability-modifier"]}
+                data-testid="initiative-bonus"
+              >
+                {formatModifier(initiativeBonus)}
+              </span>
+            )}
             {hasSavingThrows && (
               <>
                 <abbr

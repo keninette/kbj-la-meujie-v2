@@ -210,6 +210,21 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     align-items: baseline;
     justify-items: center;
     gap: var(--spacing--xxs) var(--spacing-padding--text);
+
+    &--with-initiative {
+      grid-template-columns:
+        auto repeat(var(--abilities-count, 6), minmax(0, 1fr))
+        1px minmax(0, 1fr);
+    }
+  }
+
+  &__abilities-separator {
+    grid-column: -3 / -2;
+    grid-row: 1 / span var(--abilities-rows, 2);
+    align-self: stretch;
+    justify-self: stretch;
+
+    background-color: var(--color-border--light);
   }
 
   &__abilities-row-title {

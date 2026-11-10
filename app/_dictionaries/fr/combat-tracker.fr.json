@@ -135,6 +135,8 @@
   "stats.abilities": "Caractéristiques",
   "stats.savingThrows": "SAV",
   "stats.savingThrows.name": "Sauvegarde",
+  "stats.initiativeBonus": "INIT",
+  "stats.initiativeBonus.name": "Bonus d'initiative (Dextérité)",
   "ability.str": "FOR",
   "ability.dex": "DEX",
   "ability.con": "CON",

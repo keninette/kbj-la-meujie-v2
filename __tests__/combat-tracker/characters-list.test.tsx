@@ -585,6 +585,36 @@ describe("CharacterStats abilities", () => {
     );
     expect(screen.queryByTestId("saving-throw-str")).not.toBeInTheDocument();
   });
+
+  it.each([
+    [16, "+3"],
+    [8, "−1"],
+  ])(
+    "shows the dexterity modifier as initiative bonus (DEX %i -> %s)",
+    async (dex, bonus) => {
+      saveCombat(
+        buildCombat([buildCharacter({ id: "rogue", abilities: { dex } })]),
+      );
+      render(<CombatTrackerPage />);
+
+      expect(await screen.findByTestId("abilities-tile")).toHaveTextContent(
+        "stats.initiativeBonus",
+      );
+      expect(screen.getByTestId("initiative-bonus")).toHaveTextContent(bonus);
+    },
+  );
+
+  it("shows no initiative bonus without dexterity", async () => {
+    saveCombat(
+      buildCombat([buildCharacter({ id: "fighter", abilities: { str: 16 } })]),
+    );
+    render(<CombatTrackerPage />);
+
+    expect(await screen.findByTestId("abilities-tile")).not.toHaveTextContent(
+      "stats.initiativeBonus",
+    );
+    expect(screen.queryByTestId("initiative-bonus")).not.toBeInTheDocument();
+  });
 });
 
 describe("CharacterStats spell slots", () => {
