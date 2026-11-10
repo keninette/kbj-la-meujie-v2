@@ -114,6 +114,7 @@ const HpBar = ({
         <span
           className={cx(styles["hp-bar__fill"], styles["hp-bar__fill--temp"])}
           style={{ width: `${(temp / scale) * 100}%` }}
+          data-testid={dataTestId && `${dataTestId}-fill-temp`}
         />
         <span
           className={cx(
@@ -121,6 +122,7 @@ const HpBar = ({
             styles[`hp-bar__fill--${level}`],
           )}
           style={{ width: `${(current / scale) * 100}%` }}
+          data-testid={dataTestId && `${dataTestId}-fill`}
         />
       </span>
     </div>

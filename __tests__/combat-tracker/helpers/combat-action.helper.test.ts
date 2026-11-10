@@ -1,13 +1,28 @@
 import {
   ActionCostKind,
+  ActionGroupEnum,
   describeActionDetails,
+  getActionGroup,
   parseActionCost,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
-jest.mock("../../app/_dictionaries/dictionnary", () => ({
+jest.mock("../../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
 }));
+
+describe("getActionGroup", () => {
+  it.each([
+    ["an action", ["action"], ActionGroupEnum.ACTION],
+    ["a bonus action", ["bonus"], ActionGroupEnum.BONUS],
+    ["a bonus action with a spell slot", ["bonus", "1"], ActionGroupEnum.BONUS],
+    // Reactions have no group of their own
+    ["a reaction", ["reaction"], ActionGroupEnum.ACTION],
+    ["an action without cost", [], ActionGroupEnum.ACTION],
+  ])("puts %s in its group", (_, costs, group) => {
+    expect(getActionGroup({ name: "Moonbeam", costs })).toBe(group);
+  });
+});
 
 describe("parseActionCost", () => {
   it("recognizes the action economy", () => {

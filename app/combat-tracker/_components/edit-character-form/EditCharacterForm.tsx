@@ -313,6 +313,7 @@ const EditCharacterForm = ({
         ref={formRef}
         className={styles["edit-character-form__form"]}
         onSubmit={handleSubmit}
+        data-testid="edit-character-form"
       >
         <IdentityFieldset
           character={character}

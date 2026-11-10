@@ -3,7 +3,7 @@ import {
   mergeWikiCharacter,
   WIKI_IMPORTED_FIELDS,
 } from "@/app/combat-tracker/_lib/bg3-wiki/merge-wiki-character";
-import { buildCharacter } from "../utils/combat-tracker.test.utils";
+import { buildCharacter } from "./_fixtures/combat-tracker.fixtures";
 
 // What the wiki import returns for Kagha (see bg3-wiki.parser.test.ts)
 const kagha = buildCharacter({

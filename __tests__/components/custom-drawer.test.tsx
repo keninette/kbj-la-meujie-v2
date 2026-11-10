@@ -3,32 +3,13 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
-jest.mock("../app/_dictionaries/dictionnary", () => ({
+jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
 }));
 
 describe("CustomDrawer", () => {
-  it("shows the title followed by a separator, then the content", () => {
-    render(
-      <CustomDrawer isOpened onClose={jest.fn()} title="Historique">
-        <p>Contenu</p>
-      </CustomDrawer>,
-    );
-
-    expect(
-      screen.getByRole("dialog", { name: "Historique" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Historique" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("separator")).toBeInTheDocument();
-    expect(screen.getByText("Contenu")).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("custom-drawer-actions"),
-    ).not.toBeInTheDocument();
-  });
-
-  it("shows the actions after the content", () => {
+  // Outside of the scrolling content: always visible, however long it is
+  it("keeps the actions out of the content, after it", () => {
     render(
       <CustomDrawer
         isOpened

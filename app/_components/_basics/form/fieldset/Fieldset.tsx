@@ -12,6 +12,7 @@ type FieldsetProps = {
   isHighlighted?: boolean;
   className?: string;
   children?: React.ReactNode;
+  "data-testid"?: string;
 };
 
 const Fieldset = ({
@@ -21,11 +22,13 @@ const Fieldset = ({
   isHighlighted = false,
   className,
   children,
+  "data-testid": dataTestId,
 }: FieldsetProps) => (
   <ContainerBox
     as="fieldset"
     isHighlighted={isHighlighted}
     className={cx(styles["fieldset"], className)}
+    data-testid={dataTestId}
   >
     {title && (
       <legend className={styles["fieldset__title"]}>

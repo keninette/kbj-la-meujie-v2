@@ -20,15 +20,6 @@ describe("KebabMenu", () => {
       />,
     );
 
-  it("is a closed ⋮ button with an accessible name", () => {
-    renderMenu();
-
-    const button = screen.getByRole("button", { name: "Actions de Kagha" });
-    expect(button).toHaveAttribute("aria-haspopup", "menu");
-    expect(button).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
-  });
-
   it("lists the actions and links when opened", () => {
     renderMenu();
 

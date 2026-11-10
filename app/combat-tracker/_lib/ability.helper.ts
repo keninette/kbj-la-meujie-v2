@@ -1,11 +1,17 @@
 import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 
-/** 16 -> 3, 9 -> -1 */
+/**
+ * BG3 rule
+ * 16 -> 3, 9 -> -1
+ */
 export const getAbilityModifier = (score: number): number =>
   Math.floor((score - 10) / 2);
 
-/** The dexterity modifier, or undefined when the dexterity is unknown */
+/**
+ * BG3 rule
+ * The dexterity modifier, or undefined when the dexterity is unknown
+ */
 export const getInitiativeBonus = (
   character: Pick<CombatCharacter, "abilities"> | null,
 ): number | undefined => {
@@ -15,7 +21,10 @@ export const getInitiativeBonus = (
     : undefined;
 };
 
-/** Levels 1 to 4 -> 2, 5 to 8 -> 3, 9 to 12 -> 4... */
+/**
+ * BG3 rule
+ * Levels 1 to 4 -> 2, 5 to 8 -> 3, 9 to 12 -> 4...
+ */
 export const getProficiencyBonus = (level: number): number =>
   2 + Math.floor((Math.max(level, 1) - 1) / 4);
 

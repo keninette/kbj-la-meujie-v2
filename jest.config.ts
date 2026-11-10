@@ -10,8 +10,8 @@ const createJestConfig = nextJest({
 const config: Config = {
   coverageProvider: "v8",
   testEnvironment: "jsdom",
-  // Shared test helpers live under __tests__/utils but aren't test suites themselves.
-  testPathIgnorePatterns: ["/node_modules/", "/__tests__/utils/"],
+  // Test fixtures live in _fixtures/ folders under __tests__ but aren't test suites themselves.
+  testPathIgnorePatterns: ["/node_modules/", "/__tests__/(.+/)?_fixtures/"],
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 };

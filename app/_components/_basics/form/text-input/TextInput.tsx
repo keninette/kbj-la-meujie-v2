@@ -12,6 +12,8 @@ type TextInputProps = Omit<
   type?: "text" | "url";
   /** On the field (label + input), e.g. to highlight it */
   className?: string;
+  /** On the input; the field (label + input) gets "<it>-field" */
+  "data-testid"?: string;
   /** Shown next to the input, e.g. a preview */
   adornment?: ReactNode;
 };
@@ -21,6 +23,7 @@ const TextInput = ({
   label,
   type = "text",
   className,
+  "data-testid": dataTestId,
   adornment,
   ...inputProps
 }: TextInputProps) => {
@@ -30,11 +33,15 @@ const TextInput = ({
       id={id}
       className={styles["text-input__input"]}
       {...inputProps}
+      data-testid={dataTestId}
     />
   );
 
   return (
-    <div className={cx(styles["text-input"], className)}>
+    <div
+      className={cx(styles["text-input"], className)}
+      data-testid={dataTestId && `${dataTestId}-field`}
+    >
       <label htmlFor={id} className={styles["text-input__label"]}>
         {label}
       </label>

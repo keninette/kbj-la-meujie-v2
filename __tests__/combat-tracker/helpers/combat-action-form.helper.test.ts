@@ -5,7 +5,7 @@ import {
   applyHealToCharacter,
   resetRevivedCharacter,
 } from "@/app/combat-tracker/_components/combat-action-form/combat-action-form.helper";
-import { buildCharacter } from "../utils/combat-tracker.test.utils";
+import { buildCharacter } from "../_fixtures/combat-tracker.fixtures";
 
 describe("applyDamageToCharacter", () => {
   it("applies damage to temporary HP, alternative HP, then regular HP", () => {

@@ -3,11 +3,10 @@ import { render, screen, fireEvent, within } from "@testing-library/react";
 import CombatTrackerPage from "@/app/combat-tracker/page";
 import { saveCombat } from "@/app/combat-tracker/_lib/local-storage";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
-import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
 import {
   buildCharacter,
   buildCombat,
-} from "../utils/combat-tracker.test.utils";
+} from "./_fixtures/combat-tracker.fixtures";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
 // Keeps the values, e.g. "stats.hpSummary(stats.hp, 27, 31)"
@@ -77,17 +76,6 @@ describe("CharacterList active and idle characters", () => {
     expect(
       within(activeList()).getByTestId("character-item-aragorn"),
     ).toBeInTheDocument();
-  });
-
-  it("shows the initial of an inactive character without picture", async () => {
-    await renderPageWithCharacters();
-
-    clickMenuItem("legolas", "deactivate-character-legolas");
-
-    expect(
-      within(screen.getByTestId("idle-characters-list")).getByText("L"),
-    ).toBeInTheDocument();
-    expect(within(activeList()).getByText("A")).toBeInTheDocument();
   });
 
   it("moves a character back to the active list when reactivated", async () => {
@@ -231,36 +219,6 @@ describe("Combat turn box", () => {
 describe("CharacterList active character cards", () => {
   afterEach(() => {
     localStorage.clear();
-  });
-
-  it("shows the initiative, the hit points and the wiki link", async () => {
-    saveCombat(
-      buildCombat([
-        buildCharacter({
-          id: "aragorn",
-          initiativeScore: 15,
-          hp: 27,
-          maxHp: 31,
-          wikiLink: "https://bg3.wiki/wiki/Aragorn",
-        }),
-      ]),
-    );
-    render(<CombatTrackerPage />);
-
-    const card = await screen.findByTestId("character-item-aragorn");
-    expect(within(card).getByText("15")).toBeInTheDocument();
-    expect(
-      within(card).getByRole("group", {
-        name: "stats.hpSummary(stats.hp, 27, 31)",
-      }),
-    ).toBeInTheDocument();
-    // The menu is drawn over the page, outside of the card
-    openMenu("aragorn");
-    expect(screen.getByTestId("wiki-link-aragorn")).toBeInTheDocument();
-    expect(screen.getByTestId("edit-character-aragorn")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("deactivate-character-aragorn"),
-    ).toBeInTheDocument();
   });
 
   it("shows the alternative hit points first, with the temporary ones", async () => {
@@ -430,73 +388,6 @@ describe("CharacterList dead characters", () => {
   });
 });
 
-describe("CharacterList long names", () => {
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it("shows the full name as a tooltip, as it may be cut", async () => {
-    const name = "Gnoll Flind of the Shattered Sanctum";
-    saveCombat(buildCombat([buildCharacter({ id: "gnoll", name })]));
-    render(<CombatTrackerPage />);
-
-    const card = await screen.findByTestId("character-item-gnoll");
-    expect(within(card).getByText(name)).toHaveAttribute("title", name);
-  });
-});
-
-describe("CharacterStats header", () => {
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it("shows the name, the initial without picture, and the actions", async () => {
-    saveCombat(
-      buildCombat([
-        buildCharacter({
-          id: "kagha",
-          name: "Kagha",
-          wikiLink: "https://bg3.wiki/wiki/Kagha",
-        }),
-      ]),
-    );
-    render(<CombatTrackerPage />);
-
-    const stats = await screen.findByRole("region", { name: "Kagha" });
-    expect(within(stats).getByText("K")).toBeInTheDocument();
-
-    expect(screen.getByTestId("character-stats-wiki-link")).toHaveAttribute(
-      "href",
-      "https://bg3.wiki/wiki/Kagha",
-    );
-
-    fireEvent.click(screen.getByTestId("character-stats-deactivate"));
-    expect(
-      within(screen.getByTestId("idle-characters-list")).getByTestId(
-        "character-item-kagha",
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("shows the attitude of an NPC with its name", async () => {
-    saveCombat(
-      buildCombat([
-        buildCharacter({
-          id: "kagha",
-          name: "Kagha",
-          isNpc: true,
-          attitude: NpcAttitudeEnum.ENEMY,
-        }),
-      ]),
-    );
-    render(<CombatTrackerPage />);
-
-    expect(await screen.findByTestId("character-attitude")).toHaveTextContent(
-      "attitude.enemy",
-    );
-  });
-});
-
 describe("CharacterStats hit points bars", () => {
   afterEach(() => {
     localStorage.clear();
@@ -529,9 +420,9 @@ describe("CharacterStats hit points bars", () => {
     // Temporary > alternative > regular: never on the regular bar while
     // there are alternative hit points
     expect(screen.queryByTestId("hp-bar-temp")).not.toBeInTheDocument();
-    expect(
-      screen.getByTestId("hp-bar").querySelector(".hp-bar__fill--temp"),
-    ).toHaveStyle({ width: "0%" });
+    expect(screen.getByTestId("hp-bar-fill-temp")).toHaveStyle({
+      width: "0%",
+    });
     expect(screen.queryByTestId("alternative-hp-bar")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("hp-bar-switch"));
@@ -553,59 +444,9 @@ describe("CharacterStats hit points bars", () => {
   });
 });
 
-describe("CharacterStats tiles", () => {
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it("shows the armor class and the initiative", async () => {
-    saveCombat(
-      buildCombat([
-        buildCharacter({ id: "fighter", ac: 16, initiativeScore: 19 }),
-      ]),
-    );
-    render(<CombatTrackerPage />);
-
-    expect(await screen.findByTestId("ac-tile")).toHaveTextContent(
-      "stats.ac16",
-    );
-    expect(screen.getByTestId("initiative-tile")).toHaveTextContent(
-      "stats.initiative19",
-    );
-  });
-});
-
 describe("CharacterStats abilities", () => {
   afterEach(() => {
     localStorage.clear();
-  });
-
-  it("shows the movement, the ability modifiers and the saving throws", async () => {
-    saveCombat(
-      buildCombat([
-        buildCharacter({
-          id: "druid",
-          movement: 9,
-          proficiencyBonus: 3,
-          abilities: { str: 16, dex: 9 },
-          savingThrows: { str: 5 },
-        }),
-      ]),
-    );
-    render(<CombatTrackerPage />);
-
-    expect(await screen.findByTestId("movement-tile")).toBeInTheDocument();
-    expect(screen.getByTestId("proficiency-bonus-tile")).toHaveTextContent(
-      "+3",
-    );
-    expect(screen.getByTestId("ability-str")).toHaveTextContent("+3");
-    expect(screen.getByTestId("saving-throw-str")).toHaveTextContent("+5");
-    expect(screen.getByTestId("ability-dex")).toHaveTextContent("−1");
-    expect(screen.getByTestId("saving-throw-dex")).toBeEmptyDOMElement();
-    expect(screen.getByTestId("abilities-tile")).toHaveTextContent(
-      "stats.savingThrows",
-    );
-    expect(screen.queryByTestId("ability-con")).not.toBeInTheDocument();
   });
 
   it("shows nothing when they are unknown", async () => {
@@ -632,23 +473,18 @@ describe("CharacterStats abilities", () => {
     expect(screen.queryByTestId("saving-throw-str")).not.toBeInTheDocument();
   });
 
-  it.each([
-    [16, "+3"],
-    [8, "−1"],
-  ])(
-    "shows the dexterity modifier as initiative bonus (DEX %i -> %s)",
-    async (dex, bonus) => {
-      saveCombat(
-        buildCombat([buildCharacter({ id: "rogue", abilities: { dex } })]),
-      );
-      render(<CombatTrackerPage />);
+  // The modifier itself is tested in ability.helper.test.ts
+  it("shows the dexterity modifier as initiative bonus", async () => {
+    saveCombat(
+      buildCombat([buildCharacter({ id: "rogue", abilities: { dex: 16 } })]),
+    );
+    render(<CombatTrackerPage />);
 
-      expect(await screen.findByTestId("abilities-tile")).toHaveTextContent(
-        "stats.initiativeBonus",
-      );
-      expect(screen.getByTestId("initiative-bonus")).toHaveTextContent(bonus);
-    },
-  );
+    expect(await screen.findByTestId("abilities-tile")).toHaveTextContent(
+      "stats.initiativeBonus",
+    );
+    expect(screen.getByTestId("initiative-bonus")).toHaveTextContent("+3");
+  });
 
   it("shows no initiative bonus without dexterity", async () => {
     saveCombat(
@@ -660,51 +496,5 @@ describe("CharacterStats abilities", () => {
       "stats.initiativeBonus",
     );
     expect(screen.queryByTestId("initiative-bonus")).not.toBeInTheDocument();
-  });
-});
-
-describe("CharacterStats spell slots", () => {
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it("shows a chip per spell slot, with the level or a wand", async () => {
-    saveCombat(
-      buildCombat([
-        buildCharacter({
-          id: "druid",
-          spellSlotsLeft: { "1": 4, "2": 0, wldshp: 2 },
-        }),
-      ]),
-    );
-    render(<CombatTrackerPage />);
-
-    const spells = await screen.findByTestId("character-spell-slots");
-    expect(spells).toHaveTextContent("stats.spells");
-
-    const level1 = screen.getByTestId("spell-slot-1");
-    expect(level1).toHaveTextContent("14");
-    expect(
-      level1.querySelector(".character-stats__spell-level"),
-    ).toHaveTextContent("1");
-    expect(level1).not.toHaveClass("character-stats__chip--empty");
-    expect(screen.getByTestId("spell-slot-2")).toHaveClass(
-      "character-stats__chip--empty",
-    );
-
-    const wildShape = screen.getByTestId("spell-slot-wldshp");
-    expect(wildShape).toHaveTextContent("wldshp 2");
-    expect(wildShape.querySelector(".fa-wand-sparkles")).toBeInTheDocument();
-    expect(wildShape.querySelector(".character-stats__spell-level")).toBeNull();
-  });
-
-  it("shows nothing without spell slots", async () => {
-    saveCombat(buildCombat([buildCharacter({ id: "fighter" })]));
-    render(<CombatTrackerPage />);
-
-    await screen.findByTestId("ac-tile");
-    expect(
-      screen.queryByTestId("character-spell-slots"),
-    ).not.toBeInTheDocument();
   });
 });

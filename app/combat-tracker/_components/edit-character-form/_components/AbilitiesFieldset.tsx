@@ -41,6 +41,7 @@ const AbilitiesFieldset = ({
     title={translate("form.abilities", "combatTracker")}
     titleIcon="dumbbell"
     isHighlighted={isHighlighted}
+    data-testid="abilities-fieldset"
   >
     <FieldsetGrid>
       {ABILITIES.map((ability) => (

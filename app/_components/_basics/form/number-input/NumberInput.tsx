@@ -10,15 +10,21 @@ type NumberInputProps = Omit<
   label: string;
   /** On the field (label + input), e.g. to highlight it */
   className?: string;
+  /** On the input; the field (label + input) gets "<it>-field" */
+  "data-testid"?: string;
 };
 
 const NumberInput = ({
   id,
   label,
   className,
+  "data-testid": dataTestId,
   ...inputProps
 }: NumberInputProps) => (
-  <div className={cx(styles["number-input"], className)}>
+  <div
+    className={cx(styles["number-input"], className)}
+    data-testid={dataTestId && `${dataTestId}-field`}
+  >
     <label htmlFor={id} className={styles["number-input__label"]}>
       {label}
     </label>
@@ -27,6 +33,7 @@ const NumberInput = ({
       id={id}
       className={styles["number-input__input"]}
       {...inputProps}
+      data-testid={dataTestId}
     />
   </div>
 );
