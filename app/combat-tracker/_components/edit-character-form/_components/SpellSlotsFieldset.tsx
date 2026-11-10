@@ -1,13 +1,13 @@
-import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import Fieldset, {
+  FieldsetRow,
+  FieldsetChips,
+} from "@/app/_components/_basics/form/fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import NumberInput from "@/app/_components/_basics/form/number-input/NumberInput";
-import IconButton from "@/app/_components/_basics/icon-button/IconButton";
+import Chip from "@/app/_components/_basics/chip/Chip";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
-import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import AddItemButton from "./AddItemButton";
 import { useNewItem } from "../_hooks/use-new-item.hook";
-import styles from "./fieldsets.module.scss";
 
 type SpellSlotsFieldsetProps = {
   /** Uses left, by level ("1") or resource name ("rage") */
@@ -47,21 +47,20 @@ const SpellSlotsFieldset = ({
       titleIcon="wand-sparkles"
       isHighlighted={isHighlighted}
     >
-      <ul className={styles["fieldsets__chips"]}>
+      <FieldsetChips>
         {Object.entries(spellSlots).map(([slotName, slots]) => (
-          <li key={slotName} className={styles["fieldsets__chip"]}>
-            {slotName} : {slots}
-            <IconButton
-              variant={ButtonVariant.TERTIARY}
-              tooltip={translate("form.remove", "combatTracker")}
-              faIcon="xmark"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              onClick={() => remove(slotName)}
+          <li key={slotName}>
+            <Chip
+              label={`${slotName} : ${slots}`}
+              deleteAction={{
+                onClick: () => remove(slotName),
+                tooltip: translate("form.remove", "combatTracker"),
+              }}
             />
           </li>
         ))}
-      </ul>
-      <div className={styles["fieldsets__row"]}>
+      </FieldsetChips>
+      <FieldsetRow>
         <TextInput
           id="slotLevel"
           name="slotLevel"
@@ -88,7 +87,7 @@ const SpellSlotsFieldset = ({
           data-testid="spellSlotValue"
         />
         <AddItemButton onClick={submit} data-testid="addSpellSlot" />
-      </div>
+      </FieldsetRow>
     </Fieldset>
   );
 };

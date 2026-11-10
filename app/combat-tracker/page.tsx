@@ -5,7 +5,6 @@ import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import CharacterList from "./_components/characters-list/CharacterList";
 import styles from "./combat-tracker.module.scss";
 import CharacterStats from "./_components/character-stats/CharacterStats";
-import CustomDrawer from "../_components/_basics/custom-drawer/CustomDrawer";
 import EditCharacterForm from "./_components/edit-character-form/EditCharacterForm";
 import { clearCombat, loadCombat, saveCombat } from "./_lib/local-storage";
 import CombatManager from "./_components/combat-manager/CombatManager";
@@ -25,6 +24,8 @@ const CombatTrackerPage = () => {
   const [characterToEdit, setCharacterToEdit] =
     useState<CombatCharacter | null>(null);
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
+  // Changed on each opening: remounts the form, which clears it
+  const [drawerOpeningCount, setDrawerOpeningCount] = useState(0);
   const selectedCharacter =
     combat?.characters?.[combat.selectedCharacterIndex] ?? null;
   const idleCharacters = combat?.idleCharacters ?? [];
@@ -45,6 +46,7 @@ const CombatTrackerPage = () => {
 
   const handleCharacterClick = (character: CombatCharacter) => {
     setIsDrawerOpened(true);
+    setDrawerOpeningCount((count) => count + 1);
     setCharacterToEdit(character);
   };
 
@@ -251,17 +253,15 @@ const CombatTrackerPage = () => {
           )}
         </div>
       </div>
-      <CustomDrawer
+      <EditCharacterForm
+        key={drawerOpeningCount}
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
         title={translate("form.editCharacter", "combatTracker")}
-      >
-        <EditCharacterForm
-          initialCharacter={characterToEdit}
-          currentTurn={getOngoingTurn(combat)}
-          onSubmit={onCharacterEdited}
-        />
-      </CustomDrawer>
+        initialCharacter={characterToEdit}
+        currentTurn={getOngoingTurn(combat)}
+        onSubmit={onCharacterEdited}
+      />
     </>
   );
 };

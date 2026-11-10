@@ -1,21 +1,27 @@
 import { createId } from "@/app/combat-tracker/_lib/create-id";
-import { useState } from "react";
+import { useId, useState } from "react";
+import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
 import { FormProvider, useForm } from "react-hook-form";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import {
-  applyAttackFormValues,
-  type AttackFormValues,
-} from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+  applyCombatActionFormValues,
+  type CombatActionFormValues,
+} from "@/app/combat-tracker/_components/combat-action-form/combat-action-form.helper";
 import SubmitButton from "@/app/_components/_basics/form/submit-button/SubmitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import AttackFields from "./_components/AttackFields";
-import HealFields from "./_components/HealFields";
-import RecoveryFields from "./_components/RecoveryFields";
-import SpellFields from "./_components/SpellFields";
-import StateFields from "./_components/StateFields";
-import styles from "./attack-form.module.scss";
+import AttackFieldset from "./_components/AttackFieldset";
+import HealFieldset from "./_components/HealFieldset";
+import ReanimateFieldset from "./_components/ReanimateFieldset";
+import ReviveFieldset from "./_components/ReviveFieldset";
+import SpellFieldset from "./_components/SpellFieldset";
+import StateFieldset from "./_components/StateFieldset";
+import styles from "./combat-action-form.module.scss";
 
-type AttackFormProps = {
+type CombatActionFormProps = {
+  /** Shown in a drawer, with the save button always visible at the bottom */
+  isOpened: boolean;
+  onClose: () => void;
+  title: string;
   characters: CombatCharacter[];
   selectedCharacter: CombatCharacter;
   onCharactersChange: (characters: CombatCharacter[]) => void;
@@ -36,14 +42,20 @@ type HistoryAction =
   | "spell"
   | "state";
 
-const AttackForm = ({
+const CombatActionForm = ({
+  isOpened,
+  onClose,
+  title,
   characters,
   selectedCharacter,
   onCharactersChange,
   onHistoryEdited,
   currentTurn,
-}: AttackFormProps) => {
-  const formMethods = useForm<AttackFormValues>({
+}: CombatActionFormProps) => {
+  const formId = useId();
+  const dyingCharacters = characters.filter((character) => character.isDying);
+  const deadCharacters = characters.filter((character) => character.isDead);
+  const formMethods = useForm<CombatActionFormValues>({
     defaultValues: {
       attackTargetId: "",
       attackDamage: 0,
@@ -210,7 +222,7 @@ const AttackForm = ({
       return;
     }
     setDisabledActions((prev) => ({ ...prev, submit: true }));
-    const result = applyAttackFormValues(
+    const result = applyCombatActionFormValues(
       characters,
       selectedCharacter.id,
       formValues,
@@ -232,56 +244,70 @@ const AttackForm = ({
   });
 
   return (
-    <FormProvider {...formMethods}>
-      <form className={styles["attack-form"]} onSubmit={onSubmit}>
-        <div>
-          <RecoveryFields
-            characters={characters}
-            disabledRevive={disabledActions.revive}
-            disabledReanimate={disabledActions.reanimate}
-            onAddRevive={addReviveHistoryEntry}
-            onAddReanimate={addReanimateHistoryEntry}
-          />
-          <AttackFields
+    <CustomDrawer
+      isOpened={isOpened}
+      onClose={onClose}
+      title={title}
+      actions={
+        <SubmitButton
+          label={translate("form.save", "combatTracker")}
+          disabled={disabledActions.submit}
+          form={formId}
+        />
+      }
+    >
+      <FormProvider {...formMethods}>
+        {/* The save button is in the drawer actions: it submits it by its id */}
+        <form
+          id={formId}
+          className={styles["combat-action-form"]}
+          onSubmit={onSubmit}
+        >
+          {dyingCharacters.length > 0 && (
+            <ReviveFieldset
+              characters={dyingCharacters}
+              disabled={disabledActions.revive}
+              onAddHistory={addReviveHistoryEntry}
+            />
+          )}
+          {deadCharacters.length > 0 && (
+            <ReanimateFieldset
+              characters={deadCharacters}
+              disabled={disabledActions.reanimate}
+              onAddHistory={addReanimateHistoryEntry}
+            />
+          )}
+          <AttackFieldset
             characters={characters}
             disabled={disabledActions.attack}
             onAddHistory={addAttackHistoryEntry}
           />
-          <HealFields
+          <HealFieldset
             characters={characters}
             disabled={disabledActions.heal}
             onAddHistory={addHealHistoryEntry}
           />
-          <SpellFields
+          <SpellFieldset
             selectedCharacter={selectedCharacter}
             disabled={disabledActions.spell}
             onAddHistory={addSpellUsedHistoryEntry}
           />
-          <StateFields
+          <StateFieldset
             characters={characters}
             disabled={disabledActions.state}
             onAddHistory={addInflictedStateHistoryEntry}
           />
-        </div>
-        <div>
-          <fieldset className={styles["attack-form__fieldset"]}>
-            {historyEntries.map((entry) => (
-              <p
-                className={styles["attack-form__history-entry"]}
-                key={entry.id}
-              >
-                {entry.action}
-              </p>
-            ))}
-          </fieldset>
-          <SubmitButton
-            label={translate("form.save", "combatTracker")}
-            disabled={disabledActions.submit}
-          />
-        </div>
-      </form>
-    </FormProvider>
+          {historyEntries.length > 0 && (
+            <ul className={styles["combat-action-form__history"]}>
+              {historyEntries.map((entry) => (
+                <li key={entry.id}>{entry.action}</li>
+              ))}
+            </ul>
+          )}
+        </form>
+      </FormProvider>
+    </CustomDrawer>
   );
 };
 
-export default AttackForm;
+export default CombatActionForm;

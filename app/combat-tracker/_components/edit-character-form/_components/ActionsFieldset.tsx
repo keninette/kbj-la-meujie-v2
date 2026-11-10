@@ -1,11 +1,13 @@
-import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import Fieldset, {
+  FieldsetRow,
+  FieldsetChips,
+} from "@/app/_components/_basics/form/fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import ActionChip from "@/app/combat-tracker/_components/action-chip/ActionChip";
 import AddItemButton from "./AddItemButton";
 import { useNewItem } from "../_hooks/use-new-item.hook";
-import styles from "./fieldsets.module.scss";
 
 type ActionsFieldsetProps = {
   actions: CombatAction[];
@@ -33,8 +35,7 @@ const ActionsFieldset = ({
       titleIcon="hand-fist"
       isHighlighted={isHighlighted}
     >
-      {/* The same chips as in the character stats, with a remove button */}
-      <ul className={styles["fieldsets__chips"]}>
+      <FieldsetChips>
         {actions.map((action, index) => (
           <li key={`${action.name}-${index}`}>
             <ActionChip
@@ -43,8 +44,8 @@ const ActionsFieldset = ({
             />
           </li>
         ))}
-      </ul>
-      <div className={styles["fieldsets__row"]}>
+      </FieldsetChips>
+      <FieldsetRow>
         <TextInput
           id="actionName"
           name="actionName"
@@ -55,7 +56,7 @@ const ActionsFieldset = ({
           data-testid="actionName"
         />
         <AddItemButton onClick={submit} data-testid="addAction" />
-      </div>
+      </FieldsetRow>
     </Fieldset>
   );
 };

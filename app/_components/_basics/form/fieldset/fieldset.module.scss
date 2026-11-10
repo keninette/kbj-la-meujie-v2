@@ -18,4 +18,31 @@
 
     @include mixins.caption;
   }
+
+  // Layouts of the fields, see FieldsetGrid, FieldsetRow and FieldsetChips
+  &__grid {
+    display: grid;
+    gap: var(--spacing-padding--text);
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  }
+
+  &__row {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-padding--text);
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-padding--button);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    &:empty {
+      display: none;
+    }
+  }
 }

@@ -11,11 +11,22 @@ import styles from "./custom-drawer.module.scss";
 type DrawerProps = {
   isOpened: boolean;
   onClose: () => void;
-  title?: string;
+  title: string;
+  /** Scrolls between the title and the actions */
   children: React.ReactNode;
+  /** Always visible at the bottom, e.g. the buttons of a form. Buttons
+   * outside of the content can submit a form with their `form` attribute. */
+  actions?: React.ReactNode;
 };
 
-const CustomDrawer = ({ isOpened, onClose, title, children }: DrawerProps) => {
+/** Title and separator, then the scrollable content, then the actions */
+const CustomDrawer = ({
+  isOpened,
+  onClose,
+  title,
+  children,
+  actions,
+}: DrawerProps) => {
   const titleId = useId();
 
   return (
@@ -28,17 +39,15 @@ const CustomDrawer = ({ isOpened, onClose, title, children }: DrawerProps) => {
       }}
       slotProps={{
         backdrop: { className: styles["custom-drawer__backdrop"] },
-        paper: title ? { "aria-labelledby": titleId } : undefined,
+        paper: { "aria-labelledby": titleId },
       }}
     >
       <div className={styles["custom-drawer__content"]}>
         <header className={styles["custom-drawer__header"]}>
           <div className={styles["custom-drawer__title-bar"]}>
-            {title && (
-              <h2 id={titleId} className={styles["custom-drawer__title"]}>
-                {title}
-              </h2>
-            )}
+            <h2 id={titleId} className={styles["custom-drawer__title"]}>
+              {title}
+            </h2>
             {/* Only closes: whatever is in the drawer is not saved */}
             <IconButton
               variant={ButtonVariant.TERTIARY}
@@ -50,9 +59,17 @@ const CustomDrawer = ({ isOpened, onClose, title, children }: DrawerProps) => {
               data-testid="custom-drawer-close"
             />
           </div>
-          {title && <hr className={styles["custom-drawer__separator"]} />}
+          <hr className={styles["custom-drawer__separator"]} />
         </header>
-        {children}
+        <div className={styles["custom-drawer__body"]}>{children}</div>
+        {actions && (
+          <footer
+            className={styles["custom-drawer__actions"]}
+            data-testid="custom-drawer-actions"
+          >
+            {actions}
+          </footer>
+        )}
       </div>
     </Drawer>
   );

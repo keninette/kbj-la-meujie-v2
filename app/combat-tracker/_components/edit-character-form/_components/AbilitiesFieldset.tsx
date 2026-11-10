@@ -1,9 +1,10 @@
-import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import Fieldset, {
+  FieldsetGrid,
+} from "@/app/_components/_basics/form/fieldset/Fieldset";
 import NumberInput from "@/app/_components/_basics/form/number-input/NumberInput";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { ABILITIES, AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import styles from "./fieldsets.module.scss";
 
 type AbilityValues = Partial<Record<AbilityEnum, number>>;
 
@@ -41,7 +42,7 @@ const AbilitiesFieldset = ({
     titleIcon="dumbbell"
     isHighlighted={isHighlighted}
   >
-    <div className={styles["fieldsets__grid"]}>
+    <FieldsetGrid>
       {ABILITIES.map((ability) => (
         <NumberInput
           key={ability}
@@ -56,8 +57,8 @@ const AbilitiesFieldset = ({
           data-testid={`abilityScore-${ability}`}
         />
       ))}
-    </div>
-    <div className={styles["fieldsets__grid"]}>
+    </FieldsetGrid>
+    <FieldsetGrid>
       {ABILITIES.map((ability) => (
         <NumberInput
           key={ability}
@@ -76,7 +77,7 @@ const AbilitiesFieldset = ({
           data-testid={`savingThrow-${ability}`}
         />
       ))}
-    </div>
+    </FieldsetGrid>
   </Fieldset>
 );
 

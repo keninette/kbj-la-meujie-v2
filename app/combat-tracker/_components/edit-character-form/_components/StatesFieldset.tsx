@@ -1,16 +1,16 @@
-import Fieldset from "@/app/_components/_basics/form/fieldset/Fieldset";
+import Fieldset, {
+  FieldsetRow,
+  FieldsetChips,
+} from "@/app/_components/_basics/form/fieldset/Fieldset";
 import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import NumberInput from "@/app/_components/_basics/form/number-input/NumberInput";
-import IconButton from "@/app/_components/_basics/icon-button/IconButton";
+import Chip from "@/app/_components/_basics/chip/Chip";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
-import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { CombatState } from "@/app/_lib/types/combat-state.type";
 import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
 import { createId } from "@/app/combat-tracker/_lib/create-id";
 import AddItemButton from "./AddItemButton";
 import { useNewItem } from "../_hooks/use-new-item.hook";
-import styles from "./fieldsets.module.scss";
 
 type StatesFieldsetProps = {
   states: CombatState[];
@@ -76,24 +76,21 @@ const StatesFieldset = ({
       title={translate("form.states", "combatTracker")}
       titleIcon="fire-flame-curved"
     >
-      <ul className={styles["fieldsets__chips"]}>
+      <FieldsetChips>
         {states.map((state) => (
-          <li
-            key={state.id}
-            className={styles["fieldsets__chip"]}
-            data-testid="state-item"
-          >
-            {describeState(state)}
-            <IconButton
-              variant={ButtonVariant.TERTIARY}
-              tooltip={translate("form.remove", "combatTracker")}
-              faIcon="xmark"
-              faIconStyle={FaIconStyleEnum.SOLID}
-              onClick={() => onChange(states.filter((s) => s.id !== state.id))}
+          <li key={state.id}>
+            <Chip
+              label={describeState(state)}
+              deleteAction={{
+                onClick: () =>
+                  onChange(states.filter((s) => s.id !== state.id)),
+                tooltip: translate("form.remove", "combatTracker"),
+              }}
+              data-testid="state-item"
             />
           </li>
         ))}
-      </ul>
+      </FieldsetChips>
       <TextInput
         id="stateName"
         name="stateName"
@@ -103,11 +100,11 @@ const StatesFieldset = ({
         onKeyDown={submitOnEnter}
         data-testid="stateName"
       />
-      <div className={styles["fieldsets__row"]}>
+      <FieldsetRow>
         <NumberInput
           id="stateDuration"
           name="stateDuration"
-          label={translate("attack.duration", "combatTracker")}
+          label={translate("combatAction.duration", "combatTracker")}
           step="any"
           value={draft.duration}
           onChange={setField("duration")}
@@ -117,7 +114,7 @@ const StatesFieldset = ({
         <TextInput
           id="stateSaveThrowStat"
           name="stateSaveThrowStat"
-          label={translate("attack.saveStat", "combatTracker")}
+          label={translate("combatAction.saveStat", "combatTracker")}
           placeholder="CON"
           value={draft.saveThrowStat}
           onChange={setField("saveThrowStat")}
@@ -127,7 +124,7 @@ const StatesFieldset = ({
         <NumberInput
           id="stateSaveThrowDc"
           name="stateSaveThrowDc"
-          label={translate("attack.saveDc", "combatTracker")}
+          label={translate("combatAction.saveDc", "combatTracker")}
           step="any"
           value={draft.saveThrowDc}
           onChange={setField("saveThrowDc")}
@@ -135,7 +132,7 @@ const StatesFieldset = ({
           data-testid="stateSaveThrowDc"
         />
         <AddItemButton onClick={submit} data-testid="addState" />
-      </div>
+      </FieldsetRow>
     </Fieldset>
   );
 };

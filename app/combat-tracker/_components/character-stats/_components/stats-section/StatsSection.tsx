@@ -3,7 +3,7 @@ import { cx } from "@/app/_lib/class-names";
 import Tile from "@/app/_components/_basics/tile/Tile";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import { getMaxAlternativeHp } from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
 import { ABILITIES } from "@/app/_lib/enums/ability.enum";
 import {
   formatModifier,

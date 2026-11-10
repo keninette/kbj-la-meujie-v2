@@ -13,13 +13,35 @@
     @include mixins.overlay--backdrop;
   }
 
+  // Fills the drawer: only the body scrolls, between the header and actions
   &__content {
     @include mixins.overlay--content;
-    // Fills the drawer, so a child can scroll under a fixed header
     flex: 1;
     min-height: 0;
-    // Lets children be positioned against the header
+    // Lets the content be positioned against the header, e.g. a logo next to
+    // the title: the body is not positioned, so such an element doesn't scroll
     position: relative;
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--spacing-layout-section-content-margin);
+    min-height: 0;
+    padding-right: var(--scrollbar-gap);
+    overflow-y: auto;
+  }
+
+  &__actions {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: var(--spacing-padding--text);
+    justify-content: flex-end;
+    padding-top: var(--spacing-padding--text);
+
+    border-top: 1px solid var(--color-border--light);
   }
 
   &__header {

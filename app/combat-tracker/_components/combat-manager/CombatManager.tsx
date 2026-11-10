@@ -48,6 +48,10 @@ const CombatManager = ({
   const [drawerContent, setDrawerContent] = useState<DrawerContentEnum | null>(
     null,
   );
+  // Changed on each opening of the character form: remounts it, which clears it
+  const [characterFormOpeningCount, setCharacterFormOpeningCount] = useState(0);
+  const isCharacterFormOpened =
+    isDrawerOpened && drawerContent === DrawerContentEnum.CHARACTER_FORM;
   const displayPreviousPlayerButton =
     !!ongoingCombat && getPreviousTurnPosition(ongoingCombat) !== null;
 
@@ -171,6 +175,7 @@ const CombatManager = ({
               label={translate("manager.addCharacter", "combatTracker")}
               onClick={() => {
                 setDrawerContent(DrawerContentEnum.CHARACTER_FORM);
+                setCharacterFormOpeningCount((count) => count + 1);
                 setIsDrawerOpened(true);
               }}
               faIcon="plus"
@@ -267,26 +272,32 @@ const CombatManager = ({
         </ContainerBox>
       )}
 
+      {/* Has its own drawer, for its buttons */}
+      <EditCharacterForm
+        key={characterFormOpeningCount}
+        isOpened={isCharacterFormOpened}
+        onClose={() => setIsDrawerOpened(false)}
+        title={translate(
+          DRAWER_TITLE_KEYS[DrawerContentEnum.CHARACTER_FORM],
+          "combatTracker",
+        )}
+        initialCharacter={null}
+        onSubmit={(updatedCharacter: CombatCharacter) => {
+          updateCharacter(updatedCharacter);
+          setIsDrawerOpened(false);
+        }}
+        onSaveAndRestart={updateCharacter}
+        currentTurn={getOngoingTurn(ongoingCombat)}
+      />
       <CustomDrawer
-        isOpened={isDrawerOpened}
+        isOpened={isDrawerOpened && !isCharacterFormOpened}
         onClose={() => setIsDrawerOpened(false)}
         title={
           drawerContent
             ? translate(DRAWER_TITLE_KEYS[drawerContent], "combatTracker")
-            : undefined
+            : ""
         }
       >
-        {drawerContent === DrawerContentEnum.CHARACTER_FORM && (
-          <EditCharacterForm
-            initialCharacter={null}
-            onSubmit={(updatedCharacter: CombatCharacter) => {
-              updateCharacter(updatedCharacter);
-              setIsDrawerOpened(false);
-            }}
-            onSaveAndRestart={updateCharacter}
-            currentTurn={getOngoingTurn(ongoingCombat)}
-          />
-        )}
         {drawerContent === DrawerContentEnum.COMBAT_HISTORY && (
           <CombatHistory combatHistory={ongoingCombat?.history ?? []} />
         )}

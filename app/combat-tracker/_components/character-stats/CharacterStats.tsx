@@ -2,8 +2,7 @@ import { cx } from "@/app/_lib/class-names";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import styles from "./character-stats.module.scss";
 import { useId, useState } from "react";
-import CustomDrawer from "@/app/_components/_basics/custom-drawer/CustomDrawer";
-import AttackForm from "../attack-form/AttackForm";
+import CombatActionForm from "../combat-action-form/CombatActionForm";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
@@ -39,6 +38,8 @@ const CharacterStats = ({
   ...restProps
 }: CharacterStatsProps) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false);
+  // Changed on each opening: remounts the form, which clears it
+  const [drawerOpeningCount, setDrawerOpeningCount] = useState(0);
   const nameId = useId();
 
   const updateCharacter = (updatedCharacter: CombatCharacter) => {
@@ -104,7 +105,10 @@ const CharacterStats = ({
           character={selectedCharacter}
           nameId={nameId}
           isCombatOngoing={isCombatOngoing}
-          onPlay={() => setIsDrawerOpened(true)}
+          onPlay={() => {
+            setIsDrawerOpened(true);
+            setDrawerOpeningCount((count) => count + 1);
+          }}
           onEdit={onEdit}
           onDeactivate={onDeactivate}
         />
@@ -130,24 +134,22 @@ const CharacterStats = ({
           data-testid="character-consumables"
         />
       </ContainerBox>
-      <CustomDrawer
+      <CombatActionForm
+        key={drawerOpeningCount}
         isOpened={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
-        title={translate("attack.turnTitle", "combatTracker", {
+        title={translate("combatAction.turnTitle", "combatTracker", {
           character: selectedCharacter.name,
         })}
-      >
-        <AttackForm
-          characters={characters!}
-          selectedCharacter={selectedCharacter}
-          onCharactersChange={(updatedCharacters) => {
-            onCharactersChange(updatedCharacters);
-            setIsDrawerOpened(false);
-          }}
-          onHistoryEdited={onHistoryEdited}
-          currentTurn={currentTurn}
-        />
-      </CustomDrawer>
+        characters={characters ?? []}
+        selectedCharacter={selectedCharacter}
+        onCharactersChange={(updatedCharacters) => {
+          onCharactersChange(updatedCharacters);
+          setIsDrawerOpened(false);
+        }}
+        onHistoryEdited={onHistoryEdited}
+        currentTurn={currentTurn}
+      />
     </>
   );
 };

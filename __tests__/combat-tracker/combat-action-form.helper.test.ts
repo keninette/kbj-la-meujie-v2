@@ -1,10 +1,10 @@
 import {
-  applyAttackFormValues,
-  AttackFormValues,
+  applyCombatActionFormValues,
+  CombatActionFormValues,
   applyDamageToCharacter,
   applyHealToCharacter,
   resetRevivedCharacter,
-} from "@/app/combat-tracker/_components/attack-form/attack-form.helper";
+} from "@/app/combat-tracker/_components/combat-action-form/combat-action-form.helper";
 import { buildCharacter } from "../utils/combat-tracker.test.utils";
 
 describe("applyDamageToCharacter", () => {
@@ -144,8 +144,8 @@ describe("resetRevivedCharacter", () => {
   });
 });
 
-describe("applyAttackFormValues inflicted state", () => {
-  const values: AttackFormValues = {
+describe("applyCombatActionFormValues inflicted state", () => {
+  const values: CombatActionFormValues = {
     attackTargetId: "",
     attackDamage: 0,
     healTargetId: "",
@@ -163,7 +163,7 @@ describe("applyAttackFormValues inflicted state", () => {
   const characters = [buildCharacter({ id: "goblin", states: [] })];
 
   it("stores the turn the state was applied on", () => {
-    const { characters: updated } = applyAttackFormValues(
+    const { characters: updated } = applyCombatActionFormValues(
       characters,
       "goblin",
       values,
@@ -177,7 +177,7 @@ describe("applyAttackFormValues inflicted state", () => {
   });
 
   it("has no applied turn outside of a combat", () => {
-    const { characters: updated } = applyAttackFormValues(
+    const { characters: updated } = applyCombatActionFormValues(
       characters,
       "goblin",
       values,
