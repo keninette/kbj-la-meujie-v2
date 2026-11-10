@@ -34,6 +34,7 @@ const ActionsFieldset = ({
       title={translate("form.actions", "combatTracker")}
       titleIcon="hand-fist"
       isHighlighted={isHighlighted}
+      data-testid="actions-fieldset"
     >
       <FieldsetChips>
         {actions.map((action, index) => (

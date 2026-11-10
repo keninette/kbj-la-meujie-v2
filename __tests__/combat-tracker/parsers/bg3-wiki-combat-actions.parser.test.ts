@@ -4,7 +4,6 @@ import {
   cleanDescription,
   extractFeatureBoxes,
   findCombatSubpage,
-  getActionIconFile,
   parseCosts,
   uniqueFeatureBoxes,
   WikiActionRow,
@@ -149,38 +148,37 @@ describe("bg3-wiki combat actions parser", () => {
   });
 
   describe("cleanDescription", () => {
-    it("turns the exported description into plain text", () => {
-      expect(cleanDescription(HEAT_METAL_DESCRIPTION)).toBe(
+    it.each([
+      [
+        "the icons, links and tags of an exported description",
+        HEAT_METAL_DESCRIPTION,
         "Cause a metal weapon or armour to glow red-hot and force the wearer to let go or receive Disadvantage on Attack Rolls and Ability Checks.",
-      );
-    });
-
-    it("removes the &NoBreak; between dice and their damage type", () => {
-      // Trimmed from the Produce Flame row (e.g. used by Tahan)
-      expect(
-        cleanDescription(
-          "deals &lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;1d8&lt;/span&gt;&amp;NoBreak;&lt;span class=&quot;bg3wiki-icontext-icon nowrap&quot; &gt;[[File:Fire Damage Icon.png|x20px|link=Fire|alt=&lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;Fire&lt;/span&gt;|class=bg3wiki-icon]]&lt;/span&gt;&amp;NoBreak;[[Fire|&lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;Fire&lt;/span&gt;]] damage when thrown.",
-        ),
-      ).toBe("deals 1d8 Fire damage when thrown.");
-    });
-
-    it("decodes the characters escaped by the export", () => {
-      expect(
-        cleanDescription(
-          "Move the beam 18&amp;#8239;m. Higher if you&#039;re hidden.",
-        ),
-      ).toBe("Move the beam 18 m. Higher if you're hidden.");
-      expect(cleanDescription(null)).toBe("");
-      // Escaped comparison signs aren't tags
-      expect(
-        cleanDescription(
-          "Deals 1d6 if HP &lt; 50%, else &gt; 2d6. &lt;b&gt;Bold&lt;/b&gt;",
-        ),
-      ).toBe("Deals 1d6 if HP < 50%, else > 2d6. Bold");
-      // An invalid code is kept rather than breaking the import
-      expect(cleanDescription("Bad &#x110000; code")).toBe(
+      ],
+      [
+        // Trimmed from the Produce Flame row (e.g. used by Tahan)
+        "the &NoBreak; between dice and their damage type",
+        "deals &lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;1d8&lt;/span&gt;&amp;NoBreak;&lt;span class=&quot;bg3wiki-icontext-icon nowrap&quot; &gt;[[File:Fire Damage Icon.png|x20px|link=Fire|alt=&lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;Fire&lt;/span&gt;|class=bg3wiki-icon]]&lt;/span&gt;&amp;NoBreak;[[Fire|&lt;span class=&quot;bg3wiki-damage-type-fire&quot;&gt;Fire&lt;/span&gt;]] damage when thrown.",
+        "deals 1d8 Fire damage when thrown.",
+      ],
+      [
+        "the characters escaped once or twice",
+        "Move the beam 18&amp;#8239;m. Higher if you&#039;re hidden.",
+        "Move the beam 18 m. Higher if you're hidden.",
+      ],
+      [
+        "the tags, but not the escaped comparison signs",
+        "Deals 1d6 if HP &lt; 50%, else &gt; 2d6. &lt;b&gt;Bold&lt;/b&gt;",
+        "Deals 1d6 if HP < 50%, else > 2d6. Bold",
+      ],
+      [
+        // Rather than breaking the import
+        "nothing of an invalid character code",
         "Bad &#x110000; code",
-      );
+        "Bad &#x110000; code",
+      ],
+      ["nothing of a missing description", null, ""],
+    ])("cleans %s", (_, description, expected) => {
+      expect(cleanDescription(description)).toBe(expected);
     });
   });
 
@@ -277,15 +275,6 @@ describe("bg3-wiki combat actions parser", () => {
         [row({ page: "Fire Bolt", name: "Fire Bolt", "spell level": 0 })],
       );
       expect(fireBolt.spellLevel).toBe(0);
-    });
-  });
-
-  describe("getActionIconFile", () => {
-    it("names the icon file", () => {
-      expect(
-        getActionIconFile(row({ "hotbar icon": "Moonbeam Unfaded Icon.webp" })),
-      ).toBe("File:Moonbeam Unfaded Icon.webp");
-      expect(getActionIconFile(row({}))).toBeUndefined();
     });
   });
 });

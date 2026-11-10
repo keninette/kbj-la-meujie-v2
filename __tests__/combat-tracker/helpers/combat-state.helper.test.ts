@@ -1,7 +1,7 @@
 import { describeState } from "@/app/combat-tracker/_lib/combat-state.helper";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
-jest.mock("../../app/_dictionaries/dictionnary", () => ({
+jest.mock("../../../app/_dictionaries/dictionnary", () => ({
   translate: (
     key: string,
     _namespace: string,

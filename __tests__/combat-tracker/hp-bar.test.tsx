@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import HpBar from "@/app/combat-tracker/_components/hp-bar/HpBar";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
-jest.mock("../app/_dictionaries/dictionnary", () => ({
+jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (
     key: string,
     _namespace: string,
@@ -11,10 +11,10 @@ jest.mock("../app/_dictionaries/dictionnary", () => ({
   ) => (values?.count ? `+ ${values.count} ${key}` : key),
 }));
 
-const fills = () =>
-  Array.from(
-    screen.getByTestId("bar").querySelectorAll<HTMLElement>(".hp-bar__fill"),
-  );
+const fills = () => [
+  screen.getByTestId("bar-fill-temp"),
+  screen.getByTestId("bar-fill"),
+];
 
 describe("HpBar", () => {
   it("shows the hit points out of the max, colored by level", () => {

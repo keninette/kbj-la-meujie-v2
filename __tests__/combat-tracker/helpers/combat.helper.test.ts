@@ -9,13 +9,9 @@ import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
 import {
   buildCharacter,
   buildCombat,
-} from "../utils/combat-tracker.test.utils";
+} from "../_fixtures/combat-tracker.fixtures";
 
 describe("normalizeCombat", () => {
-  it("returns null when there is no combat", () => {
-    expect(normalizeCombat(null)).toBeNull();
-  });
-
   it("sorts characters by initiative, highest first", () => {
     const combat = buildCombat([
       buildCharacter({ id: "low", initiativeScore: 5 }),

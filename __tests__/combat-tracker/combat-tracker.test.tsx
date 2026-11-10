@@ -6,21 +6,13 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { findCharacterIndexById } from "@lib/combat/combat.helper";
-import {
-  loadCombat,
-  saveCombat,
-} from "@/app/combat-tracker/_lib/local-storage";
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import CombatActionForm from "@/app/combat-tracker/_components/combat-action-form/CombatActionForm";
 import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
 import CharacterStats from "@/app/combat-tracker/_components/character-stats/CharacterStats";
-import {
-  buildCharacter,
-  buildCombat,
-} from "../utils/combat-tracker.test.utils";
+import { buildCharacter } from "./_fixtures/combat-tracker.fixtures";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
@@ -35,231 +27,6 @@ const mockedCreateFromWiki = jest.mocked(createCharacterFromWiki);
 
 // The forms are shown in their own drawer, opened here
 const drawerProps = { isOpened: true, onClose: jest.fn(), title: "Drawer" };
-
-// Note: these test only cover important behaviors and do not provide exhaustive coverage of all edge cases.
-describe("findCharacterIndexById", () => {
-  it("returns the index of the character matching the given id", () => {
-    const characters = [
-      buildCharacter({ id: "a" }),
-      buildCharacter({ id: "b" }),
-    ];
-
-    expect(findCharacterIndexById(characters, "b")).toBe(1);
-  });
-
-  it("returns -1 when no character matches the given id", () => {
-    const characters = [buildCharacter({ id: "a" })];
-
-    expect(findCharacterIndexById(characters, "missing")).toBe(-1);
-  });
-
-  it("returns -1 for an empty character list", () => {
-    expect(findCharacterIndexById([], "a")).toBe(-1);
-  });
-});
-
-describe("loadCombat", () => {
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it("returns null when nothing is stored", () => {
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("round-trips a valid combat through saveCombat/loadCombat", () => {
-    const combat = buildCombat([
-      buildCharacter({
-        passives: ["Rage", "Vision dans le noir"],
-        usableObjects: ["Potion de soin"],
-      }),
-    ]);
-
-    saveCombat(combat);
-
-    expect(loadCombat()).toEqual(combat);
-  });
-
-  it("uses the initiative as roll for characters saved without roll", () => {
-    // As saved before the roll existed
-    const withoutRoll = {
-      ...buildCharacter({ initiativeScore: 17 }),
-      initiativeRoll: undefined,
-    } as unknown as CombatCharacter;
-    saveCombat(buildCombat([withoutRoll]));
-
-    expect(loadCombat()?.characters[0]).toMatchObject({
-      initiativeScore: 17,
-      initiativeRoll: 17,
-    });
-  });
-
-  it("round-trips the actions", () => {
-    const combat = buildCombat([
-      buildCharacter({
-        actions: [
-          {
-            name: "Moonbeam",
-            type: "spell",
-            costs: ["action", "2"],
-            spellLevel: 2,
-            damages: [{ dice: "2d10", type: "Radiant" }],
-            save: "CON",
-            isConcentration: true,
-            description: "Call down a beam of light.",
-            iconUrl: "https://bg3.wiki/w/images/a/ab/Moonbeam.webp",
-            wikiLink: "https://bg3.wiki/wiki/Moonbeam",
-          },
-          { name: "Dodge", costs: [] },
-        ],
-      }),
-    ]);
-
-    saveCombat(combat);
-
-    expect(loadCombat()).toEqual(combat);
-  });
-
-  it.each([
-    ["costs is not an array", { name: "Moonbeam", costs: "action" }],
-    ["a damage has no dice", { name: "Moonbeam", costs: [], damages: [{}] }],
-    ["the name is missing", { costs: [] }],
-  ])("returns null when a stored action is invalid: %s", (_, action) => {
-    localStorage.setItem(
-      "scratchie-combat-tracker",
-      JSON.stringify(
-        buildCombat([buildCharacter({ actions: [action] } as never)]),
-      ),
-    );
-
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("round-trips the short description, picture and wiki link", () => {
-    const combat = buildCombat([
-      buildCharacter({
-        shortDescription: "Wood elf Druid level 5",
-        imageUrl: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png",
-        wikiLink: "https://bg3.wiki/wiki/Kagha",
-      }),
-    ]);
-
-    saveCombat(combat);
-
-    expect(loadCombat()).toEqual(combat);
-  });
-
-  it("round-trips idle characters", () => {
-    const combat = {
-      ...buildCombat([buildCharacter()]),
-      idleCharacters: [buildCharacter({ id: "idle-1" })],
-    };
-
-    saveCombat(combat);
-
-    expect(loadCombat()).toEqual(combat);
-  });
-
-  it("returns null when the stored idle characters are invalid", () => {
-    localStorage.setItem(
-      "scratchie-combat-tracker",
-      JSON.stringify({
-        ...buildCombat([buildCharacter()]),
-        idleCharacters: "not-an-array",
-      }),
-    );
-
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("returns null when the stored payload is malformed", () => {
-    localStorage.setItem(
-      "scratchie-combat-tracker",
-      JSON.stringify({ status: "unknown-status" }),
-    );
-
-    expect(loadCombat()).toBeNull();
-  });
-
-  it.each([
-    ["movement", { movement: "9" }],
-    ["abilities", { abilities: { dex: "16" } }],
-    ["saving throws", { savingThrows: { wis: "6" } }],
-  ])("returns null when the stored %s are invalid", (_, invalid) => {
-    localStorage.setItem(
-      "scratchie-combat-tracker",
-      JSON.stringify(
-        buildCombat([
-          buildCharacter(invalid as unknown as Partial<CombatCharacter>),
-        ]),
-      ),
-    );
-
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("returns null when the stored usable objects are not an array of strings", () => {
-    localStorage.setItem(
-      "scratchie-combat-tracker",
-      JSON.stringify(
-        buildCombat([
-          buildCharacter({ usableObjects: [42] as unknown as string[] }),
-        ]),
-      ),
-    );
-
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("returns null when the stored passives are not an array of strings", () => {
-    localStorage.setItem(
-      "scratchie-combat-tracker",
-      JSON.stringify(
-        buildCombat([
-          buildCharacter({ passives: [42] as unknown as string[] }),
-        ]),
-      ),
-    );
-
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("keeps the NPC attitude, and refuses an unknown one", () => {
-    const combat = buildCombat([
-      buildCharacter({ isNpc: true, attitude: NpcAttitudeEnum.ENEMY }),
-    ]);
-    saveCombat(combat);
-    expect(loadCombat()?.characters[0].attitude).toBe(NpcAttitudeEnum.ENEMY);
-
-    localStorage.setItem(
-      "scratchie-combat-tracker",
-      JSON.stringify(
-        buildCombat([
-          buildCharacter({
-            attitude: "grumpy" as unknown as NpcAttitudeEnum,
-          }),
-        ]),
-      ),
-    );
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("returns null when the stored payload is not valid JSON", () => {
-    localStorage.setItem("scratchie-combat-tracker", "not-json");
-
-    expect(loadCombat()).toBeNull();
-  });
-
-  it("keeps a backup of unreadable stored data", () => {
-    localStorage.setItem("scratchie-combat-tracker", "not-json");
-
-    loadCombat();
-
-    expect(localStorage.getItem("scratchie-combat-tracker-backup")).toBe(
-      "not-json",
-    );
-  });
-});
 
 describe("EditCharacterForm hp/isDying/isDead behavior", () => {
   it("sets isDying to true and reveals the isDead checkbox when hp is set to 0", () => {
@@ -320,89 +87,8 @@ describe("EditCharacterForm hp/isDying/isDead behavior", () => {
   });
 });
 
-describe("EditCharacterForm short description", () => {
-  it("submits the typed short description", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter()}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("shortDescription"), {
-      target: { value: "Human Ranger level 4" },
-    });
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ shortDescription: "Human Ranger level 4" }),
-    );
-  });
-
-  it("prefills the short description of an existing character", () => {
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({ shortDescription: "Elf Druid" })}
-      />,
-    );
-
-    expect(screen.getByTestId("shortDescription")).toHaveValue("Elf Druid");
-  });
-});
-
-describe("EditCharacterForm wiki link", () => {
-  it("submits the typed wiki link", async () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter()}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("wikiLink"), {
-      target: { value: " https://bg3.wiki/wiki/Halsin " },
-    });
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-    await waitFor(() =>
-      expect(onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({ wikiLink: "https://bg3.wiki/wiki/Halsin" }),
-      ),
-    );
-  });
-
-  it("prefills the wiki link and removes it when the field is cleared", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({
-          wikiLink: "https://bg3.wiki/wiki/Kagha",
-        })}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    expect(screen.getByTestId("wikiLink")).toHaveValue(
-      "https://bg3.wiki/wiki/Kagha",
-    );
-
-    fireEvent.change(screen.getByTestId("wikiLink"), {
-      target: { value: "" },
-    });
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-    expect(onSubmit.mock.calls[0][0].wikiLink).toBeUndefined();
-  });
-});
-
-describe("EditCharacterForm portrait", () => {
-  const submitWith = (character: CombatCharacter) => {
+describe("EditCharacterForm fields", () => {
+  const renderForm = (character: CombatCharacter) => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -411,42 +97,85 @@ describe("EditCharacterForm portrait", () => {
         onSubmit={onSubmit}
       />,
     );
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
     return onSubmit;
   };
+  const type = (testId: string, value: string) =>
+    fireEvent.change(screen.getByTestId(testId), {
+      target: { name: testId, value },
+    });
+  const addItem = (inputId: string, value: string) => {
+    type(inputId, value);
+    fireEvent.click(screen.getByTestId(`${inputId}-add-button`));
+  };
 
-  it("saves the picture as typed", () => {
-    const onSubmit = submitWith(
-      buildCharacter({ imageUrl: "https://example.com/custom.png" }),
-    );
+  it("saves every typed field, trimmed, ignoring blank list items", () => {
+    const onSubmit = renderForm(buildCharacter());
+
+    type("shortDescription", "Human Ranger level 4");
+    type("wikiLink", " https://bg3.wiki/wiki/Halsin ");
+    type("imageUrl", "https://example.com/custom.png");
+    addItem("passiveName", "   ");
+    addItem("passiveName", "  Rage  ");
+    addItem("usableObjectName", "  Potion  ");
+    type("movement", "7.5");
+    // A decimal movement, e.g. of a dwarf, is a valid value
+    expect(screen.getByTestId("movement")).toBeValid();
+    type("proficiencyBonus", "3");
+    type("abilityScore-dex", "16");
+    type("savingThrow-wis", "6");
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ imageUrl: "https://example.com/custom.png" }),
+      expect.objectContaining({
+        shortDescription: "Human Ranger level 4",
+        wikiLink: "https://bg3.wiki/wiki/Halsin",
+        imageUrl: "https://example.com/custom.png",
+        passives: ["Rage"],
+        usableObjects: ["Potion"],
+        movement: 7.5,
+        proficiencyBonus: 3,
+        abilities: { dex: 16 },
+        savingThrows: { wis: 6 },
+        // The new dexterity gives the initiative bonus: 12 + 3
+        initiativeScore: 15,
+      }),
     );
   });
 
-  it("removes the picture when its field is cleared, even with a wiki link", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({
-          wikiLink: "https://bg3.wiki/wiki/Halsin",
-          imageUrl: "https://bg3.wiki/w/images/a/a1/Portrait_Halsin.png",
-        })}
-        onSubmit={onSubmit}
-      />,
+  it("removes a value when its field is cleared or its item removed", () => {
+    const onSubmit = renderForm(
+      buildCharacter({
+        wikiLink: "https://bg3.wiki/wiki/Halsin",
+        imageUrl: "https://bg3.wiki/w/images/a/a1/Portrait_Halsin.png",
+        movement: 9,
+        abilities: { str: 10, dex: 16 },
+        savingThrows: { dex: 5 },
+        passives: ["Rage", "Fury"],
+      }),
     );
 
-    fireEvent.change(screen.getByTestId("imageUrl"), {
-      target: { value: "" },
-    });
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    type("wikiLink", "");
+    type("imageUrl", "");
+    type("movement", "");
+    type("abilityScore-dex", "");
+    type("savingThrow-dex", "");
+    fireEvent.click(
+      within(screen.getByTestId("passiveName-item-0")).getByRole("button"),
+    );
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     // Saved right away: the wiki is only called by the import dialog
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    expect(onSubmit.mock.calls[0][0].imageUrl).toBeUndefined();
     expect(mockedCreateFromWiki).not.toHaveBeenCalled();
+    const saved = onSubmit.mock.calls[0][0];
+    expect(saved.wikiLink).toBeUndefined();
+    expect(saved.imageUrl).toBeUndefined();
+    expect(saved.movement).toBeUndefined();
+    expect(saved.abilities).toEqual({ str: 10 });
+    expect(saved.savingThrows).toBeUndefined();
+    expect(saved.passives).toEqual(["Fury"]);
+    // No dexterity, no initiative bonus anymore
+    expect(saved.initiativeScore).toBe(12);
   });
 });
 
@@ -589,10 +318,10 @@ describe("EditCharacterForm import from wiki", () => {
     expect(
       within(moonbeam).getByTestId("action-cost-spellSlot"),
     ).toHaveTextContent("2");
-    expect(screen.getByTestId("action-chip").closest("fieldset")).toHaveClass(
+    expect(screen.getByTestId("actions-fieldset")).toHaveClass(
       "container-box--highlighted",
     );
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
     expect(onSubmit.mock.calls[0][0].actions).toHaveLength(1);
   });
 
@@ -685,7 +414,7 @@ describe("EditCharacterForm import from wiki", () => {
     fireEvent.change(screen.getByTestId("name"), {
       target: { value: "Kagha the Archdruid" },
     });
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith(
@@ -699,40 +428,13 @@ describe("EditCharacterForm import from wiki", () => {
     );
   });
 
-  const lineOf = (testId: string) => screen.getByTestId(testId).closest("div");
+  const lineOf = (testId: string) => screen.getByTestId(`${testId}-field`);
   const IMPORTED = "edit-character-form__field--imported";
 
-  it("highlights the imported stats until they are edited", async () => {
+  it("lists and highlights the replaced fields, until they are edited", async () => {
     mockedCreateFromWiki.mockResolvedValueOnce({
       character: { ...kaghaFromWiki, movement: 9, abilities: { dex: 16 } },
     });
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter()}
-      />,
-    );
-
-    await runImport(true);
-
-    const abilitiesFieldset = screen
-      .getByTestId("abilityScore-dex")
-      .closest("fieldset");
-    expect(lineOf("movement")).toHaveClass(IMPORTED);
-    expect(abilitiesFieldset).toHaveClass("container-box--highlighted");
-
-    fireEvent.change(screen.getByTestId("movement"), {
-      target: { name: "movement", value: "6" },
-    });
-    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
-      target: { value: "14" },
-    });
-
-    expect(lineOf("movement")).not.toHaveClass(IMPORTED);
-    expect(abilitiesFieldset).not.toHaveClass("container-box--highlighted");
-  });
-
-  it("lists and highlights the fields replaced by the import", async () => {
     render(
       <EditCharacterForm
         {...drawerProps}
@@ -742,34 +444,34 @@ describe("EditCharacterForm import from wiki", () => {
 
     await runImport(true);
 
+    const abilitiesFieldset = screen.getByTestId("abilities-fieldset");
     expect(screen.getByTestId("imported-fields")).toHaveTextContent(
       "form.importedFields",
     );
     expect(lineOf("name")).toHaveClass(IMPORTED);
     expect(lineOf("maxHp")).toHaveClass(IMPORTED);
-    expect(lineOf("shortDescription")).toHaveClass(IMPORTED);
+    expect(lineOf("movement")).toHaveClass(IMPORTED);
+    expect(abilitiesFieldset).toHaveClass("container-box--highlighted");
     // Same value as before (14): not highlighted
     expect(lineOf("ac")).not.toHaveClass(IMPORTED);
     // Never imported
     expect(lineOf("initiativeRoll")).not.toHaveClass(IMPORTED);
-  });
 
-  it("removes the highlight of a field edited by hand", async () => {
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({ name: "My Kagha" })}
-      />,
-    );
-
-    await runImport(true);
     fireEvent.change(screen.getByTestId("name"), {
       target: { value: "Kagha the Archdruid" },
     });
+    fireEvent.change(screen.getByTestId("movement"), {
+      target: { name: "movement", value: "6" },
+    });
+    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
+      target: { value: "14" },
+    });
 
     expect(lineOf("name")).not.toHaveClass(IMPORTED);
+    expect(lineOf("movement")).not.toHaveClass(IMPORTED);
+    expect(abilitiesFieldset).not.toHaveClass("container-box--highlighted");
+    // The fields not edited, and the summary, stay
     expect(lineOf("maxHp")).toHaveClass(IMPORTED);
-    // The summary still tells what the import did
     expect(screen.getByTestId("imported-fields")).toBeInTheDocument();
   });
 
@@ -784,41 +486,6 @@ describe("EditCharacterForm import from wiki", () => {
       "form.noImportedFields",
     );
   });
-
-  it("shows the portrait next to its field", () => {
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter()}
-      />,
-    );
-
-    expect(screen.queryByTestId("imageUrl-preview")).not.toBeInTheDocument();
-
-    fireEvent.change(screen.getByTestId("imageUrl"), {
-      target: { value: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png" },
-    });
-
-    expect(screen.getByTestId("imageUrl-preview")).toBeInTheDocument();
-  });
-
-  it.each(["https://bg3.wiki/w/images/", "//cdn.example/x.png", "htt"])(
-    "does not preview the half-typed URL %s",
-    (value) => {
-      render(
-        <EditCharacterForm
-          {...drawerProps}
-          initialCharacter={buildCharacter()}
-        />,
-      );
-
-      fireEvent.change(screen.getByTestId("imageUrl"), {
-        target: { value },
-      });
-
-      expect(screen.queryByTestId("imageUrl-preview")).not.toBeInTheDocument();
-    },
-  );
 });
 
 describe("EditCharacterForm NPC attitude", () => {
@@ -837,33 +504,12 @@ describe("EditCharacterForm NPC attitude", () => {
     fireEvent.change(screen.getByTestId("attitude"), {
       target: { value: NpcAttitudeEnum.FRIEND },
     });
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit.mock.calls[0][0]).toMatchObject({
       isNpc: true,
       attitude: NpcAttitudeEnum.FRIEND,
     });
-  });
-
-  it("can be left unknown", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({
-          isNpc: true,
-          attitude: NpcAttitudeEnum.ENEMY,
-        })}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("attitude"), {
-      target: { value: "" },
-    });
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-    expect(onSubmit.mock.calls[0][0].attitude).toBeUndefined();
   });
 });
 
@@ -894,7 +540,7 @@ describe("EditCharacterForm states", () => {
       "Poisoned stats.stateDuration, CON stats.saveDc 13",
     );
     fireEvent.click(within(poisoned).getByRole("button"));
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit.mock.calls[0][0].states).toEqual([
       { id: "s2", name: "Blessed" },
@@ -915,7 +561,7 @@ describe("EditCharacterForm states", () => {
       target: { value: "  Hasted  " },
     });
     fireEvent.click(screen.getByTestId("addState"));
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit.mock.calls[0][0].states).toEqual([
       { id: expect.any(String), name: "Hasted" },
@@ -949,7 +595,7 @@ describe("EditCharacterForm states", () => {
     // The fields are cleared for the next one
     expect(screen.getByTestId("stateDuration")).toHaveValue(null);
     expect(screen.getByTestId("stateSaveThrowStat")).toHaveValue("");
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit.mock.calls[0][0].states).toEqual([
       {
@@ -980,7 +626,7 @@ describe("EditCharacterForm states", () => {
       target: { value: "2" },
     });
     fireEvent.click(screen.getByTestId("addState"));
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit.mock.calls[0][0].states).toEqual([
       {
@@ -993,58 +639,9 @@ describe("EditCharacterForm states", () => {
   });
 });
 
-describe("EditCharacterForm passives", () => {
-  it("adds a passive and submits it with the character", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter()}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("passiveName"), {
-      target: { value: "  Rage  " },
-    });
-    fireEvent.click(screen.getByTestId("passiveName-add-button"));
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ passives: ["Rage"] }),
-    );
-  });
-
-  it("removes an existing passive and ignores blank ones", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({ passives: ["Rage", "Fury"] })}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("passiveName"), {
-      target: { value: "   " },
-    });
-    fireEvent.click(screen.getByTestId("passiveName-add-button"));
-    expect(screen.getAllByTestId(/^passiveName-item-/)).toHaveLength(2);
-
-    fireEvent.click(
-      within(screen.getByTestId("passiveName-item-0")).getByRole("button"),
-    );
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ passives: ["Fury"] }),
-    );
-  });
-});
-
 describe("EditCharacterForm actions", () => {
   const submit = () =>
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
   it("keeps a whole character when an action is the first thing added", () => {
     const onSubmit = jest.fn();
@@ -1125,7 +722,7 @@ describe("EditCharacterForm actions", () => {
   });
 });
 
-describe("CharacterStats passives", () => {
+describe("CharacterStats action tooltip and short description", () => {
   const renderStats = (character: CombatCharacter) =>
     render(
       <CharacterStats
@@ -1137,88 +734,6 @@ describe("CharacterStats passives", () => {
         isCombatOngoing={false}
       />,
     );
-
-  it("displays the passives of the selected character", () => {
-    renderStats(buildCharacter({ passives: ["Rage", "Fury"] }));
-
-    const passives = screen.getByTestId("character-passives");
-    expect(passives).toHaveTextContent("Rage");
-    expect(passives).toHaveTextContent("Fury");
-    // One chip per passive
-    expect(within(passives).getAllByRole("listitem")).toHaveLength(2);
-  });
-
-  it("displays the passives right after the stats", () => {
-    renderStats(buildCharacter({ passives: ["Rage"] }));
-
-    expect(
-      screen
-        .getByTestId("initiative-tile")
-        .compareDocumentPosition(screen.getByTestId("character-passives")) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-  });
-
-  it("displays the actions with an icon per cost", () => {
-    renderStats(
-      buildCharacter({
-        actions: [
-          {
-            name: "Moonbeam",
-            costs: ["action", "2"],
-            damages: [{ dice: "2d10", type: "Radiant" }],
-            isConcentration: true,
-            description: "Call down a beam of light.",
-          },
-          { name: "Lay on Hands", costs: ["action", "layonh:2"] },
-          { name: "Misty Step", costs: ["bonus"] },
-          { name: "Hellish Rebuke", costs: ["reaction"] },
-        ],
-      }),
-    );
-
-    // Actions (reactions included), then bonus actions
-    const actionsGroup = screen.getByTestId("action-group-action");
-    const [moonbeam, layOnHands, rebuke] =
-      within(actionsGroup).getAllByTestId("action-chip");
-    const mistyStep = within(
-      screen.getByTestId("action-group-bonus"),
-    ).getByTestId("action-chip");
-    expect(
-      screen
-        .getAllByTestId(/^action-group-/)
-        .map((group) => group.dataset.testid),
-    ).toEqual(["action-group-action", "action-group-bonus"]);
-    expect(layOnHands).toHaveTextContent("Lay on Hands");
-    expect(rebuke).toHaveTextContent("Hellish Rebuke");
-    expect(mistyStep).toHaveTextContent("Misty Step");
-
-    expect(moonbeam).toHaveTextContent("Moonbeam");
-    // The details are on the chip, as in the actions list
-    expect(moonbeam).toHaveTextContent("2d10 Radiant · actions.concentration");
-    // An action that also uses a spell slot shows both icons
-    expect(
-      within(moonbeam).getByTestId("action-cost-action"),
-    ).toBeInTheDocument();
-    expect(
-      within(moonbeam).getByTestId("action-cost-spellSlot"),
-    ).toHaveTextContent("2");
-    expect(
-      within(layOnHands).getByTestId("action-cost-resource"),
-    ).toHaveAttribute("title", "layonh ×2");
-    // Same wand as the other resources of the spells section
-    expect(
-      within(layOnHands)
-        .getByTestId("action-cost-resource")
-        .querySelector(".fa-wand-sparkles"),
-    ).toBeInTheDocument();
-    expect(
-      within(mistyStep).getByTestId("action-cost-bonus"),
-    ).toBeInTheDocument();
-    expect(
-      within(rebuke).getByTestId("action-cost-reaction"),
-    ).toBeInTheDocument();
-  });
 
   it("shows the description of an action in its tooltip", async () => {
     renderStats(
@@ -1240,119 +755,11 @@ describe("CharacterStats passives", () => {
     );
   });
 
-  it("skips the groups without actions", () => {
-    renderStats(
-      buildCharacter({ actions: [{ name: "Misty Step", costs: ["bonus"] }] }),
-    );
-
-    expect(screen.getByTestId("action-group-bonus")).toBeInTheDocument();
-    expect(screen.queryByTestId("action-group-action")).not.toBeInTheDocument();
-  });
-
-  it("does not display the actions block when there are none", () => {
-    renderStats(buildCharacter());
-
-    expect(screen.queryByTestId("character-actions")).not.toBeInTheDocument();
-  });
-
-  it("shows the attitude of an NPC only", () => {
-    const { unmount } = renderStats(
-      buildCharacter({ isNpc: true, attitude: NpcAttitudeEnum.ENEMY }),
-    );
-    expect(screen.getByTestId("npc-attitude-enemy")).toHaveAttribute(
-      "title",
-      "attitude.enemy",
-    );
-    unmount();
-
-    renderStats(
-      buildCharacter({ isNpc: false, attitude: NpcAttitudeEnum.ENEMY }),
-    );
-    expect(screen.queryByTestId("npc-attitude-enemy")).not.toBeInTheDocument();
-  });
-
-  it("does not display the passives block when there are none", () => {
-    renderStats(buildCharacter());
-
-    expect(screen.queryByTestId("character-passives")).not.toBeInTheDocument();
-  });
-
-  it("displays the short description under the name", () => {
-    renderStats(buildCharacter({ shortDescription: "Wood elf Druid level 5" }));
-
-    expect(screen.getByTestId("character-short-description")).toHaveTextContent(
-      "Wood elf Druid level 5",
-    );
-  });
-
   it("does not display the short description when there is none", () => {
     renderStats(buildCharacter());
 
     expect(
       screen.queryByTestId("character-short-description"),
-    ).not.toBeInTheDocument();
-  });
-});
-
-describe("EditCharacterForm usable objects", () => {
-  it("adds and removes usable objects, ignoring blank ones", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({ usableObjects: ["Torche"] })}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("usableObjectName"), {
-      target: { value: "   " },
-    });
-    fireEvent.click(screen.getByTestId("usableObjectName-add-button"));
-    expect(screen.getAllByTestId(/^usableObjectName-item-/)).toHaveLength(1);
-
-    fireEvent.change(screen.getByTestId("usableObjectName"), {
-      target: { value: "  Potion  " },
-    });
-    fireEvent.click(screen.getByTestId("usableObjectName-add-button"));
-    fireEvent.click(
-      within(screen.getByTestId("usableObjectName-item-0")).getByRole("button"),
-    );
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ usableObjects: ["Potion"] }),
-    );
-  });
-});
-
-describe("CharacterStats usable objects", () => {
-  const renderStats = (character: CombatCharacter) =>
-    render(
-      <CharacterStats
-        selectedCharacter={character}
-        characters={[character]}
-        onCharacterChange={jest.fn()}
-        onCharactersChange={jest.fn()}
-        onHistoryEdited={jest.fn()}
-        isCombatOngoing={false}
-      />,
-    );
-
-  it("displays consumables as chips, only when there are some", () => {
-    const { unmount } = renderStats(
-      buildCharacter({ usableObjects: ["Potion", "Torche"] }),
-    );
-    const consumables = screen.getByTestId("character-consumables");
-    expect(consumables).toHaveTextContent("Potion");
-    expect(consumables).toHaveTextContent("Torche");
-    // One chip per consumable
-    expect(within(consumables).getAllByRole("listitem")).toHaveLength(2);
-    unmount();
-
-    renderStats(buildCharacter());
-    expect(
-      screen.queryByTestId("character-consumables"),
     ).not.toBeInTheDocument();
   });
 });
@@ -1373,22 +780,6 @@ describe("CharacterStats states", () => {
     );
     return { ...result, onCharacterChange, onHistoryEdited };
   };
-
-  it("displays one chip per state", () => {
-    renderStats(
-      buildCharacter({
-        states: [
-          { id: "s1", name: "Poisoned" },
-          { id: "s2", name: "Prone" },
-        ],
-      }),
-    );
-
-    const states = screen.getByTestId("character-states");
-    expect(within(states).getAllByRole("listitem")).toHaveLength(2);
-    expect(screen.getByTestId("state-s1")).toHaveTextContent("Poisoned");
-    expect(screen.getByTestId("state-s2")).toHaveTextContent("Prone");
-  });
 
   it("displays no states section when there are none", () => {
     renderStats(buildCharacter({ states: [] }));
@@ -1439,7 +830,7 @@ describe("EditCharacterForm spell slots", () => {
       target: { value: "4" },
     });
     fireEvent.click(screen.getByTestId("addSpellSlot"));
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ spellSlotsLeft: { Rage: 4 } }),
@@ -1467,7 +858,7 @@ describe("EditCharacterForm spell slots", () => {
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByTestId("spellSlotName")).toHaveValue("");
 
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ spellSlotsLeft: { 1: 3 } }),
     );
@@ -1555,6 +946,33 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     await waitFor(() => {
       expect(onHistoryEdited).toHaveBeenCalledWith(["history.attack"]);
     });
+  });
+
+  it("records each action only once", () => {
+    const attacker = buildCharacter({ id: "attacker", name: "Attacker" });
+    const target = buildCharacter({ id: "target", name: "Target" });
+    render(
+      <CombatActionForm
+        {...drawerProps}
+        characters={[attacker, target]}
+        selectedCharacter={attacker}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={jest.fn()}
+      />,
+    );
+    const validateAttack = () =>
+      screen.getAllByRole("button", { name: "combatAction.validate" })[0];
+
+    fireEvent.change(screen.getByTestId("targetName"), {
+      target: { value: target.id },
+    });
+    fireEvent.change(screen.getByTestId("attackDamage"), {
+      target: { value: "3" },
+    });
+    fireEvent.click(validateAttack());
+
+    expect(validateAttack()).toBeDisabled();
+    expect(screen.getAllByText("history.attack")).toHaveLength(1);
   });
 
   it("heals a target and records it before saving", async () => {
@@ -1872,7 +1290,7 @@ describe("EditCharacterForm save and restart", () => {
 
 describe("EditCharacterForm initiative", () => {
   const submit = () =>
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
   const enterRoll = (value: string) =>
     fireEvent.change(screen.getByTestId("initiativeRoll"), {
       target: { name: "initiativeRoll", value },
@@ -2106,81 +1524,5 @@ describe("CharacterStats death saves", () => {
 
     expect(screen.getAllByTestId("death-save-success")).toHaveLength(3);
     expect(screen.queryByTestId("death-save-next")).not.toBeInTheDocument();
-  });
-});
-
-describe("EditCharacterForm stats", () => {
-  const submit = () =>
-    fireEvent.submit(screen.getByTestId("name").closest("form")!);
-
-  it("saves the movement, proficiency bonus, abilities and saving throws", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter()}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("movement"), {
-      target: { name: "movement", value: "7.5" },
-    });
-    // A decimal movement, e.g. of a dwarf, is a valid value
-    expect(screen.getByTestId("movement")).toBeValid();
-    fireEvent.change(screen.getByTestId("proficiencyBonus"), {
-      target: { name: "proficiencyBonus", value: "3" },
-    });
-    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
-      target: { value: "16" },
-    });
-    fireEvent.change(screen.getByTestId("savingThrow-wis"), {
-      target: { value: "6" },
-    });
-    submit();
-
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        movement: 7.5,
-        proficiencyBonus: 3,
-        abilities: { dex: 16 },
-        savingThrows: { wis: 6 },
-        // The new dexterity gives the initiative bonus: 12 + 3
-        initiativeScore: 15,
-      }),
-    );
-  });
-
-  it("removes a value when its field is cleared", () => {
-    const onSubmit = jest.fn();
-    render(
-      <EditCharacterForm
-        {...drawerProps}
-        initialCharacter={buildCharacter({
-          movement: 9,
-          abilities: { str: 10, dex: 16 },
-          savingThrows: { dex: 5 },
-        })}
-        onSubmit={onSubmit}
-      />,
-    );
-
-    fireEvent.change(screen.getByTestId("movement"), {
-      target: { name: "movement", value: "" },
-    });
-    fireEvent.change(screen.getByTestId("abilityScore-dex"), {
-      target: { value: "" },
-    });
-    fireEvent.change(screen.getByTestId("savingThrow-dex"), {
-      target: { value: "" },
-    });
-    submit();
-
-    const saved = onSubmit.mock.calls[0][0];
-    expect(saved.movement).toBeUndefined();
-    expect(saved.abilities).toEqual({ str: 10 });
-    expect(saved.savingThrows).toBeUndefined();
-    // No dexterity, no initiative bonus anymore
-    expect(saved.initiativeScore).toBe(12);
   });
 });

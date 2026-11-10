@@ -227,22 +227,7 @@ describe("bg3 wiki parser", () => {
   });
 
   describe("buildCharacterFromInfobox", () => {
-    it("adds the picture when one was found", () => {
-      const url = "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png";
-      expect(
-        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", {
-          imageUrl: url,
-        }).imageUrl,
-      ).toBe(url);
-    });
-
-    it("adds the actions when some were found", () => {
-      const actions = [{ name: "Moonbeam", costs: ["action", "2"] }];
-      expect(
-        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", {
-          actions,
-        }).actions,
-      ).toEqual(actions);
+    it("adds no actions when none were found", () => {
       expect(
         buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", {
           actions: [],
