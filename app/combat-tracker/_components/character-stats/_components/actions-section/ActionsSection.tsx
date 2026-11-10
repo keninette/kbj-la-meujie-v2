@@ -41,7 +41,10 @@ const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
             </h3>
             <ul className={styles["character-stats__action-chips"]}>
               {groupActions.map((action, index) => (
-                <li key={`${action.name}-${index}`}>
+                <li
+                  key={`${action.name}-${index}`}
+                  className={styles["character-stats__action-item"]}
+                >
                   <ActionChip action={action} />
                 </li>
               ))}

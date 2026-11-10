@@ -22,7 +22,7 @@
     height: var(--button-height--regular);
     padding: 0 var(--spacing-padding--text);
 
-    background-color: var(--color-default-white);
+    background-color: var(--color-surface--field);
     border: 1px solid var(--color-border--light);
     border-radius: var(--radius--button);
     color: var(--color-text--dark);
@@ -80,7 +80,7 @@
 
     background-color: var(--color-highlight);
     border-left: 3px solid var(--color-border--dark);
-    border-radius: var(--radius--s);
+    border-radius: var(--radius--field);
     color: var(--color-info);
   }
 

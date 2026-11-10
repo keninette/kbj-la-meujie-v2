@@ -8,7 +8,7 @@
   &__container {
     display: flex;
     flex: 1;
-    gap: 1rem;
+    gap: var(--spacing-panel);
     min-height: 0;
     margin: var(--spacing-layout-section-margin);
 

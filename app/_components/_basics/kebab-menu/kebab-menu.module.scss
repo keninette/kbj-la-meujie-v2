@@ -1,3 +1,5 @@
+@use "app/mixins";
+
 .kebab-menu {
   &__button {
     display: inline-flex;
@@ -19,10 +21,7 @@
   }
 
   &__paper {
-    background-color: var(--color-dropdown) !important;
-    border-radius: var(--radius--panel) !important;
-    box-shadow: var(--shadow--panel) !important;
-    color: var(--color-dropdown-text) !important;
+    @include mixins.dropdown;
   }
 
   &__item {

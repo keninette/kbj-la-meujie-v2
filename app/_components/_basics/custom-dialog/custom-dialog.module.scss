@@ -5,7 +5,7 @@
 
   &__paper {
     @include mixins.overlay--paper;
-    border-radius: var(--radius--s) !important;
+    border-radius: var(--radius--dialog) !important;
   }
 
   &__backdrop {
@@ -17,13 +17,11 @@
   }
 
   &__title-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-padding--text);
+    @include mixins.overlay--title-bar;
   }
 
   &__close {
-    margin-left: auto;
+    @include mixins.overlay--close;
   }
 
   &__title {
@@ -35,9 +33,6 @@
   }
 
   &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-padding--text);
-    justify-content: flex-end;
+    @include mixins.overlay--actions;
   }
 }

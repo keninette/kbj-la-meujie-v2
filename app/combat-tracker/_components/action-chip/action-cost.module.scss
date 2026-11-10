@@ -1,7 +1,7 @@
 .action-cost {
   align-items: center;
   display: inline-flex;
-  gap: 0.1rem;
+  gap: var(--spacing-gap--tight);
 
   &__shape {
     align-items: center;
@@ -28,7 +28,7 @@
       clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
     }
 
-    &--spellSlot {
+    &--spell-slot {
       background: var(--color-spell-slot);
       border-radius: var(--radius--spell-level);
       color: var(--color-spell-slot-text);

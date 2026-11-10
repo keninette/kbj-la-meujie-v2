@@ -6,7 +6,7 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-padding--text);
   justify-items: space-evenly;
   box-sizing: border-box;
   min-height: 0;
@@ -20,51 +20,20 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     opacity: var(--opacity--disabled);
   }
 
-  &__stat {
-    font-weight: bold;
-
-    &--high {
-      color: var(--color-hp--high);
-    }
-    &--medium {
-      color: var(--color-hp--medium);
-    }
-    &--low {
-      color: var(--color-hp--low);
-    }
-  }
-
   &__line {
-    h3 {
-      margin: 0;
-    }
-
-    margin: 0 0 1rem 0;
-    gap: 0.5rem;
     display: flex;
     flex-wrap: wrap;
-
-    & > p {
-      margin: 0;
-    }
-
-    &--vertical {
-      flex-direction: column;
-    }
-
-    &--indented {
-      margin-left: 1rem;
-    }
+    gap: var(--spacing-padding--text);
+    margin: 0 0 var(--spacing-panel) 0;
   }
 
   &__picture-frame {
     display: inline-flex;
     flex-shrink: 0;
-    padding: 8px;
+    padding: var(--spacing-padding--text);
     position: relative;
 
-    filter: drop-shadow(0 1px 1px rgba(47, 56, 80, 0.35))
-      drop-shadow(0 2px 4px rgba(47, 56, 80, 0.2));
+    filter: var(--shadow--picture-frame);
 
     &::after {
       content: "";
@@ -102,7 +71,7 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
 
     font-size: var(--font-size--section-title);
     font-weight: var(--font-weight--title);
-    letter-spacing: var(--letter-spacing--s);
+    letter-spacing: var(--letter-spacing--name);
   }
 
   &__tiles {
@@ -131,7 +100,7 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
   &__chips {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing--xxs);
+    gap: var(--spacing-padding--button);
     margin: 0;
     padding: 0;
 
@@ -164,7 +133,7 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
   &__action-group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing--xxs);
+    gap: var(--spacing-padding--button);
     min-width: 0;
   }
 
@@ -181,15 +150,15 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
   &__action-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing--xxs);
+    gap: var(--spacing-padding--button);
     margin: 0;
     padding: 0;
 
     list-style: none;
+  }
 
-    li {
-      max-width: 100%;
-    }
+  &__action-item {
+    max-width: 100%;
   }
 
   &__abilities-tile {
@@ -204,7 +173,7 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
       );
     align-items: baseline;
     justify-items: center;
-    gap: var(--spacing--xxs) var(--spacing-padding--text);
+    gap: var(--spacing-padding--button) var(--spacing-padding--text);
 
     &--with-initiative {
       grid-template-columns:
@@ -258,20 +227,21 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
   &__actions {
     display: inline-flex;
     align-items: center;
-    gap: var(--spacing--xxs);
+    gap: var(--spacing-padding--button);
 
     font-size: var(--font-size--caption);
+  }
 
-    button,
-    a {
-      height: auto;
-      padding: var(--spacing--xxs);
-      line-height: 1;
-    }
+  // The edit buttons and wiki link: scoped by their container, to override
+  // the styles of IconButton and LinkWithIcon
+  &__actions &__action {
+    height: auto;
+    padding: var(--spacing-padding--button);
+    line-height: 1;
+  }
 
-    a {
-      color: var(--color-button-text--secondary);
-    }
+  &__actions &__action--link {
+    color: var(--color-button-text--secondary);
   }
 
   &__short-description {
@@ -285,16 +255,5 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     width: 75px;
     height: 75px;
     object-fit: cover;
-  }
-
-  &__line--vertical-content {
-    flex-direction: column;
-  }
-
-  &__line__subcontent {
-    align-items: center;
-    display: flex;
-    gap: 0.5rem;
-    margin: 0;
   }
 }

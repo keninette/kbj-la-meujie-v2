@@ -34,11 +34,8 @@
   }
 
   &__actions {
-    display: flex;
+    @include mixins.overlay--actions;
     flex-shrink: 0;
-    flex-wrap: wrap;
-    gap: var(--spacing-padding--text);
-    justify-content: flex-end;
     padding-top: var(--spacing-padding--text);
 
     border-top: 1px solid var(--color-border--light);
@@ -49,13 +46,11 @@
   }
 
   &__title-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-padding--text);
+    @include mixins.overlay--title-bar;
   }
 
   &__close {
-    margin-left: auto;
+    @include mixins.overlay--close;
   }
 
   &__title {
