@@ -84,7 +84,7 @@
     flex: 1;
     flex-direction: column;
     min-width: 0;
-    line-height: 1;
+    line-height: 1.2;
   }
 
   &__name {
@@ -99,41 +99,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  &__hp {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-padding--text);
-
-    color: var(--color-text--muted);
-    font-size: var(--font-size--caption);
-  }
-
-  &__hp-bar {
-    flex: 1;
-    height: 4px;
-    overflow: hidden;
-
-    background-color: var(--color-border--light);
-    border-radius: 2px;
-  }
-
-  &__hp-fill {
-    display: block;
-    height: 100%;
-
-    &--high {
-      background-color: var(--color-hp--high);
-    }
-
-    &--medium {
-      background-color: var(--color-hp--medium);
-    }
-
-    &--low {
-      background-color: var(--color-hp--low);
-    }
   }
 
   &__actions {

@@ -69,6 +69,11 @@
 
     background-color: var(--color-border--light);
     border-radius: 4px;
+
+    .hp-bar--compact & {
+      height: 4px;
+      border-radius: 2px;
+    }
   }
 
   &__fill {

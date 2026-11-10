@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import HpBar from "@/app/combat-tracker/_components/character-stats/_components/hp-bar/HpBar";
+import HpBar from "@/app/combat-tracker/_components/hp-bar/HpBar";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
 jest.mock("../app/_dictionaries/dictionnary", () => ({

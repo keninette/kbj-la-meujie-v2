@@ -10,8 +10,13 @@ import {
 } from "../utils/combat-tracker.test.utils";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
+// Keeps the values, e.g. "stats.hpSummary(stats.hp, 27, 31)"
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
-  translate: (key: string) => key,
+  translate: (
+    key: string,
+    _namespace: string,
+    values?: Record<string, string>,
+  ) => (values ? `${key}(${Object.values(values).join(", ")})` : key),
 }));
 
 const aragorn = buildCharacter({ id: "aragorn", initiativeScore: 15 });
@@ -244,9 +249,11 @@ describe("CharacterList active character cards", () => {
 
     const card = await screen.findByTestId("character-item-aragorn");
     expect(within(card).getByText("15")).toBeInTheDocument();
-    expect(within(card).getByTestId("character-hp-aragorn")).toHaveTextContent(
-      "27/31",
-    );
+    expect(
+      within(card).getByRole("group", {
+        name: "stats.hpSummary(stats.hp, 27, 31)",
+      }),
+    ).toBeInTheDocument();
     // The menu is drawn over the page, outside of the card
     openMenu("aragorn");
     expect(screen.getByTestId("wiki-link-aragorn")).toBeInTheDocument();
@@ -254,6 +261,45 @@ describe("CharacterList active character cards", () => {
     expect(
       screen.getByTestId("deactivate-character-aragorn"),
     ).toBeInTheDocument();
+  });
+
+  it("shows the alternative hit points first, with the temporary ones", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({
+          id: "aragorn",
+          hp: 27,
+          maxHp: 31,
+          alternativeHp: 12,
+          maxAlternativeHp: 20,
+          tempHp: 5,
+        }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    const hpBar = within(
+      await screen.findByTestId("character-item-aragorn"),
+    ).getByTestId("character-hp-aragorn");
+    const summary =
+      "stats.hpSummary(stats.alternativeHp, 12, 20) (stats.tempHpBonus(5))";
+    expect(hpBar).toHaveAccessibleName(summary);
+    // Also shown on hover: the values are not written in the list
+    expect(hpBar).toHaveAttribute("title", summary);
+  });
+
+  it("shows the hit points without alternative or temporary ones", async () => {
+    saveCombat(
+      buildCombat([
+        buildCharacter({ id: "aragorn", hp: 27, maxHp: 31, alternativeHp: 0 }),
+      ]),
+    );
+    render(<CombatTrackerPage />);
+
+    const card = await screen.findByTestId("character-item-aragorn");
+    expect(
+      within(card).getByTestId("character-hp-aragorn"),
+    ).toHaveAccessibleName("stats.hpSummary(stats.hp, 27, 31)");
   });
 
   it("shows play instead of the initiative of the current character", async () => {
