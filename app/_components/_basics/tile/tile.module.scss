@@ -7,9 +7,16 @@
   border-radius: var(--radius--panel);
   box-shadow: var(--shadow--card);
 
-  &__title {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-padding--button);
     margin-bottom: var(--spacing-title);
+  }
 
+  &__title {
     color: var(--color-text--muted);
     font-size: var(--font-size--caption);
     letter-spacing: var(--letter-spacing--section-subtitle);

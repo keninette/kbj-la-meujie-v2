@@ -9,6 +9,7 @@ import ActionChip from "@/app/combat-tracker/_components/action-chip/ActionChip"
 import ActionCostIcon from "@/app/combat-tracker/_components/action-chip/ActionCostIcon";
 import { hasEnoughResources } from "@/app/combat-tracker/_lib/action-resource.helper";
 import styles from "../../character-stats.module.scss";
+import ActionResourceChips from "./ActionResourceChips";
 
 type ActionsSectionProps = {
   actions?: CombatAction[];
@@ -18,13 +19,15 @@ type ActionsSectionProps = {
 
 /**
  * The actions of the character, one line per group: actions, bonus actions,
- * then reactions. The ones it hasn't the resources for are greyed out.
+ * then reactions, and its resources left next to the title. The actions it
+ * hasn't the resources for are greyed out.
  */
 const ActionsSection = ({
   actions = [],
-  actionResourcesLeft,
+  actionResourcesLeft = {},
 }: ActionsSectionProps) => {
-  if (actions.length === 0) {
+  const hasResources = Object.keys(actionResourcesLeft).length > 0;
+  if (actions.length === 0 && !hasResources) {
     return null;
   }
 
@@ -37,6 +40,11 @@ const ActionsSection = ({
   return (
     <Tile
       title={translate("stats.actions", "combatTracker")}
+      titleAdornment={
+        hasResources && (
+          <ActionResourceChips actionResourcesLeft={actionResourcesLeft} />
+        )
+      }
       data-testid="character-actions"
     >
       <div className={styles["character-stats__action-groups"]}>

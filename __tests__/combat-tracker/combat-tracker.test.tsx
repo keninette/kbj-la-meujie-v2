@@ -817,6 +817,18 @@ describe("CharacterStats action tooltip and short description", () => {
     );
   });
 
+  it("shows the resources in the actions tile, even without actions", () => {
+    renderStats(buildCharacter({ actionResourcesLeft: { "1": 2, wldshp: 0 } }));
+
+    const actions = screen.getByTestId("character-actions");
+    expect(within(actions).getByTestId("action-resource-1")).toHaveTextContent(
+      "2",
+    );
+    expect(
+      within(actions).getByTestId("action-resource-wldshp"),
+    ).toBeInTheDocument();
+  });
+
   it("does not display the short description when there is none", () => {
     renderStats(buildCharacter());
 

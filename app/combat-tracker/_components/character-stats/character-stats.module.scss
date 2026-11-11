@@ -92,6 +92,18 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     color: var(--color-link);
   }
 
+  /* On the right of the actions title, still on the right when they wrap */
+  &__resource-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--spacing-padding--button);
+    margin: 0 0 0 auto;
+    padding: 0;
+
+    list-style: none;
+  }
+
   &__chips {
     display: flex;
     flex-wrap: wrap;

@@ -8,7 +8,6 @@ import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
 import ChipListSection from "./_components/chip-list-section/ChipListSection";
-import ActionResourcesSection from "./_components/action-resources-section/ActionResourcesSection";
 import ActionsSection from "./_components/actions-section/ActionsSection";
 import ConditionsSection from "./_components/conditions-section/ConditionsSection";
 
@@ -124,9 +123,6 @@ const CharacterStats = ({
           title={translate("stats.passives", "combatTracker")}
           items={selectedCharacter.passives}
           data-testid="character-passives"
-        />
-        <ActionResourcesSection
-          actionResourcesLeft={selectedCharacter.actionResourcesLeft}
         />
         <ActionsSection
           actions={selectedCharacter.actions}

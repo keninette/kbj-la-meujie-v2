@@ -207,7 +207,6 @@
   "ability.int.name": "Intelligence",
   "ability.wis.name": "Sagesse",
   "ability.cha.name": "Charisme",
-  "stats.actionResources": "Ressources",
   "stats.conditionDuration.one": "{{count}} tour",
   "stats.conditionDuration.other": "{{count}} tours",
   "stats.conditionAppliedOnTurn": "(depuis le tour {{turn}})",
