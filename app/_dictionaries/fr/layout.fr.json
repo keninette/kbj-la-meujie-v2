@@ -1,8 +1,5 @@
 {
   "title": "Scratchie",
   "subtitle": "Le meilleur ami des meuj·ie·s",
-  "admin": "Administration",
-  "adventures": "Aventures",
-  "form.save": "Enregistrer",
-  "close": "Fermer"
+  "adventures": "Aventures"
 }

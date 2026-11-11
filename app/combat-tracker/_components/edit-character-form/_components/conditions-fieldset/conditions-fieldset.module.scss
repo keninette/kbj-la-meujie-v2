@@ -1,0 +1,12 @@
+@use "app/mixins";
+
+.conditions-fieldset {
+  /* Between the search and the name, aligned with the inputs */
+  &__or {
+    align-items: center;
+    display: flex;
+    height: var(--button-height--regular);
+
+    @include mixins.form-label;
+  }
+}

@@ -1,0 +1,38 @@
+@use "app/mixins";
+
+.autocomplete-input {
+  @include mixins.form-field;
+
+  &__label {
+    @include mixins.form-label;
+  }
+
+  &__search {
+    position: relative;
+  }
+
+  &__icon {
+    position: absolute;
+    left: var(--spacing-padding--text);
+    top: 50%;
+    transform: translateY(-50%);
+
+    color: var(--color-text--muted);
+    pointer-events: none;
+  }
+
+  &__input {
+    @include mixins.form-input;
+    padding-left: 2rem;
+  }
+
+  &__paper {
+    @include mixins.dropdown;
+    font-size: var(--font-size--caption) !important;
+  }
+
+  &__option {
+    gap: var(--spacing-padding--text);
+    min-height: auto !important;
+  }
+}

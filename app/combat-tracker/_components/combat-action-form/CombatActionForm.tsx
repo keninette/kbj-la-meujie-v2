@@ -14,7 +14,7 @@ import HealFieldset from "./_components/HealFieldset";
 import ReanimateFieldset from "./_components/ReanimateFieldset";
 import ReviveFieldset from "./_components/ReviveFieldset";
 import SpellFieldset from "./_components/SpellFieldset";
-import StateFieldset from "./_components/StateFieldset";
+import ConditionFieldset from "./_components/ConditionFieldset";
 import styles from "./combat-action-form.module.scss";
 
 type CombatActionFormProps = {
@@ -40,7 +40,7 @@ type HistoryAction =
   | "reanimate"
   | "revive"
   | "spell"
-  | "state";
+  | "condition";
 
 const CombatActionForm = ({
   isOpened,
@@ -63,11 +63,11 @@ const CombatActionForm = ({
       healAmount: 0,
       spellUsedName: "",
       spellUsedLevel: null,
-      inflictedStateTargetId: "",
-      inflictedStateName: "",
-      inflictedStateDuration: null,
-      inflictedStateSaveThrowStat: "",
-      inflictedStateSaveThrowDc: null,
+      inflictedConditionTargetId: "",
+      inflictedConditionName: "",
+      inflictedConditionDuration: null,
+      inflictedConditionSaveThrowStat: "",
+      inflictedConditionSaveThrowDc: null,
       reviveTargetId: "",
       reanimateTargetId: "",
     },
@@ -82,7 +82,7 @@ const CombatActionForm = ({
     reanimate: false,
     revive: false,
     spell: false,
-    state: false,
+    condition: false,
     submit: false,
   });
 
@@ -149,32 +149,32 @@ const CombatActionForm = ({
     );
   };
 
-  const addInflictedStateHistoryEntry = () => {
+  const addInflictedConditionHistoryEntry = () => {
     const {
-      inflictedStateTargetId,
-      inflictedStateName,
-      inflictedStateDuration,
+      inflictedConditionTargetId,
+      inflictedConditionName,
+      inflictedConditionDuration,
     } = getValues();
     const targetName = characters.find(
-      (character) => character.id === inflictedStateTargetId,
+      (character) => character.id === inflictedConditionTargetId,
     )?.name;
-    if (!inflictedStateName || !targetName) {
+    if (!inflictedConditionName || !targetName) {
       return;
     }
 
     addHistoryEntry(
-      "state",
+      "condition",
       translate(
-        inflictedStateDuration !== null
-          ? "history.state"
-          : "history.stateWithoutDuration",
+        inflictedConditionDuration !== null
+          ? "history.condition"
+          : "history.conditionWithoutDuration",
         "combatTracker",
         {
           character: selectedCharacter.name,
-          state: inflictedStateName,
+          condition: inflictedConditionName,
           target: targetName,
-          ...(inflictedStateDuration !== null
-            ? { duration: String(inflictedStateDuration) }
+          ...(inflictedConditionDuration !== null
+            ? { duration: String(inflictedConditionDuration) }
             : {}),
         },
       ),
@@ -292,10 +292,10 @@ const CombatActionForm = ({
             disabled={disabledActions.spell}
             onAddHistory={addSpellUsedHistoryEntry}
           />
-          <StateFieldset
+          <ConditionFieldset
             characters={characters}
-            disabled={disabledActions.state}
-            onAddHistory={addInflictedStateHistoryEntry}
+            disabled={disabledActions.condition}
+            onAddHistory={addInflictedConditionHistoryEntry}
           />
           {historyEntries.length > 0 && (
             <ul className={styles["combat-action-form__history"]}>

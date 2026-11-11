@@ -48,7 +48,7 @@ const CustomDrawer = ({
             {/* Only closes: whatever is in the drawer is not saved */}
             <IconButton
               variant={ButtonVariant.TERTIARY}
-              tooltip={translate("close", "layout")}
+              tooltip={translate("customDrawer.close", "components")}
               faIcon="xmark"
               faIconStyle={FaIconStyleEnum.SOLID}
               onClick={onClose}

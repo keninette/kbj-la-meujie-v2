@@ -17,6 +17,7 @@ jest.mock("../../app/_dictionaries/dictionnary", () => ({
     _namespace: string,
     values?: Record<string, string>,
   ) => (values ? `${key}(${Object.values(values).join(", ")})` : key),
+  hasTranslation: () => false,
 }));
 
 // The flows of the page: what the components do together

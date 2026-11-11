@@ -1,7 +1,7 @@
 Scratchie is a [Next.js](https://nextjs.org) application for tabletop RPG game masters, in French:
 
 - **Adventures**: create and edit your adventures, stored in Supabase.
-- **Combat tracker**: run a D&D / Baldur's Gate 3 fight (initiative, turns, hit points, death saves, states, actions and history), with characters imported from [bg3.wiki](https://bg3.wiki). The combat is kept in the browser's local storage.
+- **Combat tracker**: run a D&D / Baldur's Gate 3 fight, with characters imported from [bg3.wiki](https://bg3.wiki). The combat is kept in the browser's local storage.
 
 Stack: Next.js (App Router), React, TypeScript, Sass modules, Material UI (drawers, dialogs, menus), react-hook-form, Supabase, Jest + React Testing Library.
 
@@ -54,6 +54,7 @@ __tests__/
 
 The full rules, followed by people and by Claude, are in [CLAUDE.md](CLAUDE.md). In short:
 
+- **KISS**: keep the code as simple as possible, as long as it respects the best practices and the existing infrastructure. Don't write code that isn't used yet (optional props, options, abstractions "for later"): add it when it's needed. Simple code keeps the app maintainable.
 - **Reuse the shared components** of `app/_components/_basics` before creating new ones. **Never override their style**: if a different look is needed, add a variant to the component (a prop mapped to a BEM modifier) or create a new one.
 - **All user-facing text** goes through `translate(key, namespace)` and the French dictionaries.
 - **CSS**: one module per component, BEM naming (`block__element--modifier`, kebab-case, no element in an element, no tag selectors). Components only use the **sys** variables of `variables.sys.scss`; the raw **token** values are only used there. Shared patterns are mixins.

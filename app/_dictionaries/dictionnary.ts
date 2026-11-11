@@ -7,6 +7,7 @@
 const dictionaries = {
   fr: {
     layout: await import("./fr/layout.fr.json"),
+    components: await import("./fr/components.fr.json"),
     adventuresList: await import("./fr/adventures-list.fr.json"),
     editAdventure: await import("./fr/edit-adventure.fr.json"),
     combatTracker: await import("./fr/combat-tracker.fr.json"),

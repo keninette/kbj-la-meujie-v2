@@ -29,7 +29,7 @@ import AbilitiesFieldset from "./_components/AbilitiesFieldset";
 import SpellSlotsFieldset from "./_components/SpellSlotsFieldset";
 import TextListFieldset from "./_components/TextListFieldset";
 import ActionsFieldset from "./_components/ActionsFieldset";
-import StatesFieldset from "./_components/StatesFieldset";
+import ConditionsFieldset from "./_components/conditions-fieldset/ConditionsFieldset";
 import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { getInitiativeBonus } from "@/app/combat-tracker/_lib/ability.helper";
 import InitiativeReminderDialog from "./_components/initiative-reminder-dialog/InitiativeReminderDialog";
@@ -368,9 +368,9 @@ const EditCharacterForm = ({
           items={character?.usableObjects ?? []}
           onChange={(usableObjects) => updateCharacter({ usableObjects })}
         />
-        <StatesFieldset
-          states={character?.states ?? []}
-          onChange={(states) => updateCharacter({ states })}
+        <ConditionsFieldset
+          conditions={character?.conditions ?? []}
+          onChange={(conditions) => updateCharacter({ conditions })}
           currentTurn={currentTurn}
         />
       </form>

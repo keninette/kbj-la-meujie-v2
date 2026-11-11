@@ -9,11 +9,11 @@ export type CombatActionFormValues = {
   healAmount: number;
   spellUsedName: string;
   spellUsedLevel: string | null;
-  inflictedStateTargetId: string;
-  inflictedStateName: string;
-  inflictedStateDuration: number | null;
-  inflictedStateSaveThrowStat: string;
-  inflictedStateSaveThrowDc: number | null;
+  inflictedConditionTargetId: string;
+  inflictedConditionName: string;
+  inflictedConditionDuration: number | null;
+  inflictedConditionSaveThrowStat: string;
+  inflictedConditionSaveThrowDc: number | null;
   reviveTargetId: string;
   reanimateTargetId: string;
 };
@@ -123,14 +123,14 @@ export const resetRevivedCharacter = (
   isDead: false,
   isDying: false,
   deathSaveThrowsLeft: 3,
-  states: [],
+  conditions: [],
 });
 
 export const applyCombatActionFormValues = (
   characters: CombatCharacter[],
   selectedCharacterId: string,
   values: CombatActionFormValues,
-  createStateId: () => string,
+  createConditionId: () => string,
   currentTurn?: number,
 ): ApplyCombatActionFormResult => {
   const updatedCharacters = [...characters];
@@ -190,31 +190,31 @@ export const applyCombatActionFormValues = (
     }
   }
 
-  if (values.inflictedStateName && values.inflictedStateTargetId) {
+  if (values.inflictedConditionName && values.inflictedConditionTargetId) {
     const targetCharacterIndex = findCharacterIndexById(
       updatedCharacters,
-      values.inflictedStateTargetId,
+      values.inflictedConditionTargetId,
     );
     if (targetCharacterIndex !== -1) {
-      const newState = {
-        id: createStateId(),
-        name: values.inflictedStateName,
-        ...(!!values.inflictedStateDuration
-          ? { numberOfTurns: values.inflictedStateDuration }
+      const newCondition = {
+        id: createConditionId(),
+        name: values.inflictedConditionName,
+        ...(!!values.inflictedConditionDuration
+          ? { numberOfTurns: values.inflictedConditionDuration }
           : {}),
         ...(currentTurn !== undefined ? { appliedOnTurn: currentTurn } : {}),
-        ...(!!values.inflictedStateSaveThrowStat
-          ? { saveThrowStat: values.inflictedStateSaveThrowStat }
+        ...(!!values.inflictedConditionSaveThrowStat
+          ? { saveThrowStat: values.inflictedConditionSaveThrowStat }
           : {}),
-        ...(!!values.inflictedStateSaveThrowDc
-          ? { saveThrowDc: values.inflictedStateSaveThrowDc }
+        ...(!!values.inflictedConditionSaveThrowDc
+          ? { saveThrowDc: values.inflictedConditionSaveThrowDc }
           : {}),
       };
       updatedCharacters[targetCharacterIndex] = {
         ...updatedCharacters[targetCharacterIndex],
-        states: [
-          ...(updatedCharacters[targetCharacterIndex].states ?? []),
-          newState,
+        conditions: [
+          ...(updatedCharacters[targetCharacterIndex].conditions ?? []),
+          newCondition,
         ],
       };
       hasChanges = true;

@@ -10,7 +10,7 @@ import StatsSection from "./_components/stats-section/StatsSection";
 import ChipListSection from "./_components/chip-list-section/ChipListSection";
 import SpellSlotsSection from "./_components/spell-slots-section/SpellSlotsSection";
 import ActionsSection from "./_components/actions-section/ActionsSection";
-import StatesSection from "./_components/states-section/StatesSection";
+import ConditionsSection from "./_components/conditions-section/ConditionsSection";
 
 type CharacterStatsProps = {
   characters?: CombatCharacter[];
@@ -67,23 +67,26 @@ const CharacterStats = ({
     });
   };
 
-  const onRemoveState = (stateId: string) => {
-    const stateToRemove = (selectedCharacter.states ?? []).find(
-      (state) => state.id === stateId,
+  const onRemoveCondition = (conditionId: string) => {
+    const conditionToRemove = (selectedCharacter.conditions ?? []).find(
+      (condition) => condition.id === conditionId,
     );
-    if (!stateToRemove) {
+    if (!conditionToRemove) {
       return;
     }
 
     const updatedCharacter = {
       ...selectedCharacter,
-      states: (selectedCharacter.states ?? []).filter(
-        (state) => state.id !== stateId,
+      conditions: (selectedCharacter.conditions ?? []).filter(
+        (condition) => condition.id !== conditionId,
       ),
     };
 
     onHistoryEdited([
-      `${selectedCharacter.name} perd l'état ${stateToRemove.name}`,
+      translate("history.removeCondition", "combatTracker", {
+        character: selectedCharacter.name,
+        condition: conditionToRemove.name,
+      }),
     ]);
     updateCharacter(updatedCharacter);
   };
@@ -124,9 +127,9 @@ const CharacterStats = ({
         />
         <SpellSlotsSection spellSlotsLeft={selectedCharacter.spellSlotsLeft} />
         <ActionsSection actions={selectedCharacter.actions} />
-        <StatesSection
-          states={selectedCharacter.states}
-          onRemoveState={onRemoveState}
+        <ConditionsSection
+          conditions={selectedCharacter.conditions}
+          onRemoveCondition={onRemoveCondition}
         />
         <ChipListSection
           title={translate("stats.usableObjects", "combatTracker")}

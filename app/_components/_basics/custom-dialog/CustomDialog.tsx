@@ -45,7 +45,7 @@ const CustomDialog = ({
             </h2>
             <IconButton
               variant={ButtonVariant.TERTIARY}
-              tooltip={translate("close", "layout")}
+              tooltip={translate("customDialog.close", "components")}
               faIcon="xmark"
               faIconStyle={FaIconStyleEnum.SOLID}
               onClick={onClose}

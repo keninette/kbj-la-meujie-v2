@@ -2,7 +2,7 @@ import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { isNpcAttitude } from "@/app/_lib/enums/npc-attitude.enum";
 import { Combat } from "../../_lib/types/combat.type";
 import { CombatCharacter } from "../../_lib/types/combat-character.type";
-import { CombatState } from "../../_lib/types/combat-state.type";
+import { CombatCondition } from "../../_lib/types/combat-condition.type";
 import {
   CombatAction,
   CombatActionDamage,
@@ -14,7 +14,7 @@ const STORAGE_KEY = "scratchie-combat-tracker";
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-const isCombatState = (value: unknown): value is CombatState => {
+const isCombatCondition = (value: unknown): value is CombatCondition => {
   if (!isRecord(value)) {
     return false;
   }
@@ -22,6 +22,8 @@ const isCombatState = (value: unknown): value is CombatState => {
   return (
     typeof value.id === "string" &&
     typeof value.name === "string" &&
+    (value.bg3ConditionId === undefined ||
+      typeof value.bg3ConditionId === "string") &&
     (value.numberOfTurns === undefined ||
       typeof value.numberOfTurns === "number") &&
     (value.appliedOnTurn === undefined ||
@@ -71,9 +73,10 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     return false;
   }
 
-  const statesAreValid =
-    value.states === undefined ||
-    (Array.isArray(value.states) && value.states.every(isCombatState));
+  const conditionsAreValid =
+    value.conditions === undefined ||
+    (Array.isArray(value.conditions) &&
+      value.conditions.every(isCombatCondition));
   const passivesAreValid =
     value.passives === undefined ||
     (Array.isArray(value.passives) &&
@@ -113,7 +116,7 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     isOptionalNumberRecord(value.abilities) &&
     isOptionalNumberRecord(value.savingThrows) &&
     isOptionalNumberRecord(value.spellSlotsLeft) &&
-    statesAreValid &&
+    conditionsAreValid &&
     passivesAreValid &&
     actionsAreValid &&
     usableObjectsAreValid

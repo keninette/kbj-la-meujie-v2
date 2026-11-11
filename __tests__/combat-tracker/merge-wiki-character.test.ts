@@ -155,7 +155,7 @@ describe("mergeWikiCharacter", () => {
       isNpc: false,
       initiativeScore: 17,
       deathSaveThrowsLeft: 2,
-      states: [{ id: "s1", name: "Poisoned" }],
+      conditions: [{ id: "s1", name: "Poisoned" }],
     });
 
     const merged = mergeWikiCharacter(current, kagha, WIKI_IMPORTED_FIELDS);
@@ -165,7 +165,7 @@ describe("mergeWikiCharacter", () => {
       isNpc: false,
       initiativeScore: 17,
       deathSaveThrowsLeft: 2,
-      states: [{ id: "s1", name: "Poisoned" }],
+      conditions: [{ id: "s1", name: "Poisoned" }],
     });
   });
 

@@ -12,7 +12,7 @@ import { useFormContext } from "react-hook-form";
 import type { CombatActionFormValues } from "../combat-action-form.helper";
 import TargetInput from "./TargetInput";
 
-type StateFieldsetProps = {
+type ConditionFieldsetProps = {
   characters: CombatCharacter[];
   disabled: boolean;
   onAddHistory: () => void;
@@ -20,46 +20,48 @@ type StateFieldsetProps = {
 
 const toNumber = (value: string) => (value === "" ? 0 : Number(value));
 
-const StateFieldset = ({
+const ConditionFieldset = ({
   characters,
   disabled,
   onAddHistory,
-}: StateFieldsetProps) => {
+}: ConditionFieldsetProps) => {
   const { register } = useFormContext<CombatActionFormValues>();
 
   return (
     <Fieldset
-      title={translate("combatAction.states", "combatTracker")}
+      title={translate("combatAction.conditions", "combatTracker")}
       titleIcon="fire-flame-curved"
     >
       <FieldsetRow>
         <TargetInput
           characters={characters}
-          registration={register("inflictedStateTargetId")}
-          inputName="inflictedStateTargetName"
+          registration={register("inflictedConditionTargetId")}
+          inputName="inflictedConditionTargetName"
         />
         <TextInput
-          id="inflictedStateName"
+          id="inflictedConditionName"
           label={translate("form.name", "combatTracker")}
-          {...register("inflictedStateName")}
+          {...register("inflictedConditionName")}
         />
       </FieldsetRow>
       <FieldsetRow>
         <NumberInput
-          id="inflictedStateDuration"
+          id="inflictedConditionDuration"
           label={translate("combatAction.duration", "combatTracker")}
-          {...register("inflictedStateDuration", { setValueAs: toNumber })}
+          {...register("inflictedConditionDuration", { setValueAs: toNumber })}
         />
         <TextInput
-          id="inflictedStateSaveThrowStat"
+          id="inflictedConditionSaveThrowStat"
           label={translate("combatAction.saveStat", "combatTracker")}
           placeholder="CON"
-          {...register("inflictedStateSaveThrowStat")}
+          {...register("inflictedConditionSaveThrowStat")}
         />
         <NumberInput
-          id="inflictedStateSaveThrowDc"
+          id="inflictedConditionSaveThrowDc"
           label={translate("combatAction.saveDc", "combatTracker")}
-          {...register("inflictedStateSaveThrowDc", { setValueAs: toNumber })}
+          {...register("inflictedConditionSaveThrowDc", {
+            setValueAs: toNumber,
+          })}
         />
         <ButtonWithIcon
           variant={ButtonVariant.SECONDARY}
@@ -75,4 +77,4 @@ const StateFieldset = ({
   );
 };
 
-export default StateFieldset;
+export default ConditionFieldset;
