@@ -19,24 +19,25 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--spacing-padding--button);
-
-    &__icon {
-      margin-right: var(--spacing-padding--button);
-    }
-
-    &__label {
-      width: 11.1rem;
-
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: left;
-    }
-
-    &__chevron {
-      margin-left: var(--spacing-padding--button);
-    }
   }
+
+  &__buttons-icon {
+    margin-right: var(--spacing-padding--button);
+  }
+
+  &__buttons-label {
+    width: 11.1rem;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+  }
+
+  &__buttons-chevron {
+    margin-left: var(--spacing-padding--button);
+  }
+
   &__dropdown {
     align-items: flex-start;
     display: flex;
@@ -47,21 +48,21 @@
     z-index: 1;
 
     background-color: var(--color-dropdown);
+  }
 
-    &__label {
-      padding: var(--spacing-padding--button);
+  &__dropdown-label {
+    padding: var(--spacing-padding--button);
 
-      color: var(--color-dropdown-text);
-      list-style-type: none;
+    color: var(--color-dropdown-text);
+    list-style-type: none;
+  }
 
-      &__text {
-        width: 12.5rem;
+  &__dropdown-label-text {
+    width: 12.5rem;
 
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-align: left;
-      }
-    }
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
   }
 }

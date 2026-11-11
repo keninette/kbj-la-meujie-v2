@@ -54,7 +54,7 @@ __tests__/
 
 The full rules, followed by people and by Claude, are in [CLAUDE.md](CLAUDE.md). In short:
 
-- **Reuse the shared components** of `app/_components/_basics` before creating new ones.
+- **Reuse the shared components** of `app/_components/_basics` before creating new ones. **Never override their style**: if a different look is needed, add a variant to the component (a prop mapped to a BEM modifier) or create a new one.
 - **All user-facing text** goes through `translate(key, namespace)` and the French dictionaries.
 - **CSS**: one module per component, BEM naming (`block__element--modifier`, kebab-case, no element in an element, no tag selectors). Components only use the **sys** variables of `variables.sys.scss`; the raw **token** values are only used there. Shared patterns are mixins.
 - **Tests**: test behaviour, conditional display, the main flows of a page, domain rules and data parsing; not plain display of props. Find elements by test id, role or label, never by class or DOM structure.

@@ -1,4 +1,4 @@
-import styles from "./../adventure-list.module.scss";
+import styles from "./adventure-tile.module.scss";
 import SplitButton from "@components/_basics/split-button/SplitButton";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
@@ -15,31 +15,31 @@ const AdventureTile = ({ adventure }: AdventureTileProps) => {
   const translationsName = "adventuresList";
 
   return (
-    <li className={styles["adventure-list__tile"]}>
+    <li className={styles["adventure-tile"]}>
       {adventure?.universe?.icon && (
         <Image
           src={`/assets/universes/${adventure.universe.icon}`}
           alt={adventure.universe.name}
           width={100}
           height={100}
-          className={styles["adventure-list__tile__content__image"]}
+          className={styles["adventure-tile__image"]}
           title={adventure.universe.name}
         />
       )}
-      <div className={styles["adventure-list__tile__content"]}>
-        <div className={styles["adventure-list__tile__content__name"]}>
+      <div className={styles["adventure-tile__content"]}>
+        <div className={styles["adventure-tile__name"]}>
           <LinkWithIcon
             label={""}
             href={Route.EDIT_ADVENTURE.replace("{{uuid}}", adventure.uuid)}
             faIcon={"pen-to-square"}
             title={translate("edit", translationsName)}
-            className={styles["adventure-list__tile__content__name__action"]}
+            className={styles["adventure-tile__name-action"]}
           />
-          <p className={styles["adventure-list__tile__content__name__text"]}>
+          <p className={styles["adventure-tile__name-text"]}>
             {adventure.name}
           </p>
         </div>
-        <div className={styles["adventure-list__tile__content__actions"]}>
+        <div className={styles["adventure-tile__actions"]}>
           <SplitButton
             options={[
               {

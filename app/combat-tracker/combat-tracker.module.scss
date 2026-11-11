@@ -11,23 +11,23 @@
     gap: var(--spacing-panel);
     min-height: 0;
     margin: var(--spacing-layout-section-margin);
+  }
 
-    &__left {
-      flex: 0;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-panel);
-      min-width: 20rem;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
+  &__container-left {
+    flex: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-panel);
+    min-width: 20rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
 
-    &__right {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      min-width: 0;
-    }
+  &__container-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
   }
 }

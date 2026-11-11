@@ -17,12 +17,12 @@
 
   &__logo {
     position: relative;
+  }
 
-    &__dice {
-      position: absolute;
-      top: 85px;
-      left: -31px;
-    }
+  &__logo-dice {
+    position: absolute;
+    top: 85px;
+    left: -31px;
   }
 
   &__text {
@@ -30,21 +30,21 @@
     flex-direction: column;
     margin-left: var(--spacing-layout-section-margin);
     padding-bottom: var(--spacing-layout-section-margin);
+  }
 
-    &__title {
-      margin: 0;
+  &__text-title {
+    margin: 0;
 
-      color: var(--color-text--dark);
-      font-size: var(--font-size--title);
-      font-weight: var(--font-weight--title);
-    }
+    color: var(--color-text--dark);
+    font-size: var(--font-size--title);
+    font-weight: var(--font-weight--title);
+  }
 
-    &__subtitle {
-      margin: 0;
+  &__text-subtitle {
+    margin: 0;
 
-      color: var(--color-text--light);
-      font-size: var(--font-size--subtitle);
-      font-weight: var(--font-weight--subtitle);
-    }
+    color: var(--color-text--light);
+    font-size: var(--font-size--subtitle);
+    font-weight: var(--font-weight--subtitle);
   }
 }

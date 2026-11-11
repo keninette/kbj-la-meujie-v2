@@ -41,13 +41,15 @@ Scratchie: a Next.js (App Router) app for tabletop RPG game masters, in French. 
 
 Use them instead of raw HTML elements:
 
-- **Buttons and links**: `ButtonWithIcon` (label + icon, variants `fab` / `secondary` / `tertiary`), `IconButton` (icon only, with a tooltip), `LinkWithIcon`, `SubmitButton`, `SplitButton`, `KebabMenu` (⋮ menu of actions and links).
+- **Buttons and links**: `ButtonWithIcon` (label + icon, variants `fab` / `secondary` / `tertiary`), `IconButton` (icon only, with a tooltip; `size="small"` to be as high as the text around it), `LinkWithIcon` (colored like the buttons; without a label, it looks like a small `IconButton`), `SubmitButton`, `SplitButton`, `KebabMenu` (⋮ menu of actions and links).
 - **Containers**: `ContainerBox` (the card look of panels and fieldsets), `Tile` (titled stat block), `Chip` (small label, with an optional delete button).
-- **Forms**: `Fieldset` (titled section, can be highlighted) with its layouts `FieldsetGrid`, `FieldsetRow` and `FieldsetChips`; `TextInput`, `NumberInput`, `SelectInput`, `CheckboxInput` (label + input; they work with react-hook-form's `register`).
+- **Forms**: `Fieldset` (titled section, can be highlighted) with its layouts `FieldsetGrid`, `FieldsetRow` and `FieldsetChips`; `TextInput`, `NumberInput` (can be highlighted), `SelectInput`, `CheckboxInput` (label + input; they work with react-hook-form's `register`).
 - **Overlays**:
   - `CustomDrawer`: side panel with a title and separator, scrollable content, and optional `actions` always visible at the bottom. A form shown in a drawer renders the drawer itself and passes its buttons as `actions`, linked to the `<form>` by its id (`form={formId}`). The parent gives it a `key` that changes on each opening, so the form starts empty every time.
   - `CustomDialog`: centered dialog with a title, a close cross and optional `actions`.
 - **Icons**: `FontAwesomeIcon` (Font Awesome kit, web font).
+
+**Never override a shared component's style.** A parent may place it (margin, flex, grid, position) and lay out what it puts inside it, but never change what the component sets itself (height, padding, colors, borders, fonts). If a different look is needed, add a variant to the component (a prop mapped to a BEM modifier, e.g. `isHighlighted`, `size="small"`), or create a new component.
 
 ## CSS
 

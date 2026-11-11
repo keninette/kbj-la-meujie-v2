@@ -19,19 +19,19 @@ const BasicDataDisplay = ({
 
   return (
     <>
-      <p className={styles["edit-adventure-page__section__content__p"]}>
+      <p className={styles["edit-adventure-page__section-content-p"]}>
         {translate("basicData.name", translationsNamespace, {
           name: adventure.name,
         })}
       </p>
-      <p className={styles["edit-adventure-page__section__content__p"]}>
+      <p className={styles["edit-adventure-page__section-content-p"]}>
         {adventure.universe
           ? translate("basicData.universe", translationsNamespace, {
               name: adventure.universe.name,
             })
           : "-"}
       </p>
-      <div className={styles["edit-adventure-page__section__content__button"]}>
+      <div className={styles["edit-adventure-page__section-content-button"]}>
         <ButtonWithIcon
           label={translate("basicData.edit", translationsNamespace)}
           faIcon="edit"

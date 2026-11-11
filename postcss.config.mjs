@@ -6,9 +6,13 @@ const postcssConfig = {
     bemLinter({
       preset: "bem",
       implicitComponents: "app/**/*.module.scss",
-      // Custom selector to forbid modifiers starting with '_' instead of '--'  // '_' is allowed by BEM, but we chose '--' because it's easier to read
-      componentSelectors: "^.{componentName}(([_]{2}|[-]{2})[a-z-]+)*$", // ignore animations selectors
-      ignoreSelectors: [/^\d+%$/, /^from|to$/],
+      // Only block, block__element, block--modifier or block__element--modifier:
+      // - no element in an element (block__a__b), no modifier of a modifier
+      // - modifiers start with '--', not '_' (allowed by BEM, but harder to read)
+      componentSelectors:
+        "^\\.{componentName}(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+      // Keyframes of the animations
+      ignoreSelectors: [/^\d+%$/, /^(from|to)$/],
     }),
     postCssReporter({
       plugins: ["postcss-bem-linter"],

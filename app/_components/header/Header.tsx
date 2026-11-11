@@ -10,24 +10,19 @@ export default function Header() {
   return (
     <Link href="/" className={cx(styles["header"], styles["header__link"])}>
       <div className={styles["header__logo"]}>
-        <Image
-          src={dog}
-          alt={"dog"}
-          className={styles["header__logo__dog"]}
-          height={140}
-        />
+        <Image src={dog} alt={"dog"} height={140} />
         <Image
           src={dice}
           alt={"dice"}
           width={50}
-          className={styles["header__logo__dice"]}
+          className={styles["header__logo-dice"]}
         />
       </div>
       <div className={styles["header__text"]}>
-        <h1 className={styles["header__text__title"]}>
+        <h1 className={styles["header__text-title"]}>
           {translate("title", "layout")}
         </h1>
-        <h2 className={styles["header__text__subtitle"]}>
+        <h2 className={styles["header__text-subtitle"]}>
           {translate("subtitle", "layout")}
         </h2>
       </div>
