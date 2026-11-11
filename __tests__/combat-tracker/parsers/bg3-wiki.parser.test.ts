@@ -227,14 +227,6 @@ describe("bg3 wiki parser", () => {
   });
 
   describe("buildCharacterFromInfobox", () => {
-    it("adds no actions when none were found", () => {
-      expect(
-        buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha", {
-          actions: [],
-        }),
-      ).not.toHaveProperty("actions");
-    });
-
     it("builds Kagha with her Tactician stats", () => {
       expect(
         buildCharacterFromInfobox(parseInfobox(KAGHA_WIKITEXT), "Kagha"),

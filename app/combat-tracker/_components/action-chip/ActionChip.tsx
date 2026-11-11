@@ -10,8 +10,11 @@ import {
   parseActionCost,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 import DamageText from "@/app/combat-tracker/_components/damage-text/DamageText";
-import { findClassResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
-import { getActionText } from "@/app/combat-tracker/_lib/action-text.helper";
+import { splitResourceVariant } from "@/app/combat-tracker/_lib/action-resource.helper";
+import {
+  getActionText,
+  isActionTranslated,
+} from "@/app/combat-tracker/_lib/action-text.helper";
 import TranslatedTooltip from "@/app/combat-tracker/_components/translated-tooltip/TranslatedTooltip";
 import ActionCostIcon from "./ActionCostIcon";
 
@@ -33,15 +36,14 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
     .map(parseActionCost)
     .filter((cost) => cost.kind !== group);
   const french = getActionText(action, "fr");
-  // Not translated but spends a class resource: "Forme sauvage" for
+  // Not translated and named after its class resource: "Forme sauvage" for
   // "Wild Shape: Bear", whose name moves to the tooltip, and its variant
   // ("Bear") to the subtitle, to tell the forms apart
-  const resourceName =
-    french.name === action.name ? findClassResourceName(action) : undefined;
-  const title = resourceName ?? french.name;
-  const variant = resourceName
-    ? action.name.split(": ").slice(1).join(": ")
-    : undefined;
+  const resourceVariant = isActionTranslated(action)
+    ? undefined
+    : splitResourceVariant(action);
+  const title = resourceVariant?.resourceName ?? french.name;
+  const variant = resourceVariant?.variant;
   // "Bear · 2d6+FOR [icon] Tranchant · 1d4 [icon] Feu · CON · concentration"
   const details = [
     variant,
@@ -80,7 +82,7 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
         ))
       }
       tooltip={
-        (tooltipTitle || action.description) && (
+        (tooltipTitle || french.description || action.wikiLink) && (
           <TranslatedTooltip
             title={tooltipTitle}
             descriptions={{

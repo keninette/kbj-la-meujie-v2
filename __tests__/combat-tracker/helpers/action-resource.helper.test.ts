@@ -1,20 +1,31 @@
-import { findClassResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
+import { splitResourceVariant } from "@/app/combat-tracker/_lib/action-resource.helper";
 
 jest.mock("../../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
 }));
 
-describe("findClassResourceName", () => {
+describe("splitResourceVariant", () => {
   it.each([
-    ["a class resource", ["bonus", "wldshp"], "actionResource.wldshp"],
+    ["Wild Shape: Bear", ["bonus", "wldshp"], "Bear"],
+    ["Rage: Wolf Heart", ["bonus", "rage"], "Wolf Heart"],
+    ["Lay on Hands: Cure", ["action", "layonh:2"], "Cure"],
+  ])("splits %s", (name, costs, variant) => {
+    expect(splitResourceVariant({ name, costs })).toEqual({
+      resourceName: expect.stringMatching(/^actionResource\./),
+      variant,
+    });
+  });
+
+  it.each([
+    ["an action without variant", "Flurry of Blows", ["bonus", "ki"]],
     [
-      "the first class resource",
-      ["action", "2", "layonh:2"],
-      "actionResource.layonh",
+      "a variant of another resource",
+      "Chromatic Orb: Cold",
+      ["action", "wspell1"],
     ],
-    ["no spell slot", ["action", "2"], undefined],
-    ["no unknown resource", ["action", "dragonRage"], undefined],
-  ])("names %s", (_, costs, expected) => {
-    expect(findClassResourceName({ name: "Action", costs })).toBe(expected);
+    ["a resource it doesn't spend", "Wild Shape: Bear", ["bonus"]],
+    ["a spell slot", "Spell: Fire", ["action", "1"]],
+  ])("leaves out %s", (_, name, costs) => {
+    expect(splitResourceVariant({ name, costs })).toBeUndefined();
   });
 });

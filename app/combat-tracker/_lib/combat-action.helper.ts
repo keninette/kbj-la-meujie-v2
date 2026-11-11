@@ -55,7 +55,12 @@ export const describeDamage = (damage: CombatActionDamage): string => {
         .map((ability) => translate(`ability.${ability}`, "combatTracker"))
         .join("/")}`
     : "";
-  return `${damage.dice}${versatile}${abilities}`;
+  // The weapon wasn't found: its damage is unknown
+  const dice =
+    damage.dice === "weapon"
+      ? translate("actions.weaponDamage", "combatTracker")
+      : damage.dice;
+  return `${dice}${versatile}${abilities}`;
 };
 
 /**

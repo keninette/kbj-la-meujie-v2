@@ -1,5 +1,4 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import { BG3_WIKI_HOST } from "./bg3-wiki.images";
 import { ABILITIES, AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
@@ -289,7 +288,7 @@ export const buildWikiLink = (pageTitle: string): string => {
 };
 
 /** "str = 16, dex = 12..." -> { str: 16, dex: 12 }, missing ones are skipped */
-export const parseAbilities = (
+const parseAbilities = (
   get: (field: string) => string | undefined,
 ): Partial<Record<AbilityEnum, number>> =>
   Object.fromEntries(
@@ -346,10 +345,6 @@ export const buildShortDescription = (
 export const buildCharacterFromInfobox = (
   fields: Record<string, string>,
   pageTitle: string,
-  {
-    imageUrl,
-    actions = [],
-  }: { imageUrl?: string; actions?: CombatAction[] } = {},
 ): WikiCharacter => {
   const get = (field: string) => getHighestDifficultyValue(fields, field);
 
@@ -370,7 +365,6 @@ export const buildCharacterFromInfobox = (
   return {
     name: get("name") || pageTitle.replaceAll("_", " "),
     ...(shortDescription ? { shortDescription } : {}),
-    ...(imageUrl ? { imageUrl } : {}),
     wikiLink: buildWikiLink(pageTitle),
     hp,
     maxHp: hp,
@@ -388,6 +382,5 @@ export const buildCharacterFromInfobox = (
     ...(Object.keys(savingThrows).length ? { savingThrows } : {}),
     ...(Object.keys(actionResourcesLeft).length ? { actionResourcesLeft } : {}),
     ...(passives.length ? { passives } : {}),
-    ...(actions.length ? { actions } : {}),
   };
 };

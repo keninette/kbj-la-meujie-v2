@@ -74,6 +74,7 @@
   "stats.passives": "Passifs",
   "stats.actions": "Actions",
   "actions.concentration": "concentration",
+  "actions.weaponDamage": "dégâts de l'arme",
   "actions.group.action": "Actions",
   "actions.group.bonus": "Actions bonus",
   "actions.group.reaction": "Réactions",

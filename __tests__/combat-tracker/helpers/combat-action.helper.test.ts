@@ -82,6 +82,11 @@ describe("describeDamage", () => {
       },
       "1d6 (1d8)+ability.str/ability.dex",
     ],
+    [
+      "the damage of a weapon not found",
+      { dice: "weapon", abilities: [AbilityEnum.STRENGTH] },
+      "actions.weaponDamage+ability.str",
+    ],
   ])("writes %s", (_, damage, expected) => {
     expect(describeDamage(damage)).toBe(expected);
   });

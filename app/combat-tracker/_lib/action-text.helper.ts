@@ -17,6 +17,12 @@ export const getActionId = (action: CombatAction): string | undefined => {
     : undefined;
 };
 
+/** Whether an action has a french name in the "dndActions" dictionary */
+export const isActionTranslated = (action: CombatAction): boolean => {
+  const id = getActionId(action);
+  return !!id && hasTranslation(`${id}.name`, "dndActions");
+};
+
 /**
  * Name and description of an action. In french, falls back on the original
  * english text when it isn't translated.

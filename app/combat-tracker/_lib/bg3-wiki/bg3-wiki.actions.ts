@@ -8,10 +8,8 @@ import {
   Bg3WikiErrorEnum,
   buildCharacterFromInfobox,
   extractPageTitleFromUrl,
-  getHighestDifficultyValue,
   getImageFileCandidates,
   mergeCombatInfobox,
-  parseAbilities,
   parseInfobox,
   WikiCharacter,
 } from "./bg3-wiki.parser";
@@ -352,20 +350,23 @@ export const createCharacterFromWiki = async (
       pageFields && combatFields
         ? mergeCombatInfobox(pageFields, combatFields)
         : (combatFields ?? pageFields)!;
+    const character = buildCharacterFromInfobox(fields, title);
     const [imageUrl, actions] = await Promise.all([
       findImageUrl(getImageFileCandidates(fields)),
-      // The subpage is the one about the fight: its actions win
+      // The subpage is the one about the fight: its actions win. The
+      // character's abilities choose the one of a finesse weapon.
       fetchActions(
         combatWikitext ? [combatWikitext, wikitext] : [wikitext],
-        parseAbilities((field) => getHighestDifficultyValue(fields, field)),
+        character.abilities ?? {},
       ),
     ]);
 
     return {
-      character: buildCharacterFromInfobox(fields, title, {
-        imageUrl,
-        actions,
-      }),
+      character: {
+        ...character,
+        ...(imageUrl ? { imageUrl } : {}),
+        ...(actions.length ? { actions } : {}),
+      },
     };
   } catch (error) {
     if (error instanceof Bg3WikiError) {

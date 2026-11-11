@@ -1,7 +1,10 @@
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { ActionResourceTypeEnum } from "@/app/_lib/enums/action-resource-type.enum";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
-import { findBg3ActionResource } from "./bg3-action-resources";
+import {
+  findBg3ActionResource,
+  normalizeActionResourceId,
+} from "./bg3-action-resources";
 import { ActionCostKind, parseActionCost } from "./combat-action.helper";
 
 /**
@@ -19,19 +22,24 @@ export const getActionResourceName = (id: string): string => {
 };
 
 /**
- * Name of the first class resource an action spends: "Forme sauvage" for
- * "Wild Shape: Bear", which has no french name. None for a spell slot.
+ * An action named after the class resource it spends, with a variant:
+ * "Wild Shape: Bear" -> "Forme sauvage" and "Bear", "Rage: Wolf Heart",
+ * "Lay on Hands: Cure"... None for any other action ("Hex", "Flurry of Blows").
  */
-export const findClassResourceName = (
+export const splitResourceVariant = (
   action: CombatAction,
-): string | undefined => {
-  const id = action.costs
+): { resourceName: string; variant: string } | undefined => {
+  const [prefix, ...rest] = action.name.split(": ");
+  const id = normalizeActionResourceId(prefix);
+  const isSpent = action.costs
     .map(parseActionCost)
-    .find(
+    .some(
       ({ kind, resource }) =>
-        kind === ActionCostKind.ACTION_RESOURCE &&
-        findBg3ActionResource(resource ?? "")?.type ===
-          ActionResourceTypeEnum.CLASS_RESOURCE,
-    )?.resource;
-  return id ? getActionResourceName(id) : undefined;
+        kind === ActionCostKind.ACTION_RESOURCE && resource === id,
+    );
+  return rest.length > 0 &&
+    isSpent &&
+    findBg3ActionResource(id)?.type === ActionResourceTypeEnum.CLASS_RESOURCE
+    ? { resourceName: getActionResourceName(id), variant: rest.join(": ") }
+    : undefined;
 };
