@@ -539,8 +539,9 @@ describe("EditCharacterForm conditions", () => {
     );
 
     const [poisoned] = screen.getAllByTestId("condition-item");
+    expect(poisoned).toHaveTextContent("Poisoned");
     expect(poisoned).toHaveTextContent(
-      "Poisoned stats.conditionDuration, CON stats.saveDc 13",
+      "stats.conditionDuration · CON stats.saveDc 13",
     );
     fireEvent.click(within(poisoned).getByRole("button"));
     fireEvent.submit(screen.getByTestId("edit-character-form"));

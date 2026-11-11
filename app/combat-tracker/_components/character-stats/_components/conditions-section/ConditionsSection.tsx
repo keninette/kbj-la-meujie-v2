@@ -1,8 +1,7 @@
-import Chip from "@/app/_components/_basics/chip/Chip";
 import Tile from "@/app/_components/_basics/tile/Tile";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCondition } from "@/app/_lib/types/combat-condition.type";
-import { describeCondition } from "@/app/combat-tracker/_lib/combat-condition.helper";
+import ConditionChip from "@/app/combat-tracker/_components/condition-chip/ConditionChip";
 import styles from "../../character-stats.module.scss";
 
 type ConditionsSectionProps = {
@@ -10,7 +9,7 @@ type ConditionsSectionProps = {
   onRemoveCondition: (conditionId: string) => void;
 };
 
-/** The conditions of the character, e.g. "Poisoned", as chips that can be removed */
+/** The conditions of the character, as chips that can be removed */
 const ConditionsSection = ({
   conditions = [],
   onRemoveCondition,
@@ -27,12 +26,9 @@ const ConditionsSection = ({
       <ul className={styles["character-stats__chips"]}>
         {conditions.map((condition) => (
           <li key={condition.id}>
-            <Chip
-              label={describeCondition(condition)}
-              deleteAction={{
-                onClick: () => onRemoveCondition(condition.id),
-                tooltip: translate("form.remove", "combatTracker"),
-              }}
+            <ConditionChip
+              condition={condition}
+              onRemove={() => onRemoveCondition(condition.id)}
               data-testid={`condition-${condition.id}`}
             />
           </li>

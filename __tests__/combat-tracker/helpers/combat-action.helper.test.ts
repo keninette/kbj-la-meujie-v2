@@ -1,6 +1,5 @@
 import {
   ActionCostKind,
-  ActionGroupEnum,
   describeActionDetails,
   getActionGroup,
   parseActionCost,
@@ -13,12 +12,11 @@ jest.mock("../../../app/_dictionaries/dictionnary", () => ({
 
 describe("getActionGroup", () => {
   it.each([
-    ["an action", ["action"], ActionGroupEnum.ACTION],
-    ["a bonus action", ["bonus"], ActionGroupEnum.BONUS],
-    ["a bonus action with a spell slot", ["bonus", "1"], ActionGroupEnum.BONUS],
-    // Reactions have no group of their own
-    ["a reaction", ["reaction"], ActionGroupEnum.ACTION],
-    ["an action without cost", [], ActionGroupEnum.ACTION],
+    ["an action", ["action"], ActionCostKind.ACTION],
+    ["a bonus action", ["bonus"], ActionCostKind.BONUS],
+    ["a bonus action with a spell slot", ["bonus", "1"], ActionCostKind.BONUS],
+    ["a reaction", ["reaction"], ActionCostKind.REACTION],
+    ["an action without cost", [], ActionCostKind.ACTION],
   ])("puts %s in its group", (_, costs, group) => {
     expect(getActionGroup({ name: "Moonbeam", costs })).toBe(group);
   });

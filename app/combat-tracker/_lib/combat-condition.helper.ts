@@ -1,43 +1,38 @@
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCondition } from "@/app/_lib/types/combat-condition.type";
-import { BG3_CONDITIONS, Bg3ConditionId } from "./bg3-conditions";
+import { Bg3ConditionId, findBg3Condition } from "./bg3-conditions";
 import { getConditionText } from "./condition-text.helper";
 
-/**
- * A condition as written in the stats panel:
- * "Poisoned pendant 3 tours (appliqué au tour 2), CON DD 13"
- */
-export const describeCondition = (condition: CombatCondition): string => {
-  const duration =
-    condition.numberOfTurns !== undefined
-      ? ` ${translate("stats.conditionDuration", "combatTracker", {
-          duration: String(condition.numberOfTurns),
-        })}`
-      : "";
-  const appliedOnTurn =
-    condition.appliedOnTurn !== undefined
-      ? ` ${translate("stats.conditionAppliedOnTurn", "combatTracker", {
-          turn: String(condition.appliedOnTurn),
-        })}`
-      : "";
-  const save = [
-    condition.saveThrowStat,
-    condition.saveThrowDc !== undefined
-      ? `${translate("stats.saveDc", "combatTracker")} ${condition.saveThrowDc}`
-      : undefined,
+/** The name of a condition: in french for a Baldur's Gate 3 one */
+export const getConditionName = (condition: CombatCondition): string => {
+  const bg3Condition = findBg3Condition(condition.bg3ConditionId);
+  return bg3Condition ? getConditionText(bg3Condition).name : condition.name;
+};
+
+/** How long a condition lasts: "3 tours (depuis le tour 2)" */
+export const describeConditionDuration = (condition: CombatCondition): string =>
+  [
+    condition.numberOfTurns !== undefined &&
+      translate("stats.conditionDuration", "combatTracker", {
+        count: String(condition.numberOfTurns),
+      }),
+    condition.appliedOnTurn !== undefined &&
+      translate("stats.conditionAppliedOnTurn", "combatTracker", {
+        turn: String(condition.appliedOnTurn),
+      }),
   ]
     .filter(Boolean)
     .join(" ");
 
-  const bg3Condition = BG3_CONDITIONS.find(
-    ({ id }) => id === condition.bg3ConditionId,
-  );
-  const name = bg3Condition
-    ? getConditionText(bg3Condition).name
-    : condition.name;
-
-  return `${name}${duration}${appliedOnTurn}${save ? `, ${save}` : ""}`;
-};
+/** The saving throw that ends a condition: "CON DD 13" */
+export const describeConditionSave = (condition: CombatCondition): string =>
+  [
+    condition.saveThrowStat,
+    condition.saveThrowDc !== undefined &&
+      `${translate("stats.saveDc", "combatTracker")} ${condition.saveThrowDc}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
 /** A condition being typed in the inputs (see ConditionInputs) */
 export type ConditionDraft = {
@@ -72,9 +67,7 @@ const toOptionalCount = (value: string): number | undefined => {
 export const conditionFromDraft = (
   draft: ConditionDraft,
 ): Omit<CombatCondition, "id" | "appliedOnTurn"> | null => {
-  const bg3Condition = BG3_CONDITIONS.find(
-    ({ id }) => id === draft.bg3ConditionId,
-  );
+  const bg3Condition = findBg3Condition(draft.bg3ConditionId);
   const name = bg3Condition
     ? getConditionText(bg3Condition).name
     : draft.name.trim();

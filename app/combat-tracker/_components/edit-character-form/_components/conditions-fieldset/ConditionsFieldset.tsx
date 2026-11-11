@@ -1,16 +1,15 @@
 import Fieldset, {
   FieldsetChips,
 } from "@/app/_components/_basics/form/fieldset/Fieldset";
-import Chip from "@/app/_components/_basics/chip/Chip";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCondition } from "@/app/_lib/types/combat-condition.type";
 import {
   conditionFromDraft,
-  describeCondition,
   EMPTY_CONDITION_DRAFT,
 } from "@/app/combat-tracker/_lib/combat-condition.helper";
 import { createId } from "@/app/combat-tracker/_lib/create-id";
 import ConditionInputs from "@/app/combat-tracker/_components/condition-inputs/ConditionInputs";
+import ConditionChip from "@/app/combat-tracker/_components/condition-chip/ConditionChip";
 import AddItemButton from "../AddItemButton";
 import { useNewItem } from "../../_hooks/use-new-item.hook";
 
@@ -53,13 +52,11 @@ const ConditionsFieldset = ({
       <FieldsetChips>
         {conditions.map((condition) => (
           <li key={condition.id}>
-            <Chip
-              label={describeCondition(condition)}
-              deleteAction={{
-                onClick: () =>
-                  onChange(conditions.filter((s) => s.id !== condition.id)),
-                tooltip: translate("form.remove", "combatTracker"),
-              }}
+            <ConditionChip
+              condition={condition}
+              onRemove={() =>
+                onChange(conditions.filter((s) => s.id !== condition.id))
+              }
               data-testid="condition-item"
             />
           </li>

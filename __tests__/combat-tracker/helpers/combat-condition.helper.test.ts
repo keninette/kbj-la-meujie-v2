@@ -1,4 +1,7 @@
-import { describeCondition } from "@/app/combat-tracker/_lib/combat-condition.helper";
+import {
+  describeConditionDuration,
+  describeConditionSave,
+} from "@/app/combat-tracker/_lib/combat-condition.helper";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
 jest.mock("../../../app/_dictionaries/dictionnary", () => ({
@@ -8,45 +11,46 @@ jest.mock("../../../app/_dictionaries/dictionnary", () => ({
     values?: Record<string, string>,
   ) =>
     key === "stats.conditionDuration"
-      ? `pendant ${values?.duration} tours`
+      ? `${values?.count} tours`
       : key === "stats.conditionAppliedOnTurn"
-        ? `(appliqué au tour ${values?.turn})`
+        ? `(depuis le tour ${values?.turn})`
         : "DD",
+  hasTranslation: () => false,
 }));
 
-describe("describeCondition", () => {
-  it("adds the duration and the save when known", () => {
+describe("describeConditionDuration", () => {
+  it.each([
+    ["the duration", { numberOfTurns: 2 }, "2 tours"],
+    [
+      "the duration and the turn it was applied on",
+      { numberOfTurns: 3, appliedOnTurn: 2 },
+      "3 tours (depuis le tour 2)",
+    ],
+    [
+      "the applied turn, without duration",
+      { appliedOnTurn: 3 },
+      "(depuis le tour 3)",
+    ],
+    ["nothing when neither is known", {}, ""],
+  ])("shows %s", (_, known, expected) => {
     expect(
-      describeCondition({
-        id: "s1",
-        name: "Poisoned",
-        numberOfTurns: 2,
-        saveThrowStat: "CON",
-        saveThrowDc: 13,
-      }),
-    ).toBe("Poisoned pendant 2 tours, CON DD 13");
-    expect(
-      describeCondition({ id: "s2", name: "Prone", saveThrowDc: 10 }),
-    ).toBe("Prone, DD 10");
-    expect(describeCondition({ id: "s3", name: "Blessed" })).toBe("Blessed");
+      describeConditionDuration({ id: "c1", name: "Poisoned", ...known }),
+    ).toBe(expected);
   });
+});
 
-  it("adds the turn the condition was applied on, when known", () => {
-    expect(
-      describeCondition({
-        id: "s1",
-        name: "Poisoned",
-        numberOfTurns: 3,
-        appliedOnTurn: 2,
-        saveThrowStat: "CON",
-        saveThrowDc: 13,
-      }),
-    ).toBe("Poisoned pendant 3 tours (appliqué au tour 2), CON DD 13");
-  });
-
-  it("shows the applied turn of a condition without duration", () => {
-    expect(
-      describeCondition({ id: "s4", name: "Prone", appliedOnTurn: 3 }),
-    ).toBe("Prone (appliqué au tour 3)");
+describe("describeConditionSave", () => {
+  it.each([
+    [
+      "the ability and the DC",
+      { saveThrowStat: "CON", saveThrowDc: 13 },
+      "CON DD 13",
+    ],
+    ["only the DC", { saveThrowDc: 10 }, "DD 10"],
+    ["nothing without a save", {}, ""],
+  ])("shows %s", (_, known, expected) => {
+    expect(describeConditionSave({ id: "c1", name: "Prone", ...known })).toBe(
+      expected,
+    );
   });
 });

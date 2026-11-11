@@ -3,7 +3,10 @@ import AutocompleteInput from "@/app/_components/_basics/form/autocomplete-input
 import TextInput from "@/app/_components/_basics/form/text-input/TextInput";
 import NumberInput from "@/app/_components/_basics/form/number-input/NumberInput";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { BG3_CONDITIONS } from "@/app/combat-tracker/_lib/bg3-conditions";
+import {
+  BG3_CONDITIONS,
+  findBg3Condition,
+} from "@/app/combat-tracker/_lib/bg3-conditions";
 import { getConditionText } from "@/app/combat-tracker/_lib/condition-text.helper";
 import type { ConditionDraft } from "@/app/combat-tracker/_lib/combat-condition.helper";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
@@ -45,7 +48,7 @@ const ConditionInputs = ({
   const selectBg3Condition = (value: string | null) =>
     onDraftChange({
       ...draft,
-      bg3ConditionId: BG3_CONDITIONS.find(({ id }) => id === value)?.id ?? null,
+      bg3ConditionId: findBg3Condition(value)?.id ?? null,
       name: "",
     });
 

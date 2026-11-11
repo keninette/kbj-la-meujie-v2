@@ -43,7 +43,7 @@ Scratchie: a Next.js (App Router) app for tabletop RPG game masters, in French. 
 Use them instead of raw HTML elements:
 
 - **Buttons and links**: `ButtonWithIcon` (label + icon, variants `fab` / `secondary` / `tertiary`), `IconButton` (icon only, with a tooltip; `size="small"` to be as high as the text around it), `LinkWithIcon` (colored like the buttons; without a label, it looks like a small `IconButton`), `SubmitButton`, `SplitButton`, `KebabMenu` (⋮ menu of actions and links).
-- **Containers**: `ContainerBox` (the card look of panels and fieldsets), `Tile` (titled stat block), `Chip` (small label, with an optional delete button).
+- **Containers**: `ContainerBox` (the card look of panels and fieldsets), `Tile` (titled stat block), `Chip` (small label, with an optional delete button), `DetailedChip` (icon on a dark square, title, optional `titleAdornment`, subtitle, tooltip and delete button: actions and conditions).
 - **Forms**: `Fieldset` (titled section, can be highlighted) with its layouts `FieldsetGrid`, `FieldsetRow` and `FieldsetChips`; `TextInput`, `NumberInput` (can be highlighted), `SelectInput`, `CheckboxInput` (label + input; they work with react-hook-form's `register`); `AutocompleteInput` (search input that filters a list of options, each with an optional icon).
 - **Overlays**:
   - `CustomDrawer`: side panel with a title and separator, scrollable content, and optional `actions` always visible at the bottom. A form shown in a drawer renders the drawer itself and passes its buttons as `actions`, linked to the `<form>` by its id (`form={formId}`). The parent gives it a `key` that changes on each opening, so the form starts empty every time.

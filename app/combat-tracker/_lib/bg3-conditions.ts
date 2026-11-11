@@ -370,3 +370,6 @@ export const BG3_CONDITIONS = [
 ] as const;
 
 export type Bg3ConditionId = (typeof BG3_CONDITIONS)[number]["id"];
+
+export const findBg3Condition = (id: string | null | undefined) =>
+  BG3_CONDITIONS.find((condition) => condition.id === id);
