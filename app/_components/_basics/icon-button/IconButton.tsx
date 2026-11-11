@@ -14,7 +14,9 @@ type IconButtonProps = {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
+  /** Names the button for screen readers, and is shown in its tooltip */
   tooltip: string;
+  showTooltip?: boolean;
   "data-testid"?: string;
 };
 
@@ -27,9 +29,10 @@ const IconButton = ({
   type = "button",
   className,
   tooltip,
+  showTooltip = true,
   "data-testid": dataTestId,
 }: IconButtonProps) => (
-  <Tooltip content={tooltip}>
+  <Tooltip content={showTooltip && tooltip}>
     <button
       className={cx(
         styles["icon-button"],

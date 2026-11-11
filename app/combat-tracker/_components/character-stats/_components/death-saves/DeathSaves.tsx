@@ -3,7 +3,6 @@ import ClickAwayListener from "@mui/material/ClickAwayListener";
 import MuiTooltip from "@mui/material/Tooltip";
 import { cx } from "@/app/_lib/class-names";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
-import Tooltip from "@/app/_components/_basics/tooltip/Tooltip";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import styles from "./death-saves.module.scss";
@@ -35,44 +34,40 @@ const DeathSaves = ({ savesLeft, onSuccess, onFail }: DeathSavesProps) => {
 
   const choices = (
     <span className={styles["death-saves__choices"]}>
-      <Tooltip content={translate("stats.deathSaveSuccess", "combatTracker")}>
-        <button
-          type="button"
-          className={cx(
-            styles["death-saves__save"],
-            styles["death-saves__save--button"],
-            styles["death-saves__save--success"],
-          )}
-          aria-label={translate("stats.deathSaveSuccess", "combatTracker")}
-          onClick={() => record(onSuccess!)}
-          data-testid="death-save-choice-success"
-        >
-          <FontAwesomeIcon
-            faIcon="check"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            aria-hidden
-          />
-        </button>
-      </Tooltip>
-      <Tooltip content={translate("stats.deathSaveFail", "combatTracker")}>
-        <button
-          type="button"
-          className={cx(
-            styles["death-saves__save"],
-            styles["death-saves__save--button"],
-            styles["death-saves__save--fail"],
-          )}
-          aria-label={translate("stats.deathSaveFail", "combatTracker")}
-          onClick={() => record(onFail!)}
-          data-testid="death-save-choice-fail"
-        >
-          <FontAwesomeIcon
-            faIcon="xmark"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            aria-hidden
-          />
-        </button>
-      </Tooltip>
+      <button
+        type="button"
+        className={cx(
+          styles["death-saves__save"],
+          styles["death-saves__save--button"],
+          styles["death-saves__save--success"],
+        )}
+        aria-label={translate("stats.deathSaveSuccess", "combatTracker")}
+        onClick={() => record(onSuccess!)}
+        data-testid="death-save-choice-success"
+      >
+        <FontAwesomeIcon
+          faIcon="check"
+          faIconStyle={FaIconStyleEnum.SOLID}
+          aria-hidden
+        />
+      </button>
+      <button
+        type="button"
+        className={cx(
+          styles["death-saves__save"],
+          styles["death-saves__save--button"],
+          styles["death-saves__save--fail"],
+        )}
+        aria-label={translate("stats.deathSaveFail", "combatTracker")}
+        onClick={() => record(onFail!)}
+        data-testid="death-save-choice-fail"
+      >
+        <FontAwesomeIcon
+          faIcon="xmark"
+          faIconStyle={FaIconStyleEnum.SOLID}
+          aria-hidden
+        />
+      </button>
     </span>
   );
 

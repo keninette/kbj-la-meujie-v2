@@ -37,6 +37,7 @@ Scratchie: a Next.js (App Router) app for tabletop RPG game masters, in French. 
 - **Shared components carry their own generic text** in `app/_dictionaries/fr/components.fr.json`, under the component's name (`autocompleteInput.noResult`, `customDialog.close`). The text specific to a page (a label, a title) is passed as a prop.
 - Add `data-testid` to the elements the tests need (see Tests).
 - Remove dead code and unused imports, variables, classes and translation keys when you see them.
+- **Name booleans positively**, for what is true: `showTooltip` (default `true`), `isOpened`, `hasChanges`; not `hideTooltip` or `isNotOpened`. A negation is easier to read when it's written out at the call site: `showTooltip={false}`, `!isOpened`.
 
 ## Shared components
 
@@ -49,7 +50,7 @@ Use them instead of raw HTML elements:
   - `CustomDrawer`: side panel with a title and separator, scrollable content, and optional `actions` always visible at the bottom. A form shown in a drawer renders the drawer itself and passes its buttons as `actions`, linked to the `<form>` by its id (`form={formId}`). The parent gives it a `key` that changes on each opening, so the form starts empty every time.
   - `CustomDialog`: centered dialog with a title, a close cross and optional `actions`.
 - **Icons**: `FontAwesomeIcon` (Font Awesome kit, web font).
-- **Tooltips**: `Tooltip` (`content` shown above its child on hover and focus; without `content`, only the child). **Never use a native `title` for a tooltip.** `IconButton`, `LinkWithIcon`, `KebabMenu`, `Chip`, `DetailedChip` and `FontAwesomeIcon` already use it through their `tooltip`/`title`/`label` prop. Its child must be an HTML element or a component passing its ref. The death-saves choice menu keeps Material UI's `Tooltip`: it opens on click, it's not a tooltip.
+- **Tooltips**: `Tooltip` (`content` shown above its child on hover, and on click or tap until a click outside it, e.g. on a tablet; without `content`, only the child). **Never use a native `title` for a tooltip.** `IconButton`, `LinkWithIcon`, `KebabMenu`, `Chip`, `DetailedChip` and `FontAwesomeIcon` already use it through their `tooltip`/`title`/`label` prop. Its child must be an HTML element or a component passing its ref. **No tooltip inside a tooltip's content**: don't pass one to the components in it (an `IconButton` there gets `showTooltip={false}` and keeps its `aria-label`), Material UI's tooltips included. The death-saves choice menu keeps Material UI's `Tooltip`: it opens on click, it's not a tooltip.
 
 **Never override a shared component's style.** A parent may place it (margin, flex, grid, position) and lay out what it puts inside it, but never change what the component sets itself (height, padding, colors, borders, fonts). If a different look is needed, add a variant to the component (a prop mapped to a BEM modifier, e.g. `isHighlighted`, `size="small"`), or create a new component.
 

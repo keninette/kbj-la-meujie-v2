@@ -1,7 +1,5 @@
 import { hasTranslation, translate } from "@/app/_dictionaries/dictionnary";
-import { BG3_CONDITIONS } from "./bg3-conditions";
-
-type Bg3Condition = (typeof BG3_CONDITIONS)[number];
+import type { Bg3Condition } from "./bg3-conditions";
 
 export type ConditionLanguage = "fr" | "en";
 

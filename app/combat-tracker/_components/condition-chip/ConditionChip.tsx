@@ -10,6 +10,7 @@ import {
   getConditionName,
 } from "@/app/combat-tracker/_lib/combat-condition.helper";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
+import ConditionTooltip from "./ConditionTooltip";
 
 type ConditionChipProps = {
   condition: CombatCondition;
@@ -19,7 +20,8 @@ type ConditionChipProps = {
 
 /**
  * A condition: its icon, its name, and under it its duration and saving
- * throw, e.g. "3 tours (depuis le tour 2) · 🛡 CON DD 13"
+ * throw, e.g. "3 tours (depuis le tour 2) · 🛡 CON DD 13". A Baldur's Gate 3
+ * condition also has its description and wiki link in a tooltip.
  */
 const ConditionChip = ({
   condition,
@@ -53,7 +55,7 @@ const ConditionChip = ({
                 <FontAwesomeIcon
                   faIcon="shield-halved"
                   faIconStyle={FaIconStyleEnum.SOLID}
-                  tooltip={translate("stats.savingThrow", "combatTracker")}
+                  aria-hidden
                 />{" "}
                 {save}
               </>
@@ -61,6 +63,7 @@ const ConditionChip = ({
           </>
         )
       }
+      tooltip={bg3Condition && <ConditionTooltip bg3Condition={bg3Condition} />}
       deleteAction={{
         onClick: onRemove,
         tooltip: translate("form.remove", "combatTracker"),
