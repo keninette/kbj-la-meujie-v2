@@ -1,6 +1,7 @@
 import { cx } from "@/app/_lib/class-names";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
+import Tooltip from "@/app/_components/_basics/tooltip/Tooltip";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import styles from "./hp-bar.module.scss";
 
@@ -60,72 +61,74 @@ const HpBar = ({
     : undefined;
 
   return (
-    <div
-      className={cx(styles["hp-bar"], isCompact && styles["hp-bar--compact"])}
-      role="group"
-      aria-label={summary ?? label}
-      title={summary}
-      data-testid={dataTestId}
-    >
-      {/* Changes with the hit points shown: fades in again on switch */}
-      {!isCompact && (
-        <span className={styles["hp-bar__header"]} key={label}>
-          <span className={styles["hp-bar__amount"]}>
-            <span className={styles["hp-bar__value"]}>
-              <strong
-                className={cx(
-                  styles["hp-bar__current"],
-                  styles[`hp-bar__current--${level}`],
-                )}
-              >
-                {hp}
-              </strong>{" "}
-              / {maxHp}
-            </span>
-            {temp > 0 && (
-              <span
-                className={styles["hp-bar__temp"]}
-                data-testid={dataTestId && `${dataTestId}-temp`}
-              >
-                {tempHpBonus}
+    <Tooltip content={summary}>
+      <div
+        className={cx(styles["hp-bar"], isCompact && styles["hp-bar--compact"])}
+        role="group"
+        aria-label={summary ?? label}
+        data-testid={dataTestId}
+      >
+        {/* Changes with the hit points shown: fades in again on switch */}
+        {!isCompact && (
+          <span className={styles["hp-bar__header"]} key={label}>
+            <span className={styles["hp-bar__amount"]}>
+              <span className={styles["hp-bar__value"]}>
+                <strong
+                  className={cx(
+                    styles["hp-bar__current"],
+                    styles[`hp-bar__current--${level}`],
+                  )}
+                >
+                  {hp}
+                </strong>{" "}
+                / {maxHp}
               </span>
+              {temp > 0 && (
+                <span
+                  className={styles["hp-bar__temp"]}
+                  data-testid={dataTestId && `${dataTestId}-temp`}
+                >
+                  {tempHpBonus}
+                </span>
+              )}
+            </span>
+            {onSwitch && (
+              <Tooltip content={switchTooltip}>
+                <button
+                  type="button"
+                  className={styles["hp-bar__switch"]}
+                  aria-label={switchTooltip}
+                  onClick={onSwitch}
+                  data-testid={dataTestId && `${dataTestId}-switch`}
+                >
+                  <FontAwesomeIcon
+                    faIcon="right-left"
+                    faIconStyle={FaIconStyleEnum.SOLID}
+                    aria-hidden
+                  />
+                </button>
+              </Tooltip>
             )}
           </span>
-          {onSwitch && (
-            <button
-              type="button"
-              className={styles["hp-bar__switch"]}
-              title={switchTooltip}
-              aria-label={switchTooltip}
-              onClick={onSwitch}
-              data-testid={dataTestId && `${dataTestId}-switch`}
-            >
-              <FontAwesomeIcon
-                faIcon="right-left"
-                faIconStyle={FaIconStyleEnum.SOLID}
-                aria-hidden
-              />
-            </button>
-          )}
+        )}
+        <span className={styles["hp-bar__track"]} aria-hidden>
+          {/* Always there, so that it grows and shrinks smoothly */}
+          <span
+            className={cx(styles["hp-bar__fill"], styles["hp-bar__fill--temp"])}
+            style={{ width: `${(temp / scale) * 100}%` }}
+            data-testid={dataTestId && `${dataTestId}-fill-temp`}
+          />
+          <span
+            className={cx(
+              styles["hp-bar__fill"],
+              styles[`hp-bar__fill--${level}`],
+            )}
+            style={{ width: `${(current / scale) * 100}%` }}
+            data-testid={dataTestId && `${dataTestId}-fill`}
+          />
         </span>
-      )}
-      <span className={styles["hp-bar__track"]} aria-hidden>
-        {/* Always there, so that it grows and shrinks smoothly */}
-        <span
-          className={cx(styles["hp-bar__fill"], styles["hp-bar__fill--temp"])}
-          style={{ width: `${(temp / scale) * 100}%` }}
-          data-testid={dataTestId && `${dataTestId}-fill-temp`}
-        />
-        <span
-          className={cx(
-            styles["hp-bar__fill"],
-            styles[`hp-bar__fill--${level}`],
-          )}
-          style={{ width: `${(current / scale) * 100}%` }}
-          data-testid={dataTestId && `${dataTestId}-fill`}
-        />
-      </span>
-    </div>
+      </div>
+    </Tooltip>
   );
 };
 

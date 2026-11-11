@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 /**
- * The inputs of an item being added to a list (passive, action, state...).
+ * The inputs of an item being added to a list (passive, action, condition...).
  * `add` returns false when the draft is not valid: it is then kept as is.
  * Enter in an input adds the item instead of submitting the whole form.
  */

@@ -6,6 +6,7 @@ import KebabMenu, {
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
+import Tooltip from "@/app/_components/_basics/tooltip/Tooltip";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import HpBar from "@/app/combat-tracker/_components/hp-bar/HpBar";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
@@ -46,12 +47,11 @@ const CharacterListItem = ({
           tooltip={translate("stats.player", "combatTracker")}
         />
       )}
-      <span
-        className={styles["characters-list__name-text"]}
-        title={character.name}
-      >
-        {character.name}
-      </span>
+      <Tooltip content={character.name}>
+        <span className={styles["characters-list__name-text"]}>
+          {character.name}
+        </span>
+      </Tooltip>
       {character.isDying && (
         <FontAwesomeIcon
           faIcon="hand-holding-heart"

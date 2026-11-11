@@ -59,18 +59,26 @@ export const describeActionDetails = (action: CombatAction): string =>
     .filter(Boolean)
     .join(" · ");
 
-/** Groups of the actions section */
-export enum ActionGroupEnum {
-  ACTION = "action",
-  BONUS = "bonus",
-}
+/** Groups of the actions section, named after the cost they share */
+export type ActionGroup =
+  | ActionCostKind.ACTION
+  | ActionCostKind.BONUS
+  | ActionCostKind.REACTION;
 
-export const ACTION_GROUPS = Object.values(ActionGroupEnum);
+export const ACTION_GROUPS: ActionGroup[] = [
+  ActionCostKind.ACTION,
+  ActionCostKind.BONUS,
+  ActionCostKind.REACTION,
+];
 
-/** Bonus actions apart, everything else (reactions included) with the actions */
-export const getActionGroup = (action: CombatAction): ActionGroupEnum =>
-  action.costs.some(
-    (cost) => parseActionCost(cost).kind === ActionCostKind.BONUS,
-  )
-    ? ActionGroupEnum.BONUS
-    : ActionGroupEnum.ACTION;
+/** Bonus actions, then reactions apart; everything else with the actions */
+export const getActionGroup = (action: CombatAction): ActionGroup => {
+  const kinds = action.costs.map((cost) => parseActionCost(cost).kind);
+  if (kinds.includes(ActionCostKind.BONUS)) {
+    return ActionCostKind.BONUS;
+  }
+  if (kinds.includes(ActionCostKind.REACTION)) {
+    return ActionCostKind.REACTION;
+  }
+  return ActionCostKind.ACTION;
+};

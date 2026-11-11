@@ -1,6 +1,10 @@
 import { findCharacterIndexById } from "@/app/_lib/combat/combat.helper";
 import type { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
+import {
+  conditionFromDraft,
+  type ConditionDraft,
+} from "@/app/combat-tracker/_lib/combat-condition.helper";
 
 export type CombatActionFormValues = {
   attackTargetId: string;
@@ -9,11 +13,8 @@ export type CombatActionFormValues = {
   healAmount: number;
   spellUsedName: string;
   spellUsedLevel: string | null;
-  inflictedStateTargetId: string;
-  inflictedStateName: string;
-  inflictedStateDuration: number | null;
-  inflictedStateSaveThrowStat: string;
-  inflictedStateSaveThrowDc: number | null;
+  inflictedConditionTargetId: string;
+  inflictedCondition: ConditionDraft;
   reviveTargetId: string;
   reanimateTargetId: string;
 };
@@ -123,14 +124,14 @@ export const resetRevivedCharacter = (
   isDead: false,
   isDying: false,
   deathSaveThrowsLeft: 3,
-  states: [],
+  conditions: [],
 });
 
 export const applyCombatActionFormValues = (
   characters: CombatCharacter[],
   selectedCharacterId: string,
   values: CombatActionFormValues,
-  createStateId: () => string,
+  createConditionId: () => string,
   currentTurn?: number,
 ): ApplyCombatActionFormResult => {
   const updatedCharacters = [...characters];
@@ -190,31 +191,23 @@ export const applyCombatActionFormValues = (
     }
   }
 
-  if (values.inflictedStateName && values.inflictedStateTargetId) {
+  const inflictedCondition = conditionFromDraft(values.inflictedCondition);
+  if (inflictedCondition && values.inflictedConditionTargetId) {
     const targetCharacterIndex = findCharacterIndexById(
       updatedCharacters,
-      values.inflictedStateTargetId,
+      values.inflictedConditionTargetId,
     );
     if (targetCharacterIndex !== -1) {
-      const newState = {
-        id: createStateId(),
-        name: values.inflictedStateName,
-        ...(!!values.inflictedStateDuration
-          ? { numberOfTurns: values.inflictedStateDuration }
-          : {}),
+      const newCondition = {
+        id: createConditionId(),
+        ...inflictedCondition,
         ...(currentTurn !== undefined ? { appliedOnTurn: currentTurn } : {}),
-        ...(!!values.inflictedStateSaveThrowStat
-          ? { saveThrowStat: values.inflictedStateSaveThrowStat }
-          : {}),
-        ...(!!values.inflictedStateSaveThrowDc
-          ? { saveThrowDc: values.inflictedStateSaveThrowDc }
-          : {}),
       };
       updatedCharacters[targetCharacterIndex] = {
         ...updatedCharacters[targetCharacterIndex],
-        states: [
-          ...(updatedCharacters[targetCharacterIndex].states ?? []),
-          newState,
+        conditions: [
+          ...(updatedCharacters[targetCharacterIndex].conditions ?? []),
+          newCondition,
         ],
       };
       hasChanges = true;

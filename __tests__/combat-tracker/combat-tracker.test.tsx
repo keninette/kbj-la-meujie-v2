@@ -17,6 +17,7 @@ import { buildCharacter } from "./_fixtures/combat-tracker.fixtures";
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
+  hasTranslation: () => false,
 }));
 
 // Never call the real wiki from the tests
@@ -515,14 +516,14 @@ describe("EditCharacterForm NPC attitude", () => {
   });
 });
 
-describe("EditCharacterForm states", () => {
-  it("shows the existing states and removes one", () => {
+describe("EditCharacterForm conditions", () => {
+  it("shows the existing conditions and removes one", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
         {...drawerProps}
         initialCharacter={buildCharacter({
-          states: [
+          conditions: [
             {
               id: "s1",
               name: "Poisoned",
@@ -537,19 +538,20 @@ describe("EditCharacterForm states", () => {
       />,
     );
 
-    const [poisoned] = screen.getAllByTestId("state-item");
+    const [poisoned] = screen.getAllByTestId("condition-item");
+    expect(poisoned).toHaveTextContent("Poisoned");
     expect(poisoned).toHaveTextContent(
-      "Poisoned stats.stateDuration, CON stats.saveDc 13",
+      "stats.conditionDuration · CON stats.saveDc 13",
     );
     fireEvent.click(within(poisoned).getByRole("button"));
     fireEvent.submit(screen.getByTestId("edit-character-form"));
 
-    expect(onSubmit.mock.calls[0][0].states).toEqual([
+    expect(onSubmit.mock.calls[0][0].conditions).toEqual([
       { id: "s2", name: "Blessed" },
     ]);
   });
 
-  it("adds a state by name, with an id", () => {
+  it("adds a condition by name, with an id", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -559,18 +561,18 @@ describe("EditCharacterForm states", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("stateName"), {
+    fireEvent.change(screen.getByTestId("conditionName"), {
       target: { value: "  Hasted  " },
     });
-    fireEvent.click(screen.getByTestId("addState"));
+    fireEvent.click(screen.getByTestId("addCondition"));
     fireEvent.submit(screen.getByTestId("edit-character-form"));
 
-    expect(onSubmit.mock.calls[0][0].states).toEqual([
+    expect(onSubmit.mock.calls[0][0].conditions).toEqual([
       { id: expect.any(String), name: "Hasted" },
     ]);
   });
 
-  it("adds a state with its duration and saving throw", () => {
+  it("adds a condition with its duration and saving throw", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -580,26 +582,26 @@ describe("EditCharacterForm states", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("stateName"), {
+    fireEvent.change(screen.getByTestId("conditionName"), {
       target: { value: "Poisoned" },
     });
-    fireEvent.change(screen.getByTestId("stateDuration"), {
+    fireEvent.change(screen.getByTestId("conditionDuration"), {
       target: { value: "3" },
     });
-    fireEvent.change(screen.getByTestId("stateSaveThrowStat"), {
+    fireEvent.change(screen.getByTestId("conditionSaveThrowStat"), {
       target: { value: " CON " },
     });
-    fireEvent.change(screen.getByTestId("stateSaveThrowDc"), {
+    fireEvent.change(screen.getByTestId("conditionSaveThrowDc"), {
       target: { value: "13" },
     });
-    fireEvent.click(screen.getByTestId("addState"));
+    fireEvent.click(screen.getByTestId("addCondition"));
 
     // The fields are cleared for the next one
-    expect(screen.getByTestId("stateDuration")).toHaveValue(null);
-    expect(screen.getByTestId("stateSaveThrowStat")).toHaveValue("");
+    expect(screen.getByTestId("conditionDuration")).toHaveValue(null);
+    expect(screen.getByTestId("conditionSaveThrowStat")).toHaveValue("");
     fireEvent.submit(screen.getByTestId("edit-character-form"));
 
-    expect(onSubmit.mock.calls[0][0].states).toEqual([
+    expect(onSubmit.mock.calls[0][0].conditions).toEqual([
       {
         id: expect.any(String),
         name: "Poisoned",
@@ -610,7 +612,7 @@ describe("EditCharacterForm states", () => {
     ]);
   });
 
-  it("stores the turn the state was applied on during a combat", () => {
+  it("stores the turn the condition was applied on during a combat", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -621,16 +623,16 @@ describe("EditCharacterForm states", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("stateName"), {
+    fireEvent.change(screen.getByTestId("conditionName"), {
       target: { value: "Blessed" },
     });
-    fireEvent.change(screen.getByTestId("stateDuration"), {
+    fireEvent.change(screen.getByTestId("conditionDuration"), {
       target: { value: "2" },
     });
-    fireEvent.click(screen.getByTestId("addState"));
+    fireEvent.click(screen.getByTestId("addCondition"));
     fireEvent.submit(screen.getByTestId("edit-character-form"));
 
-    expect(onSubmit.mock.calls[0][0].states).toEqual([
+    expect(onSubmit.mock.calls[0][0].conditions).toEqual([
       {
         id: expect.any(String),
         name: "Blessed",
@@ -766,7 +768,7 @@ describe("CharacterStats action tooltip and short description", () => {
   });
 });
 
-describe("CharacterStats states", () => {
+describe("CharacterStats conditions", () => {
   const renderStats = (character: CombatCharacter) => {
     const onCharacterChange = jest.fn();
     const onHistoryEdited = jest.fn();
@@ -783,16 +785,18 @@ describe("CharacterStats states", () => {
     return { ...result, onCharacterChange, onHistoryEdited };
   };
 
-  it("displays no states section when there are none", () => {
-    renderStats(buildCharacter({ states: [] }));
+  it("displays no conditions section when there are none", () => {
+    renderStats(buildCharacter({ conditions: [] }));
 
-    expect(screen.queryByTestId("character-states")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("character-conditions"),
+    ).not.toBeInTheDocument();
   });
 
-  it("removes a state from its chip and logs it in the history", () => {
+  it("removes a condition from its chip and logs it in the history", () => {
     const character = buildCharacter({
       name: "Goblin",
-      states: [
+      conditions: [
         { id: "s1", name: "Poisoned" },
         { id: "s2", name: "Prone" },
       ],
@@ -800,17 +804,15 @@ describe("CharacterStats states", () => {
     const { onCharacterChange, onHistoryEdited } = renderStats(character);
 
     fireEvent.click(
-      within(screen.getByTestId("state-s1")).getByRole("button", {
+      within(screen.getByTestId("condition-s1")).getByRole("button", {
         name: "form.remove",
       }),
     );
 
     expect(onCharacterChange).toHaveBeenCalledWith(
-      expect.objectContaining({ states: [{ id: "s2", name: "Prone" }] }),
+      expect.objectContaining({ conditions: [{ id: "s2", name: "Prone" }] }),
     );
-    expect(onHistoryEdited).toHaveBeenCalledWith([
-      "Goblin perd l'état Poisoned",
-    ]);
+    expect(onHistoryEdited).toHaveBeenCalledWith(["history.removeCondition"]);
   });
 });
 
@@ -868,7 +870,7 @@ describe("EditCharacterForm spell slots", () => {
 });
 
 describe("CombatActionForm isDying/isDead behavior", () => {
-  it("submits registered spell and timed-state values", async () => {
+  it("submits registered spell and timed-condition values", async () => {
     const attacker = buildCharacter({
       id: "attacker",
       name: "Attacker",
@@ -890,10 +892,10 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     fireEvent.change(screen.getByLabelText("form.nameOrLevel"), {
       target: { value: "1" },
     });
-    fireEvent.change(screen.getByTestId("inflictedStateTargetName"), {
+    fireEvent.change(screen.getByTestId("inflictedConditionTargetName"), {
       target: { value: target.id },
     });
-    fireEvent.change(screen.getAllByLabelText("form.name")[1], {
+    fireEvent.change(screen.getByTestId("conditionName"), {
       target: { value: "Restrained" },
     });
     fireEvent.change(screen.getByLabelText("combatAction.duration"), {
@@ -912,7 +914,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     expect(
       updatedCharacters.find(
         (character: CombatCharacter) => character.id === target.id,
-      ).states[0],
+      ).conditions[0],
     ).toMatchObject({ name: "Restrained", numberOfTurns: 2 });
   });
 
@@ -1249,7 +1251,7 @@ describe("EditCharacterForm save and restart", () => {
     expect(screen.getByTestId("name")).toHaveValue("Goblin");
   });
 
-  it("is not blocked by a state or spell slot that was never added", () => {
+  it("is not blocked by a condition or spell slot that was never added", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
@@ -1260,7 +1262,7 @@ describe("EditCharacterForm save and restart", () => {
     );
 
     // Invalid drafts, left without clicking "Add"
-    fireEvent.change(screen.getByTestId("stateDuration"), {
+    fireEvent.change(screen.getByTestId("conditionDuration"), {
       target: { value: "0" },
     });
     fireEvent.change(screen.getByTestId("spellSlotValue"), {
@@ -1270,7 +1272,7 @@ describe("EditCharacterForm save and restart", () => {
 
     expect(onSaveAndRestart).toHaveBeenCalledTimes(1);
     const [saved] = onSaveAndRestart.mock.calls[0];
-    expect(saved.states ?? []).toEqual([]);
+    expect(saved.conditions ?? []).toEqual([]);
     expect(saved.spellSlotsLeft ?? {}).toEqual({});
   });
 

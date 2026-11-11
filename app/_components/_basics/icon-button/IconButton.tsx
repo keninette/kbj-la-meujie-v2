@@ -2,6 +2,7 @@ import { cx } from "@/app/_lib/class-names";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "../font-awesome-icon/FontAwesomeIcon";
+import Tooltip from "../tooltip/Tooltip";
 import styles from "./icon-button.module.scss";
 
 type IconButtonProps = {
@@ -13,7 +14,9 @@ type IconButtonProps = {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
+  /** Names the button for screen readers, and is shown in its tooltip */
   tooltip: string;
+  showTooltip?: boolean;
   "data-testid"?: string;
 };
 
@@ -26,23 +29,25 @@ const IconButton = ({
   type = "button",
   className,
   tooltip,
+  showTooltip = true,
   "data-testid": dataTestId,
 }: IconButtonProps) => (
-  <button
-    className={cx(
-      styles["icon-button"],
-      styles[`icon-button--${variant}`],
-      size === "small" && styles["icon-button--small"],
-      className,
-    )}
-    onClick={onClick}
-    title={tooltip}
-    type={type}
-    aria-label={tooltip}
-    data-testid={dataTestId}
-  >
-    <FontAwesomeIcon faIcon={faIcon} faIconStyle={faIconStyle} />
-  </button>
+  <Tooltip content={showTooltip && tooltip}>
+    <button
+      className={cx(
+        styles["icon-button"],
+        styles[`icon-button--${variant}`],
+        size === "small" && styles["icon-button--small"],
+        className,
+      )}
+      onClick={onClick}
+      type={type}
+      aria-label={tooltip}
+      data-testid={dataTestId}
+    >
+      <FontAwesomeIcon faIcon={faIcon} faIconStyle={faIconStyle} />
+    </button>
+  </Tooltip>
 );
 
 export default IconButton;

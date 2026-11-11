@@ -5,6 +5,7 @@ import { useId, useState } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
+import Tooltip from "../tooltip/Tooltip";
 import styles from "./kebab-menu.module.scss";
 
 export type KebabMenuItem = {
@@ -40,23 +41,24 @@ const KebabMenu = ({
 
   return (
     <>
-      <button
-        type="button"
-        className={cx(styles["kebab-menu__button"], className)}
-        title={label}
-        aria-label={label}
-        aria-haspopup="menu"
-        aria-expanded={isOpened}
-        aria-controls={isOpened ? menuId : undefined}
-        onClick={(event) => setAnchor(isOpened ? null : event.currentTarget)}
-        data-testid={dataTestId}
-      >
-        <FontAwesomeIcon
-          faIcon="ellipsis-vertical"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          aria-hidden
-        />
-      </button>
+      <Tooltip content={label}>
+        <button
+          type="button"
+          className={cx(styles["kebab-menu__button"], className)}
+          aria-label={label}
+          aria-haspopup="menu"
+          aria-expanded={isOpened}
+          aria-controls={isOpened ? menuId : undefined}
+          onClick={(event) => setAnchor(isOpened ? null : event.currentTarget)}
+          data-testid={dataTestId}
+        >
+          <FontAwesomeIcon
+            faIcon="ellipsis-vertical"
+            faIconStyle={FaIconStyleEnum.SOLID}
+            aria-hidden
+          />
+        </button>
+      </Tooltip>
       <Menu
         id={menuId}
         anchorEl={anchor}

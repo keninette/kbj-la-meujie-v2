@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import { cx } from "@/app/_lib/class-names";
 import Tile from "@/app/_components/_basics/tile/Tile";
+import Tooltip from "@/app/_components/_basics/tooltip/Tooltip";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
@@ -166,21 +167,26 @@ const StatsSection = ({
             )}
             <span />
             {abilities.map((ability) => (
-              <abbr
+              <Tooltip
                 key={ability}
-                className={styles["character-stats__ability-name"]}
-                title={translate(`ability.${ability}.name`, "combatTracker")}
+                content={translate(`ability.${ability}.name`, "combatTracker")}
               >
-                {translate(`ability.${ability}`, "combatTracker")}
-              </abbr>
+                <abbr className={styles["character-stats__ability-name"]}>
+                  {translate(`ability.${ability}`, "combatTracker")}
+                </abbr>
+              </Tooltip>
             ))}
             {hasInitiativeBonus && (
-              <abbr
-                className={styles["character-stats__ability-name"]}
-                title={translate("stats.initiativeBonus.name", "combatTracker")}
+              <Tooltip
+                content={translate(
+                  "stats.initiativeBonus.name",
+                  "combatTracker",
+                )}
               >
-                {translate("stats.initiativeBonus", "combatTracker")}
-              </abbr>
+                <abbr className={styles["character-stats__ability-name"]}>
+                  {translate("stats.initiativeBonus", "combatTracker")}
+                </abbr>
+              </Tooltip>
             )}
             <span />
             {abilities.map((ability) => (
@@ -204,15 +210,21 @@ const StatsSection = ({
             )}
             {hasSavingThrows && (
               <>
-                <abbr
-                  className={cx(
-                    styles["character-stats__ability-name"],
-                    styles["character-stats__abilities-row-title"],
+                <Tooltip
+                  content={translate(
+                    "stats.savingThrows.name",
+                    "combatTracker",
                   )}
-                  title={translate("stats.savingThrows.name", "combatTracker")}
                 >
-                  {translate("stats.savingThrows", "combatTracker")}
-                </abbr>
+                  <abbr
+                    className={cx(
+                      styles["character-stats__ability-name"],
+                      styles["character-stats__abilities-row-title"],
+                    )}
+                  >
+                    {translate("stats.savingThrows", "combatTracker")}
+                  </abbr>
+                </Tooltip>
                 {abilities.map((ability) => {
                   const savingThrow = character.savingThrows?.[ability];
                   return (

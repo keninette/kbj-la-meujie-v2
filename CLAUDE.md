@@ -8,7 +8,7 @@
 - You don't need to validate the plan when it's minor changes I asked for.
 - Reading files, searching the codebase and running read-only commands to build the plan is fine without asking.
 - **Always review your code before saying it's done**, look for duplicated code or components and make sure files and directories are named following the existing convention.
-- **Always make you code as simple as possible, as long as it respects the best practices and existing infrastructure**
+- **KISS: keep the code as simple as possible**, as long as it respects the best practices and the existing infrastructure. Don't write code that isn't used yet (optional props, options, abstractions "for later"): add it when it's needed. Simple code keeps the app maintainable.
 - **Match the solution to the size of the problem.** A small visual adjustment (spacing, alignment, a few pixels) gets a small CSS change: a padding, a margin or a height. No measurement scripts, no values computed from font metrics, no Sass variables or extra wrappers created just for it.
 - **Prefer plain values I can adjust by eye** (e.g. `padding-top: 2px`) over calculated ones, unless the value really needs to adapt to something.
 - **If a fix needs a long comment to justify it, look for a simpler one first.**
@@ -34,20 +34,23 @@ Scratchie: a Next.js (App Router) app for tabletop RPG game masters, in French. 
   - Generic tools that don't know the domain (e.g. `class-names.ts`) have no suffix.
 - Path aliases: `@/app/…`, `@lib/…` (`app/_lib`), `@components/…` (`app/_components`).
 - **All text shown to the user goes through `translate(key, namespace)`** with its key in `app/_dictionaries/fr/<namespace>.fr.json`. Keys are grouped by feature with a dot (`combatAction.damage`, `stats.hp`). For a count, use `key.one` / `key.other` and pass `count`.
+- **Shared components carry their own generic text** in `app/_dictionaries/fr/components.fr.json`, under the component's name (`autocompleteInput.noResult`, `customDialog.close`). The text specific to a page (a label, a title) is passed as a prop.
 - Add `data-testid` to the elements the tests need (see Tests).
 - Remove dead code and unused imports, variables, classes and translation keys when you see them.
+- **Name booleans positively**, for what is true: `showTooltip` (default `true`), `isOpened`, `hasChanges`; not `hideTooltip` or `isNotOpened`. A negation is easier to read when it's written out at the call site: `showTooltip={false}`, `!isOpened`.
 
 ## Shared components
 
 Use them instead of raw HTML elements:
 
 - **Buttons and links**: `ButtonWithIcon` (label + icon, variants `fab` / `secondary` / `tertiary`), `IconButton` (icon only, with a tooltip; `size="small"` to be as high as the text around it), `LinkWithIcon` (colored like the buttons; without a label, it looks like a small `IconButton`), `SubmitButton`, `SplitButton`, `KebabMenu` (⋮ menu of actions and links).
-- **Containers**: `ContainerBox` (the card look of panels and fieldsets), `Tile` (titled stat block), `Chip` (small label, with an optional delete button).
-- **Forms**: `Fieldset` (titled section, can be highlighted) with its layouts `FieldsetGrid`, `FieldsetRow` and `FieldsetChips`; `TextInput`, `NumberInput` (can be highlighted), `SelectInput`, `CheckboxInput` (label + input; they work with react-hook-form's `register`).
+- **Containers**: `ContainerBox` (the card look of panels and fieldsets), `Tile` (titled stat block), `Chip` (small label, with an optional delete button), `DetailedChip` (icon on a dark square, title, optional `titleAdornment`, subtitle, tooltip and delete button: actions and conditions).
+- **Forms**: `Fieldset` (titled section, can be highlighted) with its layouts `FieldsetGrid`, `FieldsetRow` and `FieldsetChips`; `TextInput`, `NumberInput` (can be highlighted), `SelectInput`, `CheckboxInput` (label + input; they work with react-hook-form's `register`); `AutocompleteInput` (search input that filters a list of options, each with an optional icon).
 - **Overlays**:
   - `CustomDrawer`: side panel with a title and separator, scrollable content, and optional `actions` always visible at the bottom. A form shown in a drawer renders the drawer itself and passes its buttons as `actions`, linked to the `<form>` by its id (`form={formId}`). The parent gives it a `key` that changes on each opening, so the form starts empty every time.
   - `CustomDialog`: centered dialog with a title, a close cross and optional `actions`.
 - **Icons**: `FontAwesomeIcon` (Font Awesome kit, web font).
+- **Tooltips**: `Tooltip` (`content` shown above its child on hover, and on click or tap until a click outside it, e.g. on a tablet; without `content`, only the child). **Never use a native `title` for a tooltip.** `IconButton`, `LinkWithIcon`, `KebabMenu`, `Chip`, `DetailedChip` and `FontAwesomeIcon` already use it through their `tooltip`/`title`/`label` prop. Its child must be an HTML element or a component passing its ref. **No tooltip inside a tooltip's content**: don't pass one to the components in it (an `IconButton` there gets `showTooltip={false}` and keeps its `aria-label`), Material UI's tooltips included. The death-saves choice menu keeps Material UI's `Tooltip`: it opens on click, it's not a tooltip.
 
 **Never override a shared component's style.** A parent may place it (margin, flex, grid, position) and lay out what it puts inside it, but never change what the component sets itself (height, padding, colors, borders, fonts). If a different look is needed, add a variant to the component (a prop mapped to a BEM modifier, e.g. `isHighlighted`, `size="small"`), or create a new component.
 

@@ -9,7 +9,7 @@ describe("Chip", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("shows a delete button after the label, named by its tooltip, which calls its onClick", () => {
+  it("shows a delete button after the label, named by its tooltip, which calls its onClick", async () => {
     const onDelete = jest.fn();
     render(
       <Chip
@@ -20,7 +20,8 @@ describe("Chip", () => {
     );
 
     const button = screen.getByRole("button", { name: "Retirer" });
-    expect(button).toHaveAttribute("title", "Retirer");
+    fireEvent.mouseOver(button);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Retirer");
     expect(screen.getByTestId("chip").lastChild).toBe(button);
     fireEvent.click(button);
     expect(onDelete).toHaveBeenCalledTimes(1);

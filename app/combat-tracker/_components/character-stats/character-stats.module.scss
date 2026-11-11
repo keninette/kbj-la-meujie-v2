@@ -133,6 +133,9 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
   }
 
   &__action-group-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-padding--button);
     margin: 0;
 
     color: var(--color-text--muted);

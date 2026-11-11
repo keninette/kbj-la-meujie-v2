@@ -1,5 +1,6 @@
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import Tile from "@/app/_components/_basics/tile/Tile";
+import Tooltip from "@/app/_components/_basics/tooltip/Tooltip";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import styles from "../../character-stats.module.scss";
 
@@ -22,15 +23,17 @@ const StatTile = ({
   "data-testid": dataTestId,
 }: StatTileProps) => (
   <Tile title={title} data-testid={dataTestId}>
-    <span className={styles["character-stats__tile-value"]} title={valueTitle}>
-      <FontAwesomeIcon
-        faIcon={icon}
-        faIconStyle={FaIconStyleEnum.SOLID}
-        className={styles["character-stats__tile-icon"]}
-        aria-hidden
-      />
-      {value}
-    </span>
+    <Tooltip content={valueTitle}>
+      <span className={styles["character-stats__tile-value"]}>
+        <FontAwesomeIcon
+          faIcon={icon}
+          faIconStyle={FaIconStyleEnum.SOLID}
+          className={styles["character-stats__tile-icon"]}
+          aria-hidden
+        />
+        {value}
+      </span>
+    </Tooltip>
   </Tile>
 );
 

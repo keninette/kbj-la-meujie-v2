@@ -1,6 +1,4 @@
-@use "app/mixins";
-
-.action-chip {
+.detailed-chip {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-padding--text);
@@ -14,7 +12,7 @@
   border-radius: var(--radius--chip);
   color: var(--color-chip-text);
 
-  &--with-description {
+  &--with-tooltip {
     cursor: help;
   }
 
@@ -23,12 +21,15 @@
   }
 
   &__icon {
+    display: flex;
     flex-shrink: 0;
     width: 32px;
     height: 32px;
+    overflow: hidden;
 
+    /* Dark like in the game, behind the icons with a transparent background */
+    background-color: var(--color-surface--icon);
     border-radius: var(--radius--spell-level);
-    object-fit: cover;
   }
 
   &__text {
@@ -52,7 +53,7 @@
     white-space: nowrap;
   }
 
-  &__details {
+  &__subtitle {
     overflow: hidden;
 
     color: var(--color-text--muted);
@@ -62,23 +63,8 @@
     white-space: nowrap;
   }
 
-  &__remove {
+  &__delete {
     flex-shrink: 0;
     margin-right: calc(-1 * var(--spacing-padding--text));
-  }
-
-  &__tooltip {
-    max-width: 18rem !important;
-    padding: var(--spacing-padding--text) var(--spacing-panel) !important;
-
-    @include mixins.tooltip;
-
-    font-family: inherit !important;
-    font-size: var(--font-size--caption) !important;
-    line-height: 1.4 !important;
-  }
-
-  &__tooltip-arrow {
-    @include mixins.tooltip--arrow;
   }
 }

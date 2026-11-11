@@ -1,4 +1,4 @@
-/** A unique id for a new character, state... */
+/** A unique id for a new character, condition... */
 export const createId = (): string =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()

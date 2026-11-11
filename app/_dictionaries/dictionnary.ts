@@ -7,9 +7,11 @@
 const dictionaries = {
   fr: {
     layout: await import("./fr/layout.fr.json"),
+    components: await import("./fr/components.fr.json"),
     adventuresList: await import("./fr/adventures-list.fr.json"),
     editAdventure: await import("./fr/edit-adventure.fr.json"),
     combatTracker: await import("./fr/combat-tracker.fr.json"),
+    dndConditions: await import("./fr/dnd-conditions.fr.json"),
   },
 };
 
@@ -47,4 +49,12 @@ export const translate = (
   }
 
   return translation as string;
+};
+
+/**
+ * Whether a key is translated, to fall back on another text when it isn't
+ */
+export const hasTranslation = (key: string, namespace: string): boolean => {
+  const dictionary = dictionaries.fr[namespace as keyof typeof dictionaries.fr];
+  return dictionary !== undefined && key in dictionary;
 };

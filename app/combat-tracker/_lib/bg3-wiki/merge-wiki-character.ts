@@ -2,7 +2,7 @@ import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { WikiCharacter } from "./bg3-wiki.parser";
 
 /**
- * Fields the wiki can provide. Combat state (initiative, states, death saves,
+ * Fields the wiki can provide. Combat state (initiative, conditions, death saves,
  * NPC flag...) is never touched by an import.
  */
 export const WIKI_IMPORTED_FIELDS = [

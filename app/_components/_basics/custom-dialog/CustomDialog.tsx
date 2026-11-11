@@ -13,7 +13,6 @@ type CustomDialogProps = {
   onClose: () => void;
   title: string;
   children?: React.ReactNode;
-  /** Buttons at the bottom, aligned on the right */
   actions?: React.ReactNode;
 };
 
@@ -46,7 +45,7 @@ const CustomDialog = ({
             </h2>
             <IconButton
               variant={ButtonVariant.TERTIARY}
-              tooltip={translate("close", "layout")}
+              tooltip={translate("customDialog.close", "components")}
               faIcon="xmark"
               faIconStyle={FaIconStyleEnum.SOLID}
               onClick={onClose}

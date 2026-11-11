@@ -6,13 +6,14 @@ import {
   getActionGroup,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 import ActionChip from "@/app/combat-tracker/_components/action-chip/ActionChip";
+import ActionCostIcon from "@/app/combat-tracker/_components/action-chip/ActionCostIcon";
 import styles from "../../character-stats.module.scss";
 
 type ActionsSectionProps = {
   actions?: CombatAction[];
 };
 
-/** The actions of the character, one line per group: actions, then bonus actions */
+/** The actions of the character, one line per group: actions, bonus actions, then reactions */
 const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
   if (actions.length === 0) {
     return null;
@@ -37,6 +38,7 @@ const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
             data-testid={`action-group-${group}`}
           >
             <h3 className={styles["character-stats__action-group-title"]}>
+              <ActionCostIcon cost={{ kind: group, amount: 1 }} />
               {translate(`actions.group.${group}`, "combatTracker")}
             </h3>
             <ul className={styles["character-stats__action-chips"]}>
@@ -45,7 +47,7 @@ const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
                   key={`${action.name}-${index}`}
                   className={styles["character-stats__action-item"]}
                 >
-                  <ActionChip action={action} />
+                  <ActionChip action={action} group={group} />
                 </li>
               ))}
             </ul>

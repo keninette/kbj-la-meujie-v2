@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
-import Tooltip from "@mui/material/Tooltip";
+import MuiTooltip from "@mui/material/Tooltip";
 import { cx } from "@/app/_lib/class-names";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import { translate } from "@/app/_dictionaries/dictionnary";
@@ -41,7 +41,6 @@ const DeathSaves = ({ savesLeft, onSuccess, onFail }: DeathSavesProps) => {
           styles["death-saves__save--button"],
           styles["death-saves__save--success"],
         )}
-        title={translate("stats.deathSaveSuccess", "combatTracker")}
         aria-label={translate("stats.deathSaveSuccess", "combatTracker")}
         onClick={() => record(onSuccess!)}
         data-testid="death-save-choice-success"
@@ -59,7 +58,6 @@ const DeathSaves = ({ savesLeft, onSuccess, onFail }: DeathSavesProps) => {
           styles["death-saves__save--button"],
           styles["death-saves__save--fail"],
         )}
-        title={translate("stats.deathSaveFail", "combatTracker")}
         aria-label={translate("stats.deathSaveFail", "combatTracker")}
         onClick={() => record(onFail!)}
         data-testid="death-save-choice-fail"
@@ -111,7 +109,7 @@ const DeathSaves = ({ savesLeft, onSuccess, onFail }: DeathSavesProps) => {
             >
               {/* Holds the tooltip too: a click in it is not "away" */}
               <span className={styles["death-saves__next"]}>
-                <Tooltip
+                <MuiTooltip
                   open={isChoiceOpened}
                   onClose={() => setIsChoiceOpened(false)}
                   title={choices}
@@ -141,7 +139,7 @@ const DeathSaves = ({ savesLeft, onSuccess, onFail }: DeathSavesProps) => {
                     onClick={() => setIsChoiceOpened((opened) => !opened)}
                     data-testid="death-save-next"
                   />
-                </Tooltip>
+                </MuiTooltip>
               </span>
             </ClickAwayListener>
           );

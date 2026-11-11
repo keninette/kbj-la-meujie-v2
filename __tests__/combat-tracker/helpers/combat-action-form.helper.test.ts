@@ -5,7 +5,14 @@ import {
   applyHealToCharacter,
   resetRevivedCharacter,
 } from "@/app/combat-tracker/_components/combat-action-form/combat-action-form.helper";
+import { EMPTY_CONDITION_DRAFT } from "@/app/combat-tracker/_lib/combat-condition.helper";
 import { buildCharacter } from "../_fixtures/combat-tracker.fixtures";
+
+// dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
+jest.mock("../../../app/_dictionaries/dictionnary", () => ({
+  translate: (key: string) => key,
+  hasTranslation: () => false,
+}));
 
 describe("applyDamageToCharacter", () => {
   it("applies damage to temporary HP, alternative HP, then regular HP", () => {
@@ -128,7 +135,7 @@ describe("resetRevivedCharacter", () => {
       isDying: true,
       isDead: false,
       deathSaveThrowsLeft: 1,
-      states: [{ id: "state-1", name: "Restrained" }],
+      conditions: [{ id: "condition-1", name: "Restrained" }],
     });
 
     expect(resetRevivedCharacter(character)).toMatchObject({
@@ -138,13 +145,13 @@ describe("resetRevivedCharacter", () => {
       isDying: false,
       isDead: false,
       deathSaveThrowsLeft: 3,
-      states: [],
+      conditions: [],
     });
-    expect(character.states).toHaveLength(1);
+    expect(character.conditions).toHaveLength(1);
   });
 });
 
-describe("applyCombatActionFormValues inflicted state", () => {
+describe("applyCombatActionFormValues inflicted condition", () => {
   const values: CombatActionFormValues = {
     attackTargetId: "",
     attackDamage: 0,
@@ -152,27 +159,33 @@ describe("applyCombatActionFormValues inflicted state", () => {
     healAmount: 0,
     spellUsedName: "",
     spellUsedLevel: null,
-    inflictedStateTargetId: "goblin",
-    inflictedStateName: "Poisoned",
-    inflictedStateDuration: 3,
-    inflictedStateSaveThrowStat: "",
-    inflictedStateSaveThrowDc: null,
+    inflictedConditionTargetId: "goblin",
+    inflictedCondition: {
+      ...EMPTY_CONDITION_DRAFT,
+      name: "Poisoned",
+      duration: "3",
+    },
     reviveTargetId: "",
     reanimateTargetId: "",
   };
-  const characters = [buildCharacter({ id: "goblin", states: [] })];
+  const characters = [buildCharacter({ id: "goblin", conditions: [] })];
 
-  it("stores the turn the state was applied on", () => {
+  it("stores the turn the condition was applied on", () => {
     const { characters: updated } = applyCombatActionFormValues(
       characters,
       "goblin",
       values,
-      () => "state-1",
+      () => "condition-1",
       2,
     );
 
-    expect(updated[0].states).toEqual([
-      { id: "state-1", name: "Poisoned", numberOfTurns: 3, appliedOnTurn: 2 },
+    expect(updated[0].conditions).toEqual([
+      {
+        id: "condition-1",
+        name: "Poisoned",
+        numberOfTurns: 3,
+        appliedOnTurn: 2,
+      },
     ]);
   });
 
@@ -181,9 +194,9 @@ describe("applyCombatActionFormValues inflicted state", () => {
       characters,
       "goblin",
       values,
-      () => "state-1",
+      () => "condition-1",
     );
 
-    expect(updated[0].states?.[0].appliedOnTurn).toBeUndefined();
+    expect(updated[0].conditions?.[0].appliedOnTurn).toBeUndefined();
   });
 });

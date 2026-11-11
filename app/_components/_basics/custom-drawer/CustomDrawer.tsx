@@ -12,10 +12,7 @@ type DrawerProps = {
   isOpened: boolean;
   onClose: () => void;
   title: string;
-  /** Scrolls between the title and the actions */
   children: React.ReactNode;
-  /** Always visible at the bottom, e.g. the buttons of a form. Buttons
-   * outside of the content can submit a form with their `form` attribute. */
   actions?: React.ReactNode;
 };
 
@@ -51,7 +48,7 @@ const CustomDrawer = ({
             {/* Only closes: whatever is in the drawer is not saved */}
             <IconButton
               variant={ButtonVariant.TERTIARY}
-              tooltip={translate("close", "layout")}
+              tooltip={translate("customDrawer.close", "components")}
               faIcon="xmark"
               faIconStyle={FaIconStyleEnum.SOLID}
               onClick={onClose}

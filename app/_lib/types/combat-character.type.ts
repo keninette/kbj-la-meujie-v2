@@ -1,7 +1,7 @@
 import { AbilityEnum } from "../enums/ability.enum";
 import { NpcAttitudeEnum } from "../enums/npc-attitude.enum";
 import { CombatAction } from "./combat-action.type";
-import { CombatState } from "./combat-state.type";
+import { CombatCondition } from "./combat-condition.type";
 
 export type CombatCharacter = {
   id: string;
@@ -30,7 +30,7 @@ export type CombatCharacter = {
   abilities?: Partial<Record<AbilityEnum, number>>;
   savingThrows?: Partial<Record<AbilityEnum, number>>;
   spellSlotsLeft?: Record<string, number>;
-  states?: CombatState[];
+  conditions?: CombatCondition[];
   passives?: string[];
   actions?: CombatAction[];
   usableObjects?: string[];

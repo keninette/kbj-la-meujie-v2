@@ -1,0 +1,16 @@
+.condition-chip {
+  &__tooltip {
+    display: block;
+  }
+
+  &__switch {
+    float: right;
+    margin: 0 0 var(--spacing-padding--button) var(--spacing-padding--button);
+  }
+
+  &__wiki-link {
+    display: block;
+    width: fit-content;
+    margin-top: var(--spacing-padding--button);
+  }
+}

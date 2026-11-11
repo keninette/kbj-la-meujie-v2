@@ -1,5 +1,6 @@
 import { cx } from "@/app/_lib/class-names";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
+import Tooltip from "@/app/_components/_basics/tooltip/Tooltip";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import {
@@ -34,40 +35,41 @@ const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
   const tooltip = cost.amount > 1 ? `${label} ×${cost.amount}` : label;
 
   return (
-    <span
-      className={styles["action-cost"]}
-      title={tooltip}
-      role="img"
-      aria-label={tooltip}
-      data-testid={`action-cost-${cost.kind}`}
-    >
-      {cost.kind === ActionCostKind.RESOURCE ? (
-        <FontAwesomeIcon
-          faIcon="wand-sparkles"
-          faIconStyle={FaIconStyleEnum.SOLID}
-          className={styles["action-cost__wand"]}
-          aria-hidden
-        />
-      ) : (
-        <span
-          className={cx(
-            styles["action-cost__shape"],
-            // BEM modifiers are in kebab-case: "spellSlot" -> "spell-slot"
-            styles[
-              `action-cost__shape--${cost.kind === ActionCostKind.SPELL_SLOT ? "spell-slot" : cost.kind}`
-            ],
-          )}
-          aria-hidden
-        >
-          {cost.kind === ActionCostKind.SPELL_SLOT ? cost.resource : null}
-        </span>
-      )}
-      {cost.amount > 1 && (
-        <span className={styles["action-cost__amount"]} aria-hidden>
-          ×{cost.amount}
-        </span>
-      )}
-    </span>
+    <Tooltip content={tooltip}>
+      <span
+        className={styles["action-cost"]}
+        role="img"
+        aria-label={tooltip}
+        data-testid={`action-cost-${cost.kind}`}
+      >
+        {cost.kind === ActionCostKind.RESOURCE ? (
+          <FontAwesomeIcon
+            faIcon="wand-sparkles"
+            faIconStyle={FaIconStyleEnum.SOLID}
+            className={styles["action-cost__wand"]}
+            aria-hidden
+          />
+        ) : (
+          <span
+            className={cx(
+              styles["action-cost__shape"],
+              // BEM modifiers are in kebab-case: "spellSlot" -> "spell-slot"
+              styles[
+                `action-cost__shape--${cost.kind === ActionCostKind.SPELL_SLOT ? "spell-slot" : cost.kind}`
+              ],
+            )}
+            aria-hidden
+          >
+            {cost.kind === ActionCostKind.SPELL_SLOT ? cost.resource : null}
+          </span>
+        )}
+        {cost.amount > 1 && (
+          <span className={styles["action-cost__amount"]} aria-hidden>
+            ×{cost.amount}
+          </span>
+        )}
+      </span>
+    </Tooltip>
   );
 };
 
