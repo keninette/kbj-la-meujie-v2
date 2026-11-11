@@ -1,0 +1,61 @@
+.damage-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &__type {
+    &--bludgeoning,
+    &--piercing,
+    &--slashing {
+      color: var(--color-damage--physical);
+    }
+
+    &--acid {
+      color: var(--color-damage--acid);
+    }
+
+    &--cold {
+      color: var(--color-damage--cold);
+    }
+
+    &--fire {
+      color: var(--color-damage--fire);
+    }
+
+    &--force {
+      color: var(--color-damage--force);
+    }
+
+    &--lightning {
+      color: var(--color-damage--lightning);
+    }
+
+    &--necrotic {
+      color: var(--color-damage--necrotic);
+    }
+
+    &--poison {
+      color: var(--color-damage--poison);
+    }
+
+    &--psychic {
+      color: var(--color-damage--psychic);
+    }
+
+    &--radiant {
+      color: var(--color-damage--radiant);
+    }
+
+    &--thunder {
+      color: var(--color-damage--thunder);
+    }
+
+    &--healing {
+      color: var(--color-damage--healing);
+    }
+  }
+}

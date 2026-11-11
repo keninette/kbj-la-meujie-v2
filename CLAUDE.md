@@ -21,6 +21,8 @@
 
 Scratchie: a Next.js (App Router) app for tabletop RPG game masters, in French. It has adventures (stored in Supabase) and a D&D / Baldur's Gate 3 combat tracker (stored in the browser's local storage, with characters imported from bg3.wiki).
 
+**Before changing the wiki import, read `app/combat-tracker/_lib/bg3-wiki/README.md`** (how it works, the Cargo tables, the translations, the pitfalls already met), and update it with what you change or learn.
+
 ## Code structure and naming
 
 - `app/_components/_basics/`: shared components, used across the whole app. **Look here before creating a component**, and extend one rather than duplicating it (see below).

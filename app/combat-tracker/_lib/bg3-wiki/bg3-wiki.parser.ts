@@ -1,11 +1,11 @@
 import { CombatCharacter } from "@/app/_lib/types/combat-character.type";
-import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import { BG3_WIKI_HOST } from "./bg3-wiki.images";
 import { ABILITIES, AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   getAbilityModifier,
   getProficiencyBonus,
 } from "@/app/combat-tracker/_lib/ability.helper";
+import { normalizeActionResourceId } from "@/app/combat-tracker/_lib/bg3-action-resources";
 
 export { BG3_WIKI_HOST, isBg3WikiImage } from "./bg3-wiki.images";
 
@@ -238,14 +238,7 @@ const splitList = (value: string | undefined): string[] =>
     .map((item) => item.trim())
     .filter(Boolean);
 
-/**
- * Spell slots are keyed by their level, like the ones added manually:
- * "spell2" -> "2", other resources keep their name ("wldshp").
- */
-export const normalizeResourceName = (name: string): string =>
-  name.trim().replace(/^spell(\d+)$/i, "$1");
-
-/** "spell1:4, spell2:3, wldshp:2" -> { "1": 4, "2": 3, "wldshp": 2 } */
+/** "spell1:4, spell2:3, ws:2" -> { "1": 4, "2": 3, "wldshp": 2 } */
 export const parseResources = (
   value: string | undefined,
 ): Record<string, number> => {
@@ -256,7 +249,7 @@ export const parseResources = (
       continue;
     }
     // "chaoat" alone is a single use
-    resources[normalizeResourceName(rawName)] = rawCount
+    resources[normalizeActionResourceId(rawName)] = rawCount
       ? toNumber(rawCount)
       : 1;
   }
@@ -295,7 +288,7 @@ export const buildWikiLink = (pageTitle: string): string => {
 };
 
 /** "str = 16, dex = 12..." -> { str: 16, dex: 12 }, missing ones are skipped */
-export const parseAbilities = (
+const parseAbilities = (
   get: (field: string) => string | undefined,
 ): Partial<Record<AbilityEnum, number>> =>
   Object.fromEntries(
@@ -352,16 +345,12 @@ export const buildShortDescription = (
 export const buildCharacterFromInfobox = (
   fields: Record<string, string>,
   pageTitle: string,
-  {
-    imageUrl,
-    actions = [],
-  }: { imageUrl?: string; actions?: CombatAction[] } = {},
 ): WikiCharacter => {
   const get = (field: string) => getHighestDifficultyValue(fields, field);
 
   const hp = toNumber(get("hp"));
   const shortDescription = buildShortDescription(get);
-  const spellSlotsLeft = parseResources(get("resources"));
+  const actionResourcesLeft = parseResources(get("resources"));
   const passives = [
     ...splitList(get("passives")),
     ...splitList(get("resistances")),
@@ -376,7 +365,6 @@ export const buildCharacterFromInfobox = (
   return {
     name: get("name") || pageTitle.replaceAll("_", " "),
     ...(shortDescription ? { shortDescription } : {}),
-    ...(imageUrl ? { imageUrl } : {}),
     wikiLink: buildWikiLink(pageTitle),
     hp,
     maxHp: hp,
@@ -392,8 +380,7 @@ export const buildCharacterFromInfobox = (
     ...(level ? { proficiencyBonus: getProficiencyBonus(level) } : {}),
     ...(Object.keys(abilities).length ? { abilities } : {}),
     ...(Object.keys(savingThrows).length ? { savingThrows } : {}),
-    ...(Object.keys(spellSlotsLeft).length ? { spellSlotsLeft } : {}),
+    ...(Object.keys(actionResourcesLeft).length ? { actionResourcesLeft } : {}),
     ...(passives.length ? { passives } : {}),
-    ...(actions.length ? { actions } : {}),
   };
 };

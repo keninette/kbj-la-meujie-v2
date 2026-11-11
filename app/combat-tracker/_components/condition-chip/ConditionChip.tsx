@@ -10,7 +10,8 @@ import {
   getConditionName,
 } from "@/app/combat-tracker/_lib/combat-condition.helper";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
-import ConditionTooltip from "./ConditionTooltip";
+import TranslatedTooltip from "@/app/combat-tracker/_components/translated-tooltip/TranslatedTooltip";
+import { getConditionText } from "@/app/combat-tracker/_lib/condition-text.helper";
 
 type ConditionChipProps = {
   condition: CombatCondition;
@@ -63,7 +64,17 @@ const ConditionChip = ({
           </>
         )
       }
-      tooltip={bg3Condition && <ConditionTooltip bg3Condition={bg3Condition} />}
+      tooltip={
+        bg3Condition && (
+          <TranslatedTooltip
+            descriptions={{
+              fr: getConditionText(bg3Condition, "fr").description,
+              en: getConditionText(bg3Condition, "en").description,
+            }}
+            wikiLink={bg3Condition.wikiLink}
+          />
+        )
+      }
       deleteAction={{
         onClick: onRemove,
         tooltip: translate("form.remove", "combatTracker"),

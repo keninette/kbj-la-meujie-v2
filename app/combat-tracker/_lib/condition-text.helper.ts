@@ -1,7 +1,6 @@
 import { hasTranslation, translate } from "@/app/_dictionaries/dictionnary";
+import type { TextLanguage } from "@/app/_lib/types/text-language.type";
 import type { Bg3Condition } from "./bg3-conditions";
-
-export type ConditionLanguage = "fr" | "en";
 
 /**
  * Name and description of a condition. In french, falls back on the original
@@ -9,7 +8,7 @@ export type ConditionLanguage = "fr" | "en";
  */
 export const getConditionText = (
   condition: Bg3Condition,
-  language: ConditionLanguage = "fr",
+  language: TextLanguage = "fr",
 ): { name: string; description: string } => {
   const getText = (field: "name" | "description"): string => {
     const key = `${condition.id}.${field}`;

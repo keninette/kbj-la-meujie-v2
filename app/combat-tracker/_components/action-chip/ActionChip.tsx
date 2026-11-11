@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import DetailedChip from "@/app/_components/_basics/detailed-chip/DetailedChip";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
@@ -8,6 +9,13 @@ import {
   describeActionDetails,
   parseActionCost,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
+import DamageText from "@/app/combat-tracker/_components/damage-text/DamageText";
+import { splitResourceVariant } from "@/app/combat-tracker/_lib/action-resource.helper";
+import {
+  getActionText,
+  isActionTranslated,
+} from "@/app/combat-tracker/_lib/action-text.helper";
+import TranslatedTooltip from "@/app/combat-tracker/_components/translated-tooltip/TranslatedTooltip";
 import ActionCostIcon from "./ActionCostIcon";
 
 type ActionChipProps = {
@@ -18,11 +26,35 @@ type ActionChipProps = {
   onRemove?: () => void;
 };
 
-/** An action: icon, name, costs and details. Its description in a tooltip. */
+/**
+ * An action: icon, name (in french when translated), costs and details. Its
+ * item, description and wiki link in a tooltip, with its original name when
+ * the chip shows another one.
+ */
 const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
   const costs = action.costs
     .map(parseActionCost)
     .filter((cost) => cost.kind !== group);
+  const french = getActionText(action, "fr");
+  // Not translated and named after its class resource: "Forme sauvage" for
+  // "Wild Shape: Bear", whose name moves to the tooltip, and its variant
+  // ("Bear") to the subtitle, to tell the forms apart
+  const resourceVariant = isActionTranslated(action)
+    ? undefined
+    : splitResourceVariant(action);
+  const title = resourceVariant?.resourceName ?? french.name;
+  const variant = resourceVariant?.variant;
+  // "Bear · 2d6+FOR [icon] Tranchant · 1d4 [icon] Feu · CON · concentration"
+  const details = [
+    variant,
+    ...(action.damages ?? []).map((damage, index) => (
+      <DamageText key={`damage-${index}`} damage={damage} />
+    )),
+    describeActionDetails(action),
+  ].filter(Boolean);
+  const tooltipTitle = [title !== action.name && action.name, action.item]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <DetailedChip
@@ -36,12 +68,31 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
           />
         ) : undefined
       }
-      title={action.name}
+      title={title}
       titleAdornment={costs.map((cost, index) => (
         <ActionCostIcon key={`${cost.kind}-${index}`} cost={cost} />
       ))}
-      subtitle={describeActionDetails(action)}
-      tooltip={action.description}
+      subtitle={
+        details.length > 0 &&
+        details.map((detail, index) => (
+          <Fragment key={index}>
+            {index > 0 && " · "}
+            {detail}
+          </Fragment>
+        ))
+      }
+      tooltip={
+        (tooltipTitle || french.description || action.wikiLink) && (
+          <TranslatedTooltip
+            title={tooltipTitle}
+            descriptions={{
+              fr: french.description,
+              en: getActionText(action, "en").description,
+            }}
+            wikiLink={action.wikiLink}
+          />
+        )
+      }
       deleteAction={
         onRemove && {
           onClick: onRemove,

@@ -29,7 +29,9 @@ export type CombatCharacter = {
   proficiencyBonus?: number;
   abilities?: Partial<Record<AbilityEnum, number>>;
   savingThrows?: Partial<Record<AbilityEnum, number>>;
-  spellSlotsLeft?: Record<string, number>;
+  /** Uses left of each action resource, by id: "2" (a level 2 spell slot),
+   * "wldshp"... (see bg3-action-resources.ts) */
+  actionResourcesLeft?: Record<string, number>;
   conditions?: CombatCondition[];
   passives?: string[];
   actions?: CombatAction[];

@@ -1,0 +1,23 @@
+.action-resource-icon {
+  &__spell-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+
+    background-color: var(--color-spell-slot);
+    border-radius: var(--radius--spell-level);
+    color: var(--color-spell-slot-text);
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+
+  &__image {
+    flex-shrink: 0;
+  }
+
+  &__wand {
+    color: var(--color-link);
+  }
+}

@@ -8,6 +8,7 @@ import {
 } from "@testing-library/react";
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
+import { DamageTypeEnum } from "@/app/_lib/enums/damage-type.enum";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import CombatActionForm from "@/app/combat-tracker/_components/combat-action-form/CombatActionForm";
 import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
@@ -15,9 +16,11 @@ import CharacterStats from "@/app/combat-tracker/_components/character-stats/Cha
 import { buildCharacter } from "./_fixtures/combat-tracker.fixtures";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
+// Only Fire Bolt is translated
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
-  hasTranslation: () => false,
+  hasTranslation: (key: string, namespace: string) =>
+    namespace === "dndActions" && key.startsWith("fire-bolt."),
 }));
 
 // Never call the real wiki from the tests
@@ -291,7 +294,7 @@ describe("EditCharacterForm import from wiki", () => {
           {
             name: "Moonbeam",
             costs: ["action", "2"],
-            damages: [{ dice: "2d10", type: "Radiant" }],
+            damages: [{ dice: "2d10", type: DamageTypeEnum.RADIANT }],
             save: "CON",
             isConcentration: true,
           },
@@ -311,13 +314,13 @@ describe("EditCharacterForm import from wiki", () => {
 
     const moonbeam = screen.getByTestId("action-chip");
     expect(moonbeam).toHaveTextContent(
-      "2d10 Radiant · CON · actions.concentration",
+      "2d10 damageType.radiant · CON · actions.concentration",
     );
     expect(
       within(moonbeam).getByTestId("action-cost-action"),
     ).toBeInTheDocument();
     expect(
-      within(moonbeam).getByTestId("action-cost-spellSlot"),
+      within(moonbeam).getByTestId("action-cost-actionResource"),
     ).toHaveTextContent("2");
     expect(screen.getByTestId("actions-fieldset")).toHaveClass(
       "container-box--highlighted",
@@ -759,6 +762,33 @@ describe("CharacterStats action tooltip and short description", () => {
     );
   });
 
+  it("shows a translated action in french, and its english description on demand", async () => {
+    renderStats(
+      buildCharacter({
+        actions: [
+          {
+            name: "Fire Bolt",
+            costs: ["action"],
+            description: "Hurl a mote of fire.",
+            wikiLink: "https://bg3.wiki/wiki/Fire_Bolt",
+          },
+        ],
+      }),
+    );
+
+    expect(screen.getByTestId("action-chip")).toHaveTextContent(
+      "fire-bolt.name",
+    );
+    fireEvent.mouseOver(screen.getByTestId("action-chip"));
+    const tooltip = await screen.findByRole("tooltip");
+    expect(tooltip).toHaveTextContent("Fire Bolt");
+    expect(tooltip).toHaveTextContent("fire-bolt.description");
+
+    fireEvent.click(within(tooltip).getByTestId("language-switch"));
+
+    expect(tooltip).toHaveTextContent("Hurl a mote of fire.");
+  });
+
   it("does not display the short description when there is none", () => {
     renderStats(buildCharacter());
 
@@ -816,8 +846,8 @@ describe("CharacterStats conditions", () => {
   });
 });
 
-describe("EditCharacterForm spell slots", () => {
-  it("adds a spell slot with a free-text name", () => {
+describe("EditCharacterForm action resources", () => {
+  it("adds an action resource by its id, however it is written", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -827,21 +857,21 @@ describe("EditCharacterForm spell slots", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("spellSlotName"), {
+    fireEvent.change(screen.getByTestId("actionResourceName"), {
       target: { value: " Rage " },
     });
     fireEvent.change(screen.getByLabelText("form.value"), {
       target: { value: "4" },
     });
-    fireEvent.click(screen.getByTestId("addSpellSlot"));
+    fireEvent.click(screen.getByTestId("addActionResource"));
     fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ spellSlotsLeft: { Rage: 4 } }),
+      expect.objectContaining({ actionResourcesLeft: { rage: 4 } }),
     );
   });
 
-  it("adds a spell slot on Enter, without submitting the form", () => {
+  it("adds an action resource on Enter, without submitting the form", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -851,20 +881,22 @@ describe("EditCharacterForm spell slots", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("spellSlotName"), {
+    fireEvent.change(screen.getByTestId("actionResourceName"), {
       target: { value: "1" },
     });
-    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+    fireEvent.change(screen.getByTestId("actionResourceValue"), {
       target: { value: "3" },
     });
-    fireEvent.keyDown(screen.getByTestId("spellSlotValue"), { key: "Enter" });
+    fireEvent.keyDown(screen.getByTestId("actionResourceValue"), {
+      key: "Enter",
+    });
 
     expect(onSubmit).not.toHaveBeenCalled();
-    expect(screen.getByTestId("spellSlotName")).toHaveValue("");
+    expect(screen.getByTestId("actionResourceName")).toHaveValue("");
 
     fireEvent.submit(screen.getByTestId("edit-character-form"));
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ spellSlotsLeft: { 1: 3 } }),
+      expect.objectContaining({ actionResourcesLeft: { 1: 3 } }),
     );
   });
 });
@@ -874,7 +906,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     const attacker = buildCharacter({
       id: "attacker",
       name: "Attacker",
-      spellSlotsLeft: { 1: 2 },
+      actionResourcesLeft: { 1: 2 },
     });
     const target = buildCharacter({ id: "target", name: "Target" });
     const onCharactersChange = jest.fn();
@@ -909,7 +941,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     expect(
       updatedCharacters.find(
         (character: CombatCharacter) => character.id === attacker.id,
-      ).spellSlotsLeft[1],
+      ).actionResourcesLeft[1],
     ).toBe(1);
     expect(
       updatedCharacters.find(
@@ -1251,7 +1283,7 @@ describe("EditCharacterForm save and restart", () => {
     expect(screen.getByTestId("name")).toHaveValue("Goblin");
   });
 
-  it("is not blocked by a condition or spell slot that was never added", () => {
+  it("is not blocked by a condition or action resource that was never added", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
@@ -1265,7 +1297,7 @@ describe("EditCharacterForm save and restart", () => {
     fireEvent.change(screen.getByTestId("conditionDuration"), {
       target: { value: "0" },
     });
-    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+    fireEvent.change(screen.getByTestId("actionResourceValue"), {
       target: { value: "-1" },
     });
     fireEvent.click(screen.getByTestId("save-and-restart"));
@@ -1273,7 +1305,7 @@ describe("EditCharacterForm save and restart", () => {
     expect(onSaveAndRestart).toHaveBeenCalledTimes(1);
     const [saved] = onSaveAndRestart.mock.calls[0];
     expect(saved.conditions ?? []).toEqual([]);
-    expect(saved.spellSlotsLeft ?? {}).toEqual({});
+    expect(saved.actionResourcesLeft ?? {}).toEqual({});
   });
 
   it("does nothing when the form is empty", () => {

@@ -106,19 +106,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     opacity: var(--opacity--disabled);
   }
 
-  &__spell-level {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.1rem;
-    height: 1rem;
-
-    background-color: var(--color-spell-slot);
-    border-radius: var(--radius--spell-level);
-    color: var(--color-spell-slot-text);
-    font-weight: bold;
-  }
-
   &__action-groups {
     display: flex;
     flex-direction: column;
