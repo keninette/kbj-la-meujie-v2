@@ -1,38 +1,37 @@
 @use "./variables.sys";
 @use "./mixins";
 
-.page {
-  color: var(--color-text--dark);
+.layout {
+  height: 100dvh;
 
-  &__root {
-    height: 100dvh;
+  background: radial-gradient(
+    circle,
+    var(--color-background-gradient--center) 5%,
+    var(--color-background-gradient--borders) 85%
+  );
 
-    background: radial-gradient(
-      circle,
-      var(--color-background-gradient--center) 5%,
-      var(--color-background-gradient--borders) 85%
-    );
+  @include mixins.scrollbar;
 
-    @include mixins.scrollbar;
+  &__page {
+    color: var(--color-text--dark);
+  }
 
-    &:has([data-fit-viewport]) {
-      body {
-        height: 100%;
-        margin: 0;
-      }
+  /* A page with data-fit-viewport fills the screen instead of scrolling */
+  &:has([data-fit-viewport]) &__body {
+    height: 100%;
+    margin: 0;
+  }
 
-      .page {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-      }
+  &:has([data-fit-viewport]) &__page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 
-      main {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        min-height: 0;
-      }
-    }
+  &:has([data-fit-viewport]) &__main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
   }
 }

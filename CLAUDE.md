@@ -57,7 +57,8 @@ Use them instead of raw HTML elements:
   - everything in kebab-case, including modifiers built from values in the code (convert `spellSlot` to `spell-slot`);
   - **no element inside an element** (`__line__title`): use a new element (`__line-title`);
   - **no tag selectors** (`.block li`, `.block a`): give the element a class;
-  - a modifier class is always applied with its base class: `cx(styles["chip"], styles["chip--empty"])`.
+  - a modifier class is always applied with its base class: `cx(styles["chip"], styles["chip--empty"])`;
+  - **comments are `/* */`, never `//`**: the linter reads plain CSS, so a `//` comment becomes part of the next selector, or breaks the file.
 - **Variables: tokens and sys.**
   - `app/variables.token.scss` holds the raw values (`--color-default-blue--primary: #3b5bdb`, `--spacing--xs`, `--radius--s`…). Tokens are only used in `variables.sys.scss`.
   - `app/variables.sys.scss` gives them a meaning (`--color-border--light`, `--spacing-padding--text`, `--radius--field`…). **Components only use sys variables.**

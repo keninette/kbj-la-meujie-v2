@@ -1,11 +1,9 @@
-// Same layout as the character form: one section after another
 .combat-action-form {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-layout-section-content-margin);
   min-width: 25rem;
 
-  // The actions validated so far, saved with the form
   &__history {
     display: flex;
     flex-direction: column;

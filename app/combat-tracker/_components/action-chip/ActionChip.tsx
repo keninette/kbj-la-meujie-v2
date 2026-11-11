@@ -1,3 +1,4 @@
+import { cx } from "@/app/_lib/class-names";
 import Tooltip from "@mui/material/Tooltip";
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
@@ -28,7 +29,10 @@ const ActionChip = ({ action, onRemove }: ActionChipProps) => {
 
   const chip = (
     <span
-      className={styles["action-chip"]}
+      className={cx(
+        styles["action-chip"],
+        action.description && styles["action-chip--with-description"],
+      )}
       tabIndex={action.description ? 0 : undefined}
       data-testid="action-chip"
     >
