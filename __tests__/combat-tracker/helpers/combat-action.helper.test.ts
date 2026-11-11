@@ -1,3 +1,4 @@
+import { DamageTypeEnum } from "@/app/_lib/enums/damage-type.enum";
 import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   ActionCostKind,
@@ -62,11 +63,15 @@ describe("parseActionCost", () => {
 
 describe("describeDamage", () => {
   it.each([
-    ["a spell's damage", { dice: "2d10", type: "Radiant" }, "2d10 Radiant"],
+    [
+      "a spell's damage without its type",
+      { dice: "2d10", type: DamageTypeEnum.RADIANT },
+      "2d10",
+    ],
     [
       "a weapon's damage with its ability",
-      { dice: "2d6", abilities: [AbilityEnum.STRENGTH], type: "Slashing" },
-      "2d6+ability.str Slashing",
+      { dice: "2d6", abilities: [AbilityEnum.STRENGTH] },
+      "2d6+ability.str",
     ],
     [
       "a versatile weapon with both abilities of a finesse one",
@@ -74,9 +79,8 @@ describe("describeDamage", () => {
         dice: "1d6",
         versatileDice: "1d8",
         abilities: [AbilityEnum.STRENGTH, AbilityEnum.DEXTERITY],
-        type: "Bludgeoning",
       },
-      "1d6 (1d8)+ability.str/ability.dex Bludgeoning",
+      "1d6 (1d8)+ability.str/ability.dex",
     ],
   ])("writes %s", (_, damage, expected) => {
     expect(describeDamage(damage)).toBe(expected);
@@ -88,14 +92,12 @@ describe("describeActionDetails", () => {
     name: "Moonbeam",
     item: "Staff",
     costs: ["action", "2"],
-    damages: [{ dice: "2d10", type: "Radiant" }],
+    damages: [{ dice: "2d10", type: DamageTypeEnum.RADIANT }],
     save: "CON",
     isConcentration: true,
   };
 
-  it("describes the action without its costs nor its item", () => {
-    expect(describeActionDetails(moonbeam)).toBe(
-      "2d10 Radiant · CON · actions.concentration",
-    );
+  it("describes the action without its costs, item nor damages", () => {
+    expect(describeActionDetails(moonbeam)).toBe("CON · actions.concentration");
   });
 });

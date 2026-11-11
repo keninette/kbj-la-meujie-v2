@@ -1,3 +1,4 @@
+import { DamageTypeEnum } from "@/app/_lib/enums/damage-type.enum";
 import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   buildCombatActions,
@@ -8,6 +9,7 @@ import {
   findWeaponItems,
   getWeaponDamages,
   parseCosts,
+  parseDamageType,
   uniqueFeatureBoxes,
   WikiActionRow,
   WikiWeaponRow,
@@ -53,6 +55,18 @@ const row = (values: Partial<WikiActionRow>): WikiActionRow => ({
 });
 
 describe("bg3-wiki combat actions parser", () => {
+  describe("parseDamageType", () => {
+    it.each([
+      ["Fire", DamageTypeEnum.FIRE],
+      [" bludgeoning ", DamageTypeEnum.BLUDGEONING],
+      ["Healing", DamageTypeEnum.HEALING],
+      ["Weapon", undefined],
+      [null, undefined],
+    ])("reads %p as %p", (value, expected) => {
+      expect(parseDamageType(value)).toBe(expected);
+    });
+  });
+
   describe("extractFeatureBoxes", () => {
     it("reads the boxes of the 'Attacks and actions' section only, once each", () => {
       expect(extractFeatureBoxes(KAGHA_COMBAT)).toEqual([
@@ -256,7 +270,7 @@ describe("bg3-wiki combat actions parser", () => {
           type: "spell",
           costs: ["action", "2"],
           spellLevel: 2,
-          damages: [{ dice: "2d10", type: "Radiant" }],
+          damages: [{ dice: "2d10", type: DamageTypeEnum.RADIANT }],
           save: "CON",
           isConcentration: true,
           description: "Call down a beam of light.",
@@ -319,8 +333,12 @@ describe("bg3-wiki combat actions parser", () => {
   describe("getWeaponDamages", () => {
     it("adds FOR to a melee weapon's damage, not to its extra damage", () => {
       expect(getWeaponDamages(weapon({}), {})).toEqual([
-        { dice: "2d6", abilities: [AbilityEnum.STRENGTH], type: "Slashing" },
-        { dice: "1d4", type: "Fire" },
+        {
+          dice: "2d6",
+          abilities: [AbilityEnum.STRENGTH],
+          type: DamageTypeEnum.SLASHING,
+        },
+        { dice: "1d4", type: DamageTypeEnum.FIRE },
       ]);
     });
 
@@ -389,7 +407,11 @@ describe("bg3-wiki combat actions parser", () => {
         },
       );
       expect(attack.damages).toEqual([
-        { dice: "1d4", abilities: [AbilityEnum.STRENGTH], type: "Bludgeoning" },
+        {
+          dice: "1d4",
+          abilities: [AbilityEnum.STRENGTH],
+          type: DamageTypeEnum.BLUDGEONING,
+        },
       ]);
     });
 

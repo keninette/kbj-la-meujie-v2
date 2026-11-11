@@ -8,6 +8,7 @@ import {
 } from "@testing-library/react";
 import { CombatCharacter } from "@lib/types/combat-character.type";
 import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
+import { DamageTypeEnum } from "@/app/_lib/enums/damage-type.enum";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import CombatActionForm from "@/app/combat-tracker/_components/combat-action-form/CombatActionForm";
 import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
@@ -291,7 +292,7 @@ describe("EditCharacterForm import from wiki", () => {
           {
             name: "Moonbeam",
             costs: ["action", "2"],
-            damages: [{ dice: "2d10", type: "Radiant" }],
+            damages: [{ dice: "2d10", type: DamageTypeEnum.RADIANT }],
             save: "CON",
             isConcentration: true,
           },
@@ -311,7 +312,7 @@ describe("EditCharacterForm import from wiki", () => {
 
     const moonbeam = screen.getByTestId("action-chip");
     expect(moonbeam).toHaveTextContent(
-      "2d10 Radiant · CON · actions.concentration",
+      "2d10 damageType.radiant · CON · actions.concentration",
     );
     expect(
       within(moonbeam).getByTestId("action-cost-action"),

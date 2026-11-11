@@ -51,8 +51,9 @@ export const parseActionCost = (cost: string): ActionCost => {
 };
 
 /**
- * "2d10 Radiant", or for a weapon "1d6 (1d8)+FOR Bludgeoning": its two-handed
- * damage in brackets, then the ability added ("FOR/DEX" when either may be)
+ * The dice of a damage, without its type (DamageText shows it): "2d10", or
+ * for a weapon "1d6 (1d8)+FOR": its two-handed damage in brackets, then the
+ * ability added ("FOR/DEX" when either may be)
  */
 export const describeDamage = (damage: CombatActionDamage): string => {
   const versatile = damage.versatileDice ? ` (${damage.versatileDice})` : "";
@@ -61,18 +62,15 @@ export const describeDamage = (damage: CombatActionDamage): string => {
         .map((ability) => translate(`ability.${ability}`, "combatTracker"))
         .join("/")}`
     : "";
-  return [`${damage.dice}${versatile}${abilities}`, damage.type]
-    .filter(Boolean)
-    .join(" ");
+  return `${damage.dice}${versatile}${abilities}`;
 };
 
 /**
- * What the action does, without its costs nor its item (in its tooltip):
- * "2d10 Radiant · CON · concentration · Short rest"
+ * What the action does besides its damages (DamageText shows them), costs
+ * and item (in its tooltip): "CON · concentration · Short rest"
  */
 export const describeActionDetails = (action: CombatAction): string =>
   [
-    ...(action.damages ?? []).map(describeDamage),
     action.save,
     action.isConcentration
       ? translate("actions.concentration", "combatTracker")

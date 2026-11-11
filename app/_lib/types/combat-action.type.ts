@@ -1,4 +1,5 @@
 import type { AbilityEnum } from "../enums/ability.enum";
+import type { DamageTypeEnum } from "../enums/damage-type.enum";
 
 export type CombatActionDamage = {
   /** "1d8+1", or "weapon" when the weapon is unknown */
@@ -8,7 +9,7 @@ export type CombatActionDamage = {
   /** Ability whose modifier is added to a weapon's damage; both when it's
    * the best of the two and the scores are unknown (a finesse weapon) */
   abilities?: AbilityEnum[];
-  type?: string;
+  type?: DamageTypeEnum;
 };
 
 export type CombatAction = {

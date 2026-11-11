@@ -4,6 +4,10 @@ import {
 } from "@/app/_lib/types/combat-action.type";
 import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
+  DAMAGE_TYPES,
+  DamageTypeEnum,
+} from "@/app/_lib/enums/damage-type.enum";
+import {
   buildWikiLink,
   normalizeResourceName,
   splitTopLevelParams,
@@ -311,10 +315,19 @@ export const cleanDescription = (value: string | null | undefined): string => {
   return stripWikiMarkup(text).replace(/\s+/g, " ").trim();
 };
 
+/**
+ * "Fire" -> fire. A type we don't know ("Weapon", when the weapon isn't
+ * found) is left out.
+ */
+export const parseDamageType = (
+  value: string | null | undefined,
+): DamageTypeEnum | undefined =>
+  DAMAGE_TYPES.find((type) => type === value?.trim().toLowerCase());
+
 const parseDamages = (row: WikiActionRow): CombatActionDamage[] =>
   ([1, 2, 3, 4] as const).flatMap((index) => {
     const dice = row[`damage ${index}`]?.trim();
-    const type = row[`damage ${index} type`]?.trim();
+    const type = parseDamageType(row[`damage ${index} type`]);
     return dice ? [type ? { dice, type } : { dice }] : [];
   });
 
@@ -370,7 +383,7 @@ export const getWeaponDamages = (
   ).flatMap(([extraDice, type]) => {
     const extra = toDice(extraDice);
     return extra
-      ? [definedOnly({ dice: extra, type: type?.trim() || undefined })]
+      ? [definedOnly({ dice: extra, type: parseDamageType(type) })]
       : [];
   });
 
@@ -379,7 +392,7 @@ export const getWeaponDamages = (
       dice,
       versatileDice,
       abilities: getWeaponAbilities(weapon, abilities),
-      type: weapon["damage type"]?.trim() || undefined,
+      type: parseDamageType(weapon["damage type"]),
     }),
     ...extras,
   ];

@@ -1,6 +1,10 @@
 import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { isNpcAttitude } from "@/app/_lib/enums/npc-attitude.enum";
 import { ABILITIES } from "@/app/_lib/enums/ability.enum";
+import {
+  DAMAGE_TYPES,
+  DamageTypeEnum,
+} from "@/app/_lib/enums/damage-type.enum";
 import { Combat } from "../../_lib/types/combat.type";
 import { CombatCharacter } from "../../_lib/types/combat-character.type";
 import { CombatCondition } from "../../_lib/types/combat-condition.type";
@@ -53,7 +57,8 @@ const isCombatActionDamage = (value: unknown): value is CombatActionDamage =>
   (value.abilities === undefined ||
     (Array.isArray(value.abilities) &&
       value.abilities.every((ability) => ABILITIES.includes(ability)))) &&
-  isOptional(value.type, "string");
+  (value.type === undefined ||
+    DAMAGE_TYPES.includes(value.type as DamageTypeEnum));
 
 const isCombatAction = (value: unknown): value is CombatAction =>
   isRecord(value) &&

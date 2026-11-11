@@ -1,3 +1,4 @@
+import { DamageTypeEnum } from "@/app/_lib/enums/damage-type.enum";
 import {
   loadCombat,
   saveCombat,
@@ -54,7 +55,7 @@ describe("loadCombat", () => {
             type: "spell",
             costs: ["action", "2"],
             spellLevel: 2,
-            damages: [{ dice: "2d10", type: "Radiant" }],
+            damages: [{ dice: "2d10", type: DamageTypeEnum.RADIANT }],
             save: "CON",
             isConcentration: true,
             description: "Call down a beam of light.",
@@ -127,6 +128,18 @@ describe("loadCombat", () => {
       "an action with a damage without dice",
       withCharacter({
         actions: [{ name: "Moonbeam", costs: [], damages: [{}] }],
+      }),
+    ],
+    [
+      "an action with an unknown damage type",
+      withCharacter({
+        actions: [
+          {
+            name: "Moonbeam",
+            costs: [],
+            damages: [{ dice: "2d10", type: "Radiant" }],
+          },
+        ],
       }),
     ],
     ["an action without name", withCharacter({ actions: [{ costs: [] }] })],
