@@ -16,9 +16,11 @@ import CharacterStats from "@/app/combat-tracker/_components/character-stats/Cha
 import { buildCharacter } from "./_fixtures/combat-tracker.fixtures";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
+// Only Fire Bolt is translated
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
-  hasTranslation: () => false,
+  hasTranslation: (key: string, namespace: string) =>
+    namespace === "dndActions" && key.startsWith("fire-bolt."),
 }));
 
 // Never call the real wiki from the tests
@@ -758,6 +760,33 @@ describe("CharacterStats action tooltip and short description", () => {
     expect(await screen.findByRole("tooltip")).toHaveTextContent(
       "Call down a beam of light.",
     );
+  });
+
+  it("shows a translated action in french, and its english description on demand", async () => {
+    renderStats(
+      buildCharacter({
+        actions: [
+          {
+            name: "Fire Bolt",
+            costs: ["action"],
+            description: "Hurl a mote of fire.",
+            wikiLink: "https://bg3.wiki/wiki/Fire_Bolt",
+          },
+        ],
+      }),
+    );
+
+    expect(screen.getByTestId("action-chip")).toHaveTextContent(
+      "fire-bolt.name",
+    );
+    fireEvent.mouseOver(screen.getByTestId("action-chip"));
+    const tooltip = await screen.findByRole("tooltip");
+    expect(tooltip).toHaveTextContent("Fire Bolt");
+    expect(tooltip).toHaveTextContent("fire-bolt.description");
+
+    fireEvent.click(within(tooltip).getByTestId("language-switch"));
+
+    expect(tooltip).toHaveTextContent("Hurl a mote of fire.");
   });
 
   it("does not display the short description when there is none", () => {

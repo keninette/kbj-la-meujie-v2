@@ -26,6 +26,9 @@ export type FeatureBox = {
   recharge?: string;
 };
 
+/** Dice, or a flat amount the export gives as a number: "1d8", 5 */
+type WikiDice = string | number | null;
+
 /** A row of the wiki's "actions" Cargo table, as exported in JSON */
 export type WikiActionRow = {
   page: string;
@@ -33,13 +36,13 @@ export type WikiActionRow = {
   type?: string | null;
   cost?: string | null;
   "spell level"?: number | string | null;
-  "damage 1"?: string | null;
+  "damage 1"?: WikiDice;
   "damage 1 type"?: string | null;
-  "damage 2"?: string | null;
+  "damage 2"?: WikiDice;
   "damage 2 type"?: string | null;
-  "damage 3"?: string | null;
+  "damage 3"?: WikiDice;
   "damage 3 type"?: string | null;
-  "damage 4"?: string | null;
+  "damage 4"?: WikiDice;
   "damage 4 type"?: string | null;
   save?: string | null;
   "is concentration"?: number | boolean | null;
@@ -78,12 +81,12 @@ export const ACTION_FIELDS = [
  */
 export type WikiWeaponRow = {
   page: string;
-  damage?: string | null;
+  damage?: WikiDice;
   "damage type"?: string | null;
-  "versatile damage"?: string | null;
-  "extra damage"?: string | null;
+  "versatile damage"?: WikiDice;
+  "extra damage"?: WikiDice;
   "extra damage type"?: string | null;
-  "extra damage 2"?: string | null;
+  "extra damage 2"?: WikiDice;
   "extra damage 2 type"?: string | null;
   finesse?: number | boolean | null;
   "melee or ranged"?: string | null;
@@ -109,9 +112,14 @@ const WEAPON_DAMAGE = "weapon";
 const capitalize = (value: string): string =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-/** "Off-Hand_Attack_(Melee)" and "off-Hand Attack (Melee)" are the same page */
+/**
+ * "Off-Hand_Attack_(Melee)" and "off-Hand Attack (Melee)" are the same page.
+ * The tables escape the titles: "Hunter&#039;s Mark" is "Hunter's Mark".
+ */
 const normalizePageName = (page: string): string =>
-  capitalize(page.replaceAll("_", " ").replace(/\s+/g, " ").trim());
+  capitalize(
+    decodeHtmlEntities(page).replaceAll("_", " ").replace(/\s+/g, " ").trim(),
+  );
 
 /**
  * Compares page names without case: character pages may write them in
@@ -311,6 +319,10 @@ const decodeHtmlEntities = (value: string): string => {
  */
 export const cleanDescription = (value: string | null | undefined): string => {
   const text = decodeHtmlEntities(value ?? "")
+    // The wiki's own markers: "Radiant<abbr …>[[…|DRS]]</abbr>[[Category:…]]"
+    // and footnotes: "enraged.<sup>[See: Bugs]</sup>"
+    .replace(/<(abbr|sup)\b[^>]*>[\s\S]*?<\/\1>/gi, "")
+    .replace(/\[\[\s*Category:[^\]]*\]\]/gi, "")
     // Only actual tags: "HP < 50%, else >" is text
     .replace(/<\/?[a-z][a-z0-9-]*(?:\s[^<>]*)?\/?>/gi, "")
     // Icons, which may hold a link: "[[File:x.png|alt=[[Attack Roll]]]]"
@@ -328,16 +340,18 @@ export const parseDamageType = (
 ): DamageTypeEnum | undefined =>
   DAMAGE_TYPES.find((type) => type === value?.trim().toLowerCase());
 
+/** "1d8 + 1" -> "1d8+1", 5 -> "5"; nothing when empty */
+const toDice = (value: WikiDice | undefined): string | undefined =>
+  value === null || value === undefined
+    ? undefined
+    : String(value).replace(/\s+/g, "") || undefined;
+
 const parseDamages = (row: WikiActionRow): CombatActionDamage[] =>
   ([1, 2, 3, 4] as const).flatMap((index) => {
-    const dice = row[`damage ${index}`]?.trim();
+    const dice = toDice(row[`damage ${index}`]);
     const type = parseDamageType(row[`damage ${index} type`]);
     return dice ? [type ? { dice, type } : { dice }] : [];
   });
-
-/** "1d8 + 1" -> "1d8+1"; nothing when empty */
-const toDice = (value: string | null | undefined): string | undefined =>
-  value?.replace(/\s+/g, "") || undefined;
 
 /**
  * The ability added to a weapon's damage: DEX for a ranged weapon, FOR for a
@@ -436,7 +450,7 @@ export const buildCombatAction = (
       : [damage],
   );
   return definedOnly({
-    name: row.name || box.page,
+    name: (row.name && decodeHtmlEntities(row.name)) || box.page,
     type: row.type || undefined,
     // The character page may override the generic cost and recharge
     costs: parseCosts(box.cost ?? row.cost),
@@ -451,7 +465,7 @@ export const buildCombatAction = (
       cleanDescription(row.brief) ||
       undefined,
     iconUrl,
-    wikiLink: buildWikiLink(row.page),
+    wikiLink: buildWikiLink(decodeHtmlEntities(row.page)),
   });
 };
 

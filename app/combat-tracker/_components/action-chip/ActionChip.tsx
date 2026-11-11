@@ -11,6 +11,8 @@ import {
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 import DamageText from "@/app/combat-tracker/_components/damage-text/DamageText";
 import { findClassResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
+import { getActionText } from "@/app/combat-tracker/_lib/action-text.helper";
+import TranslatedTooltip from "@/app/combat-tracker/_components/translated-tooltip/TranslatedTooltip";
 import ActionCostIcon from "./ActionCostIcon";
 
 type ActionChipProps = {
@@ -22,17 +24,21 @@ type ActionChipProps = {
 };
 
 /**
- * An action: icon, name, costs and details. Its item and description in a
- * tooltip, with its original name when the chip shows its class resource's.
+ * An action: icon, name (in french when translated), costs and details. Its
+ * item, description and wiki link in a tooltip, with its original name when
+ * the chip shows another one.
  */
 const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
   const costs = action.costs
     .map(parseActionCost)
     .filter((cost) => cost.kind !== group);
-  // In french when it spends a class resource: "Forme sauvage" for
+  const french = getActionText(action, "fr");
+  // Not translated but spends a class resource: "Forme sauvage" for
   // "Wild Shape: Bear", whose name moves to the tooltip, and its variant
   // ("Bear") to the subtitle, to tell the forms apart
-  const resourceName = findClassResourceName(action);
+  const resourceName =
+    french.name === action.name ? findClassResourceName(action) : undefined;
+  const title = resourceName ?? french.name;
   const variant = resourceName
     ? action.name.split(": ").slice(1).join(": ")
     : undefined;
@@ -44,7 +50,7 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
     )),
     describeActionDetails(action),
   ].filter(Boolean);
-  const tooltipTitle = [resourceName && action.name, action.item]
+  const tooltipTitle = [title !== action.name && action.name, action.item]
     .filter(Boolean)
     .join(" · ");
 
@@ -60,7 +66,7 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
           />
         ) : undefined
       }
-      title={resourceName ?? action.name}
+      title={title}
       titleAdornment={costs.map((cost, index) => (
         <ActionCostIcon key={`${cost.kind}-${index}`} cost={cost} />
       ))}
@@ -75,11 +81,14 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
       }
       tooltip={
         (tooltipTitle || action.description) && (
-          <>
-            {tooltipTitle && <strong>{tooltipTitle}</strong>}
-            {tooltipTitle && action.description && <br />}
-            {action.description}
-          </>
+          <TranslatedTooltip
+            title={tooltipTitle}
+            descriptions={{
+              fr: french.description,
+              en: getActionText(action, "en").description,
+            }}
+            wikiLink={action.wikiLink}
+          />
         )
       }
       deleteAction={

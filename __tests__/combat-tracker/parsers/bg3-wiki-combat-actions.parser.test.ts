@@ -208,6 +208,18 @@ describe("bg3-wiki combat actions parser", () => {
         "Bad &#x110000; code",
         "Bad &#x110000; code",
       ],
+      [
+        // Trimmed from the Divine Smite row
+        "the wiki's markers after a damage type",
+        "additional 2d8 [[Radiant]]&lt;abbr title=&quot;Damage Rider As Source&quot;&gt;[[Damage rider as source|DRS]]&lt;/abbr&gt;[[Category:Damage Rider As Source]] damage",
+        "additional 2d8 Radiant damage",
+      ],
+      [
+        // Trimmed from the Calm Emotions row
+        "the footnotes",
+        "or become enraged.&lt;sup&gt;&#039;&#039;&amp;#91;[[:Calm Emotions#Bugs|See: Bugs]]&amp;#93;&#039;&#039;&lt;/sup&gt;",
+        "or become enraged.",
+      ],
       ["nothing of a missing description", null, ""],
     ])("cleans %s", (_, description, expected) => {
       expect(cleanDescription(description)).toBe(expected);
@@ -223,6 +235,33 @@ describe("bg3-wiki combat actions parser", () => {
       );
 
       expect(actions.map((action) => action.name)).toEqual(["Produce Flame"]);
+    });
+
+    it("reads a flat damage the table gives as a number", () => {
+      const [action] = buildCombatActions(
+        [{ page: "Armour of Agathys" }],
+        [
+          row({
+            page: "Armour of Agathys",
+            "damage 1": 5,
+            "damage 1 type": "Cold",
+          }),
+        ],
+      );
+
+      expect(action.damages).toEqual([
+        { dice: "5", type: DamageTypeEnum.COLD },
+      ]);
+    });
+
+    it("finds the row of a page with an apostrophe, escaped by the table", () => {
+      const [action] = buildCombatActions(
+        [{ page: "Hunter's Mark" }],
+        [row({ page: "Hunter&#039;s Mark", name: "Hunter&#039;s Mark" })],
+      );
+
+      expect(action.name).toBe("Hunter's Mark");
+      expect(action.wikiLink).toBe("https://bg3.wiki/wiki/Hunter's_Mark");
     });
 
     it("builds one action per box, in order, with the page's own row", () => {
