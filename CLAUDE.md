@@ -49,6 +49,7 @@ Use them instead of raw HTML elements:
   - `CustomDrawer`: side panel with a title and separator, scrollable content, and optional `actions` always visible at the bottom. A form shown in a drawer renders the drawer itself and passes its buttons as `actions`, linked to the `<form>` by its id (`form={formId}`). The parent gives it a `key` that changes on each opening, so the form starts empty every time.
   - `CustomDialog`: centered dialog with a title, a close cross and optional `actions`.
 - **Icons**: `FontAwesomeIcon` (Font Awesome kit, web font).
+- **Tooltips**: `Tooltip` (`content` shown above its child on hover and focus; without `content`, only the child). **Never use a native `title` for a tooltip.** `IconButton`, `LinkWithIcon`, `KebabMenu`, `Chip`, `DetailedChip` and `FontAwesomeIcon` already use it through their `tooltip`/`title`/`label` prop. Its child must be an HTML element or a component passing its ref. The death-saves choice menu keeps Material UI's `Tooltip`: it opens on click, it's not a tooltip.
 
 **Never override a shared component's style.** A parent may place it (margin, flex, grid, position) and lay out what it puts inside it, but never change what the component sets itself (height, padding, colors, borders, fonts). If a different look is needed, add a variant to the component (a prop mapped to a BEM modifier, e.g. `isHighlighted`, `size="small"`), or create a new component.
 

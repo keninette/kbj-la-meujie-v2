@@ -4,6 +4,7 @@ import { translate } from "@/app/_dictionaries/dictionnary";
 import { AdventureListDto } from "@lib/adventure/dtos/adventure-list.dto";
 import Image from "next/image";
 import LinkWithIcon from "@components/_basics/link-with-icon/LinkWithIcon";
+import Tooltip from "@components/_basics/tooltip/Tooltip";
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 import { Route } from "@lib/enums/route.enum";
 
@@ -17,14 +18,15 @@ const AdventureTile = ({ adventure }: AdventureTileProps) => {
   return (
     <li className={styles["adventure-tile"]}>
       {adventure?.universe?.icon && (
-        <Image
-          src={`/assets/universes/${adventure.universe.icon}`}
-          alt={adventure.universe.name}
-          width={100}
-          height={100}
-          className={styles["adventure-tile__image"]}
-          title={adventure.universe.name}
-        />
+        <Tooltip content={adventure.universe.name}>
+          <Image
+            src={`/assets/universes/${adventure.universe.icon}`}
+            alt={adventure.universe.name}
+            width={100}
+            height={100}
+            className={styles["adventure-tile__image"]}
+          />
+        </Tooltip>
       )}
       <div className={styles["adventure-tile__content"]}>
         <div className={styles["adventure-tile__name"]}>

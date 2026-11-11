@@ -243,7 +243,8 @@ describe("CharacterList active character cards", () => {
       "stats.hpSummary(stats.alternativeHp, 12, 20) (stats.tempHpBonus(5))";
     expect(hpBar).toHaveAccessibleName(summary);
     // Also shown on hover: the values are not written in the list
-    expect(hpBar).toHaveAttribute("title", summary);
+    fireEvent.mouseOver(hpBar);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(summary);
   });
 
   it("shows the hit points without alternative or temporary ones", async () => {

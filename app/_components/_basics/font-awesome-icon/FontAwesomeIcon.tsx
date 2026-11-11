@@ -1,6 +1,7 @@
 import { cx } from "@/app/_lib/class-names";
 import type { HTMLAttributes } from "react";
 import { FaIconSizeEnum } from "@/app/_lib/enums/fa-icon.size.enum";
+import Tooltip from "../tooltip/Tooltip";
 
 type FontAwesomeIconProps = Omit<
   HTMLAttributes<HTMLElement>,
@@ -22,16 +23,17 @@ const FontAwesomeIcon = ({
   ...props
 }: FontAwesomeIconProps) => {
   return (
-    <i
-      className={cx(
-        `fa-${faIconStyle}`,
-        `fa-${faIcon}`,
-        faSize && `fa-${faSize}`,
-        className,
-      )}
-      title={tooltip}
-      {...props}
-    />
+    <Tooltip content={tooltip}>
+      <i
+        className={cx(
+          `fa-${faIconStyle}`,
+          `fa-${faIcon}`,
+          faSize && `fa-${faSize}`,
+          className,
+        )}
+        {...props}
+      />
+    </Tooltip>
   );
 };
 

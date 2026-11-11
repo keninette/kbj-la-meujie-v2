@@ -1,6 +1,7 @@
 import { cx } from "@/app/_lib/class-names";
 import Link from "next/link";
 import styles from "./link-with-icon.module.scss";
+import Tooltip from "../tooltip/Tooltip";
 import { FaIconStyleEnum } from "@lib/enums/fa-icon.style.enum";
 
 type LinkWithIconProps = {
@@ -37,24 +38,25 @@ const LinkWithIcon = ({
   );
 
   return (
-    <Link
-      href={href}
-      className={cx(
-        styles["link-with-icon"],
-        !label && styles["link-with-icon--icon-only"],
-        className,
-      )}
-      title={title ?? label}
-      aria-label={label ? undefined : title}
-      data-testid={dataTestId}
-      {...(openInNewTab
-        ? { target: "_blank", rel: "noopener noreferrer" }
-        : {})}
-    >
-      {iconPosition === "left" && iconElement}
-      {label}
-      {iconPosition === "right" && iconElement}
-    </Link>
+    <Tooltip content={title}>
+      <Link
+        href={href}
+        className={cx(
+          styles["link-with-icon"],
+          !label && styles["link-with-icon--icon-only"],
+          className,
+        )}
+        aria-label={label ? undefined : title}
+        data-testid={dataTestId}
+        {...(openInNewTab
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
+      >
+        {iconPosition === "left" && iconElement}
+        {label}
+        {iconPosition === "right" && iconElement}
+      </Link>
+    </Tooltip>
   );
 };
 

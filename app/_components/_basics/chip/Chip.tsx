@@ -2,6 +2,7 @@ import { cx } from "@/app/_lib/class-names";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import IconButton from "../icon-button/IconButton";
+import Tooltip from "../tooltip/Tooltip";
 import styles from "./chip.module.scss";
 
 type ChipProps = {
@@ -23,25 +24,23 @@ const Chip = ({
   className,
   "data-testid": dataTestId,
 }: ChipProps) => (
-  <span
-    className={cx(styles["chip"], className)}
-    title={tooltip}
-    data-testid={dataTestId}
-  >
-    {icon && <span>{icon}</span>}
-    {label}
-    {deleteAction && (
-      <IconButton
-        variant={ButtonVariant.TERTIARY}
-        tooltip={deleteAction.tooltip}
-        faIcon="xmark"
-        faIconStyle={FaIconStyleEnum.SOLID}
-        size="small"
-        onClick={deleteAction.onClick}
-        className={styles["chip__delete"]}
-      />
-    )}
-  </span>
+  <Tooltip content={tooltip}>
+    <span className={cx(styles["chip"], className)} data-testid={dataTestId}>
+      {icon && <span>{icon}</span>}
+      {label}
+      {deleteAction && (
+        <IconButton
+          variant={ButtonVariant.TERTIARY}
+          tooltip={deleteAction.tooltip}
+          faIcon="xmark"
+          faIconStyle={FaIconStyleEnum.SOLID}
+          size="small"
+          onClick={deleteAction.onClick}
+          className={styles["chip__delete"]}
+        />
+      )}
+    </span>
+  </Tooltip>
 );
 
 export default Chip;

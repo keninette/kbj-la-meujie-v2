@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import Tooltip from "@mui/material/Tooltip";
 import { cx } from "@/app/_lib/class-names";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import IconButton from "../icon-button/IconButton";
+import Tooltip from "../tooltip/Tooltip";
 import styles from "./detailed-chip.module.scss";
 
 type DetailedChipProps = {
@@ -68,23 +68,7 @@ const DetailedChip = ({
     </span>
   );
 
-  if (!tooltip) {
-    return chip;
-  }
-
-  return (
-    <Tooltip
-      title={tooltip}
-      arrow
-      placement="top"
-      slotProps={{
-        tooltip: { className: styles["detailed-chip__tooltip"] },
-        arrow: { className: styles["detailed-chip__tooltip-arrow"] },
-      }}
-    >
-      {chip}
-    </Tooltip>
-  );
+  return <Tooltip content={tooltip}>{chip}</Tooltip>;
 };
 
 export default DetailedChip;

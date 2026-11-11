@@ -1,0 +1,17 @@
+@use "app/mixins";
+
+/* Material UI's tooltip: hence the !important */
+.tooltip {
+  max-width: 18rem !important;
+  padding: var(--spacing-padding--text) var(--spacing-panel) !important;
+
+  @include mixins.tooltip;
+
+  font-family: inherit !important;
+  font-size: var(--font-size--caption) !important;
+  line-height: 1.4 !important;
+
+  &__arrow {
+    @include mixins.tooltip--arrow;
+  }
+}

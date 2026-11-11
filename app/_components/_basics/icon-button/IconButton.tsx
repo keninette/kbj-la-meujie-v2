@@ -2,6 +2,7 @@ import { cx } from "@/app/_lib/class-names";
 import { ButtonVariant } from "@/app/_lib/enums/button-variant.enum";
 import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import FontAwesomeIcon from "../font-awesome-icon/FontAwesomeIcon";
+import Tooltip from "../tooltip/Tooltip";
 import styles from "./icon-button.module.scss";
 
 type IconButtonProps = {
@@ -28,21 +29,22 @@ const IconButton = ({
   tooltip,
   "data-testid": dataTestId,
 }: IconButtonProps) => (
-  <button
-    className={cx(
-      styles["icon-button"],
-      styles[`icon-button--${variant}`],
-      size === "small" && styles["icon-button--small"],
-      className,
-    )}
-    onClick={onClick}
-    title={tooltip}
-    type={type}
-    aria-label={tooltip}
-    data-testid={dataTestId}
-  >
-    <FontAwesomeIcon faIcon={faIcon} faIconStyle={faIconStyle} />
-  </button>
+  <Tooltip content={tooltip}>
+    <button
+      className={cx(
+        styles["icon-button"],
+        styles[`icon-button--${variant}`],
+        size === "small" && styles["icon-button--small"],
+        className,
+      )}
+      onClick={onClick}
+      type={type}
+      aria-label={tooltip}
+      data-testid={dataTestId}
+    >
+      <FontAwesomeIcon faIcon={faIcon} faIconStyle={faIconStyle} />
+    </button>
+  </Tooltip>
 );
 
 export default IconButton;
