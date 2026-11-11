@@ -35,6 +35,8 @@ const CombatTrackerPage = () => {
   const deadCharacters = (combat?.characters ?? []).filter(
     (character) => character.isDead,
   );
+  const hasCharacters =
+    (combat?.characters ?? []).length > 0 || idleCharacters.length > 0;
   const isCombatOngoing = combat?.status === CombatStatusEnum.ONGOING;
 
   const onCombatChange = (nextCombat: Combat | null) => {
@@ -194,48 +196,51 @@ const CombatTrackerPage = () => {
           onCharacterAdded={onCharacterAdded}
         />
         <div className={styles["combat-tracker__container"]}>
-          <ContainerBox
-            as="section"
-            className={styles["combat-tracker__container-left"]}
-          >
-            {aliveCharacters.length > 0 && (
-              <CharacterList
-                title={translate("list.active", "combatTracker")}
-                titleIcon={isCombatOngoing ? "play" : undefined}
-                characters={aliveCharacters}
-                allowedActions={["edit", "deactivate"]}
-                selectedCharacter={selectedCharacter}
-                isCombatOngoing={isCombatOngoing}
-                onEdit={handleCharacterClick}
-                onDeactivate={onCharacterDeactivated}
-              />
-            )}
-            {deadCharacters.length > 0 && (
-              <CharacterList
-                title={translate("list.dead", "combatTracker")}
-                titleIcon="cross"
-                characters={deadCharacters}
-                allowedActions={["edit", "deactivate"]}
-                selectedCharacter={selectedCharacter}
-                isCombatOngoing={isCombatOngoing}
-                isTitleMuted
-                onEdit={handleCharacterClick}
-                onDeactivate={onCharacterDeactivated}
-                data-testid="dead-characters-list"
-              />
-            )}
-            {idleCharacters.length > 0 && (
-              <CharacterList
-                title={translate("list.idle", "combatTracker")}
-                titleIcon="pause"
-                characters={idleCharacters}
-                allowedActions={["edit", "reactivate"]}
-                isIdle
-                onEdit={handleCharacterClick}
-                onReactivate={onCharacterReactivated}
-              />
-            )}
-          </ContainerBox>
+          {/* An empty combat: no empty panel */}
+          {hasCharacters && (
+            <ContainerBox
+              as="section"
+              className={styles["combat-tracker__container-left"]}
+            >
+              {aliveCharacters.length > 0 && (
+                <CharacterList
+                  title={translate("list.active", "combatTracker")}
+                  titleIcon={isCombatOngoing ? "play" : undefined}
+                  characters={aliveCharacters}
+                  allowedActions={["edit", "deactivate"]}
+                  selectedCharacter={selectedCharacter}
+                  isCombatOngoing={isCombatOngoing}
+                  onEdit={handleCharacterClick}
+                  onDeactivate={onCharacterDeactivated}
+                />
+              )}
+              {deadCharacters.length > 0 && (
+                <CharacterList
+                  title={translate("list.dead", "combatTracker")}
+                  titleIcon="cross"
+                  characters={deadCharacters}
+                  allowedActions={["edit", "deactivate"]}
+                  selectedCharacter={selectedCharacter}
+                  isCombatOngoing={isCombatOngoing}
+                  isTitleMuted
+                  onEdit={handleCharacterClick}
+                  onDeactivate={onCharacterDeactivated}
+                  data-testid="dead-characters-list"
+                />
+              )}
+              {idleCharacters.length > 0 && (
+                <CharacterList
+                  title={translate("list.idle", "combatTracker")}
+                  titleIcon="pause"
+                  characters={idleCharacters}
+                  allowedActions={["edit", "reactivate"]}
+                  isIdle
+                  onEdit={handleCharacterClick}
+                  onReactivate={onCharacterReactivated}
+                />
+              )}
+            </ContainerBox>
+          )}
           {selectedCharacter && combat && (
             <div className={styles["combat-tracker__container-right"]}>
               <CharacterStats
