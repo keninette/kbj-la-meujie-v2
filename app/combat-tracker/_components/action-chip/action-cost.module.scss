@@ -28,21 +28,11 @@
       clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
     }
 
-    &--spell-slot {
-      background: var(--color-spell-slot);
-      border-radius: var(--radius--spell-level);
-      color: var(--color-spell-slot-text);
-    }
-
     &--movement {
       background: var(--color-cost--movement);
       color: var(--color-spell-slot-text);
       border-radius: var(--radius--spell-level);
     }
-  }
-
-  &__wand {
-    color: var(--color-link);
   }
 
   &__amount {

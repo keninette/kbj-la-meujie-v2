@@ -26,7 +26,7 @@ import WikiCharacterDialog from "@/app/combat-tracker/_components/edit-character
 import IdentityFieldset from "./_components/IdentityFieldset";
 import CombatFieldset from "./_components/CombatFieldset";
 import AbilitiesFieldset from "./_components/AbilitiesFieldset";
-import SpellSlotsFieldset from "./_components/SpellSlotsFieldset";
+import ActionResourcesFieldset from "./_components/ActionResourcesFieldset";
 import TextListFieldset from "./_components/TextListFieldset";
 import ActionsFieldset from "./_components/ActionsFieldset";
 import ConditionsFieldset from "./_components/conditions-fieldset/ConditionsFieldset";
@@ -339,12 +339,12 @@ const EditCharacterForm = ({
             highlightedFields.includes("savingThrows")
           }
         />
-        <SpellSlotsFieldset
-          spellSlots={character?.spellSlotsLeft ?? {}}
-          onChange={(spellSlotsLeft) =>
-            updateCharacter({ spellSlotsLeft }, "spellSlotsLeft")
+        <ActionResourcesFieldset
+          actionResources={character?.actionResourcesLeft ?? {}}
+          onChange={(actionResourcesLeft) =>
+            updateCharacter({ actionResourcesLeft }, "actionResourcesLeft")
           }
-          isHighlighted={highlightedFields.includes("spellSlotsLeft")}
+          isHighlighted={highlightedFields.includes("actionResourcesLeft")}
         />
         <TextListFieldset
           title={translate("form.passives", "combatTracker")}

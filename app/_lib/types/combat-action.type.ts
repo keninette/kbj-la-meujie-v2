@@ -17,7 +17,7 @@ export type CombatAction = {
   type?: string;
   /**
    * What using it costs: "action", "bonus", "reaction" and/or resources keyed
-   * like CombatCharacter.spellSlotsLeft ("2" for a level 2 slot, "wldshp"...),
+   * like CombatCharacter.actionResourcesLeft ("2" for a level 2 slot, "wldshp"...),
    * followed by ":<amount>" when more than one is used ("layonh:2")
    */
   costs: string[];

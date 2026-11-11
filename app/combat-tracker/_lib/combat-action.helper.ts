@@ -8,17 +8,16 @@ export enum ActionCostKind {
   ACTION = "action",
   BONUS = "bonus",
   REACTION = "reaction",
-  SPELL_SLOT = "spellSlot",
-  /** Any other resource: wild shape, lay on hands, channel oath... */
-  RESOURCE = "resource",
+  /** A spell slot, wild shape, lay on hands... (see bg3-action-resources.ts) */
+  ACTION_RESOURCE = "actionResource",
   /** All of it, half of it ("movement:half") or some meters ("movement:6") */
   MOVEMENT = "movement",
 }
 
 export type ActionCost = {
   kind: ActionCostKind;
-  /** Key in CombatCharacter.spellSlotsLeft ("2", "layonh"), none for the action economy;
-   * "half" or meters for the movement */
+  /** Key in CombatCharacter.actionResourcesLeft ("2", "layonh"), none for the
+   * action economy; "half" or meters for the movement */
   resource?: string;
   amount: number;
 };
@@ -41,13 +40,7 @@ export const parseActionCost = (cost: string): ActionCost => {
   ) {
     return { kind: name, amount };
   }
-  return {
-    kind: /^\d+$/.test(name)
-      ? ActionCostKind.SPELL_SLOT
-      : ActionCostKind.RESOURCE,
-    resource: name,
-    amount,
-  };
+  return { kind: ActionCostKind.ACTION_RESOURCE, resource: name, amount };
 };
 
 /**

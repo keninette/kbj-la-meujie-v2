@@ -6,6 +6,7 @@ import {
   getAbilityModifier,
   getProficiencyBonus,
 } from "@/app/combat-tracker/_lib/ability.helper";
+import { normalizeActionResourceId } from "@/app/combat-tracker/_lib/bg3-action-resources";
 
 export { BG3_WIKI_HOST, isBg3WikiImage } from "./bg3-wiki.images";
 
@@ -238,14 +239,7 @@ const splitList = (value: string | undefined): string[] =>
     .map((item) => item.trim())
     .filter(Boolean);
 
-/**
- * Spell slots are keyed by their level, like the ones added manually:
- * "spell2" -> "2", other resources keep their name ("wldshp").
- */
-export const normalizeResourceName = (name: string): string =>
-  name.trim().replace(/^spell(\d+)$/i, "$1");
-
-/** "spell1:4, spell2:3, wldshp:2" -> { "1": 4, "2": 3, "wldshp": 2 } */
+/** "spell1:4, spell2:3, ws:2" -> { "1": 4, "2": 3, "wldshp": 2 } */
 export const parseResources = (
   value: string | undefined,
 ): Record<string, number> => {
@@ -256,7 +250,7 @@ export const parseResources = (
       continue;
     }
     // "chaoat" alone is a single use
-    resources[normalizeResourceName(rawName)] = rawCount
+    resources[normalizeActionResourceId(rawName)] = rawCount
       ? toNumber(rawCount)
       : 1;
   }
@@ -361,7 +355,7 @@ export const buildCharacterFromInfobox = (
 
   const hp = toNumber(get("hp"));
   const shortDescription = buildShortDescription(get);
-  const spellSlotsLeft = parseResources(get("resources"));
+  const actionResourcesLeft = parseResources(get("resources"));
   const passives = [
     ...splitList(get("passives")),
     ...splitList(get("resistances")),
@@ -392,7 +386,7 @@ export const buildCharacterFromInfobox = (
     ...(level ? { proficiencyBonus: getProficiencyBonus(level) } : {}),
     ...(Object.keys(abilities).length ? { abilities } : {}),
     ...(Object.keys(savingThrows).length ? { savingThrows } : {}),
-    ...(Object.keys(spellSlotsLeft).length ? { spellSlotsLeft } : {}),
+    ...(Object.keys(actionResourcesLeft).length ? { actionResourcesLeft } : {}),
     ...(passives.length ? { passives } : {}),
     ...(actions.length ? { actions } : {}),
   };

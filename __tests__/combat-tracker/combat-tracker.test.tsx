@@ -318,7 +318,7 @@ describe("EditCharacterForm import from wiki", () => {
       within(moonbeam).getByTestId("action-cost-action"),
     ).toBeInTheDocument();
     expect(
-      within(moonbeam).getByTestId("action-cost-spellSlot"),
+      within(moonbeam).getByTestId("action-cost-actionResource"),
     ).toHaveTextContent("2");
     expect(screen.getByTestId("actions-fieldset")).toHaveClass(
       "container-box--highlighted",
@@ -817,8 +817,8 @@ describe("CharacterStats conditions", () => {
   });
 });
 
-describe("EditCharacterForm spell slots", () => {
-  it("adds a spell slot with a free-text name", () => {
+describe("EditCharacterForm action resources", () => {
+  it("adds an action resource by its id, however it is written", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -828,21 +828,21 @@ describe("EditCharacterForm spell slots", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("spellSlotName"), {
+    fireEvent.change(screen.getByTestId("actionResourceName"), {
       target: { value: " Rage " },
     });
     fireEvent.change(screen.getByLabelText("form.value"), {
       target: { value: "4" },
     });
-    fireEvent.click(screen.getByTestId("addSpellSlot"));
+    fireEvent.click(screen.getByTestId("addActionResource"));
     fireEvent.submit(screen.getByTestId("edit-character-form"));
 
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ spellSlotsLeft: { Rage: 4 } }),
+      expect.objectContaining({ actionResourcesLeft: { rage: 4 } }),
     );
   });
 
-  it("adds a spell slot on Enter, without submitting the form", () => {
+  it("adds an action resource on Enter, without submitting the form", () => {
     const onSubmit = jest.fn();
     render(
       <EditCharacterForm
@@ -852,20 +852,22 @@ describe("EditCharacterForm spell slots", () => {
       />,
     );
 
-    fireEvent.change(screen.getByTestId("spellSlotName"), {
+    fireEvent.change(screen.getByTestId("actionResourceName"), {
       target: { value: "1" },
     });
-    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+    fireEvent.change(screen.getByTestId("actionResourceValue"), {
       target: { value: "3" },
     });
-    fireEvent.keyDown(screen.getByTestId("spellSlotValue"), { key: "Enter" });
+    fireEvent.keyDown(screen.getByTestId("actionResourceValue"), {
+      key: "Enter",
+    });
 
     expect(onSubmit).not.toHaveBeenCalled();
-    expect(screen.getByTestId("spellSlotName")).toHaveValue("");
+    expect(screen.getByTestId("actionResourceName")).toHaveValue("");
 
     fireEvent.submit(screen.getByTestId("edit-character-form"));
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ spellSlotsLeft: { 1: 3 } }),
+      expect.objectContaining({ actionResourcesLeft: { 1: 3 } }),
     );
   });
 });
@@ -875,7 +877,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     const attacker = buildCharacter({
       id: "attacker",
       name: "Attacker",
-      spellSlotsLeft: { 1: 2 },
+      actionResourcesLeft: { 1: 2 },
     });
     const target = buildCharacter({ id: "target", name: "Target" });
     const onCharactersChange = jest.fn();
@@ -910,7 +912,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     expect(
       updatedCharacters.find(
         (character: CombatCharacter) => character.id === attacker.id,
-      ).spellSlotsLeft[1],
+      ).actionResourcesLeft[1],
     ).toBe(1);
     expect(
       updatedCharacters.find(
@@ -1252,7 +1254,7 @@ describe("EditCharacterForm save and restart", () => {
     expect(screen.getByTestId("name")).toHaveValue("Goblin");
   });
 
-  it("is not blocked by a condition or spell slot that was never added", () => {
+  it("is not blocked by a condition or action resource that was never added", () => {
     const onSaveAndRestart = jest.fn();
     render(
       <EditCharacterForm
@@ -1266,7 +1268,7 @@ describe("EditCharacterForm save and restart", () => {
     fireEvent.change(screen.getByTestId("conditionDuration"), {
       target: { value: "0" },
     });
-    fireEvent.change(screen.getByTestId("spellSlotValue"), {
+    fireEvent.change(screen.getByTestId("actionResourceValue"), {
       target: { value: "-1" },
     });
     fireEvent.click(screen.getByTestId("save-and-restart"));
@@ -1274,7 +1276,7 @@ describe("EditCharacterForm save and restart", () => {
     expect(onSaveAndRestart).toHaveBeenCalledTimes(1);
     const [saved] = onSaveAndRestart.mock.calls[0];
     expect(saved.conditions ?? []).toEqual([]);
-    expect(saved.spellSlotsLeft ?? {}).toEqual({});
+    expect(saved.actionResourcesLeft ?? {}).toEqual({});
   });
 
   it("does nothing when the form is empty", () => {

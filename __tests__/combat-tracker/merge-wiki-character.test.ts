@@ -18,7 +18,7 @@ const kagha = buildCharacter({
   isNpc: true,
   initiativeScore: 0,
   initiativeRoll: 0,
-  spellSlotsLeft: { "1": 4, wldshp: 2 },
+  actionResourcesLeft: { "1": 4, wldshp: 2 },
   passives: ["Darkvision"],
 });
 
@@ -79,7 +79,7 @@ describe("mergeWikiCharacter", () => {
       shortDescription: "Wood elf Druid level 5",
       imageUrl: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png",
       wikiLink: "https://bg3.wiki/wiki/Kagha",
-      spellSlotsLeft: { "1": 4, wldshp: 2 },
+      actionResourcesLeft: { "1": 4, wldshp: 2 },
       passives: ["Darkvision"],
     });
   });
@@ -190,7 +190,7 @@ describe("listUpdatedFields", () => {
       "wikiLink",
       "hp",
       "maxHp",
-      "spellSlotsLeft",
+      "actionResourcesLeft",
       "passives",
     ]);
   });

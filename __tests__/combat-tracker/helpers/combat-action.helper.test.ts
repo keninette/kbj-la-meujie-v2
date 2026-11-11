@@ -35,14 +35,14 @@ describe("parseActionCost", () => {
     expect(parseActionCost("reaction").kind).toBe(ActionCostKind.REACTION);
   });
 
-  it("tells spell slots from the other resources, with their amount", () => {
+  it("reads spell slots and other resources as action resources, with their amount", () => {
     expect(parseActionCost("3")).toEqual({
-      kind: ActionCostKind.SPELL_SLOT,
+      kind: ActionCostKind.ACTION_RESOURCE,
       resource: "3",
       amount: 1,
     });
     expect(parseActionCost("layonh:2")).toEqual({
-      kind: ActionCostKind.RESOURCE,
+      kind: ActionCostKind.ACTION_RESOURCE,
       resource: "layonh",
       amount: 2,
     });

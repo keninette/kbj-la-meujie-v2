@@ -1,23 +1,18 @@
 import { cx } from "@/app/_lib/class-names";
-import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import Tooltip from "@/app/_components/_basics/tooltip/Tooltip";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import {
   ActionCost,
   ActionCostKind,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
+import { getActionResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
+import ActionResourceIcon from "@/app/combat-tracker/_components/action-resource-icon/ActionResourceIcon";
 import styles from "./action-cost.module.scss";
 
 const getLabel = ({ kind, resource }: ActionCost): string => {
   switch (kind) {
-    case ActionCostKind.SPELL_SLOT:
-      return translate("actions.cost.spellSlot", "combatTracker", {
-        level: resource ?? "",
-      });
-    case ActionCostKind.RESOURCE:
-      // Named like in the spell slots, e.g. "layonh"
-      return resource ?? "";
+    case ActionCostKind.ACTION_RESOURCE:
+      return getActionResourceName(resource ?? "");
     case ActionCostKind.MOVEMENT:
       if (resource === "half") {
         return translate("actions.cost.halfMovement", "combatTracker");
@@ -32,21 +27,17 @@ const getLabel = ({ kind, resource }: ActionCost): string => {
   }
 };
 
-/** The spell slot's level, or the movement's part: "/2" for half, its meters */
-const getShapeText = ({ kind, resource }: ActionCost): string | undefined => {
-  if (kind === ActionCostKind.MOVEMENT) {
-    return resource === "half" ? "/2" : resource;
-  }
-  return kind === ActionCostKind.SPELL_SLOT ? resource : undefined;
-};
+/** The movement's part: "/2" for half, its meters */
+const getMovementText = (resource: string | undefined): string | undefined =>
+  resource === "half" ? "/2" : resource;
 
 type ActionCostIconProps = { cost: ActionCost };
 
 /**
  * Cost icon, like in the game: green circle for an action, orange triangle
- * for a bonus action, purple diamond for a reaction, light blue square for a spell
- * slot (with its level), a yellow square for the movement (with its part),
- * and a wand for any other resource, as in the spells.
+ * for a bonus action, purple diamond for a reaction, a yellow square for the
+ * movement (with its part), and the action resource's icon (a light blue
+ * square with its level for a spell slot).
  */
 const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
   const label = getLabel(cost);
@@ -61,25 +52,19 @@ const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
         aria-label={tooltip}
         data-testid={`action-cost-${cost.kind}`}
       >
-        {cost.kind === ActionCostKind.RESOURCE ? (
-          <FontAwesomeIcon
-            faIcon="wand-sparkles"
-            faIconStyle={FaIconStyleEnum.SOLID}
-            className={styles["action-cost__wand"]}
-            aria-hidden
-          />
+        {cost.kind === ActionCostKind.ACTION_RESOURCE ? (
+          <ActionResourceIcon id={cost.resource ?? ""} />
         ) : (
           <span
             className={cx(
               styles["action-cost__shape"],
-              // BEM modifiers are in kebab-case: "spellSlot" -> "spell-slot"
-              styles[
-                `action-cost__shape--${cost.kind === ActionCostKind.SPELL_SLOT ? "spell-slot" : cost.kind}`
-              ],
+              styles[`action-cost__shape--${cost.kind}`],
             )}
             aria-hidden
           >
-            {getShapeText(cost)}
+            {cost.kind === ActionCostKind.MOVEMENT
+              ? getMovementText(cost.resource)
+              : null}
           </span>
         )}
         {cost.amount > 1 && (

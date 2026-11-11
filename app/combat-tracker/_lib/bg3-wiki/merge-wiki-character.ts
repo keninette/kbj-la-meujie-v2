@@ -17,7 +17,7 @@ export const WIKI_IMPORTED_FIELDS = [
   "proficiencyBonus",
   "abilities",
   "savingThrows",
-  "spellSlotsLeft",
+  "actionResourcesLeft",
   "passives",
   "actions",
 ] as const satisfies readonly (keyof CombatCharacter)[];
@@ -37,7 +37,7 @@ export const WIKI_FIELD_LABEL_KEYS: Record<WikiImportedField, string> = {
   proficiencyBonus: "form.proficiencyBonus",
   abilities: "form.abilities",
   savingThrows: "form.savingThrows",
-  spellSlotsLeft: "form.spellSlots",
+  actionResourcesLeft: "form.actionResources",
   passives: "form.passives",
   actions: "form.actions",
 };

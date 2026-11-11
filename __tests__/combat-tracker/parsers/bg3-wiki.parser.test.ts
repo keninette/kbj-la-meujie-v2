@@ -110,8 +110,8 @@ describe("bg3 wiki parser", () => {
   });
 
   describe("parseResources", () => {
-    it("keys spell slots by level and keeps other resources as named", () => {
-      expect(parseResources("spell1:4, spell2:3, wldshp:2")).toEqual({
+    it("keys the resources by their id, however the wiki writes them", () => {
+      expect(parseResources("spell1:4, level2:3, ws:2")).toEqual({
         "1": 4,
         "2": 3,
         wldshp: 2,
@@ -256,7 +256,7 @@ describe("bg3 wiki parser", () => {
         abilities: { str: 16, dex: 16, con: 14, int: 14, wis: 16, cha: 14 },
         // Level 5: proficiency bonus of 3 for intelligence and wisdom
         savingThrows: { str: 3, dex: 3, con: 2, int: 5, wis: 6, cha: 2 },
-        spellSlotsLeft: { "1": 4, "2": 3, "3": 2, wldshp: 2 },
+        actionResourcesLeft: { "1": 4, "2": 3, "3": 2, wldshp: 2 },
         passives: [
           "Darkvision",
           "Fey Ancestry",
@@ -303,7 +303,7 @@ describe("bg3 wiki parser", () => {
       expect(character.name).toBe("Some Boss");
       expect(character.hp).toBe(50);
       expect(character.ac).toBe(15);
-      expect(character.spellSlotsLeft).toBeUndefined();
+      expect(character.actionResourcesLeft).toBeUndefined();
       expect(character.passives).toBeUndefined();
       expect(character.shortDescription).toBeUndefined();
       expect(character.wikiLink).toBe("https://bg3.wiki/wiki/Some_Boss");

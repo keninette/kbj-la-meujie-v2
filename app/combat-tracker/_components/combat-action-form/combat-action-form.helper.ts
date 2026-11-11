@@ -176,15 +176,15 @@ export const applyCombatActionFormValues = (
       updatedCharacters,
       selectedCharacterId,
     );
-    const spellSlotsLeft =
-      updatedCharacters[selectedCharacterIndex]?.spellSlotsLeft ?? {};
-    const remainingSlots = spellSlotsLeft[values.spellUsedLevel];
-    if (typeof remainingSlots === "number" && remainingSlots > 0) {
+    const actionResourcesLeft =
+      updatedCharacters[selectedCharacterIndex]?.actionResourcesLeft ?? {};
+    const remainingUses = actionResourcesLeft[values.spellUsedLevel];
+    if (typeof remainingUses === "number" && remainingUses > 0) {
       updatedCharacters[selectedCharacterIndex] = {
         ...updatedCharacters[selectedCharacterIndex],
-        spellSlotsLeft: {
-          ...spellSlotsLeft,
-          [values.spellUsedLevel]: remainingSlots - 1,
+        actionResourcesLeft: {
+          ...actionResourcesLeft,
+          [values.spellUsedLevel]: remainingUses - 1,
         },
       };
       hasChanges = true;

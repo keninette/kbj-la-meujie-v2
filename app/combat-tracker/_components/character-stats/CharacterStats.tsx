@@ -8,7 +8,7 @@ import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
 import ChipListSection from "./_components/chip-list-section/ChipListSection";
-import SpellSlotsSection from "./_components/spell-slots-section/SpellSlotsSection";
+import ActionResourcesSection from "./_components/action-resources-section/ActionResourcesSection";
 import ActionsSection from "./_components/actions-section/ActionsSection";
 import ConditionsSection from "./_components/conditions-section/ConditionsSection";
 
@@ -125,7 +125,9 @@ const CharacterStats = ({
           items={selectedCharacter.passives}
           data-testid="character-passives"
         />
-        <SpellSlotsSection spellSlotsLeft={selectedCharacter.spellSlotsLeft} />
+        <ActionResourcesSection
+          actionResourcesLeft={selectedCharacter.actionResourcesLeft}
+        />
         <ActionsSection actions={selectedCharacter.actions} />
         <ConditionsSection
           conditions={selectedCharacter.conditions}

@@ -10,6 +10,7 @@ import {
   parseActionCost,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 import DamageText from "@/app/combat-tracker/_components/damage-text/DamageText";
+import { findClassResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
 import ActionCostIcon from "./ActionCostIcon";
 
 type ActionChipProps = {
@@ -20,18 +21,32 @@ type ActionChipProps = {
   onRemove?: () => void;
 };
 
-/** An action: icon, name, costs and details. Its item and description in a tooltip. */
+/**
+ * An action: icon, name, costs and details. Its item and description in a
+ * tooltip, with its original name when the chip shows its class resource's.
+ */
 const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
   const costs = action.costs
     .map(parseActionCost)
     .filter((cost) => cost.kind !== group);
-  // "2d6+FOR [icon] Tranchant · 1d4 [icon] Feu · CON · concentration"
+  // In french when it spends a class resource: "Forme sauvage" for
+  // "Wild Shape: Bear", whose name moves to the tooltip, and its variant
+  // ("Bear") to the subtitle, to tell the forms apart
+  const resourceName = findClassResourceName(action);
+  const variant = resourceName
+    ? action.name.split(": ").slice(1).join(": ")
+    : undefined;
+  // "Bear · 2d6+FOR [icon] Tranchant · 1d4 [icon] Feu · CON · concentration"
   const details = [
+    variant,
     ...(action.damages ?? []).map((damage, index) => (
       <DamageText key={`damage-${index}`} damage={damage} />
     )),
     describeActionDetails(action),
   ].filter(Boolean);
+  const tooltipTitle = [resourceName && action.name, action.item]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <DetailedChip
@@ -45,7 +60,7 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
           />
         ) : undefined
       }
-      title={action.name}
+      title={resourceName ?? action.name}
       titleAdornment={costs.map((cost, index) => (
         <ActionCostIcon key={`${cost.kind}-${index}`} cost={cost} />
       ))}
@@ -59,10 +74,10 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
         ))
       }
       tooltip={
-        (action.item || action.description) && (
+        (tooltipTitle || action.description) && (
           <>
-            {action.item && <strong>{action.item}</strong>}
-            {action.item && action.description && <br />}
+            {tooltipTitle && <strong>{tooltipTitle}</strong>}
+            {tooltipTitle && action.description && <br />}
             {action.description}
           </>
         )

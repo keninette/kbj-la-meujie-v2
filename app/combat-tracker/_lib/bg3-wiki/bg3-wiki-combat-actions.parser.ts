@@ -9,11 +9,11 @@ import {
 } from "@/app/_lib/enums/damage-type.enum";
 import {
   buildWikiLink,
-  normalizeResourceName,
   splitTopLevelParams,
   stripWikiMarkup,
   toFileTitle,
 } from "./bg3-wiki.parser";
+import { normalizeActionResourceId } from "@/app/combat-tracker/_lib/bg3-action-resources";
 
 /**
  * A "{{Feature box|Moonbeam}}" from a character page: the page of an action
@@ -243,7 +243,8 @@ export const buildPagesWhere = (pages: string[]): string | undefined => {
 };
 
 /**
- * "action, spell2" -> ["action", "2"], keyed like the spell slots.
+ * "action, level2" -> ["action", "2"]: resources by their id (see
+ * bg3-action-resources.ts), "ba" or "bonus action" -> "bonus".
  * A resource used several times keeps its amount: "layonh:2" -> "layonh:2".
  * The movement, all of it or a part: "movement", "half movement" ->
  * "movement:half", "movement m:6" (or "movement:6") -> "movement:6".
@@ -253,13 +254,16 @@ export const parseCosts = (cost: string | null | undefined): string[] =>
     .split(",")
     .map((entry) => {
       const [name, amount] = entry.split(":").map((part) => part.trim());
-      if (/^half movement$/i.test(name)) {
+      if (/^(half|1\/2) movement$/i.test(name)) {
         return "movement:half";
       }
-      if (/^movement( m)?$/i.test(name)) {
+      if (/^(movement( m)?|m)$/i.test(name)) {
         return amount ? `movement:${amount}` : "movement";
       }
-      const key = normalizeResourceName(name ?? "");
+      if (/^(ba|bonus action)$/i.test(name)) {
+        return "bonus";
+      }
+      const key = normalizeActionResourceId(name ?? "");
       return key && amount && amount !== "1" ? `${key}:${amount}` : key;
     })
     .filter(Boolean);

@@ -125,7 +125,7 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
     isOptional(value.proficiencyBonus, "number") &&
     isOptionalNumberRecord(value.abilities) &&
     isOptionalNumberRecord(value.savingThrows) &&
-    isOptionalNumberRecord(value.spellSlotsLeft) &&
+    isOptionalNumberRecord(value.actionResourcesLeft) &&
     conditionsAreValid &&
     passivesAreValid &&
     actionsAreValid &&

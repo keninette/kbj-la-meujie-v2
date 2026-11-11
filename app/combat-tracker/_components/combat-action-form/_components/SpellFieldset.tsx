@@ -10,6 +10,7 @@ import { FaIconStyleEnum } from "@/app/_lib/enums/fa-icon.style.enum";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { useFormContext } from "react-hook-form";
 import type { CombatActionFormValues } from "../combat-action-form.helper";
+import { getActionResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
 
 type SpellFieldsetProps = {
   selectedCharacter: CombatCharacter;
@@ -23,7 +24,9 @@ const SpellFieldset = ({
   onAddHistory,
 }: SpellFieldsetProps) => {
   const { register } = useFormContext<CombatActionFormValues>();
-  const spellSlots = Object.entries(selectedCharacter.spellSlotsLeft ?? {});
+  const actionResources = Object.entries(
+    selectedCharacter.actionResourcesLeft ?? {},
+  );
 
   return (
     <Fieldset
@@ -31,7 +34,7 @@ const SpellFieldset = ({
       titleIcon="wand-sparkles"
     >
       <FieldsetRow>
-        {spellSlots.length > 0 && (
+        {actionResources.length > 0 && (
           <SelectInput
             id="spellUsedLevel"
             label={translate("form.nameOrLevel", "combatTracker")}
@@ -42,11 +45,11 @@ const SpellFieldset = ({
             <option value="">
               {translate("combatAction.chooseLevel", "combatTracker")}
             </option>
-            {spellSlots.map(([name, slots]) => (
-              <option key={name} value={name} disabled={slots <= 0}>
-                {name} (
+            {actionResources.map(([id, count]) => (
+              <option key={id} value={id} disabled={count <= 0}>
+                {getActionResourceName(id)} (
                 {translate("combatAction.slotsRemaining", "combatTracker", {
-                  count: String(slots),
+                  count: String(count),
                 })}
                 )
               </option>

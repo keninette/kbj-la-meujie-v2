@@ -161,6 +161,11 @@ describe("bg3-wiki combat actions parser", () => {
       expect(parseCosts("action, spell2")).toEqual(["action", "2"]);
       expect(parseCosts("action, layonh:2")).toEqual(["action", "layonh:2"]);
       expect(parseCosts("bonus, spell1:1")).toEqual(["bonus", "1"]);
+      expect(parseCosts("action, level1")).toEqual(["action", "1"]);
+      expect(parseCosts("bonus action, wild shape")).toEqual([
+        "bonus",
+        "wldshp",
+      ]);
       expect(parseCosts(null)).toEqual([]);
     });
 

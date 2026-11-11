@@ -8,52 +8,55 @@ import Chip from "@/app/_components/_basics/chip/Chip";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import AddItemButton from "./AddItemButton";
 import { useNewItem } from "../_hooks/use-new-item.hook";
+import { getActionResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
+import { normalizeActionResourceId } from "@/app/combat-tracker/_lib/bg3-action-resources";
 
-type SpellSlotsFieldsetProps = {
-  /** Uses left, by level ("1") or resource name ("rage") */
-  spellSlots: Record<string, number>;
-  onChange: (spellSlots: Record<string, number>) => void;
+type ActionResourcesFieldsetProps = {
+  /** Uses left, by id: level ("1") or resource ("rage") */
+  actionResources: Record<string, number>;
+  onChange: (actionResources: Record<string, number>) => void;
   isHighlighted?: boolean;
 };
 
-const SpellSlotsFieldset = ({
-  spellSlots,
+const ActionResourcesFieldset = ({
+  actionResources,
   onChange,
   isHighlighted,
-}: SpellSlotsFieldsetProps) => {
+}: ActionResourcesFieldsetProps) => {
   const { draft, setDraft, submit, submitOnEnter } = useNewItem(
     { name: "", value: 0 },
     ({ name, value }) => {
-      const trimmedName = name.trim();
-      if (!trimmedName || !Number.isInteger(value) || value < 0) {
+      // "spell1" or "Wild Shape", as on the wiki: "1", "wldshp"
+      const id = normalizeActionResourceId(name);
+      if (!id || !Number.isInteger(value) || value < 0) {
         return false;
       }
-      onChange({ ...spellSlots, [trimmedName]: value });
+      onChange({ ...actionResources, [id]: value });
       return true;
     },
   );
 
-  const remove = (slotName: string) => {
+  const remove = (resourceId: string) => {
     onChange(
       Object.fromEntries(
-        Object.entries(spellSlots).filter(([name]) => name !== slotName),
+        Object.entries(actionResources).filter(([id]) => id !== resourceId),
       ),
     );
   };
 
   return (
     <Fieldset
-      title={translate("form.spellSlots", "combatTracker")}
+      title={translate("form.actionResources", "combatTracker")}
       titleIcon="wand-sparkles"
       isHighlighted={isHighlighted}
     >
       <FieldsetChips>
-        {Object.entries(spellSlots).map(([slotName, slots]) => (
-          <li key={slotName}>
+        {Object.entries(actionResources).map(([id, count]) => (
+          <li key={id}>
             <Chip
-              label={`${slotName} : ${slots}`}
+              label={`${getActionResourceName(id)} : ${count}`}
               deleteAction={{
-                onClick: () => remove(slotName),
+                onClick: () => remove(id),
                 tooltip: translate("form.remove", "combatTracker"),
               }}
             />
@@ -62,34 +65,34 @@ const SpellSlotsFieldset = ({
       </FieldsetChips>
       <FieldsetRow>
         <TextInput
-          id="slotLevel"
-          name="slotLevel"
+          id="actionResourceName"
+          name="actionResourceName"
           label={translate("form.nameOrLevel", "combatTracker")}
           value={draft.name}
           onChange={(event) => {
             const name = event.target.value;
-            setDraft((slot) => ({ ...slot, name }));
+            setDraft((resource) => ({ ...resource, name }));
           }}
           onKeyDown={submitOnEnter}
-          data-testid="spellSlotName"
+          data-testid="actionResourceName"
         />
         <NumberInput
-          id="slotValue"
-          name="slotValue"
+          id="actionResourceValue"
+          name="actionResourceValue"
           label={translate("form.value", "combatTracker")}
           step="any"
           value={draft.value}
           onChange={(event) => {
             const value = +event.target.value;
-            setDraft((slot) => ({ ...slot, value }));
+            setDraft((resource) => ({ ...resource, value }));
           }}
           onKeyDown={submitOnEnter}
-          data-testid="spellSlotValue"
+          data-testid="actionResourceValue"
         />
-        <AddItemButton onClick={submit} data-testid="addSpellSlot" />
+        <AddItemButton onClick={submit} data-testid="addActionResource" />
       </FieldsetRow>
     </Fieldset>
   );
 };
 
-export default SpellSlotsFieldset;
+export default ActionResourcesFieldset;
