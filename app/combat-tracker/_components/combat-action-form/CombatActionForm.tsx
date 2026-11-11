@@ -15,6 +15,10 @@ import ReanimateFieldset from "./_components/ReanimateFieldset";
 import ReviveFieldset from "./_components/ReviveFieldset";
 import SpellFieldset from "./_components/SpellFieldset";
 import ConditionFieldset from "./_components/ConditionFieldset";
+import {
+  conditionFromDraft,
+  EMPTY_CONDITION_DRAFT,
+} from "@/app/combat-tracker/_lib/combat-condition.helper";
 import styles from "./combat-action-form.module.scss";
 
 type CombatActionFormProps = {
@@ -64,10 +68,7 @@ const CombatActionForm = ({
       spellUsedName: "",
       spellUsedLevel: null,
       inflictedConditionTargetId: "",
-      inflictedConditionName: "",
-      inflictedConditionDuration: null,
-      inflictedConditionSaveThrowStat: "",
-      inflictedConditionSaveThrowDc: null,
+      inflictedCondition: EMPTY_CONDITION_DRAFT,
       reviveTargetId: "",
       reanimateTargetId: "",
     },
@@ -150,31 +151,28 @@ const CombatActionForm = ({
   };
 
   const addInflictedConditionHistoryEntry = () => {
-    const {
-      inflictedConditionTargetId,
-      inflictedConditionName,
-      inflictedConditionDuration,
-    } = getValues();
+    const { inflictedConditionTargetId, inflictedCondition } = getValues();
+    const condition = conditionFromDraft(inflictedCondition);
     const targetName = characters.find(
       (character) => character.id === inflictedConditionTargetId,
     )?.name;
-    if (!inflictedConditionName || !targetName) {
+    if (!condition || !targetName) {
       return;
     }
 
     addHistoryEntry(
       "condition",
       translate(
-        inflictedConditionDuration !== null
+        condition.numberOfTurns !== undefined
           ? "history.condition"
           : "history.conditionWithoutDuration",
         "combatTracker",
         {
           character: selectedCharacter.name,
-          condition: inflictedConditionName,
+          condition: condition.name,
           target: targetName,
-          ...(inflictedConditionDuration !== null
-            ? { duration: String(inflictedConditionDuration) }
+          ...(condition.numberOfTurns !== undefined
+            ? { duration: String(condition.numberOfTurns) }
             : {}),
         },
       ),

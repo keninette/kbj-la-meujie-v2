@@ -1,6 +1,10 @@
 import { findCharacterIndexById } from "@/app/_lib/combat/combat.helper";
 import type { CombatCharacter } from "@/app/_lib/types/combat-character.type";
 import { getMaxAlternativeHp } from "@/app/combat-tracker/_lib/hp.helper";
+import {
+  conditionFromDraft,
+  type ConditionDraft,
+} from "@/app/combat-tracker/_lib/combat-condition.helper";
 
 export type CombatActionFormValues = {
   attackTargetId: string;
@@ -10,10 +14,7 @@ export type CombatActionFormValues = {
   spellUsedName: string;
   spellUsedLevel: string | null;
   inflictedConditionTargetId: string;
-  inflictedConditionName: string;
-  inflictedConditionDuration: number | null;
-  inflictedConditionSaveThrowStat: string;
-  inflictedConditionSaveThrowDc: number | null;
+  inflictedCondition: ConditionDraft;
   reviveTargetId: string;
   reanimateTargetId: string;
 };
@@ -190,7 +191,8 @@ export const applyCombatActionFormValues = (
     }
   }
 
-  if (values.inflictedConditionName && values.inflictedConditionTargetId) {
+  const inflictedCondition = conditionFromDraft(values.inflictedCondition);
+  if (inflictedCondition && values.inflictedConditionTargetId) {
     const targetCharacterIndex = findCharacterIndexById(
       updatedCharacters,
       values.inflictedConditionTargetId,
@@ -198,17 +200,8 @@ export const applyCombatActionFormValues = (
     if (targetCharacterIndex !== -1) {
       const newCondition = {
         id: createConditionId(),
-        name: values.inflictedConditionName,
-        ...(!!values.inflictedConditionDuration
-          ? { numberOfTurns: values.inflictedConditionDuration }
-          : {}),
+        ...inflictedCondition,
         ...(currentTurn !== undefined ? { appliedOnTurn: currentTurn } : {}),
-        ...(!!values.inflictedConditionSaveThrowStat
-          ? { saveThrowStat: values.inflictedConditionSaveThrowStat }
-          : {}),
-        ...(!!values.inflictedConditionSaveThrowDc
-          ? { saveThrowDc: values.inflictedConditionSaveThrowDc }
-          : {}),
       };
       updatedCharacters[targetCharacterIndex] = {
         ...updatedCharacters[targetCharacterIndex],

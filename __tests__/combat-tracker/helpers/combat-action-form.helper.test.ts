@@ -5,7 +5,14 @@ import {
   applyHealToCharacter,
   resetRevivedCharacter,
 } from "@/app/combat-tracker/_components/combat-action-form/combat-action-form.helper";
+import { EMPTY_CONDITION_DRAFT } from "@/app/combat-tracker/_lib/combat-condition.helper";
 import { buildCharacter } from "../_fixtures/combat-tracker.fixtures";
+
+// dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
+jest.mock("../../../app/_dictionaries/dictionnary", () => ({
+  translate: (key: string) => key,
+  hasTranslation: () => false,
+}));
 
 describe("applyDamageToCharacter", () => {
   it("applies damage to temporary HP, alternative HP, then regular HP", () => {
@@ -153,10 +160,11 @@ describe("applyCombatActionFormValues inflicted condition", () => {
     spellUsedName: "",
     spellUsedLevel: null,
     inflictedConditionTargetId: "goblin",
-    inflictedConditionName: "Poisoned",
-    inflictedConditionDuration: 3,
-    inflictedConditionSaveThrowStat: "",
-    inflictedConditionSaveThrowDc: null,
+    inflictedCondition: {
+      ...EMPTY_CONDITION_DRAFT,
+      name: "Poisoned",
+      duration: "3",
+    },
     reviveTargetId: "",
     reanimateTargetId: "",
   };

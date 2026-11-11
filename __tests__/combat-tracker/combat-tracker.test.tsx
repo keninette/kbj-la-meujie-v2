@@ -894,7 +894,7 @@ describe("CombatActionForm isDying/isDead behavior", () => {
     fireEvent.change(screen.getByTestId("inflictedConditionTargetName"), {
       target: { value: target.id },
     });
-    fireEvent.change(screen.getAllByLabelText("form.name")[1], {
+    fireEvent.change(screen.getByTestId("conditionName"), {
       target: { value: "Restrained" },
     });
     fireEvent.change(screen.getByLabelText("combatAction.duration"), {
