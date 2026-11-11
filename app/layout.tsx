@@ -23,16 +23,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${montserrat.className} ${layoutStyles["page__root"]}`}
+      className={`${montserrat.className} ${layoutStyles["layout"]}`}
     >
-      <body>
+      <body className={layoutStyles["layout__body"]}>
         <Script
           src="https://kit.fontawesome.com/3cdc464647.js"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <div className={layoutStyles["page"]}>
-          <main>
+        <div className={layoutStyles["layout__page"]}>
+          <main className={layoutStyles["layout__main"]}>
             <Header />
             <Nav />
             {children}

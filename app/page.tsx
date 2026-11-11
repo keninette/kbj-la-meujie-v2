@@ -9,7 +9,7 @@ export default async function Home() {
 
   return (
     <section className={styles["home__section"]}>
-      <h3 className={styles["home__section__title"]}>
+      <h3 className={styles["home__section-title"]}>
         {translate("adventures", translationsNamespace)}
       </h3>
       <AdventuresList adventures={adventures} />

@@ -1,5 +1,5 @@
 .link-with-icon {
-  color: var(--color-link);
+  color: var(--color-button-text--secondary);
 
   &--left {
     padding-right: var(--spacing-padding--text);
@@ -7,5 +7,11 @@
 
   &--right {
     padding-left: var(--spacing-padding--text);
+  }
+
+  /* Without a label: looks like a small IconButton */
+  &--icon-only {
+    padding: var(--spacing-padding--button);
+    line-height: 1;
   }
 }

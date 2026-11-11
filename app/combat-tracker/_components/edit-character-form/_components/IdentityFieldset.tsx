@@ -22,7 +22,7 @@ type IdentityFieldsetProps = {
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onAttitudeChange: (attitude: NpcAttitudeEnum | undefined) => void;
   /** Highlight of a field filled by the wiki import, if any */
-  importedClassName: (field: WikiImportedField) => string | undefined;
+  isImported: (field: WikiImportedField) => boolean;
 };
 
 const IdentityFieldset = ({
@@ -30,7 +30,7 @@ const IdentityFieldset = ({
   imageUrl,
   onInputChange,
   onAttitudeChange,
-  importedClassName,
+  isImported,
 }: IdentityFieldsetProps) => {
   return (
     <Fieldset
@@ -43,7 +43,7 @@ const IdentityFieldset = ({
         label={translate("form.name", "combatTracker")}
         value={character?.name || ""}
         onChange={onInputChange}
-        className={importedClassName("name")}
+        isHighlighted={isImported("name")}
         data-testid="name"
       />
       <TextInput
@@ -52,7 +52,7 @@ const IdentityFieldset = ({
         label={translate("form.shortDescription", "combatTracker")}
         value={character?.shortDescription || ""}
         onChange={onInputChange}
-        className={importedClassName("shortDescription")}
+        isHighlighted={isImported("shortDescription")}
         data-testid="shortDescription"
       />
       <TextInput
@@ -63,7 +63,7 @@ const IdentityFieldset = ({
         placeholder="https://bg3.wiki/wiki/Halsin"
         value={character?.wikiLink || ""}
         onChange={onInputChange}
-        className={importedClassName("wikiLink")}
+        isHighlighted={isImported("wikiLink")}
         data-testid="wikiLink"
       />
       <TextInput
@@ -73,7 +73,7 @@ const IdentityFieldset = ({
         label={translate("form.imageUrl", "combatTracker")}
         value={character?.imageUrl || ""}
         onChange={onInputChange}
-        className={importedClassName("imageUrl")}
+        isHighlighted={isImported("imageUrl")}
         data-testid="imageUrl"
         adornment={
           // Not while the URL is being typed

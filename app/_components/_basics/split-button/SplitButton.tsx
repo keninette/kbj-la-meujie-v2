@@ -37,10 +37,10 @@ const SplitButton = ({
       <div className={styles["split-button__buttons"]}>
         <div>
           <i
-            className={`fa-${faIconStyle} fa-${faIcon} ${styles["split-button__buttons__icon"]}`}
+            className={`fa-${faIconStyle} fa-${faIcon} ${styles["split-button__buttons-icon"]}`}
           />
           <button
-            className={`${styles["split-button__button"]} ${styles["split-button__buttons__label"]}`}
+            className={`${styles["split-button__button"]} ${styles["split-button__buttons-label"]}`}
             onClick={selectedOption.onClick}
           >
             {selectedOption.label}
@@ -51,7 +51,7 @@ const SplitButton = ({
           onClick={() => setShowDropdown((prev) => !prev)}
         >
           <i
-            className={`fa-solid fa-chevron-down ${styles["split-button__buttons__chevron"]}`}
+            className={`fa-solid fa-chevron-down ${styles["split-button__buttons-chevron"]}`}
           />
         </button>
       </div>
@@ -61,13 +61,13 @@ const SplitButton = ({
             return (
               <li
                 key={`li_${option.label}`}
-                className={styles["split-button__dropdown__label"]}
+                className={styles["split-button__dropdown-label"]}
               >
                 <i
-                  className={`fa-${faIconStyle} fa-${faIcon} ${styles["split-button__buttons__icon"]}`}
+                  className={`fa-${faIconStyle} fa-${faIcon} ${styles["split-button__buttons-icon"]}`}
                 />
                 <button
-                  className={`${styles["split-button__button"]} ${styles["split-button__dropdown__label__text"]}`}
+                  className={`${styles["split-button__button"]} ${styles["split-button__dropdown-label-text"]}`}
                   key={`button_${option.label}`}
                   onClick={() => {
                     setSelectedOption(option);

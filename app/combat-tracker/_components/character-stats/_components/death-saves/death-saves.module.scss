@@ -1,7 +1,7 @@
 @use "app/mixins";
 
 .death-saves {
-  --death-save-size: 0.85rem;
+  --death-saves-size: 0.85rem;
 
   display: flex;
   gap: var(--spacing-padding--button);
@@ -11,8 +11,8 @@
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    width: var(--death-save-size);
-    height: var(--death-save-size);
+    width: var(--death-saves-size);
+    height: var(--death-saves-size);
     padding: 0;
 
     background: none;

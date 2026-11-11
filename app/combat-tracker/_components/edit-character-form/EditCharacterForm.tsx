@@ -101,11 +101,9 @@ const EditCharacterForm = ({
   const clearHighlight = (field: string) =>
     setHighlightedFields((fields) => fields.filter((f) => f !== field));
 
-  // "--imported" modifier of a field while highlighted
-  const importedClassName = (field: WikiImportedField) =>
-    highlightedFields.includes(field)
-      ? styles["edit-character-form__field--imported"]
-      : undefined;
+  // A field just imported from the wiki, highlighted until it is changed
+  const isImported = (field: WikiImportedField) =>
+    highlightedFields.includes(field);
 
   const importFromWiki = (
     fetched: WikiCharacter,
@@ -320,13 +318,13 @@ const EditCharacterForm = ({
           onInputChange={handleInputChange}
           imageUrl={imageUrl}
           onAttitudeChange={(attitude) => updateCharacter({ attitude })}
-          importedClassName={importedClassName}
+          isImported={isImported}
         />
         <CombatFieldset
           character={character}
           initiativeRoll={initiativeRoll}
           onInputChange={handleInputChange}
-          importedClassName={importedClassName}
+          isImported={isImported}
         />
         <AbilitiesFieldset
           abilities={character?.abilities}

@@ -13,14 +13,14 @@ type CombatFieldsetProps = {
   initiativeRoll: number;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   /** Highlight of a field filled by the wiki import, if any */
-  importedClassName: (field: WikiImportedField) => string | undefined;
+  isImported: (field: WikiImportedField) => boolean;
 };
 
 const CombatFieldset = ({
   character,
   initiativeRoll,
   onInputChange,
-  importedClassName,
+  isImported,
 }: CombatFieldsetProps) => (
   <Fieldset
     title={translate("form.combat", "combatTracker")}
@@ -33,7 +33,7 @@ const CombatFieldset = ({
         label={translate("form.hp", "combatTracker")}
         value={character?.hp ?? 0}
         onChange={onInputChange}
-        className={importedClassName("hp")}
+        isHighlighted={isImported("hp")}
         data-testid="hp"
       />
       <NumberInput
@@ -43,7 +43,7 @@ const CombatFieldset = ({
         min="1"
         value={character?.maxHp ?? 0}
         onChange={onInputChange}
-        className={importedClassName("maxHp")}
+        isHighlighted={isImported("maxHp")}
         data-testid="maxHp"
       />
       <NumberInput
@@ -60,7 +60,7 @@ const CombatFieldset = ({
         label={translate("form.ac", "combatTracker")}
         value={character?.ac ?? 0}
         onChange={onInputChange}
-        className={importedClassName("ac")}
+        isHighlighted={isImported("ac")}
         data-testid="ac"
       />
       <NumberInput
@@ -79,7 +79,7 @@ const CombatFieldset = ({
         step="0.5"
         value={character?.movement ?? ""}
         onChange={onInputChange}
-        className={importedClassName("movement")}
+        isHighlighted={isImported("movement")}
         data-testid="movement"
       />
       <NumberInput
@@ -88,7 +88,7 @@ const CombatFieldset = ({
         label={translate("form.proficiencyBonus", "combatTracker")}
         value={character?.proficiencyBonus ?? ""}
         onChange={onInputChange}
-        className={importedClassName("proficiencyBonus")}
+        isHighlighted={isImported("proficiencyBonus")}
         data-testid="proficiencyBonus"
       />
       <NumberInput

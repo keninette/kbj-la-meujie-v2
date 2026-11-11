@@ -6,7 +6,7 @@
   border: solid 1px var(--color-border--light);
 }
 
-// Thin scrollbar with a gap on its left, for the element and its descendants
+/* Thin scrollbar with a gap on its left, for the element and its descendants */
 @mixin scrollbar {
   &,
   & * {
@@ -107,7 +107,7 @@
   font-weight: var(--font-weight--title);
 }
 
-// Surface of the menus and tooltips (Material UI: hence the !important)
+/* Surface of the menus and tooltips (Material UI: hence the !important) */
 @mixin dropdown {
   background-color: var(--color-dropdown) !important;
   border-radius: var(--radius--panel) !important;
@@ -139,6 +139,15 @@
 @mixin form-label {
   color: var(--color-text--muted);
   font-size: var(--font-size--caption);
+}
+
+/* A field to look at, e.g. just imported from the wiki */
+@mixin form-field--highlighted {
+  padding: var(--spacing-padding--button) var(--spacing-padding--text);
+
+  background-color: var(--color-highlight);
+  border-left: 3px solid var(--color-border--dark);
+  border-radius: var(--radius--field);
 }
 
 @mixin form-input {

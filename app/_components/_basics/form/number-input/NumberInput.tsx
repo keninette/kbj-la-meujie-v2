@@ -8,8 +8,8 @@ type NumberInputProps = Omit<
 > & {
   id: string;
   label: string;
-  /** On the field (label + input), e.g. to highlight it */
-  className?: string;
+  /** Draws attention to the field, e.g. just imported from the wiki */
+  isHighlighted?: boolean;
   /** On the input; the field (label + input) gets "<it>-field" */
   "data-testid"?: string;
 };
@@ -17,12 +17,15 @@ type NumberInputProps = Omit<
 const NumberInput = ({
   id,
   label,
-  className,
+  isHighlighted = false,
   "data-testid": dataTestId,
   ...inputProps
 }: NumberInputProps) => (
   <div
-    className={cx(styles["number-input"], className)}
+    className={cx(
+      styles["number-input"],
+      isHighlighted && styles["number-input--highlighted"],
+    )}
     data-testid={dataTestId && `${dataTestId}-field`}
   >
     <label htmlFor={id} className={styles["number-input__label"]}>

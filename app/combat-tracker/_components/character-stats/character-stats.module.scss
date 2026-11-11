@@ -3,18 +3,13 @@
 $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><g id='c'><path d='M17 7C22 3 28 3 33 8M7 17C3 22 3 28 8 33' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/><path d='M33 8C31 3 26 2 23 3C25 7 29 9 33 8ZM8 33C3 31 2 26 3 23C7 25 9 29 8 33Z'/></g><g id='m'><path d='M50 0L54.5 4.5L50 9L45.5 4.5ZM45.5 4.5C41 1 36 1 33 4.5C36 8 41 8 45.5 4.5ZM54.5 4.5C59 1 64 1 67 4.5C64 8 59 8 54.5 4.5Z'/></g></defs><rect x='4.5' y='4.5' width='91' height='91' fill='none' stroke='black' stroke-width='1.8'/><rect x='8.5' y='8.5' width='83' height='83' fill='none' stroke='black' stroke-width='2.6'/><use href='%23c'/><use href='%23c' transform='rotate(90 50 50)'/><use href='%23c' transform='rotate(180 50 50)'/><use href='%23c' transform='rotate(270 50 50)'/><use href='%23m'/><use href='%23m' transform='rotate(90 50 50)'/><use href='%23m' transform='rotate(180 50 50)'/><use href='%23m' transform='rotate(270 50 50)'/></svg>";
 
 .character-stats {
-  display: flex;
+  display: grid;
   flex: 1;
-  flex-direction: column;
+  align-content: start;
   gap: var(--spacing-padding--text);
-  justify-items: space-evenly;
   box-sizing: border-box;
   min-height: 0;
   overflow-y: auto;
-
-  > * {
-    flex-shrink: 0;
-  }
 
   &--disabled-like {
     opacity: var(--opacity--disabled);
@@ -230,18 +225,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     gap: var(--spacing-padding--button);
 
     font-size: var(--font-size--caption);
-  }
-
-  // The edit buttons and wiki link: scoped by their container, to override
-  // the styles of IconButton and LinkWithIcon
-  &__actions &__action {
-    height: auto;
-    padding: var(--spacing-padding--button);
-    line-height: 1;
-  }
-
-  &__actions &__action--link {
-    color: var(--color-button-text--secondary);
   }
 
   &__short-description {

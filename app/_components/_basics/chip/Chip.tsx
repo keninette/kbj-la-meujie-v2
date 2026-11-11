@@ -36,6 +36,7 @@ const Chip = ({
         tooltip={deleteAction.tooltip}
         faIcon="xmark"
         faIconStyle={FaIconStyleEnum.SOLID}
+        size="small"
         onClick={deleteAction.onClick}
         className={styles["chip__delete"]}
       />

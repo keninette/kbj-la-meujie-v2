@@ -429,7 +429,9 @@ describe("EditCharacterForm import from wiki", () => {
   });
 
   const lineOf = (testId: string) => screen.getByTestId(`${testId}-field`);
-  const IMPORTED = "edit-character-form__field--imported";
+  // The name is a text input, the other fields number inputs
+  const HIGHLIGHTED_TEXT = "text-input--highlighted";
+  const HIGHLIGHTED = "number-input--highlighted";
 
   it("lists and highlights the replaced fields, until they are edited", async () => {
     mockedCreateFromWiki.mockResolvedValueOnce({
@@ -448,14 +450,14 @@ describe("EditCharacterForm import from wiki", () => {
     expect(screen.getByTestId("imported-fields")).toHaveTextContent(
       "form.importedFields",
     );
-    expect(lineOf("name")).toHaveClass(IMPORTED);
-    expect(lineOf("maxHp")).toHaveClass(IMPORTED);
-    expect(lineOf("movement")).toHaveClass(IMPORTED);
+    expect(lineOf("name")).toHaveClass(HIGHLIGHTED_TEXT);
+    expect(lineOf("maxHp")).toHaveClass(HIGHLIGHTED);
+    expect(lineOf("movement")).toHaveClass(HIGHLIGHTED);
     expect(abilitiesFieldset).toHaveClass("container-box--highlighted");
     // Same value as before (14): not highlighted
-    expect(lineOf("ac")).not.toHaveClass(IMPORTED);
+    expect(lineOf("ac")).not.toHaveClass(HIGHLIGHTED);
     // Never imported
-    expect(lineOf("initiativeRoll")).not.toHaveClass(IMPORTED);
+    expect(lineOf("initiativeRoll")).not.toHaveClass(HIGHLIGHTED);
 
     fireEvent.change(screen.getByTestId("name"), {
       target: { value: "Kagha the Archdruid" },
@@ -467,11 +469,11 @@ describe("EditCharacterForm import from wiki", () => {
       target: { value: "14" },
     });
 
-    expect(lineOf("name")).not.toHaveClass(IMPORTED);
-    expect(lineOf("movement")).not.toHaveClass(IMPORTED);
+    expect(lineOf("name")).not.toHaveClass(HIGHLIGHTED_TEXT);
+    expect(lineOf("movement")).not.toHaveClass(HIGHLIGHTED);
     expect(abilitiesFieldset).not.toHaveClass("container-box--highlighted");
     // The fields not edited, and the summary, stay
-    expect(lineOf("maxHp")).toHaveClass(IMPORTED);
+    expect(lineOf("maxHp")).toHaveClass(HIGHLIGHTED);
     expect(screen.getByTestId("imported-fields")).toBeInTheDocument();
   });
 

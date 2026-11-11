@@ -196,7 +196,7 @@ const CombatTrackerPage = () => {
         <div className={styles["combat-tracker__container"]}>
           <ContainerBox
             as="section"
-            className={styles["combat-tracker__container__left"]}
+            className={styles["combat-tracker__container-left"]}
           >
             {aliveCharacters.length > 0 && (
               <CharacterList
@@ -237,7 +237,7 @@ const CombatTrackerPage = () => {
             )}
           </ContainerBox>
           {selectedCharacter && combat && (
-            <div className={styles["combat-tracker__container__right"]}>
+            <div className={styles["combat-tracker__container-right"]}>
               <CharacterStats
                 selectedCharacter={selectedCharacter}
                 characters={combat.characters}

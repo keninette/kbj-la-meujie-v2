@@ -14,7 +14,7 @@
   border-radius: var(--radius--chip);
   color: var(--color-chip-text);
 
-  &[tabindex] {
+  &--with-description {
     cursor: help;
   }
 
@@ -64,7 +64,6 @@
 
   &__remove {
     flex-shrink: 0;
-    height: 100%;
     margin-right: calc(-1 * var(--spacing-padding--text));
   }
 

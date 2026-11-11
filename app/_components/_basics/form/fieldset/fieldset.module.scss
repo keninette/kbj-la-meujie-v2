@@ -19,7 +19,6 @@
     @include mixins.caption;
   }
 
-  // Layouts of the fields, see FieldsetGrid, FieldsetRow and FieldsetChips
   &__grid {
     display: grid;
     gap: var(--spacing-padding--text);

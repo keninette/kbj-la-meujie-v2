@@ -6,20 +6,20 @@
   border-top: none;
   border-right: none;
   border-bottom: none;
-  // Rendered outside the page root, so it doesn't get its scrollbar
+  /* Rendered outside the page root, so it doesn't get its scrollbar */
   @include mixins.scrollbar;
 
   &__backdrop {
     @include mixins.overlay--backdrop;
   }
 
-  // Fills the drawer: only the body scrolls, between the header and actions
+  /* Fills the drawer: only the body scrolls, between the header and actions */
   &__content {
     @include mixins.overlay--content;
     flex: 1;
     min-height: 0;
-    // Lets the content be positioned against the header, e.g. a logo next to
-    // the title: the body is not positioned, so such an element doesn't scroll
+    /* Lets the content be positioned against the header, e.g. a logo next to */
+    /* the title: the body is not positioned, so such an element doesn't scroll */
     position: relative;
   }
 

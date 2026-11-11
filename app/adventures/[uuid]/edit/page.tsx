@@ -30,10 +30,10 @@ const EditAdventurePage = async ({
 
   return (
     <section className={styles["edit-adventure-page__section"]}>
-      <h3 className={styles["edit-adventure-page__section__content__title"]}>
+      <h3 className={styles["edit-adventure-page__section-content-title"]}>
         {translate("basicData.title", translationsNamespace)}
       </h3>
-      <div className={styles["edit-adventure-page__section__content"]}>
+      <div className={styles["edit-adventure-page__section-content"]}>
         <EditBasicData adventure={adventure} universes={universes} />
       </div>
     </section>

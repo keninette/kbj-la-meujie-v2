@@ -3,6 +3,10 @@
 .number-input {
   @include mixins.form-field;
 
+  &--highlighted {
+    @include mixins.form-field--highlighted;
+  }
+
   &__label {
     @include mixins.form-label;
   }

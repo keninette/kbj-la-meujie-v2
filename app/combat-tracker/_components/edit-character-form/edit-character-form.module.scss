@@ -1,8 +1,9 @@
+@use "app/mixins";
+
 .edit-character-form {
   &__logo {
     height: auto;
     pointer-events: none;
-    // Next to the drawer title (outside the scrolling body), left of the close button
     position: absolute;
     right: calc(
       var(--spacing-overlay) + var(--button-height--regular) +
@@ -11,7 +12,6 @@
     top: var(--spacing-layout-section-margin);
   }
 
-  // Preview of the image URL, next to its input
   &__picture {
     border-radius: var(--radius--field);
     flex-shrink: 0;
@@ -24,18 +24,8 @@
     gap: var(--spacing-layout-section-content-margin);
   }
 
-  &__field--imported,
   &__import-summary {
-    background-color: var(--color-highlight);
-    border-left: 3px solid var(--color-border--dark);
-    border-radius: var(--radius--field);
-  }
-
-  &__field--imported {
-    padding: var(--spacing-padding--button) var(--spacing-padding--text);
-  }
-
-  &__import-summary {
+    @include mixins.form-field--highlighted;
     margin: 0;
     padding: var(--spacing-padding--text);
 
