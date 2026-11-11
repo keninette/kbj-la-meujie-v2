@@ -7,14 +7,23 @@ import {
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 import ActionChip from "@/app/combat-tracker/_components/action-chip/ActionChip";
 import ActionCostIcon from "@/app/combat-tracker/_components/action-chip/ActionCostIcon";
+import { hasEnoughResources } from "@/app/combat-tracker/_lib/action-resource.helper";
 import styles from "../../character-stats.module.scss";
 
 type ActionsSectionProps = {
   actions?: CombatAction[];
+  /** To grey out the actions whose resources have no use left */
+  actionResourcesLeft?: Record<string, number>;
 };
 
-/** The actions of the character, one line per group: actions, bonus actions, then reactions */
-const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
+/**
+ * The actions of the character, one line per group: actions, bonus actions,
+ * then reactions. The ones it hasn't the resources for are greyed out.
+ */
+const ActionsSection = ({
+  actions = [],
+  actionResourcesLeft,
+}: ActionsSectionProps) => {
   if (actions.length === 0) {
     return null;
   }
@@ -47,7 +56,13 @@ const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
                   key={`${action.name}-${index}`}
                   className={styles["character-stats__action-item"]}
                 >
-                  <ActionChip action={action} group={group} />
+                  <ActionChip
+                    action={action}
+                    group={group}
+                    isDisabled={
+                      !hasEnoughResources(action, actionResourcesLeft)
+                    }
+                  />
                 </li>
               ))}
             </ul>

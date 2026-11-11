@@ -102,10 +102,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     list-style: none;
   }
 
-  &__chip--empty {
-    opacity: var(--opacity--disabled);
-  }
-
   &__action-groups {
     display: flex;
     flex-direction: column;

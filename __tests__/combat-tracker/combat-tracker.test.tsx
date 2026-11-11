@@ -789,6 +789,34 @@ describe("CharacterStats action tooltip and short description", () => {
     expect(tooltip).toHaveTextContent("Hurl a mote of fire.");
   });
 
+  it("greys out an action whose resource has no use left, until one comes back", () => {
+    const wildShape = (wldshp: number) =>
+      buildCharacter({
+        actions: [{ name: "Wild Shape: Bear", costs: ["bonus", "wldshp"] }],
+        actionResourcesLeft: { wldshp },
+      });
+    const { rerender } = renderStats(wildShape(0));
+
+    expect(screen.getByTestId("action-chip")).toHaveClass(
+      "detailed-chip--disabled",
+    );
+
+    rerender(
+      <CharacterStats
+        selectedCharacter={wildShape(1)}
+        characters={[wildShape(1)]}
+        onCharacterChange={jest.fn()}
+        onCharactersChange={jest.fn()}
+        onHistoryEdited={jest.fn()}
+        isCombatOngoing={false}
+      />,
+    );
+
+    expect(screen.getByTestId("action-chip")).not.toHaveClass(
+      "detailed-chip--disabled",
+    );
+  });
+
   it("does not display the short description when there is none", () => {
     renderStats(buildCharacter());
 

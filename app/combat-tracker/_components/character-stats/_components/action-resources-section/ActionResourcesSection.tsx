@@ -1,7 +1,6 @@
 import Chip from "@/app/_components/_basics/chip/Chip";
 import Tile from "@/app/_components/_basics/tile/Tile";
 import { translate } from "@/app/_dictionaries/dictionnary";
-import { cx } from "@/app/_lib/class-names";
 import ActionResourceIcon from "@/app/combat-tracker/_components/action-resource-icon/ActionResourceIcon";
 import { getActionResourceName } from "@/app/combat-tracker/_lib/action-resource.helper";
 import styles from "../../character-stats.module.scss";
@@ -34,9 +33,7 @@ const ActionResourcesSection = ({
               label={String(count)}
               tooltip={getActionResourceName(id)}
               icon={<ActionResourceIcon id={id} />}
-              className={cx(
-                count === 0 && styles["character-stats__chip--empty"],
-              )}
+              isDisabled={count === 0}
               data-testid={`action-resource-${id}`}
             />
           </li>

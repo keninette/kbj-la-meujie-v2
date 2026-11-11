@@ -24,6 +24,8 @@ type ActionChipProps = {
   group?: ActionGroup;
   /** Shows a remove button in the chip, e.g. in the edit form */
   onRemove?: () => void;
+  /** Greyed out, e.g. when its resource has no use left */
+  isDisabled?: boolean;
 };
 
 /**
@@ -31,7 +33,12 @@ type ActionChipProps = {
  * item, description and wiki link in a tooltip, with its original name when
  * the chip shows another one.
  */
-const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
+const ActionChip = ({
+  action,
+  group,
+  onRemove,
+  isDisabled,
+}: ActionChipProps) => {
   const costs = action.costs
     .map(parseActionCost)
     .filter((cost) => cost.kind !== group);
@@ -99,6 +106,7 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
           tooltip: translate("form.remove", "combatTracker"),
         }
       }
+      isDisabled={isDisabled}
       data-testid="action-chip"
     />
   );

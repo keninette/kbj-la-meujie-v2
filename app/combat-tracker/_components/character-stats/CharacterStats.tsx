@@ -128,7 +128,10 @@ const CharacterStats = ({
         <ActionResourcesSection
           actionResourcesLeft={selectedCharacter.actionResourcesLeft}
         />
-        <ActionsSection actions={selectedCharacter.actions} />
+        <ActionsSection
+          actions={selectedCharacter.actions}
+          actionResourcesLeft={selectedCharacter.actionResourcesLeft}
+        />
         <ConditionsSection
           conditions={selectedCharacter.conditions}
           onRemoveCondition={onRemoveCondition}
