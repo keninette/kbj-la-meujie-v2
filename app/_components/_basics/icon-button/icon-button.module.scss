@@ -18,4 +18,9 @@
     border: none;
     color: var(--color-button-text--secondary);
   }
+
+  &--small {
+    height: auto;
+    line-height: 1;
+  }
 }

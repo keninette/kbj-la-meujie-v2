@@ -1,4 +1,3 @@
-import { cx } from "@/app/_lib/class-names";
 import ButtonWithIcon from "@/app/_components/_basics/button-with-icon/ButtonWithIcon";
 import Chip from "@/app/_components/_basics/chip/Chip";
 import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
@@ -90,10 +89,6 @@ const IdentitySection = ({
               faIcon="arrow-up-right-from-square"
               faIconStyle={FaIconStyleEnum.SOLID}
               openInNewTab
-              className={cx(
-                styles["character-stats__action"],
-                styles["character-stats__action--link"],
-              )}
               data-testid="character-stats-wiki-link"
             />
           )}
@@ -104,7 +99,7 @@ const IdentitySection = ({
               faIconStyle={FaIconStyleEnum.SOLID}
               tooltip={translate("list.edit", "combatTracker")}
               onClick={() => onEdit(character)}
-              className={styles["character-stats__action"]}
+              size="small"
               data-testid="character-stats-edit"
             />
           )}
@@ -115,7 +110,7 @@ const IdentitySection = ({
               faIconStyle={FaIconStyleEnum.SOLID}
               tooltip={translate("list.deactivate", "combatTracker")}
               onClick={() => onDeactivate(character)}
-              className={styles["character-stats__action"]}
+              size="small"
               data-testid="character-stats-deactivate"
             />
           )}

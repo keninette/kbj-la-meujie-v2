@@ -67,6 +67,7 @@ const ActionChip = ({ action, onRemove }: ActionChipProps) => {
           tooltip={translate("form.remove", "combatTracker")}
           faIcon="xmark"
           faIconStyle={FaIconStyleEnum.SOLID}
+          size="small"
           onClick={onRemove}
           className={styles["action-chip__remove"]}
         />

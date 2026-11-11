@@ -8,6 +8,8 @@ type IconButtonProps = {
   faIcon: string;
   faIconStyle?: FaIconStyleEnum;
   variant?: ButtonVariant;
+  /** "small": as high as the text around it, e.g. in a line of text */
+  size?: "regular" | "small";
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
@@ -19,6 +21,7 @@ const IconButton = ({
   faIcon,
   faIconStyle = FaIconStyleEnum.REGULAR,
   variant = ButtonVariant.FAB,
+  size = "regular",
   onClick,
   type = "button",
   className,
@@ -29,6 +32,7 @@ const IconButton = ({
     className={cx(
       styles["icon-button"],
       styles[`icon-button--${variant}`],
+      size === "small" && styles["icon-button--small"],
       className,
     )}
     onClick={onClick}

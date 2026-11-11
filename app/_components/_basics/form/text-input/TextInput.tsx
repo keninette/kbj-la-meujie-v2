@@ -10,8 +10,8 @@ type TextInputProps = Omit<
   label: string;
   /** "url" for a link */
   type?: "text" | "url";
-  /** On the field (label + input), e.g. to highlight it */
-  className?: string;
+  /** Draws attention to the field, e.g. just imported from the wiki */
+  isHighlighted?: boolean;
   /** On the input; the field (label + input) gets "<it>-field" */
   "data-testid"?: string;
   /** Shown next to the input, e.g. a preview */
@@ -22,7 +22,7 @@ const TextInput = ({
   id,
   label,
   type = "text",
-  className,
+  isHighlighted = false,
   "data-testid": dataTestId,
   adornment,
   ...inputProps
@@ -39,7 +39,10 @@ const TextInput = ({
 
   return (
     <div
-      className={cx(styles["text-input"], className)}
+      className={cx(
+        styles["text-input"],
+        isHighlighted && styles["text-input--highlighted"],
+      )}
       data-testid={dataTestId && `${dataTestId}-field`}
     >
       <label htmlFor={id} className={styles["text-input__label"]}>

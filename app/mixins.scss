@@ -141,6 +141,15 @@
   font-size: var(--font-size--caption);
 }
 
+/* A field to look at, e.g. just imported from the wiki */
+@mixin form-field--highlighted {
+  padding: var(--spacing-padding--button) var(--spacing-padding--text);
+
+  background-color: var(--color-highlight);
+  border-left: 3px solid var(--color-border--dark);
+  border-radius: var(--radius--field);
+}
+
 @mixin form-input {
   box-sizing: border-box;
   height: var(--button-height--regular);

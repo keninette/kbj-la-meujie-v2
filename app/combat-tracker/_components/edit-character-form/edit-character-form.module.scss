@@ -1,3 +1,5 @@
+@use "app/mixins";
+
 .edit-character-form {
   &__logo {
     height: auto;
@@ -22,18 +24,8 @@
     gap: var(--spacing-layout-section-content-margin);
   }
 
-  &__field--imported,
   &__import-summary {
-    background-color: var(--color-highlight);
-    border-left: 3px solid var(--color-border--dark);
-    border-radius: var(--radius--field);
-  }
-
-  &__field--imported {
-    padding: var(--spacing-padding--button) var(--spacing-padding--text);
-  }
-
-  &__import-summary {
+    @include mixins.form-field--highlighted;
     margin: 0;
     padding: var(--spacing-padding--text);
 

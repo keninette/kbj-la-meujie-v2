@@ -227,18 +227,6 @@ $frame-svg: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox=
     font-size: var(--font-size--caption);
   }
 
-  /* The edit buttons and wiki link: scoped by their container, to override
-     the styles of IconButton and LinkWithIcon */
-  &__actions &__action {
-    height: auto;
-    padding: var(--spacing-padding--button);
-    line-height: 1;
-  }
-
-  &__actions &__action--link {
-    color: var(--color-button-text--secondary);
-  }
-
   &__short-description {
     margin: 0;
 
