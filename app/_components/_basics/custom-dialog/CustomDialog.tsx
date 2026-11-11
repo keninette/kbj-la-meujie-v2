@@ -13,7 +13,6 @@ type CustomDialogProps = {
   onClose: () => void;
   title: string;
   children?: React.ReactNode;
-  /** Buttons at the bottom, aligned on the right */
   actions?: React.ReactNode;
 };
 

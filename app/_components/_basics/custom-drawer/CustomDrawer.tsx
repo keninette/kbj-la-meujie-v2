@@ -12,10 +12,7 @@ type DrawerProps = {
   isOpened: boolean;
   onClose: () => void;
   title: string;
-  /** Scrolls between the title and the actions */
   children: React.ReactNode;
-  /** Always visible at the bottom, e.g. the buttons of a form. Buttons
-   * outside of the content can submit a form with their `form` attribute. */
   actions?: React.ReactNode;
 };
 
