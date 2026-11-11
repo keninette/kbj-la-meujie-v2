@@ -129,10 +129,10 @@ describe("bg3-wiki combat actions parser", () => {
   });
 
   describe("buildActionsWhere", () => {
-    it("quotes the pages and leaves out the ones it can't quote", () => {
+    it("quotes the pages without case and leaves out the ones it can't quote", () => {
       expect(
         buildActionsWhere(["Moonbeam", "Absolute's Ward", 'The "Bad" one']),
-      ).toBe(`_pageName IN ("Moonbeam","Absolute's Ward")`);
+      ).toBe(`LOWER(_pageName) IN ("moonbeam","absolute's ward")`);
       expect(buildActionsWhere(['The "Bad" one'])).toBeUndefined();
       expect(buildActionsWhere([])).toBeUndefined();
     });
@@ -183,6 +183,16 @@ describe("bg3-wiki combat actions parser", () => {
   });
 
   describe("buildCombatActions", () => {
+    // e.g. Maggran: "{{Feature box|produce flame}}" for the "Produce Flame" page
+    it("finds the row of a page written in lowercase", () => {
+      const actions = buildCombatActions(
+        [{ page: "Produce flame" }],
+        [row({ page: "Produce Flame", name: "Produce Flame" })],
+      );
+
+      expect(actions.map((action) => action.name)).toEqual(["Produce Flame"]);
+    });
+
     it("builds one action per box, in order, with the page's own row", () => {
       const rows = [
         row({

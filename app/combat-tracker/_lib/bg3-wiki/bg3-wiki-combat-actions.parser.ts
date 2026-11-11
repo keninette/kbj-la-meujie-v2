@@ -75,6 +75,15 @@ const normalizePageName = (page: string): string =>
   capitalize(page.replaceAll("_", " ").replace(/\s+/g, " ").trim());
 
 /**
+ * Compares page names without case: character pages may write them in
+ * lowercase ("main hand attack") while the actions table has the real title
+ * ("Main Hand Attack"), and the wiki has no redirect for these
+ */
+const isSamePage = (page: string, otherPage: string): boolean =>
+  normalizePageName(page).toLowerCase() ===
+  normalizePageName(otherPage).toLowerCase();
+
+/**
  * The "Attacks and actions" section when the page has one (feature boxes
  * elsewhere may describe other things), else the whole page.
  */
@@ -126,7 +135,7 @@ const findFeatureBoxContents = (text: string): string[] => {
 export const uniqueFeatureBoxes = (boxes: FeatureBox[]): FeatureBox[] => {
   const seen = new Set<string>();
   return boxes.filter((box) => {
-    const key = `${box.page}|${box.item ?? ""}`;
+    const key = `${box.page.toLowerCase()}|${box.item ?? ""}`;
     if (seen.has(key)) {
       return false;
     }
@@ -181,14 +190,17 @@ export const findCombatSubpage = (wikitext: string): string | undefined =>
   wikitext.match(/\{\{\s*Main\s*\|\s*([^|{}]+\/Combat)\s*\}\}/i)?.[1].trim();
 
 /**
- * Cargo query matching the given pages. Titles holding a double quote can't
- * be written in the query and are left out: undefined when none is left.
+ * Cargo query matching the given pages, without case (see isSamePage). Titles
+ * holding a double quote can't be written in the query and are left out:
+ * undefined when none is left.
  */
 export const buildActionsWhere = (pages: string[]): string | undefined => {
   const quoted = pages
     .filter((page) => !page.includes('"'))
-    .map((page) => `"${page}"`);
-  return quoted.length ? `_pageName IN (${quoted.join(",")})` : undefined;
+    .map((page) => `"${page.toLowerCase()}"`);
+  return quoted.length
+    ? `LOWER(_pageName) IN (${quoted.join(",")})`
+    : undefined;
 };
 
 /**
@@ -324,12 +336,10 @@ export const buildCombatActions = (
   iconUrls: Map<string, string> = new Map(),
 ): CombatAction[] =>
   boxes.flatMap((box) => {
-    const pageRows = rows.filter(
-      (row) => normalizePageName(row.page) === box.page,
-    );
+    const pageRows = rows.filter((row) => isSamePage(row.page, box.page));
     // A page may store several rows: prefer the one named after it
     const row =
-      pageRows.find((r) => r.name && normalizePageName(r.name) === box.page) ??
+      pageRows.find((r) => r.name && isSamePage(r.name, box.page)) ??
       pageRows[0];
     if (!row) {
       return [];
