@@ -1,6 +1,8 @@
+import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   ActionCostKind,
   describeActionDetails,
+  describeDamage,
   getActionGroup,
   parseActionCost,
 } from "@/app/combat-tracker/_lib/combat-action.helper";
@@ -44,18 +46,54 @@ describe("parseActionCost", () => {
       amount: 2,
     });
   });
+
+  it.each([
+    ["all the movement", "movement", undefined],
+    ["half of it", "movement:half", "half"],
+    ["some meters", "movement:6", "6"],
+  ])("recognizes %s", (_, cost, resource) => {
+    expect(parseActionCost(cost)).toEqual({
+      kind: ActionCostKind.MOVEMENT,
+      resource,
+      amount: 1,
+    });
+  });
+});
+
+describe("describeDamage", () => {
+  it.each([
+    ["a spell's damage", { dice: "2d10", type: "Radiant" }, "2d10 Radiant"],
+    [
+      "a weapon's damage with its ability",
+      { dice: "2d6", abilities: [AbilityEnum.STRENGTH], type: "Slashing" },
+      "2d6+ability.str Slashing",
+    ],
+    [
+      "a versatile weapon with both abilities of a finesse one",
+      {
+        dice: "1d6",
+        versatileDice: "1d8",
+        abilities: [AbilityEnum.STRENGTH, AbilityEnum.DEXTERITY],
+        type: "Bludgeoning",
+      },
+      "1d6 (1d8)+ability.str/ability.dex Bludgeoning",
+    ],
+  ])("writes %s", (_, damage, expected) => {
+    expect(describeDamage(damage)).toBe(expected);
+  });
 });
 
 describe("describeActionDetails", () => {
   const moonbeam = {
     name: "Moonbeam",
+    item: "Staff",
     costs: ["action", "2"],
     damages: [{ dice: "2d10", type: "Radiant" }],
     save: "CON",
     isConcentration: true,
   };
 
-  it("describes the action without its costs", () => {
+  it("describes the action without its costs nor its item", () => {
     expect(describeActionDetails(moonbeam)).toBe(
       "2d10 Radiant · CON · actions.concentration",
     );

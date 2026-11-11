@@ -18,7 +18,7 @@ type ActionChipProps = {
   onRemove?: () => void;
 };
 
-/** An action: icon, name, costs and details. Its description in a tooltip. */
+/** An action: icon, name, costs and details. Its item and description in a tooltip. */
 const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
   const costs = action.costs
     .map(parseActionCost)
@@ -41,7 +41,15 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
         <ActionCostIcon key={`${cost.kind}-${index}`} cost={cost} />
       ))}
       subtitle={describeActionDetails(action)}
-      tooltip={action.description}
+      tooltip={
+        (action.item || action.description) && (
+          <>
+            {action.item && <strong>{action.item}</strong>}
+            {action.item && action.description && <br />}
+            {action.description}
+          </>
+        )
+      }
       deleteAction={
         onRemove && {
           onClick: onRemove,

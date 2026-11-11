@@ -18,9 +18,26 @@ const getLabel = ({ kind, resource }: ActionCost): string => {
     case ActionCostKind.RESOURCE:
       // Named like in the spell slots, e.g. "layonh"
       return resource ?? "";
+    case ActionCostKind.MOVEMENT:
+      if (resource === "half") {
+        return translate("actions.cost.halfMovement", "combatTracker");
+      }
+      return resource
+        ? translate("actions.cost.movementMeters", "combatTracker", {
+            meters: resource,
+          })
+        : translate("actions.cost.movement", "combatTracker");
     default:
       return translate(`actions.cost.${kind}`, "combatTracker");
   }
+};
+
+/** The spell slot's level, or the movement's part: "/2" for half, its meters */
+const getShapeText = ({ kind, resource }: ActionCost): string | undefined => {
+  if (kind === ActionCostKind.MOVEMENT) {
+    return resource === "half" ? "/2" : resource;
+  }
+  return kind === ActionCostKind.SPELL_SLOT ? resource : undefined;
 };
 
 type ActionCostIconProps = { cost: ActionCost };
@@ -28,14 +45,16 @@ type ActionCostIconProps = { cost: ActionCost };
 /**
  * Cost icon, like in the game: green circle for an action, orange triangle
  * for a bonus action, purple diamond for a reaction, light blue square for a spell
- * slot (with its level) and a wand for any other resource, as in the spells.
+ * slot (with its level), a yellow square for the movement (with its part),
+ * and a wand for any other resource, as in the spells.
  */
 const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
   const label = getLabel(cost);
   const tooltip = cost.amount > 1 ? `${label} ×${cost.amount}` : label;
 
   return (
-    <Tooltip content={tooltip}>
+    // The movement has no tooltip: it would overlap the action chip's
+    <Tooltip content={cost.kind !== ActionCostKind.MOVEMENT && tooltip}>
       <span
         className={styles["action-cost"]}
         role="img"
@@ -60,7 +79,7 @@ const ActionCostIcon = ({ cost }: ActionCostIconProps) => {
             )}
             aria-hidden
           >
-            {cost.kind === ActionCostKind.SPELL_SLOT ? cost.resource : null}
+            {getShapeText(cost)}
           </span>
         )}
         {cost.amount > 1 && (

@@ -1,4 +1,7 @@
-import { CombatAction } from "@/app/_lib/types/combat-action.type";
+import {
+  CombatAction,
+  CombatActionDamage,
+} from "@/app/_lib/types/combat-action.type";
 import { translate } from "@/app/_dictionaries/dictionnary";
 
 export enum ActionCostKind {
@@ -8,21 +11,28 @@ export enum ActionCostKind {
   SPELL_SLOT = "spellSlot",
   /** Any other resource: wild shape, lay on hands, channel oath... */
   RESOURCE = "resource",
+  /** All of it, half of it ("movement:half") or some meters ("movement:6") */
+  MOVEMENT = "movement",
 }
 
 export type ActionCost = {
   kind: ActionCostKind;
-  /** Key in CombatCharacter.spellSlotsLeft ("2", "layonh"), none for the action economy */
+  /** Key in CombatCharacter.spellSlotsLeft ("2", "layonh"), none for the action economy;
+   * "half" or meters for the movement */
   resource?: string;
   amount: number;
 };
 
 /**
  * "action" -> action, "2" -> level 2 spell slot,
- * "layonh:2" -> 2 uses of the "layonh" resource
+ * "layonh:2" -> 2 uses of the "layonh" resource,
+ * "movement:6" -> 6 m of movement
  */
 export const parseActionCost = (cost: string): ActionCost => {
   const [name, rawAmount] = cost.split(":");
+  if (name === ActionCostKind.MOVEMENT) {
+    return { kind: ActionCostKind.MOVEMENT, resource: rawAmount, amount: 1 };
+  }
   const amount = Number(rawAmount) || 1;
   if (
     name === ActionCostKind.ACTION ||
@@ -41,15 +51,28 @@ export const parseActionCost = (cost: string): ActionCost => {
 };
 
 /**
- * What the action does, without its costs:
- * "Dagger · 2d10 Radiant · CON · concentration · Short rest"
+ * "2d10 Radiant", or for a weapon "1d6 (1d8)+FOR Bludgeoning": its two-handed
+ * damage in brackets, then the ability added ("FOR/DEX" when either may be)
+ */
+export const describeDamage = (damage: CombatActionDamage): string => {
+  const versatile = damage.versatileDice ? ` (${damage.versatileDice})` : "";
+  const abilities = damage.abilities?.length
+    ? `+${damage.abilities
+        .map((ability) => translate(`ability.${ability}`, "combatTracker"))
+        .join("/")}`
+    : "";
+  return [`${damage.dice}${versatile}${abilities}`, damage.type]
+    .filter(Boolean)
+    .join(" ");
+};
+
+/**
+ * What the action does, without its costs nor its item (in its tooltip):
+ * "2d10 Radiant · CON · concentration · Short rest"
  */
 export const describeActionDetails = (action: CombatAction): string =>
   [
-    action.item,
-    ...(action.damages ?? []).map((damage) =>
-      [damage.dice, damage.type].filter(Boolean).join(" "),
-    ),
+    ...(action.damages ?? []).map(describeDamage),
     action.save,
     action.isConcentration
       ? translate("actions.concentration", "combatTracker")

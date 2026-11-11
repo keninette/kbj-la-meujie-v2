@@ -1,26 +1,32 @@
 "use server";
 
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
+import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   BG3_WIKI_HOST,
   Bg3WikiError,
   Bg3WikiErrorEnum,
   buildCharacterFromInfobox,
   extractPageTitleFromUrl,
+  getHighestDifficultyValue,
   getImageFileCandidates,
   mergeCombatInfobox,
+  parseAbilities,
   parseInfobox,
   WikiCharacter,
 } from "./bg3-wiki.parser";
 import {
   ACTION_FIELDS,
-  buildActionsWhere,
   buildCombatActions,
+  buildPagesWhere,
   extractFeatureBoxes,
   findCombatSubpage,
+  findWeaponItems,
   getActionIconFile,
   uniqueFeatureBoxes,
+  WEAPON_FIELDS,
   WikiActionRow,
+  WikiWeaponRow,
 } from "./bg3-wiki-combat-actions.parser";
 
 type WikiParseResponse = {
@@ -254,11 +260,38 @@ const parseOptionalInfobox = (
 };
 
 /**
+ * The weapons the actions are made with ("Club"), for their damage.
+ * Never throws: the actions are still imported, dealing "weapon" damage.
+ */
+const fetchWeapons = async (items: string[]): Promise<WikiWeaponRow[]> => {
+  const where = buildPagesWhere(items);
+  if (!where) {
+    return [];
+  }
+  try {
+    return await callCargoExport<WikiWeaponRow[]>({
+      tables: "weapons",
+      fields: WEAPON_FIELDS,
+      where,
+      limit: "500",
+    });
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+/**
  * Actions listed on the first page having some ("Attacks and actions"),
- * with their details from the actions table.
+ * with their details from the actions table, and the damage of the weapons
+ * they're made with (the character's abilities choose the one of a finesse
+ * weapon).
  * Never throws: the character is still imported without its actions.
  */
-const fetchActions = async (wikitexts: string[]): Promise<CombatAction[]> => {
+const fetchActions = async (
+  wikitexts: string[],
+  abilities: Partial<Record<AbilityEnum, number>>,
+): Promise<CombatAction[]> => {
   try {
     const listedBoxes =
       wikitexts.map(extractFeatureBoxes).find((found) => found.length) ?? [];
@@ -273,7 +306,7 @@ const fetchActions = async (wikitexts: string[]): Promise<CombatAction[]> => {
         page: pages.get(box.page) ?? box.page,
       })),
     );
-    const where = buildActionsWhere(boxes.map((box) => box.page));
+    const where = buildPagesWhere(boxes.map((box) => box.page));
     if (!where) {
       return [];
     }
@@ -284,11 +317,14 @@ const fetchActions = async (wikitexts: string[]): Promise<CombatAction[]> => {
       where,
       limit: "500",
     });
-    const iconUrls = await findImageUrls(
-      rows.map(getActionIconFile).filter((file): file is string => !!file),
-    );
+    const [iconUrls, weapons] = await Promise.all([
+      findImageUrls(
+        rows.map(getActionIconFile).filter((file): file is string => !!file),
+      ),
+      fetchWeapons(findWeaponItems(boxes, rows)),
+    ]);
 
-    return buildCombatActions(boxes, rows, iconUrls);
+    return buildCombatActions(boxes, rows, { iconUrls, weapons, abilities });
   } catch (error) {
     console.error(error);
     return [];
@@ -319,7 +355,10 @@ export const createCharacterFromWiki = async (
     const [imageUrl, actions] = await Promise.all([
       findImageUrl(getImageFileCandidates(fields)),
       // The subpage is the one about the fight: its actions win
-      fetchActions(combatWikitext ? [combatWikitext, wikitext] : [wikitext]),
+      fetchActions(
+        combatWikitext ? [combatWikitext, wikitext] : [wikitext],
+        parseAbilities((field) => getHighestDifficultyValue(fields, field)),
+      ),
     ]);
 
     return {

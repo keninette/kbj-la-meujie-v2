@@ -2,6 +2,7 @@ import {
   CombatAction,
   CombatActionDamage,
 } from "@/app/_lib/types/combat-action.type";
+import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   buildWikiLink,
   normalizeResourceName,
@@ -66,6 +67,40 @@ export const ACTION_FIELDS = [
   "description",
   "hotbar_icon",
 ].join(",");
+
+/**
+ * A row of the wiki's "weapons" Cargo table: the damage of a "Main Hand
+ * Attack" made with it. Its damage includes the enchantment ("1d8 + 1").
+ */
+export type WikiWeaponRow = {
+  page: string;
+  damage?: string | null;
+  "damage type"?: string | null;
+  "versatile damage"?: string | null;
+  "extra damage"?: string | null;
+  "extra damage type"?: string | null;
+  "extra damage 2"?: string | null;
+  "extra damage 2 type"?: string | null;
+  finesse?: number | boolean | null;
+  "melee or ranged"?: string | null;
+};
+
+/** Fields of the "weapons" table read by WikiWeaponRow */
+export const WEAPON_FIELDS = [
+  "_pageName=page",
+  "damage",
+  "damage_type",
+  "versatile_damage",
+  "extra_damage",
+  "extra_damage_type",
+  "extra_damage_2",
+  "extra_damage_2_type",
+  "finesse",
+  "melee_or_ranged",
+].join(",");
+
+/** The damage of an action dealing the damage of the weapon it is made with */
+const WEAPON_DAMAGE = "weapon";
 
 const capitalize = (value: string): string =>
   value.charAt(0).toUpperCase() + value.slice(1);
@@ -190,11 +225,11 @@ export const findCombatSubpage = (wikitext: string): string | undefined =>
   wikitext.match(/\{\{\s*Main\s*\|\s*([^|{}]+\/Combat)\s*\}\}/i)?.[1].trim();
 
 /**
- * Cargo query matching the given pages, without case (see isSamePage). Titles
- * holding a double quote can't be written in the query and are left out:
- * undefined when none is left.
+ * Cargo query matching the given pages (actions or weapons), without case
+ * (see isSamePage). Titles holding a double quote can't be written in the
+ * query and are left out: undefined when none is left.
  */
-export const buildActionsWhere = (pages: string[]): string | undefined => {
+export const buildPagesWhere = (pages: string[]): string | undefined => {
   const quoted = pages
     .filter((page) => !page.includes('"'))
     .map((page) => `"${page.toLowerCase()}"`);
@@ -206,12 +241,20 @@ export const buildActionsWhere = (pages: string[]): string | undefined => {
 /**
  * "action, spell2" -> ["action", "2"], keyed like the spell slots.
  * A resource used several times keeps its amount: "layonh:2" -> "layonh:2".
+ * The movement, all of it or a part: "movement", "half movement" ->
+ * "movement:half", "movement m:6" (or "movement:6") -> "movement:6".
  */
 export const parseCosts = (cost: string | null | undefined): string[] =>
   (cost ?? "")
     .split(",")
     .map((entry) => {
       const [name, amount] = entry.split(":").map((part) => part.trim());
+      if (/^half movement$/i.test(name)) {
+        return "movement:half";
+      }
+      if (/^movement( m)?$/i.test(name)) {
+        return amount ? `movement:${amount}` : "movement";
+      }
       const key = normalizeResourceName(name ?? "");
       return key && amount && amount !== "1" ? `${key}:${amount}` : key;
     })
@@ -275,6 +318,73 @@ const parseDamages = (row: WikiActionRow): CombatActionDamage[] =>
     return dice ? [type ? { dice, type } : { dice }] : [];
   });
 
+/** "1d8 + 1" -> "1d8+1"; nothing when empty */
+const toDice = (value: string | null | undefined): string | undefined =>
+  value?.replace(/\s+/g, "") || undefined;
+
+/**
+ * The ability added to a weapon's damage: DEX for a ranged weapon, FOR for a
+ * melee one, the best of both for a finesse one (both when the scores aren't
+ * known)
+ */
+export const getWeaponAbilities = (
+  weapon: WikiWeaponRow,
+  abilities: Partial<Record<AbilityEnum, number>>,
+): AbilityEnum[] => {
+  if (weapon.finesse) {
+    const strength = abilities[AbilityEnum.STRENGTH];
+    const dexterity = abilities[AbilityEnum.DEXTERITY];
+    if (strength === undefined || dexterity === undefined) {
+      return [AbilityEnum.STRENGTH, AbilityEnum.DEXTERITY];
+    }
+    return [
+      dexterity > strength ? AbilityEnum.DEXTERITY : AbilityEnum.STRENGTH,
+    ];
+  }
+  return [
+    weapon["melee or ranged"]?.toLowerCase() === "ranged"
+      ? AbilityEnum.DEXTERITY
+      : AbilityEnum.STRENGTH,
+  ];
+};
+
+/**
+ * What a weapon deals: its damage, with its two-handed one if versatile and
+ * the ability added, then its extra damages (e.g. fire), without ability.
+ * Nothing when the weapon has no damage.
+ */
+export const getWeaponDamages = (
+  weapon: WikiWeaponRow,
+  abilities: Partial<Record<AbilityEnum, number>>,
+): CombatActionDamage[] => {
+  const dice = toDice(weapon.damage);
+  if (!dice) {
+    return [];
+  }
+  const versatileDice = toDice(weapon["versatile damage"]);
+  const extras = (
+    [
+      [weapon["extra damage"], weapon["extra damage type"]],
+      [weapon["extra damage 2"], weapon["extra damage 2 type"]],
+    ] as const
+  ).flatMap(([extraDice, type]) => {
+    const extra = toDice(extraDice);
+    return extra
+      ? [definedOnly({ dice: extra, type: type?.trim() || undefined })]
+      : [];
+  });
+
+  return [
+    definedOnly({
+      dice,
+      versatileDice,
+      abilities: getWeaponAbilities(weapon, abilities),
+      type: weapon["damage type"]?.trim() || undefined,
+    }),
+    ...extras,
+  ];
+};
+
 const parseSpellLevel = (
   value: WikiActionRow["spell level"],
 ): number | undefined => {
@@ -300,8 +410,14 @@ export const buildCombatAction = (
   box: FeatureBox,
   row: WikiActionRow,
   iconUrl?: string,
+  /** The damages of the box's item, which replace a "weapon" damage */
+  weaponDamages: CombatActionDamage[] = [],
 ): CombatAction => {
-  const damages = parseDamages(row);
+  const damages = parseDamages(row).flatMap((damage) =>
+    damage.dice.toLowerCase() === WEAPON_DAMAGE && weaponDamages.length
+      ? weaponDamages
+      : [damage],
+  );
   return definedOnly({
     name: row.name || box.page,
     type: row.type || undefined,
@@ -328,12 +444,22 @@ export const getActionIconFile = (row: WikiActionRow): string | undefined =>
 
 /**
  * One action per feature box, in the page's order. A box whose page isn't in
- * the actions table (a passive, a typo...) is left out.
+ * the actions table (a passive, a typo...) is left out. An attack made with
+ * a weapon of the weapons table deals its damage, with the character's best
+ * ability for a finesse one.
  */
 export const buildCombatActions = (
   boxes: FeatureBox[],
   rows: WikiActionRow[],
-  iconUrls: Map<string, string> = new Map(),
+  {
+    iconUrls = new Map(),
+    weapons = [],
+    abilities = {},
+  }: {
+    iconUrls?: Map<string, string>;
+    weapons?: WikiWeaponRow[];
+    abilities?: Partial<Record<AbilityEnum, number>>;
+  } = {},
 ): CombatAction[] =>
   boxes.flatMap((box) => {
     const pageRows = rows.filter((row) => isSamePage(row.page, box.page));
@@ -345,11 +471,31 @@ export const buildCombatActions = (
       return [];
     }
     const iconFile = getActionIconFile(row);
+    const weapon = box.item
+      ? weapons.find((w) => isSamePage(w.page, box.item!))
+      : undefined;
     return [
       buildCombatAction(
         box,
         row,
         iconFile ? iconUrls.get(iconFile) : undefined,
+        weapon ? getWeaponDamages(weapon, abilities) : [],
       ),
     ];
+  });
+
+/** The items of the boxes dealing their weapon's damage: "Club", "Dagger"… */
+export const findWeaponItems = (
+  boxes: FeatureBox[],
+  rows: WikiActionRow[],
+): string[] =>
+  boxes.flatMap((box) => {
+    const dealsWeaponDamage = rows.some(
+      (row) =>
+        isSamePage(row.page, box.page) &&
+        parseDamages(row).some(
+          (damage) => damage.dice.toLowerCase() === WEAPON_DAMAGE,
+        ),
+    );
+    return box.item && dealsWeaponDamage ? [box.item] : [];
   });

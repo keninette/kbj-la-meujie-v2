@@ -33,6 +33,12 @@
       border-radius: var(--radius--spell-level);
       color: var(--color-spell-slot-text);
     }
+
+    &--movement {
+      background: var(--color-cost--movement);
+      color: var(--color-spell-slot-text);
+      border-radius: var(--radius--spell-level);
+    }
   }
 
   &__wand {

@@ -1,12 +1,16 @@
+import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
-  buildActionsWhere,
   buildCombatActions,
+  buildPagesWhere,
   cleanDescription,
   extractFeatureBoxes,
   findCombatSubpage,
+  findWeaponItems,
+  getWeaponDamages,
   parseCosts,
   uniqueFeatureBoxes,
   WikiActionRow,
+  WikiWeaponRow,
 } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki-combat-actions.parser";
 
 // Shortened from https://bg3.wiki/wiki/Kagha
@@ -128,13 +132,13 @@ describe("bg3-wiki combat actions parser", () => {
     });
   });
 
-  describe("buildActionsWhere", () => {
+  describe("buildPagesWhere", () => {
     it("quotes the pages without case and leaves out the ones it can't quote", () => {
       expect(
-        buildActionsWhere(["Moonbeam", "Absolute's Ward", 'The "Bad" one']),
+        buildPagesWhere(["Moonbeam", "Absolute's Ward", 'The "Bad" one']),
       ).toBe(`LOWER(_pageName) IN ("moonbeam","absolute's ward")`);
-      expect(buildActionsWhere(['The "Bad" one'])).toBeUndefined();
-      expect(buildActionsWhere([])).toBeUndefined();
+      expect(buildPagesWhere(['The "Bad" one'])).toBeUndefined();
+      expect(buildPagesWhere([])).toBeUndefined();
     });
   });
 
@@ -144,6 +148,15 @@ describe("bg3-wiki combat actions parser", () => {
       expect(parseCosts("action, layonh:2")).toEqual(["action", "layonh:2"]);
       expect(parseCosts("bonus, spell1:1")).toEqual(["bonus", "1"]);
       expect(parseCosts(null)).toEqual([]);
+    });
+
+    it.each([
+      ["all the movement", "movement", ["movement"]],
+      ["half of it", "half movement", ["movement:half"]],
+      ["some meters", "bonus, movement m:6", ["bonus", "movement:6"]],
+      ["some meters, written another way", "movement:3", ["movement:3"]],
+    ])("reads %s as a movement cost", (_, cost, expected) => {
+      expect(parseCosts(cost)).toEqual(expected);
     });
   });
 
@@ -235,7 +248,7 @@ describe("bg3-wiki combat actions parser", () => {
             { page: "Leadership" },
           ],
           rows,
-          icons,
+          { iconUrls: icons },
         ),
       ).toEqual([
         {
@@ -285,6 +298,120 @@ describe("bg3-wiki combat actions parser", () => {
         [row({ page: "Fire Bolt", name: "Fire Bolt", "spell level": 0 })],
       );
       expect(fireBolt.spellLevel).toBe(0);
+    });
+  });
+
+  // From the wiki's weapons table: https://bg3.wiki/wiki/Everburn_Blade, Club…
+  const weapon = (values: Partial<WikiWeaponRow>): WikiWeaponRow => ({
+    page: "Everburn Blade",
+    damage: "2d6",
+    "damage type": "Slashing",
+    "versatile damage": null,
+    "extra damage": "1d4",
+    "extra damage type": "Fire",
+    "extra damage 2": null,
+    "extra damage 2 type": null,
+    finesse: 0,
+    "melee or ranged": "melee",
+    ...values,
+  });
+
+  describe("getWeaponDamages", () => {
+    it("adds FOR to a melee weapon's damage, not to its extra damage", () => {
+      expect(getWeaponDamages(weapon({}), {})).toEqual([
+        { dice: "2d6", abilities: [AbilityEnum.STRENGTH], type: "Slashing" },
+        { dice: "1d4", type: "Fire" },
+      ]);
+    });
+
+    it("keeps the enchantment and the two-handed damage of a versatile weapon", () => {
+      const [damage] = getWeaponDamages(
+        weapon({
+          damage: "1d8 + 1",
+          "versatile damage": "1d10+1",
+          "extra damage": null,
+        }),
+        {},
+      );
+      expect(damage).toMatchObject({ dice: "1d8+1", versatileDice: "1d10+1" });
+    });
+
+    it.each([
+      [
+        "DEX for a ranged weapon",
+        { "melee or ranged": "ranged" },
+        {},
+        [AbilityEnum.DEXTERITY],
+      ],
+      [
+        "the best of FOR and DEX for a finesse weapon",
+        { finesse: 1 },
+        { str: 10, dex: 16 },
+        [AbilityEnum.DEXTERITY],
+      ],
+      [
+        "both for a finesse weapon when the scores are unknown",
+        { finesse: 1 },
+        {},
+        [AbilityEnum.STRENGTH, AbilityEnum.DEXTERITY],
+      ],
+    ])("adds %s", (_, values, abilities, expected) => {
+      const [damage] = getWeaponDamages(weapon(values), abilities);
+      expect(damage.abilities).toEqual(expected);
+    });
+
+    it("gives nothing for a weapon without damage", () => {
+      expect(getWeaponDamages(weapon({ damage: null }), {})).toEqual([]);
+    });
+  });
+
+  describe("buildCombatActions with weapons", () => {
+    const mainHandAttack = row({
+      page: "Main Hand Attack",
+      name: "Main Hand Attack",
+      "damage 1": "weapon",
+    });
+
+    // e.g. Maggran: "{{Feature box|main hand attack|item=Club}}"
+    it("deals the damage of the weapon it's made with, found without case", () => {
+      const [attack] = buildCombatActions(
+        [{ page: "Main Hand Attack", item: "club" }],
+        [mainHandAttack],
+        {
+          weapons: [
+            weapon({
+              page: "Club",
+              damage: "1d4",
+              "damage type": "Bludgeoning",
+              "extra damage": null,
+            }),
+          ],
+        },
+      );
+      expect(attack.damages).toEqual([
+        { dice: "1d4", abilities: [AbilityEnum.STRENGTH], type: "Bludgeoning" },
+      ]);
+    });
+
+    it("keeps the weapon damage when the weapon isn't found", () => {
+      const [attack] = buildCombatActions(
+        [{ page: "Main Hand Attack", item: "Unknown Blade" }],
+        [mainHandAttack],
+        { weapons: [weapon({})] },
+      );
+      expect(attack.damages).toEqual([{ dice: "weapon" }]);
+    });
+
+    it("lists the items of the actions dealing their weapon's damage only", () => {
+      expect(
+        findWeaponItems(
+          [
+            { page: "Main Hand Attack", item: "Club" },
+            { page: "Moonbeam", item: "Staff" },
+          ],
+          [mainHandAttack, row({ "damage 1": "2d10" })],
+        ),
+      ).toEqual(["Club"]);
     });
   });
 });
