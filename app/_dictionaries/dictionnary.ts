@@ -13,6 +13,7 @@ const dictionaries = {
     combatTracker: await import("./fr/combat-tracker.fr.json"),
     dndConditions: await import("./fr/dnd-conditions.fr.json"),
     dndActions: await import("./fr/dnd-actions.fr.json"),
+    dndPassives: await import("./fr/dnd-passives.fr.json"),
   },
 };
 

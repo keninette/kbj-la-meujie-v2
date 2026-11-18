@@ -4,6 +4,7 @@ import {
   extractPageTitleFromUrl,
   getHighestDifficultyValue,
   getImageFileCandidates,
+  getInfoboxList,
   mergeCombatInfobox,
   buildShortDescription,
   buildWikiLink,
@@ -106,6 +107,30 @@ describe("bg3 wiki parser", () => {
       expect(
         getHighestDifficultyValue({ "h hp": "<!-- TBD -->" }, "hp"),
       ).toBeUndefined();
+    });
+  });
+
+  describe("getInfoboxList", () => {
+    it("lists the passives and resistances, the highest difficulty first", () => {
+      const fields = parseInfobox(KAGHA_WIKITEXT);
+      expect(getInfoboxList(fields, "passives")).toEqual([
+        "Darkvision",
+        "Fey Ancestry",
+        "Opportunity Attack",
+        "Venomous Revenge",
+      ]);
+      expect(getInfoboxList(fields, "resistances")).toEqual([
+        "poison resistant full",
+      ]);
+      expect(
+        getInfoboxList(
+          {
+            resistances: "fire resistance nm",
+            "h resistances": "fire immunity, cold vulnerable",
+          },
+          "resistances",
+        ),
+      ).toEqual(["fire immunity", "cold vulnerable"]);
     });
   });
 
@@ -249,13 +274,6 @@ describe("bg3 wiki parser", () => {
         // Level 5: proficiency bonus of 3 for intelligence and wisdom
         savingThrows: { str: 3, dex: 3, con: 2, int: 5, wis: 6, cha: 2 },
         actionResourcesLeft: { "1": 4, "2": 3, "3": 2, wldshp: 2 },
-        passives: [
-          "Darkvision",
-          "Fey Ancestry",
-          "Opportunity Attack",
-          "Venomous Revenge",
-          "poison resistant full",
-        ],
       });
     });
 

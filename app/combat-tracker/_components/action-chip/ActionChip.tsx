@@ -12,9 +12,9 @@ import {
 import DamageText from "@/app/combat-tracker/_components/damage-text/DamageText";
 import { splitResourceVariant } from "@/app/combat-tracker/_lib/action-resource.helper";
 import {
-  getActionText,
-  isActionTranslated,
-} from "@/app/combat-tracker/_lib/action-text.helper";
+  getWikiText,
+  isWikiItemTranslated,
+} from "@/app/combat-tracker/_lib/wiki-text.helper";
 import TranslatedTooltip from "@/app/combat-tracker/_components/translated-tooltip/TranslatedTooltip";
 import ActionCostIcon from "./ActionCostIcon";
 
@@ -42,11 +42,11 @@ const ActionChip = ({
   const costs = action.costs
     .map(parseActionCost)
     .filter((cost) => cost.kind !== group);
-  const french = getActionText(action, "fr");
+  const french = getWikiText(action, "fr");
   // Not translated and named after its class resource: "Forme sauvage" for
   // "Wild Shape: Bear", whose name moves to the tooltip, and its variant
   // ("Bear") to the subtitle, to tell the forms apart
-  const resourceVariant = isActionTranslated(action)
+  const resourceVariant = isWikiItemTranslated(action)
     ? undefined
     : splitResourceVariant(action);
   const title = resourceVariant?.resourceName ?? french.name;
@@ -94,7 +94,7 @@ const ActionChip = ({
             title={tooltipTitle}
             descriptions={{
               fr: french.description,
-              en: getActionText(action, "en").description,
+              en: getWikiText(action, "en").description,
             }}
             wikiLink={action.wikiLink}
           />

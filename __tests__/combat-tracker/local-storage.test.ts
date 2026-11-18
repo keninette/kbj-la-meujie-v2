@@ -22,7 +22,7 @@ describe("loadCombat", () => {
   it("round-trips a valid combat through saveCombat/loadCombat", () => {
     const combat = buildCombat([
       buildCharacter({
-        passives: ["Rage", "Vision dans le noir"],
+        passives: [{ name: "Rage" }, { name: "Vision dans le noir" }],
         usableObjects: ["Potion de soin"],
       }),
     ]);
@@ -119,7 +119,11 @@ describe("loadCombat", () => {
       "usable objects that are not strings",
       withCharacter({ usableObjects: [42] }),
     ],
-    ["passives that are not strings", withCharacter({ passives: [42] })],
+    ["passives without a name", withCharacter({ passives: [{ name: 42 }] })],
+    [
+      "a passive whose id is not a string",
+      withCharacter({ passives: [{ name: "Darkvision", bg3PassiveId: 42 }] }),
+    ],
     [
       "an action whose costs are not an array",
       withCharacter({ actions: [{ name: "Moonbeam", costs: "action" }] }),

@@ -12,6 +12,7 @@ import {
   CombatAction,
   CombatActionDamage,
 } from "../../_lib/types/combat-action.type";
+import { CombatPassive } from "../../_lib/types/combat-passive.type";
 import { CombatStatusEnum } from "../../_lib/enums/combat-status.enum";
 
 const STORAGE_KEY = "scratchie-combat-tracker";
@@ -78,6 +79,14 @@ const isCombatAction = (value: unknown): value is CombatAction =>
   isOptional(value.iconUrl, "string") &&
   isOptional(value.wikiLink, "string");
 
+const isCombatPassive = (value: unknown): value is CombatPassive =>
+  isRecord(value) &&
+  typeof value.name === "string" &&
+  isOptional(value.bg3PassiveId, "string") &&
+  isOptional(value.description, "string") &&
+  isOptional(value.iconUrl, "string") &&
+  isOptional(value.wikiLink, "string");
+
 const isCombatCharacter = (value: unknown): value is CombatCharacter => {
   if (!isRecord(value)) {
     return false;
@@ -89,8 +98,7 @@ const isCombatCharacter = (value: unknown): value is CombatCharacter => {
       value.conditions.every(isCombatCondition));
   const passivesAreValid =
     value.passives === undefined ||
-    (Array.isArray(value.passives) &&
-      value.passives.every((passive) => typeof passive === "string"));
+    (Array.isArray(value.passives) && value.passives.every(isCombatPassive));
   const actionsAreValid =
     value.actions === undefined ||
     (Array.isArray(value.actions) && value.actions.every(isCombatAction));

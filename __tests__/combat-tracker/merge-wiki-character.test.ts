@@ -19,7 +19,7 @@ const kagha = buildCharacter({
   initiativeScore: 0,
   initiativeRoll: 0,
   actionResourcesLeft: { "1": 4, wldshp: 2 },
-  passives: ["Darkvision"],
+  passives: [{ name: "Darkvision" }],
 });
 
 describe("mergeWikiCharacter", () => {
@@ -80,7 +80,7 @@ describe("mergeWikiCharacter", () => {
       imageUrl: "https://bg3.wiki/w/images/5/5d/Portrait_Kagha.png",
       wikiLink: "https://bg3.wiki/wiki/Kagha",
       actionResourcesLeft: { "1": 4, wldshp: 2 },
-      passives: ["Darkvision"],
+      passives: [{ name: "Darkvision" }],
     });
   });
 
@@ -88,7 +88,7 @@ describe("mergeWikiCharacter", () => {
     const current = buildCharacter({
       name: "My Kagha",
       ac: 16,
-      passives: ["Rage"],
+      passives: [{ name: "Rage" }],
     });
 
     const merged = mergeWikiCharacter(current, kagha, WIKI_IMPORTED_FIELDS);
@@ -97,7 +97,7 @@ describe("mergeWikiCharacter", () => {
       name: "Kagha",
       ac: 14,
       hp: 84,
-      passives: ["Darkvision"],
+      passives: [{ name: "Darkvision" }],
     });
   });
 
@@ -127,7 +127,7 @@ describe("mergeWikiCharacter", () => {
   it("keeps values the wiki does not provide, even when overriding", () => {
     const current = buildCharacter({
       shortDescription: "Custom description",
-      passives: ["Rage"],
+      passives: [{ name: "Rage" }],
       imageUrl: "https://example.com/custom.png",
     });
     const sparse = buildCharacter({
@@ -144,7 +144,7 @@ describe("mergeWikiCharacter", () => {
       hp: 7,
       ac: current.ac,
       shortDescription: "Custom description",
-      passives: ["Rage"],
+      passives: [{ name: "Rage" }],
       imageUrl: "https://example.com/custom.png",
     });
   });

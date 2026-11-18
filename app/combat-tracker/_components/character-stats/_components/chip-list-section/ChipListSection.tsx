@@ -8,7 +8,6 @@ type ChipListSectionProps = {
   "data-testid"?: string;
 };
 
-/** A list of the character, e.g. its passives, as chips. Hidden when empty */
 const ChipListSection = ({
   title,
   items = [],

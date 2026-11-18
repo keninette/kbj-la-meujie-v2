@@ -131,6 +131,21 @@ const isSamePage = (page: string, otherPage: string): boolean =>
   normalizePageName(otherPage).toLowerCase();
 
 /**
+ * The row of a page in a Cargo table. A page may store several rows
+ * (variants): prefer the one named after it.
+ */
+export const findPageRow = <T extends { page: string; name?: string | null }>(
+  rows: T[],
+  page: string,
+): T | undefined => {
+  const pageRows = rows.filter((row) => isSamePage(row.page, page));
+  return (
+    pageRows.find((row) => row.name && isSamePage(row.name, page)) ??
+    pageRows[0]
+  );
+};
+
+/**
  * The "Attacks and actions" section when the page has one (feature boxes
  * elsewhere may describe other things), else the whole page.
  */
@@ -276,7 +291,7 @@ export const parseCosts = (cost: string | null | undefined): string[] =>
     })
     .filter(Boolean);
 
-const decodeHtmlEntities = (value: string): string => {
+export const decodeHtmlEntities = (value: string): string => {
   const named: Record<string, string> = {
     amp: "&",
     lt: "<",
@@ -430,7 +445,7 @@ const parseSpellLevel = (
 };
 
 /** Missing optional values are left out rather than stored as undefined */
-const definedOnly = <T extends object>(value: T): T =>
+export const definedOnly = <T extends object>(value: T): T =>
   Object.fromEntries(
     Object.entries(value).filter(
       ([, field]) => field !== undefined && field !== false,
@@ -493,11 +508,7 @@ export const buildCombatActions = (
   } = {},
 ): CombatAction[] =>
   boxes.flatMap((box) => {
-    const pageRows = rows.filter((row) => isSamePage(row.page, box.page));
-    // A page may store several rows: prefer the one named after it
-    const row =
-      pageRows.find((r) => r.name && isSamePage(r.name, box.page)) ??
-      pageRows[0];
+    const row = findPageRow(rows, box.page);
     if (!row) {
       return [];
     }

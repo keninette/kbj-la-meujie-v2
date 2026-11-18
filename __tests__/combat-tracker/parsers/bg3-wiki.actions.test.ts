@@ -58,4 +58,27 @@ describe("createCharacterFromWiki errors", () => {
       error: Bg3WikiErrorEnum.FETCH_FAILED,
     });
   });
+
+  it("imports the passives from our list, even when the wiki can't give more", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            parse: {
+              title: "Kagha",
+              wikitext: "{{Infobox creature\n| passives = Darkvision\n}}",
+            },
+          }),
+        ),
+      )
+      .mockRejectedValue(new TypeError("offline"));
+
+    const { character } = await createCharacterFromWiki(KAGHA_URL);
+
+    expect(character?.passives).toEqual([
+      { name: "Darkvision", bg3PassiveId: "darkvision" },
+    ]);
+  });
 });

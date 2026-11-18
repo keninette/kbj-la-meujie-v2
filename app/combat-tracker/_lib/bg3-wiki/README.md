@@ -1,8 +1,8 @@
 # bg3.wiki import
 
-The combat tracker can fill a character from its [bg3.wiki](https://bg3.wiki) page: paste the page URL in the edit form, and the import fills its stats, resources, portrait and actions. The game master then reviews the highlighted fields before saving.
+The combat tracker can fill a character from its [bg3.wiki](https://bg3.wiki) page: paste the page URL in the edit form, and the import fills its stats, resources, portrait, passives and actions. The game master then reviews the highlighted fields before saving.
 
-This folder holds everything that reads the wiki. The rest of the app only knows `CombatCharacter` and `CombatAction`.
+This folder holds everything that reads the wiki. The rest of the app only knows `CombatCharacter`, `CombatAction` and `CombatPassive`.
 
 ## Files
 
@@ -11,6 +11,7 @@ This folder holds everything that reads the wiki. The rest of the app only knows
 | `bg3-wiki.actions.ts`               | **Server action** (`"use server"`): every request to the wiki. bg3.wiki doesn't allow cross-origin requests, so the browser can't call it. Entry point: `createCharacterFromWiki(url)`.    |
 | `bg3-wiki.parser.ts`                | Pure functions reading the character page: URL → title, the `{{Infobox creature}}` fields, abilities, saving throws, resources, portrait candidates, wiki links.                           |
 | `bg3-wiki-combat-actions.parser.ts` | Pure functions reading the actions: the feature boxes of the page, the rows of the `actions` and `weapons` Cargo tables, costs, damages, descriptions.                                     |
+| `bg3-wiki-passives.parser.ts`       | Pure functions turning the infobox's passives and resistances into `CombatPassive`s.                                                                                                       |
 | `bg3-wiki.images.ts`                | The wiki host and image path. Shared with `next.config.ts` (allowed image host), so **it keeps relative imports only**.                                                                    |
 | `merge-wiki-character.ts`           | Merges an imported character into the edited one, and lists the fields that changed, so the form can highlight them. Combat state (initiative, conditions, death saves…) is never touched. |
 
@@ -18,9 +19,11 @@ Related data, outside this folder, in `app/combat-tracker/_lib/`:
 
 - `bg3-action-resources.ts`: spell slots and class resources (rage, wild shape…), with the wiki's aliases and icons.
 - `bg3-conditions.ts`: the game's conditions.
+- `bg3-passives.ts`: the 200 passives most used by the wiki's creatures, with their description, icon and link (see "Passives" below).
+- `bg3-resistances.ts`: the resistance keywords of the infobox, their names and icons.
 - `bg3-damage-types.ts`: the damage type icons.
 
-Translations are in `app/_dictionaries/fr/`: `dnd-conditions.fr.json` and `dnd-actions.fr.json`.
+Translations are in `app/_dictionaries/fr/`: `dnd-conditions.fr.json`, `dnd-actions.fr.json` and `dnd-passives.fr.json`, plus the resistance wordings under `resistance.*` in `combat-tracker.fr.json`.
 
 ## How an import works
 
@@ -32,9 +35,11 @@ Translations are in `app/_dictionaries/fr/`: `dnd-conditions.fr.json` and `dnd-a
    2. **Redirects.** We resolve each box's page title (`Firebolt` → `Fire Bolt`), since the Cargo tables only know the real titles.
    3. **The `actions` table.** We read its rows through `Special:CargoExport` (see below): costs, damages, save, concentration, description, icon.
    4. **Icons and weapons, in parallel.** We find the URLs of the action icons. For an attack dealing "weapon" damage with an `item=`, we read the `weapons` table for that weapon's damage (see below).
-5. **The portrait.** We try several image file names from the infobox, best first, and keep the first one that exists.
+5. **The passives,** without any request: their names are looked up in `bg3-passives.ts` (see below).
+6. **The resistances.** We find the URLs of their icons.
+7. **The portrait.** We try several image file names from the infobox, best first, and keep the first one that exists.
 
-**What may fail:** only the first step throws (page not found, no infobox, network). Everything after it never throws. A failed subpage, icon, weapon or actions request is logged, and the character is still imported without that part.
+**What may fail:** only the first step throws (page not found, no infobox, network). Everything after it never throws. A failed subpage, icon, weapon or actions request is logged, and the character is still imported without that part. The passives never depend on the wiki answering.
 
 ### Cargo tables
 
@@ -60,12 +65,31 @@ We read them with `index.php?title=Special:CargoExport&format=json&tables=…&fi
 - **Damage types** map to `DamageTypeEnum`, without case. An unknown one (`"Weapon"`) is left out, and the dice are kept.
 - **Descriptions.** They come as escaped HTML mixed with wiki markup (icons, links, damage colour spans). `cleanDescription` turns them into plain text.
 
+### Passives and resistances
+
+**Passives** are stored like conditions: a passive of our list keeps only its name and `bg3PassiveId`, and `PassiveChip` reads its icon, description and link from `bg3-passives.ts` (French texts with `getPassiveText`). This avoids a `passives` Cargo request at each import, often refused by the rate limit (see the troubleshooting).
+
+- **Matching.** The infobox lists page names (the wiki's own infobox needs exact names too). `buildPassives` turns the name into our id (`toWikiPageId`: `Hunter's Prey` → `hunter-s-prey`), so the case doesn't matter.
+- **Item passives.** `Tenacity @ Maul` is the `Tenacity` passive, given by an item. The item is dropped.
+- **Unknown passive.** It keeps its name, and a wiki link built from it.
+- **Their own texts win.** A passive typed by hand, or imported before the list existed, keeps its own description, icon and link.
+
+**Which passives are in the list.** The 200 most used in the infoboxes, most used first: 96 % of the uses, on 2,446 creature pages. They're counted like the actions (see "Which actions are translated" below), with the `passives` field instead of the feature boxes, and `@ item` removed. To regenerate or extend the list:
+
+1. Read the rows of these pages in the `passives` table (`_pageName`, `name`, `icon`, `brief`, `description`), in batches of 50, slowly (see the rate limits).
+2. Find the URLs of their icons (`prop=imageinfo`). Some passives have no icon on the wiki.
+3. Clean them through the parser itself, in a temporary Jest test: `decodeHtmlEntities` for the names, `cleanDescription` for the descriptions (the `brief` when there's no description), `buildWikiLink` for the links.
+4. Write `bg3-passives.ts`, and add the French `<id>.name` and `<id>.description` keys to `dnd-passives.fr.json`.
+
+**Resistances** (`resistances = fire resistance nm, poison immunity`) aren't pages, but keywords: `<damage type> <kind>`, read like the wiki's [Template:Resistance](https://bg3.wiki/wiki/Template:Resistance) does (`bg3-resistances.ts`, with the wiki's spelling variants). They become passives named like on the wiki ("Resistant to Non-Magical Fire"), with their icon (`Fire Resistance NM.png`) and a link to the Resistances page. Their French name is built from the kind and the damage type ("Résistance : Feu (non magique)"), so every one is translated. An unknown value keeps its raw name.
+
 ### Translations
 
 The wiki is in English only. The French texts are ours, in dictionaries keyed by our own ids:
 
 - **Conditions:** `dnd-conditions.fr.json`, keyed by the condition id in `bg3-conditions.ts`.
-- **Actions:** `dnd-actions.fr.json`, keyed by the action's wiki page, from its `wikiLink`: `.../wiki/Lay_on_Hands:_Greater_Healing` → `lay-on-hands-greater-healing` (`getActionId` in `action-text.helper.ts`). We key by page, not by name, because two pages may share a name (several "Fly"). Already imported characters get new translations without a re-import.
+- **Passives:** `dnd-passives.fr.json`, keyed by the passive id in `bg3-passives.ts`.
+- **Actions:** `dnd-actions.fr.json`, keyed by the action's wiki page, from its `wikiLink`: `.../wiki/Lay_on_Hands:_Greater_Healing` → `lay-on-hands-greater-healing` (`getWikiTextId` in `wiki-text.helper.ts`). We key by page, not by name, because two pages may share a name (several "Fly"). Already imported characters get new translations without a re-import.
 
 **Fallback.** When there's no translation, the original English text is shown. The tooltip's switch shows the English description either way.
 
@@ -104,7 +128,7 @@ These all happened, and each one has a regression test in `__tests__/combat-trac
 - **Several rows for one page.** A page can store several rows (variants of the same action). We prefer the row named after the page.
 - **Feature boxes outside the actions.** A page may use feature boxes for other things (allies, summons). When it has an "Attacks and actions" section, only that section is read.
 - **Damage types.** Rows may use a type that isn't one: `"Weapon"` when the weapon's own damage applies. The Cargo `weapons` table only uses the 13 real types.
-- **Rate limits.** The wiki answers `429 Too Many Requests`, or an HTML error page instead of JSON, when it gets too many requests in a short time. This doesn't happen during a normal import, but it does when scripting many requests (e.g. to update translations). Batch your requests, pause between them, and send a generic `User-Agent`.
+- **Rate limits.** `Special:CargoExport` is rate-limited for anonymous users ("due to bot activity"): it answers `429 Too Many Requests` with an HTML page instead of JSON, with no `Retry-After`. It happens **during a normal import**: two exports a few seconds apart can be refused. That's why the passives no longer use Cargo (Arron and Karlach had lost their descriptions and icons). The actions and weapons still do, so a 429 leaves a character without its actions. The API (`api.php`) isn't limited the same way. When scripting many requests, batch them, pause between them, retry after a 429, and send a generic `User-Agent`.
 - **Query size.** The MediaWiki API accepts at most 50 titles per request for anonymous users (`MAX_TITLES_PER_REQUEST`). Titles containing a double quote can't be written in a Cargo `where`, so `buildPagesWhere` leaves them out.
 - **Images.** Wiki images go through Next's image optimisation (allowed in `next.config.ts` via `BG3_WIKI_IMAGE_PATTERN`). A URL from another host is shown as is (`unoptimized`). A URL still being typed is not displayed (`isDisplayableImageUrl`).
 

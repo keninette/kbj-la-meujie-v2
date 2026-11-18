@@ -169,6 +169,9 @@ const CombatTrackerPage = () => {
     });
   };
 
+  // Loads the saved combat once the page is shown in the browser:
+  // localStorage doesn't exist during the server render. queueMicrotask only
+  // keeps the react-hooks lint rule from flagging a setState inside an effect.
   useEffect(() => {
     queueMicrotask(() => {
       setCombat(normalizeCombat(loadCombat()));
@@ -196,6 +199,7 @@ const CombatTrackerPage = () => {
           onCharacterAdded={onCharacterAdded}
         />
         <div className={styles["combat-tracker__container"]}>
+          {!hasCharacters && <>Créez un personnage pour commencer</>}
           {/* An empty combat: no empty panel */}
           {hasCharacters && (
             <ContainerBox

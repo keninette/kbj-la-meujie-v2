@@ -7,6 +7,7 @@
 - You don't need to validate review changes since you've already presented the plan in the review report.
 - You don't need to validate the plan when it's minor changes I asked for.
 - Reading files, searching the codebase and running read-only commands to build the plan is fine without asking.
+- **Before planning a feature, look for a similar one already done** (e.g. conditions, actions and passives all come from the wiki) and do it the same way: same data layout, same kind of files, same flow. If the new case seems to need another approach, or the existing one looks worth changing, say so in the plan and ask which way to go.
 - **Always review your code before saying it's done**, look for duplicated code or components and make sure files and directories are named following the existing convention.
 - **KISS: keep the code as simple as possible**, as long as it respects the best practices and the existing infrastructure. Don't write code that isn't used yet (optional props, options, abstractions "for later"): add it when it's needed. Simple code keeps the app maintainable.
 - **Match the solution to the size of the problem.** A small visual adjustment (spacing, alignment, a few pixels) gets a small CSS change: a padding, a margin or a height. No measurement scripts, no values computed from font metrics, no Sass variables or extra wrappers created just for it.

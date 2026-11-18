@@ -1,6 +1,7 @@
 "use server";
 
 import { CombatAction } from "@/app/_lib/types/combat-action.type";
+import { CombatPassive } from "@/app/_lib/types/combat-passive.type";
 import { AbilityEnum } from "@/app/_lib/enums/ability.enum";
 import {
   BG3_WIKI_HOST,
@@ -9,6 +10,7 @@ import {
   buildCharacterFromInfobox,
   extractPageTitleFromUrl,
   getImageFileCandidates,
+  getInfoboxList,
   mergeCombatInfobox,
   parseInfobox,
   WikiCharacter,
@@ -26,6 +28,15 @@ import {
   WikiActionRow,
   WikiWeaponRow,
 } from "./bg3-wiki-combat-actions.parser";
+import {
+  buildPassives,
+  buildResistancePassives,
+} from "./bg3-wiki-passives.parser";
+import {
+  getResistanceIconFile,
+  parseResistance,
+  Resistance,
+} from "@/app/combat-tracker/_lib/bg3-resistances";
 
 type WikiParseResponse = {
   parse?: { title: string; wikitext: string };
@@ -330,6 +341,18 @@ const fetchActions = async (
 };
 
 /**
+ * The infobox's resistances, as passives with their icon.
+ * Never throws: findImageUrls doesn't.
+ */
+const fetchResistances = async (values: string[]): Promise<CombatPassive[]> => {
+  const iconFiles = values
+    .map(parseResistance)
+    .filter((resistance): resistance is Resistance => !!resistance)
+    .map(getResistanceIconFile);
+  return buildResistancePassives(values, await findImageUrls(iconFiles));
+};
+
+/**
  * Runs on the server: bg3.wiki doesn't allow cross-origin requests
  * from the browser.
  */
@@ -351,7 +374,7 @@ export const createCharacterFromWiki = async (
         ? mergeCombatInfobox(pageFields, combatFields)
         : (combatFields ?? pageFields)!;
     const character = buildCharacterFromInfobox(fields, title);
-    const [imageUrl, actions] = await Promise.all([
+    const [imageUrl, actions, resistances] = await Promise.all([
       findImageUrl(getImageFileCandidates(fields)),
       // The subpage is the one about the fight: its actions win. The
       // character's abilities choose the one of a finesse weapon.
@@ -359,13 +382,19 @@ export const createCharacterFromWiki = async (
         combatWikitext ? [combatWikitext, wikitext] : [wikitext],
         character.abilities ?? {},
       ),
+      fetchResistances(getInfoboxList(fields, "resistances")),
     ]);
+    const passives = [
+      ...buildPassives(getInfoboxList(fields, "passives")),
+      ...resistances,
+    ];
 
     return {
       character: {
         ...character,
         ...(imageUrl ? { imageUrl } : {}),
         ...(actions.length ? { actions } : {}),
+        ...(passives.length ? { passives } : {}),
       },
     };
   } catch (error) {

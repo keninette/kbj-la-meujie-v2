@@ -16,11 +16,12 @@ import CharacterStats from "@/app/combat-tracker/_components/character-stats/Cha
 import { buildCharacter } from "./_fixtures/combat-tracker.fixtures";
 
 // dictionnary.ts uses top-level await, unsupported by Jest's CJS environment.
-// Only Fire Bolt is translated
+// Only the Fire Bolt action and the Darkvision passive are translated
 jest.mock("../../app/_dictionaries/dictionnary", () => ({
   translate: (key: string) => key,
   hasTranslation: (key: string, namespace: string) =>
-    namespace === "dndActions" && key.startsWith("fire-bolt."),
+    (namespace === "dndActions" && key.startsWith("fire-bolt.")) ||
+    (namespace === "dndPassives" && key.startsWith("darkvision.")),
 }));
 
 // Never call the real wiki from the tests
@@ -134,7 +135,7 @@ describe("EditCharacterForm fields", () => {
         shortDescription: "Human Ranger level 4",
         wikiLink: "https://bg3.wiki/wiki/Halsin",
         imageUrl: "https://example.com/custom.png",
-        passives: ["Rage"],
+        passives: [{ name: "Rage" }],
         usableObjects: ["Potion"],
         movement: 7.5,
         proficiencyBonus: 3,
@@ -154,7 +155,7 @@ describe("EditCharacterForm fields", () => {
         movement: 9,
         abilities: { str: 10, dex: 16 },
         savingThrows: { dex: 5 },
-        passives: ["Rage", "Fury"],
+        passives: [{ name: "Rage" }, { name: "Fury" }],
       }),
     );
 
@@ -164,7 +165,7 @@ describe("EditCharacterForm fields", () => {
     type("abilityScore-dex", "");
     type("savingThrow-dex", "");
     fireEvent.click(
-      within(screen.getByTestId("passiveName-item-0")).getByRole("button"),
+      within(screen.getAllByTestId("passive-chip")[0]).getByRole("button"),
     );
     fireEvent.submit(screen.getByTestId("edit-character-form"));
 
@@ -177,7 +178,7 @@ describe("EditCharacterForm fields", () => {
     expect(saved.movement).toBeUndefined();
     expect(saved.abilities).toEqual({ str: 10 });
     expect(saved.savingThrows).toBeUndefined();
-    expect(saved.passives).toEqual(["Fury"]);
+    expect(saved.passives).toEqual([{ name: "Fury" }]);
     // No dexterity, no initiative bonus anymore
     expect(saved.initiativeScore).toBe(12);
   });
@@ -787,6 +788,58 @@ describe("CharacterStats action tooltip and short description", () => {
     fireEvent.click(within(tooltip).getByTestId("language-switch"));
 
     expect(tooltip).toHaveTextContent("Hurl a mote of fire.");
+  });
+
+  it("shows one of our passives in french with its icon, and its english description on demand", async () => {
+    renderStats(
+      buildCharacter({
+        passives: [{ name: "Darkvision", bg3PassiveId: "darkvision" }],
+      }),
+    );
+
+    expect(screen.getByTestId("passive-chip")).toHaveTextContent(
+      "darkvision.name",
+    );
+    expect(
+      within(screen.getByTestId("passive-chip")).getByRole("presentation"),
+    ).toBeInTheDocument();
+    fireEvent.mouseOver(screen.getByTestId("passive-chip"));
+    const tooltip = await screen.findByRole("tooltip");
+    expect(tooltip).toHaveTextContent("Darkvision");
+    expect(tooltip).toHaveTextContent("darkvision.description");
+    expect(within(tooltip).getByTestId("wiki-link")).toHaveAttribute(
+      "href",
+      "https://bg3.wiki/wiki/Darkvision",
+    );
+
+    fireEvent.click(within(tooltip).getByTestId("language-switch"));
+
+    expect(tooltip).toHaveTextContent(
+      "Can see in the dark up to 12 m (40 ft).",
+    );
+  });
+
+  it("links a passive we don't know to the wiki, with its name only", async () => {
+    renderStats(
+      buildCharacter({
+        passives: [
+          {
+            name: "Bone Chill Aura",
+            wikiLink: "https://bg3.wiki/wiki/Bone_Chill_Aura",
+          },
+        ],
+      }),
+    );
+
+    expect(screen.getByTestId("passive-chip")).toHaveTextContent(
+      "Bone Chill Aura",
+    );
+    fireEvent.mouseOver(screen.getByTestId("passive-chip"));
+    const tooltip = await screen.findByRole("tooltip");
+    expect(within(tooltip).getByTestId("wiki-link")).toHaveAttribute(
+      "href",
+      "https://bg3.wiki/wiki/Bone_Chill_Aura",
+    );
   });
 
   it("greys out an action whose resource has no use left, until one comes back", () => {

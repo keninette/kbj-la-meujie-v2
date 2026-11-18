@@ -238,6 +238,15 @@ const splitList = (value: string | undefined): string[] =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+/**
+ * A list of the infobox, e.g. its passives ("Darkvision, Tenacity @ Maul") or
+ * its resistances ("fire resistance nm, poison immunity")
+ */
+export const getInfoboxList = (
+  fields: Record<string, string>,
+  field: "passives" | "resistances",
+): string[] => splitList(getHighestDifficultyValue(fields, field));
+
 /** "spell1:4, spell2:3, ws:2" -> { "1": 4, "2": 3, "wldshp": 2 } */
 export const parseResources = (
   value: string | undefined,
@@ -286,6 +295,13 @@ export const buildWikiLink = (pageTitle: string): string => {
   );
   return `https://${BG3_WIKI_HOST}/wiki/${path}`;
 };
+
+/** Our id of a wiki page: "Hunter's Prey" or "Hunter's_Prey" -> "hunter-s-prey" */
+export const toWikiPageId = (pageTitle: string): string =>
+  pageTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 /** "str = 16, dex = 12..." -> { str: 16, dex: 12 }, missing ones are skipped */
 const parseAbilities = (
@@ -351,10 +367,6 @@ export const buildCharacterFromInfobox = (
   const hp = toNumber(get("hp"));
   const shortDescription = buildShortDescription(get);
   const actionResourcesLeft = parseResources(get("resources"));
-  const passives = [
-    ...splitList(get("passives")),
-    ...splitList(get("resistances")),
-  ];
   // Can be decimal, e.g. 7.5 m for a dwarf
   const movement = parseFloat(get("movement m") ?? "") || 0;
   // The proficiency bonus is not in the infobox: computed from the level
@@ -381,6 +393,5 @@ export const buildCharacterFromInfobox = (
     ...(Object.keys(abilities).length ? { abilities } : {}),
     ...(Object.keys(savingThrows).length ? { savingThrows } : {}),
     ...(Object.keys(actionResourcesLeft).length ? { actionResourcesLeft } : {}),
-    ...(passives.length ? { passives } : {}),
   };
 };

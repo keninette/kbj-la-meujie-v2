@@ -19,7 +19,7 @@ type TextListFieldsetProps = {
   isHighlighted?: boolean;
 };
 
-/** A list of names (passives, objects...): removable chips, then an input to add one */
+/** A list of names (usable objects...): removable chips, then an input to add one */
 const TextListFieldset = ({
   title,
   titleIcon,
