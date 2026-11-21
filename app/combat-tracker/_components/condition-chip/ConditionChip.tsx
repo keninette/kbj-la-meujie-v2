@@ -15,7 +15,8 @@ import { getConditionText } from "@/app/combat-tracker/_lib/condition-text.helpe
 
 type ConditionChipProps = {
   condition: CombatCondition;
-  onRemove: () => void;
+  /** Shows a remove button in the chip, e.g. in the edit form */
+  onRemove?: () => void;
   "data-testid"?: string;
 };
 
@@ -75,10 +76,12 @@ const ConditionChip = ({
           />
         )
       }
-      deleteAction={{
-        onClick: onRemove,
-        tooltip: translate("form.remove", "combatTracker"),
-      }}
+      deleteAction={
+        onRemove && {
+          onClick: onRemove,
+          tooltip: translate("form.remove", "combatTracker"),
+        }
+      }
       data-testid={dataTestId}
     />
   );
