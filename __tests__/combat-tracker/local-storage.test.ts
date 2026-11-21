@@ -1,6 +1,8 @@
 import { DamageTypeEnum } from "@/app/_lib/enums/damage-type.enum";
 import {
   loadCombat,
+  loadCustomPassives,
+  saveCustomPassives,
   saveCombat,
 } from "@/app/combat-tracker/_lib/local-storage";
 import { CombatCharacter } from "@lib/types/combat-character.type";
@@ -22,7 +24,7 @@ describe("loadCombat", () => {
   it("round-trips a valid combat through saveCombat/loadCombat", () => {
     const combat = buildCombat([
       buildCharacter({
-        passives: ["Rage", "Vision dans le noir"],
+        passives: [{ name: "Rage" }, { name: "Vision dans le noir" }],
         usableObjects: ["Potion de soin"],
       }),
     ]);
@@ -119,7 +121,11 @@ describe("loadCombat", () => {
       "usable objects that are not strings",
       withCharacter({ usableObjects: [42] }),
     ],
-    ["passives that are not strings", withCharacter({ passives: [42] })],
+    ["passives without a name", withCharacter({ passives: [{ name: 42 }] })],
+    [
+      "a passive whose id is not a string",
+      withCharacter({ passives: [{ name: "Darkvision", bg3PassiveId: 42 }] }),
+    ],
     [
       "an action whose costs are not an array",
       withCharacter({ actions: [{ name: "Moonbeam", costs: "action" }] }),
@@ -183,5 +189,47 @@ describe("loadCombat", () => {
     expect(localStorage.getItem("scratchie-combat-tracker-backup")).toBe(
       "not-json",
     );
+  });
+});
+
+describe("loadCustomPassives", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("round-trips the passives added to the list", () => {
+    const passives = [
+      { name: "Rage" },
+      {
+        name: "Relentless Endurance",
+        description: "If you reach 0 hit points…",
+        wikiLink: "https://bg3.wiki/wiki/Relentless_Endurance",
+      },
+    ];
+    saveCustomPassives(passives);
+
+    expect(loadCustomPassives()).toEqual(passives);
+  });
+
+  it.each([
+    ["nothing is stored", null],
+    ["the payload is not valid JSON", "not-json"],
+    ["the payload is not a list", JSON.stringify({ name: "Rage" })],
+  ])("gives an empty list when %s", (_, raw) => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    if (raw !== null) {
+      localStorage.setItem("scratchie-combat-tracker-passives", raw);
+    }
+
+    expect(loadCustomPassives()).toEqual([]);
+  });
+
+  it("leaves out an invalid passive, and keeps the others", () => {
+    localStorage.setItem(
+      "scratchie-combat-tracker-passives",
+      JSON.stringify([{ name: "Rage" }, { name: 3 }, "Darkvision"]),
+    );
+
+    expect(loadCustomPassives()).toEqual([{ name: "Rage" }]);
   });
 });

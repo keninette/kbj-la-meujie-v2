@@ -43,3 +43,30 @@ export const splitResourceVariant = (
     ? { resourceName: getActionResourceName(id), variant: rest.join(": ") }
     : undefined;
 };
+
+const isSpellSlot = (id: string): boolean =>
+  findBg3ActionResource(id)?.type === ActionResourceTypeEnum.SPELL_SLOT;
+
+/**
+ * Whether the character has enough uses left of the resources an action
+ * spends ("layonh:2" needs 2). A spell can be upcast: a level 2 spell needs a
+ * slot of level 2 or higher. A resource the character doesn't track never
+ * blocks the action: we don't know how many are left.
+ */
+export const hasEnoughResources = (
+  action: CombatAction,
+  actionResourcesLeft: Record<string, number> = {},
+): boolean =>
+  action.costs.map(parseActionCost).every(({ kind, resource, amount }) => {
+    if (kind !== ActionCostKind.ACTION_RESOURCE || !resource) {
+      return true;
+    }
+    if (isSpellSlot(resource)) {
+      const slots = Object.entries(actionResourcesLeft).filter(
+        ([id]) => isSpellSlot(id) && Number(id) >= Number(resource),
+      );
+      return slots.length === 0 || slots.some(([, left]) => left >= amount);
+    }
+    const left = actionResourcesLeft[resource];
+    return left === undefined || left >= amount;
+  });

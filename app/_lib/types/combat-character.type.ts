@@ -2,6 +2,7 @@ import { AbilityEnum } from "../enums/ability.enum";
 import { NpcAttitudeEnum } from "../enums/npc-attitude.enum";
 import { CombatAction } from "./combat-action.type";
 import { CombatCondition } from "./combat-condition.type";
+import { CombatPassive } from "./combat-passive.type";
 
 export type CombatCharacter = {
   id: string;
@@ -33,7 +34,7 @@ export type CombatCharacter = {
    * "wldshp"... (see bg3-action-resources.ts) */
   actionResourcesLeft?: Record<string, number>;
   conditions?: CombatCondition[];
-  passives?: string[];
+  passives?: CombatPassive[];
   actions?: CombatAction[];
   usableObjects?: string[];
 };

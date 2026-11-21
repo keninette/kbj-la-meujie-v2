@@ -15,6 +15,10 @@
   color: var(--color-chip-text);
   font-size: var(--font-size--caption);
   font-weight: 600;
+
+  &--disabled {
+    opacity: var(--opacity--disabled);
+  }
 }
 
 .chip__delete {

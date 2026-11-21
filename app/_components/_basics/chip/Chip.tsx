@@ -11,6 +11,8 @@ type ChipProps = {
   icon?: React.ReactNode;
   tooltip?: string;
   deleteAction?: { onClick: () => void; tooltip: string };
+  /** Greyed out, e.g. a resource with no use left */
+  isDisabled?: boolean;
   className?: string;
   "data-testid"?: string;
 };
@@ -21,11 +23,19 @@ const Chip = ({
   icon,
   tooltip,
   deleteAction,
+  isDisabled,
   className,
   "data-testid": dataTestId,
 }: ChipProps) => (
   <Tooltip content={tooltip}>
-    <span className={cx(styles["chip"], className)} data-testid={dataTestId}>
+    <span
+      className={cx(
+        styles["chip"],
+        isDisabled && styles["chip--disabled"],
+        className,
+      )}
+      data-testid={dataTestId}
+    >
       {icon && <span>{icon}</span>}
       {label}
       {deleteAction && (

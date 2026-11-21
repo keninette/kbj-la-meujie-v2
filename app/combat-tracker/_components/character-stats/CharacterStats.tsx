@@ -8,7 +8,7 @@ import ContainerBox from "@/app/_components/_basics/container-box/ContainerBox";
 import IdentitySection from "./_components/identity-section/IdentitySection";
 import StatsSection from "./_components/stats-section/StatsSection";
 import ChipListSection from "./_components/chip-list-section/ChipListSection";
-import ActionResourcesSection from "./_components/action-resources-section/ActionResourcesSection";
+import PassivesSection from "./_components/passives-section/PassivesSection";
 import ActionsSection from "./_components/actions-section/ActionsSection";
 import ConditionsSection from "./_components/conditions-section/ConditionsSection";
 
@@ -120,15 +120,11 @@ const CharacterStats = ({
           onDeathSaveSuccess={isCombatOngoing ? onDeathSaveSuccess : undefined}
           onDeathSaveFail={isCombatOngoing ? onDeathSaveFail : undefined}
         />
-        <ChipListSection
-          title={translate("stats.passives", "combatTracker")}
-          items={selectedCharacter.passives}
-          data-testid="character-passives"
-        />
-        <ActionResourcesSection
+        <PassivesSection passives={selectedCharacter.passives} />
+        <ActionsSection
+          actions={selectedCharacter.actions}
           actionResourcesLeft={selectedCharacter.actionResourcesLeft}
         />
-        <ActionsSection actions={selectedCharacter.actions} />
         <ConditionsSection
           conditions={selectedCharacter.conditions}
           onRemoveCondition={onRemoveCondition}

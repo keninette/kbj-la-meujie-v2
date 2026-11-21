@@ -7,6 +7,7 @@
 - You don't need to validate review changes since you've already presented the plan in the review report.
 - You don't need to validate the plan when it's minor changes I asked for.
 - Reading files, searching the codebase and running read-only commands to build the plan is fine without asking.
+- **Before planning a feature, look for a similar one already done** (e.g. conditions, actions and passives all come from the wiki) and do it the same way: same data layout, same kind of files, same flow. If the new case seems to need another approach, or the existing one looks worth changing, say so in the plan and ask which way to go.
 - **Always review your code before saying it's done**, look for duplicated code or components and make sure files and directories are named following the existing convention.
 - **KISS: keep the code as simple as possible**, as long as it respects the best practices and the existing infrastructure. Don't write code that isn't used yet (optional props, options, abstractions "for later"): add it when it's needed. Simple code keeps the app maintainable.
 - **Match the solution to the size of the problem.** A small visual adjustment (spacing, alignment, a few pixels) gets a small CSS change: a padding, a margin or a height. No measurement scripts, no values computed from font metrics, no Sass variables or extra wrappers created just for it.
@@ -16,12 +17,16 @@
 - **If I'm asking for design updates, please ask before creating an artefact**. Sometimes it's ok to edit code directly in the page, and even to duplicate a block to allow for several suggestions. Just ask what I prefer.
 - **Before saying it's done, run the same checks as the CI**: `npx prettier . --check`, `npm run lint`, `npm run bem-lint`, `npx tsc --noEmit` and `npm run test`. Say which ones fail, if any.
 - **Always update README.md and CLAUDE.md after a coding session if necessary, ask before**
+- **Keep the files' LF line endings.** A script that rewrites a file on Windows (e.g. Python in text mode) writes CRLF, and the whole file then shows as changed: write with `newline=""`, or convert back before saying it's done.
 
 ## Project
 
 Scratchie: a Next.js (App Router) app for tabletop RPG game masters, in French. It has adventures (stored in Supabase) and a D&D / Baldur's Gate 3 combat tracker (stored in the browser's local storage, with characters imported from bg3.wiki).
 
 **Before changing the wiki import, read `app/combat-tracker/_lib/bg3-wiki/README.md`** (how it works, the Cargo tables, the translations, the pitfalls already met), and update it with what you change or learn.
+
+- **Every import from the wiki** goes through a server action in `bg3-wiki.actions.ts` (the browser can't call the wiki), and is asked for in `WikiImportDialog` (`app/combat-tracker/_components/wiki-import-dialog/`): the URL field, the loader, the error and the buttons. Its import options (e.g. the fields to override) go in its children.
+- **A passive or a condition comes from our Baldur's Gate 3 list when it's there** (`bg3-passives.ts`, `bg3-conditions.ts`): it then only stores its id, and gets its French texts and icon from the list. The passives list of the form also offers the ones added by hand or from the wiki, kept in the local storage (`loadCustomPassives`); two passives are the same one by id, else wiki page, else name (`isSamePassive`).
 
 ## Code structure and naming
 
@@ -39,6 +44,7 @@ Scratchie: a Next.js (App Router) app for tabletop RPG game masters, in French. 
 - **Shared components carry their own generic text** in `app/_dictionaries/fr/components.fr.json`, under the component's name (`autocompleteInput.noResult`, `customDialog.close`). The text specific to a page (a label, a title) is passed as a prop.
 - Add `data-testid` to the elements the tests need (see Tests).
 - Remove dead code and unused imports, variables, classes and translation keys when you see them.
+- **An item added to a list of the character form** (condition, passive, action…) is typed in a draft with `useNewItem`, turned into the item by an `<item>FromDraft` helper in `_lib/` (null when it can't be added). When it may come from one of our lists, the form offers the list (`AutocompleteInput`), then "ou" (`form-or` mixin), then the typed fields. An item with nothing else to fill in is added as soon as it's picked (`PassivesFieldset`); otherwise picking one clears the other (`ConditionInputs`, which also has a duration and a save).
 - **Name booleans positively**, for what is true: `showTooltip` (default `true`), `isOpened`, `hasChanges`; not `hideTooltip` or `isNotOpened`. A negation is easier to read when it's written out at the call site: `showTooltip={false}`, `!isOpened`.
 
 ## Shared components
@@ -47,10 +53,10 @@ Use them instead of raw HTML elements:
 
 - **Buttons and links**: `ButtonWithIcon` (label + icon, variants `fab` / `secondary` / `tertiary`), `IconButton` (icon only, with a tooltip; `size="small"` to be as high as the text around it), `LinkWithIcon` (colored like the buttons; without a label, it looks like a small `IconButton`), `SubmitButton`, `SplitButton`, `KebabMenu` (⋮ menu of actions and links).
 - **Containers**: `ContainerBox` (the card look of panels and fieldsets), `Tile` (titled stat block), `Chip` (small label, with an optional delete button), `DetailedChip` (icon on a dark square, title, optional `titleAdornment`, subtitle, tooltip and delete button: actions and conditions).
-- **Forms**: `Fieldset` (titled section, can be highlighted) with its layouts `FieldsetGrid`, `FieldsetRow` and `FieldsetChips`; `TextInput`, `NumberInput` (can be highlighted), `SelectInput`, `CheckboxInput` (label + input; they work with react-hook-form's `register`); `AutocompleteInput` (search input that filters a list of options, each with an optional icon).
+- **Forms**: `Fieldset` (titled section, can be highlighted) with its layouts `FieldsetGrid`, `FieldsetRow` and `FieldsetChips`; `TextInput`, `NumberInput` (can be highlighted), `SelectInput`, `CheckboxInput` (label + input; they work with react-hook-form's `register`); `AutocompleteInput` (search input that filters a list of options, each with an optional icon, or shown as any element with `display`, e.g. a `PassiveChip` with its tooltip; the `label` stays the searched text, with optional `keywords`; `isClearedOnSelect` empties it once an option is picked, to add it to a list).
 - **Overlays**:
   - `CustomDrawer`: side panel with a title and separator, scrollable content, and optional `actions` always visible at the bottom. A form shown in a drawer renders the drawer itself and passes its buttons as `actions`, linked to the `<form>` by its id (`form={formId}`). The parent gives it a `key` that changes on each opening, so the form starts empty every time.
-  - `CustomDialog`: centered dialog with a title, a close cross and optional `actions`.
+  - `CustomDialog`: centered dialog with a title, a close cross and optional `actions`. **A dialog opened from inside a `<form>`** (e.g. from a fieldset of the character form): React events go up through its portal, so its own form's submit must call `event.stopPropagation()`, or it submits the outer form too.
 - **Icons**: `FontAwesomeIcon` (Font Awesome kit, web font).
 - **Tooltips**: `Tooltip` (`content` shown above its child on hover, and on click or tap until a click outside it, e.g. on a tablet; without `content`, only the child). **Never use a native `title` for a tooltip.** `IconButton`, `LinkWithIcon`, `KebabMenu`, `Chip`, `DetailedChip` and `FontAwesomeIcon` already use it through their `tooltip`/`title`/`label` prop. Its child must be an HTML element or a component passing its ref. **No tooltip inside a tooltip's content**: don't pass one to the components in it (an `IconButton` there gets `showTooltip={false}` and keeps its `aria-label`), Material UI's tooltips included. The death-saves choice menu keeps Material UI's `Tooltip`: it opens on click, it's not a tooltip.
 

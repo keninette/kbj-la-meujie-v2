@@ -7,15 +7,27 @@ import {
 } from "@/app/combat-tracker/_lib/combat-action.helper";
 import ActionChip from "@/app/combat-tracker/_components/action-chip/ActionChip";
 import ActionCostIcon from "@/app/combat-tracker/_components/action-chip/ActionCostIcon";
+import { hasEnoughResources } from "@/app/combat-tracker/_lib/action-resource.helper";
 import styles from "../../character-stats.module.scss";
+import ActionResourceChips from "./ActionResourceChips";
 
 type ActionsSectionProps = {
   actions?: CombatAction[];
+  /** To grey out the actions whose resources have no use left */
+  actionResourcesLeft?: Record<string, number>;
 };
 
-/** The actions of the character, one line per group: actions, bonus actions, then reactions */
-const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
-  if (actions.length === 0) {
+/**
+ * The actions of the character, one line per group: actions, bonus actions,
+ * then reactions, and its resources left next to the title. The actions it
+ * hasn't the resources for are greyed out.
+ */
+const ActionsSection = ({
+  actions = [],
+  actionResourcesLeft = {},
+}: ActionsSectionProps) => {
+  const hasResources = Object.keys(actionResourcesLeft).length > 0;
+  if (actions.length === 0 && !hasResources) {
     return null;
   }
 
@@ -28,6 +40,11 @@ const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
   return (
     <Tile
       title={translate("stats.actions", "combatTracker")}
+      titleAdornment={
+        hasResources && (
+          <ActionResourceChips actionResourcesLeft={actionResourcesLeft} />
+        )
+      }
       data-testid="character-actions"
     >
       <div className={styles["character-stats__action-groups"]}>
@@ -47,7 +64,13 @@ const ActionsSection = ({ actions = [] }: ActionsSectionProps) => {
                   key={`${action.name}-${index}`}
                   className={styles["character-stats__action-item"]}
                 >
-                  <ActionChip action={action} group={group} />
+                  <ActionChip
+                    action={action}
+                    group={group}
+                    isDisabled={
+                      !hasEnoughResources(action, actionResourcesLeft)
+                    }
+                  />
                 </li>
               ))}
             </ul>

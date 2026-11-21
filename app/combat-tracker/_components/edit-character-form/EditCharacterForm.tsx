@@ -29,6 +29,7 @@ import AbilitiesFieldset from "./_components/AbilitiesFieldset";
 import ActionResourcesFieldset from "./_components/ActionResourcesFieldset";
 import TextListFieldset from "./_components/TextListFieldset";
 import ActionsFieldset from "./_components/ActionsFieldset";
+import PassivesFieldset from "./_components/passives-fieldset/PassivesFieldset";
 import ConditionsFieldset from "./_components/conditions-fieldset/ConditionsFieldset";
 import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { getInitiativeBonus } from "@/app/combat-tracker/_lib/ability.helper";
@@ -346,12 +347,8 @@ const EditCharacterForm = ({
           }
           isHighlighted={highlightedFields.includes("actionResourcesLeft")}
         />
-        <TextListFieldset
-          title={translate("form.passives", "combatTracker")}
-          titleIcon="book-open"
-          inputId="passiveName"
-          inputLabel={translate("form.passiveName", "combatTracker")}
-          items={character?.passives ?? []}
+        <PassivesFieldset
+          passives={character?.passives ?? []}
           onChange={(passives) => updateCharacter({ passives }, "passives")}
           isHighlighted={highlightedFields.includes("passives")}
         />

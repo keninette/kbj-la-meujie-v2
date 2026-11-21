@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import CombatTrackerPage from "@/app/combat-tracker/page";
+import CombatTracker from "@/app/combat-tracker/_components/combat-tracker/CombatTracker";
 import { saveCombat } from "@/app/combat-tracker/_lib/local-storage";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
 import { Combat } from "@/app/_lib/types/combat.type";
@@ -31,7 +31,7 @@ const legolas = buildCharacter({
 
 const renderPage = async (combat: Combat) => {
   saveCombat(combat);
-  render(<CombatTrackerPage />);
+  render(<CombatTracker />);
   await screen.findByTestId(`character-item-${combat.characters[0].id}`);
 };
 const ongoingCombat = (overrides: Partial<Combat> = {}): Combat => ({
@@ -60,7 +60,7 @@ afterEach(() => {
 
 describe("Combat manager", () => {
   it("creates a new combat when there is none, to add characters", async () => {
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     fireEvent.click(
       await screen.findByRole("button", { name: "manager.newCombat" }),

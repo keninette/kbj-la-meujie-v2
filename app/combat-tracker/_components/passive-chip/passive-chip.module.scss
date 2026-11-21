@@ -1,0 +1,6 @@
+.passive-chip {
+  /* On the dark square of the chip, like the game's icons */
+  &__default-icon {
+    color: var(--color-text--light);
+  }
+}

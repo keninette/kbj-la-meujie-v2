@@ -17,6 +17,8 @@ type DetailedChipProps = {
   /** Shown on hover and focus */
   tooltip?: ReactNode;
   deleteAction?: { onClick: () => void; tooltip: string };
+  /** Greyed out, e.g. an action whose resource has no use left */
+  isDisabled?: boolean;
   "data-testid"?: string;
 };
 
@@ -31,6 +33,7 @@ const DetailedChip = ({
   subtitle,
   tooltip,
   deleteAction,
+  isDisabled,
   "data-testid": dataTestId,
 }: DetailedChipProps) => {
   const chip = (
@@ -38,6 +41,7 @@ const DetailedChip = ({
       className={cx(
         styles["detailed-chip"],
         Boolean(tooltip) && styles["detailed-chip--with-tooltip"],
+        isDisabled && styles["detailed-chip--disabled"],
       )}
       tabIndex={tooltip ? 0 : undefined}
       data-testid={dataTestId}

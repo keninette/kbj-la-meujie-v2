@@ -24,6 +24,7 @@ export enum Bg3WikiErrorEnum {
   INVALID_URL = "invalidUrl",
   PAGE_NOT_FOUND = "pageNotFound",
   NO_INFOBOX = "noInfobox",
+  NO_PASSIVE = "noPassive",
   FETCH_FAILED = "fetchFailed",
 }
 
@@ -61,11 +62,14 @@ export const extractPageTitleFromUrl = (rawUrl: string): string => {
 };
 
 /**
- * Returns the content between "{{Infobox creature" and its matching "}}",
+ * Returns the content between "{{<template name>" and its matching "}}",
  * taking nested templates into account.
  */
-const extractInfoboxContent = (wikitext: string): string | null => {
-  const start = wikitext.search(/\{\{\s*Infobox creature/i);
+const extractTemplateContent = (
+  wikitext: string,
+  templateName: string,
+): string | null => {
+  const start = wikitext.search(new RegExp(`\\{\\{\\s*${templateName}`, "i"));
   if (start === -1) {
     return null;
   }
@@ -119,15 +123,22 @@ export const splitTopLevelParams = (content: string): string[] => {
   return params;
 };
 
-export const parseInfobox = (wikitext: string): Record<string, string> => {
-  const content = extractInfoboxContent(wikitext);
+/**
+ * The named fields of the first {{<template name>|…}} of the page, keys in
+ * lowercase. Null when the page doesn't use it.
+ */
+export const parseTemplate = (
+  wikitext: string,
+  templateName: string,
+): Record<string, string> | null => {
+  const content = extractTemplateContent(wikitext, templateName);
   if (content === null) {
-    throw new Bg3WikiError(Bg3WikiErrorEnum.NO_INFOBOX);
+    return null;
   }
 
-  const [templateName, ...params] = splitTopLevelParams(content);
-  if (templateName.trim().toLowerCase() !== INFOBOX_NAME.toLowerCase()) {
-    throw new Bg3WikiError(Bg3WikiErrorEnum.NO_INFOBOX);
+  const [name, ...params] = splitTopLevelParams(content);
+  if (name.trim().toLowerCase() !== templateName.toLowerCase()) {
+    return null;
   }
 
   const fields: Record<string, string> = {};
@@ -143,6 +154,14 @@ export const parseInfobox = (wikitext: string): Record<string, string> => {
     }
   }
 
+  return fields;
+};
+
+export const parseInfobox = (wikitext: string): Record<string, string> => {
+  const fields = parseTemplate(wikitext, INFOBOX_NAME);
+  if (!fields) {
+    throw new Bg3WikiError(Bg3WikiErrorEnum.NO_INFOBOX);
+  }
   return fields;
 };
 
@@ -238,6 +257,15 @@ const splitList = (value: string | undefined): string[] =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+/**
+ * A list of the infobox, e.g. its passives ("Darkvision, Tenacity @ Maul") or
+ * its resistances ("fire resistance nm, poison immunity")
+ */
+export const getInfoboxList = (
+  fields: Record<string, string>,
+  field: "passives" | "resistances",
+): string[] => splitList(getHighestDifficultyValue(fields, field));
+
 /** "spell1:4, spell2:3, ws:2" -> { "1": 4, "2": 3, "wldshp": 2 } */
 export const parseResources = (
   value: string | undefined,
@@ -286,6 +314,13 @@ export const buildWikiLink = (pageTitle: string): string => {
   );
   return `https://${BG3_WIKI_HOST}/wiki/${path}`;
 };
+
+/** Our id of a wiki page: "Hunter's Prey" or "Hunter's_Prey" -> "hunter-s-prey" */
+export const toWikiPageId = (pageTitle: string): string =>
+  pageTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 /** "str = 16, dex = 12..." -> { str: 16, dex: 12 }, missing ones are skipped */
 const parseAbilities = (
@@ -351,10 +386,6 @@ export const buildCharacterFromInfobox = (
   const hp = toNumber(get("hp"));
   const shortDescription = buildShortDescription(get);
   const actionResourcesLeft = parseResources(get("resources"));
-  const passives = [
-    ...splitList(get("passives")),
-    ...splitList(get("resistances")),
-  ];
   // Can be decimal, e.g. 7.5 m for a dwarf
   const movement = parseFloat(get("movement m") ?? "") || 0;
   // The proficiency bonus is not in the infobox: computed from the level
@@ -381,6 +412,5 @@ export const buildCharacterFromInfobox = (
     ...(Object.keys(abilities).length ? { abilities } : {}),
     ...(Object.keys(savingThrows).length ? { savingThrows } : {}),
     ...(Object.keys(actionResourcesLeft).length ? { actionResourcesLeft } : {}),
-    ...(passives.length ? { passives } : {}),
   };
 };

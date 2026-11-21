@@ -1,0 +1,8 @@
+@use "app/mixins";
+
+.passives-fieldset {
+  /* Between the search and the name */
+  &__or {
+    @include mixins.form-or;
+  }
+}

@@ -12,9 +12,9 @@ import {
 import DamageText from "@/app/combat-tracker/_components/damage-text/DamageText";
 import { splitResourceVariant } from "@/app/combat-tracker/_lib/action-resource.helper";
 import {
-  getActionText,
-  isActionTranslated,
-} from "@/app/combat-tracker/_lib/action-text.helper";
+  getWikiText,
+  isWikiItemTranslated,
+} from "@/app/combat-tracker/_lib/wiki-text.helper";
 import TranslatedTooltip from "@/app/combat-tracker/_components/translated-tooltip/TranslatedTooltip";
 import ActionCostIcon from "./ActionCostIcon";
 
@@ -24,6 +24,8 @@ type ActionChipProps = {
   group?: ActionGroup;
   /** Shows a remove button in the chip, e.g. in the edit form */
   onRemove?: () => void;
+  /** Greyed out, e.g. when its resource has no use left */
+  isDisabled?: boolean;
 };
 
 /**
@@ -31,15 +33,20 @@ type ActionChipProps = {
  * item, description and wiki link in a tooltip, with its original name when
  * the chip shows another one.
  */
-const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
+const ActionChip = ({
+  action,
+  group,
+  onRemove,
+  isDisabled,
+}: ActionChipProps) => {
   const costs = action.costs
     .map(parseActionCost)
     .filter((cost) => cost.kind !== group);
-  const french = getActionText(action, "fr");
+  const french = getWikiText(action, "fr");
   // Not translated and named after its class resource: "Forme sauvage" for
   // "Wild Shape: Bear", whose name moves to the tooltip, and its variant
   // ("Bear") to the subtitle, to tell the forms apart
-  const resourceVariant = isActionTranslated(action)
+  const resourceVariant = isWikiItemTranslated(action)
     ? undefined
     : splitResourceVariant(action);
   const title = resourceVariant?.resourceName ?? french.name;
@@ -87,7 +94,7 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
             title={tooltipTitle}
             descriptions={{
               fr: french.description,
-              en: getActionText(action, "en").description,
+              en: getWikiText(action, "en").description,
             }}
             wikiLink={action.wikiLink}
           />
@@ -99,6 +106,7 @@ const ActionChip = ({ action, group, onRemove }: ActionChipProps) => {
           tooltip: translate("form.remove", "combatTracker"),
         }
       }
+      isDisabled={isDisabled}
       data-testid="action-chip"
     />
   );
