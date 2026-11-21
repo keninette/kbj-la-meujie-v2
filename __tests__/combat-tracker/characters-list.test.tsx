@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import CombatTrackerPage from "@/app/combat-tracker/page";
+import CombatTracker from "@/app/combat-tracker/_components/combat-tracker/CombatTracker";
 import { saveCombat } from "@/app/combat-tracker/_lib/local-storage";
 import { CombatStatusEnum } from "@/app/_lib/enums/combat-status.enum";
 import {
@@ -27,7 +27,7 @@ const legolas = buildCharacter({
 
 const renderPageWithCharacters = async () => {
   saveCombat(buildCombat([aragorn, legolas]));
-  const view = render(<CombatTrackerPage />);
+  const view = render(<CombatTracker />);
   await screen.findByTestId("character-item-aragorn");
   return view;
 };
@@ -112,7 +112,7 @@ describe("CharacterList active and idle characters", () => {
         buildCharacter({ id: "orc", name: "Orc", isNpc: true }),
       ],
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
     fireEvent.click(await screen.findByTestId("stop-combat"));
 
     fireEvent.click(await screen.findByTestId("stop-combat-keep-players"));
@@ -131,7 +131,7 @@ describe("CharacterList active and idle characters", () => {
       ...buildCombat([legolas]),
       idleCharacters: [aragorn],
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     await screen.findByTestId("character-menu-aragorn");
     clickMenuItem("aragorn", "reactivate-character-aragorn");
@@ -147,7 +147,7 @@ describe("CharacterList active and idle characters", () => {
     clickMenuItem("legolas", "deactivate-character-legolas");
     unmount();
 
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     expect(
       await within(
@@ -172,7 +172,7 @@ describe("CharacterList wiki link", () => {
         }),
       ]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     await screen.findByTestId("character-menu-kagha");
     openMenu("kagha");
@@ -202,7 +202,7 @@ describe("Combat turn box", () => {
       status: CombatStatusEnum.ONGOING,
       currentTurn: 2,
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     const turnBox = await screen.findByTestId("combat-turn");
     expect(turnBox).toHaveTextContent("manager.turn");
@@ -234,7 +234,7 @@ describe("CharacterList active character cards", () => {
         }),
       ]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     const hpBar = within(
       await screen.findByTestId("character-item-aragorn"),
@@ -253,7 +253,7 @@ describe("CharacterList active character cards", () => {
         buildCharacter({ id: "aragorn", hp: 27, maxHp: 31, alternativeHp: 0 }),
       ]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     const card = await screen.findByTestId("character-item-aragorn");
     expect(
@@ -267,7 +267,7 @@ describe("CharacterList active character cards", () => {
       status: CombatStatusEnum.ONGOING,
       currentTurn: 1,
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     const current = await screen.findByTestId("character-item-aragorn");
     expect(current).toHaveAttribute("aria-current", "true");
@@ -308,7 +308,7 @@ describe("CharacterList dead characters", () => {
       ...buildCombat([aragorn, boromir, legolas]),
       idleCharacters: [buildCharacter({ id: "gandalf", name: "Gandalf" })],
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     const deadList = await screen.findByTestId("dead-characters-list");
     expect(
@@ -343,7 +343,7 @@ describe("CharacterList dead characters", () => {
       currentTurn: 1,
       selectedCharacterIndex: 1,
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     expect(await screen.findByTestId("character-item-legolas")).toHaveClass(
       "characters-list__card--current",
@@ -359,7 +359,7 @@ describe("CharacterList dead characters", () => {
       status: CombatStatusEnum.ONGOING,
       currentTurn: 1,
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
     await screen.findByTestId("character-item-aragorn");
 
     clickMenuItem("aragorn", "deactivate-character-aragorn");
@@ -375,7 +375,7 @@ describe("CharacterList dead characters", () => {
       status: CombatStatusEnum.ONGOING,
       currentTurn: 1,
     });
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     fireEvent.click(
       within(await screen.findByTestId("combat-turn")).getByText(
@@ -407,7 +407,7 @@ describe("CharacterStats hit points bars", () => {
         }),
       ]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     const alternative = await screen.findByTestId("alternative-hp-bar");
     expect(alternative).toHaveTextContent("12 / 20");
@@ -436,7 +436,7 @@ describe("CharacterStats hit points bars", () => {
         buildCharacter({ id: "fighter", hp: 8, maxHp: 10, tempHp: 4 }),
       ]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     await screen.findByTestId("hp-bar");
     expect(screen.queryByTestId("alternative-hp-bar")).not.toBeInTheDocument();
@@ -452,7 +452,7 @@ describe("CharacterStats abilities", () => {
 
   it("shows nothing when they are unknown", async () => {
     saveCombat(buildCombat([buildCharacter({ id: "fighter" })]));
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     await screen.findByTestId("ac-tile");
     expect(screen.queryByTestId("movement-tile")).not.toBeInTheDocument();
@@ -466,7 +466,7 @@ describe("CharacterStats abilities", () => {
     saveCombat(
       buildCombat([buildCharacter({ id: "fighter", abilities: { str: 16 } })]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     expect(await screen.findByTestId("abilities-tile")).not.toHaveTextContent(
       "stats.savingThrows",
@@ -479,7 +479,7 @@ describe("CharacterStats abilities", () => {
     saveCombat(
       buildCombat([buildCharacter({ id: "rogue", abilities: { dex: 16 } })]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     expect(await screen.findByTestId("abilities-tile")).toHaveTextContent(
       "stats.initiativeBonus",
@@ -491,7 +491,7 @@ describe("CharacterStats abilities", () => {
     saveCombat(
       buildCombat([buildCharacter({ id: "fighter", abilities: { str: 16 } })]),
     );
-    render(<CombatTrackerPage />);
+    render(<CombatTracker />);
 
     expect(await screen.findByTestId("abilities-tile")).not.toHaveTextContent(
       "stats.initiativeBonus",
