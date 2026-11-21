@@ -13,6 +13,8 @@ import {
   getInfoboxList,
   mergeCombatInfobox,
   parseInfobox,
+  parseTemplate,
+  toFileTitle,
   WikiCharacter,
 } from "./bg3-wiki.parser";
 import {
@@ -29,8 +31,10 @@ import {
   WikiWeaponRow,
 } from "./bg3-wiki-combat-actions.parser";
 import {
+  buildPassiveFromPage,
   buildPassives,
   buildResistancePassives,
+  PASSIVE_PAGE_TEMPLATE,
 } from "./bg3-wiki-passives.parser";
 import {
   getResistanceIconFile,
@@ -58,6 +62,10 @@ type WikiImageInfoResponse = {
 export type CreateCharacterFromWikiResult =
   | { character: WikiCharacter; error?: never }
   | { character?: never; error: Bg3WikiErrorEnum };
+
+export type CreatePassiveFromWikiResult =
+  | { passive: CombatPassive; error?: never }
+  | { passive?: never; error: Bg3WikiErrorEnum };
 
 const USER_AGENT = "kbj-la-meujie-combat-tracker";
 
@@ -352,6 +360,15 @@ const fetchResistances = async (values: string[]): Promise<CombatPassive[]> => {
   return buildResistancePassives(values, await findImageUrls(iconFiles));
 };
 
+/** The error to show; an unexpected one is logged */
+const toErrorCode = (error: unknown): Bg3WikiErrorEnum => {
+  if (error instanceof Bg3WikiError) {
+    return error.code;
+  }
+  console.error(error);
+  return Bg3WikiErrorEnum.FETCH_FAILED;
+};
+
 /**
  * Runs on the server: bg3.wiki doesn't allow cross-origin requests
  * from the browser.
@@ -398,10 +415,35 @@ export const createCharacterFromWiki = async (
       },
     };
   } catch (error) {
-    if (error instanceof Bg3WikiError) {
-      return { error: error.code };
+    return { error: toErrorCode(error) };
+  }
+};
+
+/**
+ * The passive of a wiki page. Runs on the server, like
+ * createCharacterFromWiki. Only the page request may fail: a missing icon
+ * never prevents the import.
+ */
+export const createPassiveFromWiki = async (
+  url: string,
+): Promise<CreatePassiveFromWikiResult> => {
+  try {
+    const { wikitext, title } = await fetchWikiPageByTitle(
+      extractPageTitleFromUrl(url),
+    );
+    const fields = parseTemplate(wikitext, PASSIVE_PAGE_TEMPLATE);
+    if (!fields) {
+      throw new Bg3WikiError(Bg3WikiErrorEnum.NO_PASSIVE);
     }
-    console.error(error);
-    return { error: Bg3WikiErrorEnum.FETCH_FAILED };
+
+    const passive = buildPassiveFromPage(title, fields);
+    // A passive of our list already has its icon
+    const iconUrl =
+      !passive.bg3PassiveId && fields.icon
+        ? await findImageUrl([toFileTitle(fields.icon)])
+        : undefined;
+    return { passive: iconUrl ? { ...passive, iconUrl } : passive };
+  } catch (error) {
+    return { error: toErrorCode(error) };
   }
 };

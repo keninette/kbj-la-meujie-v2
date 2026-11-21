@@ -141,6 +141,15 @@
   font-size: var(--font-size--caption);
 }
 
+/* "ou" between two inputs of a row, aligned with the inputs */
+@mixin form-or {
+  align-items: center;
+  display: flex;
+  height: var(--button-height--regular);
+
+  @include form-label;
+}
+
 /* A field to look at, e.g. just imported from the wiki */
 @mixin form-field--highlighted {
   padding: var(--spacing-padding--button) var(--spacing-padding--text);

@@ -1,11 +1,13 @@
 import { CombatPassive } from "@/app/_lib/types/combat-passive.type";
 import DetailedChip from "@/app/_components/_basics/detailed-chip/DetailedChip";
+import FontAwesomeIcon from "@/app/_components/_basics/font-awesome-icon/FontAwesomeIcon";
 import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
 import TranslatedTooltip from "@/app/combat-tracker/_components/translated-tooltip/TranslatedTooltip";
 import { translate } from "@/app/_dictionaries/dictionnary";
 import { isDisplayableImageUrl } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.images";
 import { findBg3Passive } from "@/app/combat-tracker/_lib/bg3-passives";
 import { getPassiveText } from "@/app/combat-tracker/_lib/passive-text.helper";
+import styles from "./passive-chip.module.scss";
 
 type PassiveChipProps = {
   passive: CombatPassive;
@@ -30,7 +32,15 @@ const PassiveChip = ({ passive, onRemove }: PassiveChipProps) => {
       icon={
         isDisplayableImageUrl(iconUrl) ? (
           <CharacterPortrait src={iconUrl} alt="" width={32} height={32} />
-        ) : undefined
+        ) : (
+          // A passive typed by hand, or without an icon on the wiki
+          <FontAwesomeIcon
+            faIcon="book-open"
+            faIconStyle="solid"
+            className={styles["passive-chip__default-icon"]}
+            aria-hidden
+          />
+        )
       }
       title={french.name}
       tooltip={

@@ -1,5 +1,7 @@
 import "@testing-library/jest-dom";
 import {
+  act,
+  cleanup,
   render,
   screen,
   fireEvent,
@@ -11,7 +13,11 @@ import { NpcAttitudeEnum } from "@/app/_lib/enums/npc-attitude.enum";
 import { DamageTypeEnum } from "@/app/_lib/enums/damage-type.enum";
 import EditCharacterForm from "@/app/combat-tracker/_components/edit-character-form/EditCharacterForm";
 import CombatActionForm from "@/app/combat-tracker/_components/combat-action-form/CombatActionForm";
-import { createCharacterFromWiki } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
+import {
+  createCharacterFromWiki,
+  createPassiveFromWiki,
+} from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions";
+import { Bg3WikiErrorEnum } from "@/app/combat-tracker/_lib/bg3-wiki/bg3-wiki.parser";
 import CharacterStats from "@/app/combat-tracker/_components/character-stats/CharacterStats";
 import { buildCharacter } from "./_fixtures/combat-tracker.fixtures";
 
@@ -27,8 +33,10 @@ jest.mock("../../app/_dictionaries/dictionnary", () => ({
 // Never call the real wiki from the tests
 jest.mock("../../app/combat-tracker/_lib/bg3-wiki/bg3-wiki.actions", () => ({
   createCharacterFromWiki: jest.fn(),
+  createPassiveFromWiki: jest.fn(),
 }));
 const mockedCreateFromWiki = jest.mocked(createCharacterFromWiki);
+const mockedCreatePassiveFromWiki = jest.mocked(createPassiveFromWiki);
 
 // The forms are shown in their own drawer, opened here
 const drawerProps = { isOpened: true, onClose: jest.fn(), title: "Drawer" };
@@ -644,6 +652,236 @@ describe("EditCharacterForm conditions", () => {
         appliedOnTurn: 4,
       },
     ]);
+  });
+});
+
+describe("EditCharacterForm passives", () => {
+  const renderForm = (character = buildCharacter()) => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={character}
+        onSubmit={onSubmit}
+      />,
+    );
+    return onSubmit;
+  };
+  const savedPassives = (onSubmit: jest.Mock) => {
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
+    return onSubmit.mock.calls[0][0].passives;
+  };
+  // Focused like in the browser: MUI keeps a focused input's text
+  const searchBg3Passive = (text: string) => {
+    const search = screen.getByRole("combobox", { name: "form.passive" });
+    act(() => search.focus());
+    fireEvent.change(search, { target: { value: text } });
+  };
+  const addPassive = () =>
+    fireEvent.click(screen.getByTestId("passiveName-add-button"));
+
+  const importFromWiki = async (url: string) => {
+    fireEvent.click(screen.getByTestId("import-passive-from-wiki"));
+    fireEvent.change(screen.getByTestId("wiki-url"), {
+      target: { value: url },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "wiki.import" }));
+  };
+
+  // The passives added to the list are kept in the local storage
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    mockedCreatePassiveFromWiki.mockReset();
+  });
+
+  it("adds a passive as soon as it's picked in the list, and clears the search", () => {
+    const onSubmit = renderForm();
+
+    searchBg3Passive("Fey");
+    fireEvent.click(screen.getByRole("option", { name: "Fey Ancestry" }));
+
+    expect(screen.getByRole("combobox", { name: "form.passive" })).toHaveValue(
+      "",
+    );
+    expect(savedPassives(onSubmit)).toEqual([
+      { name: "Fey Ancestry", bg3PassiveId: "fey-ancestry" },
+    ]);
+  });
+
+  it("tells when the character already has the picked passive, without adding it again", () => {
+    const onSubmit = renderForm(
+      buildCharacter({
+        passives: [{ name: "Fey Ancestry", bg3PassiveId: "fey-ancestry" }],
+      }),
+    );
+
+    searchBg3Passive("Fey");
+    fireEvent.click(screen.getByRole("option", { name: "Fey Ancestry" }));
+
+    expect(
+      screen.getByRole("dialog", { name: "form.existingPassive.title" }),
+    ).toHaveTextContent("form.existingPassive.onCharacter");
+    expect(savedPassives(onSubmit)).toEqual([
+      { name: "Fey Ancestry", bg3PassiveId: "fey-ancestry" },
+    ]);
+  });
+
+  it("keeps a typed passive the character already has in the fields", () => {
+    const onSubmit = renderForm(
+      buildCharacter({ passives: [{ name: "Rage" }] }),
+    );
+
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "rage" },
+    });
+    addPassive();
+
+    expect(
+      screen.getByRole("dialog", { name: "form.existingPassive.title" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("passiveName")).toHaveValue("rage");
+    expect(savedPassives(onSubmit)).toEqual([{ name: "Rage" }]);
+  });
+
+  it("adds a typed passive with its description", () => {
+    const onSubmit = renderForm();
+
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "Rage" },
+    });
+    fireEvent.change(screen.getByTestId("passiveDescription"), {
+      target: { value: "Hits harder." },
+    });
+    addPassive();
+
+    expect(savedPassives(onSubmit)).toEqual([
+      { name: "Rage", description: "Hits harder." },
+    ]);
+  });
+
+  it("fills the fields from the wiki to check them, then keeps the icon and link", async () => {
+    mockedCreatePassiveFromWiki.mockResolvedValue({
+      passive: {
+        name: "Relentless Endurance",
+        description: "If you reach 0 hit points…",
+        iconUrl: "https://bg3.wiki/w/images/icon.webp",
+        wikiLink: "https://bg3.wiki/wiki/Relentless_Endurance",
+      },
+    });
+    const onSubmit = renderForm();
+
+    await importFromWiki("https://bg3.wiki/wiki/Relentless_Endurance");
+    await waitFor(() =>
+      expect(screen.queryByTestId("wiki-url")).not.toBeInTheDocument(),
+    );
+
+    // Not added, nor the character saved: the game master checks it first
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId("passiveName")).toHaveValue(
+      "Relentless Endurance",
+    );
+    expect(screen.getByTestId("passiveDescription")).toHaveValue(
+      "If you reach 0 hit points…",
+    );
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "Endurance implacable" },
+    });
+    addPassive();
+
+    expect(savedPassives(onSubmit)).toEqual([
+      {
+        name: "Endurance implacable",
+        description: "If you reach 0 hit points…",
+        iconUrl: "https://bg3.wiki/w/images/icon.webp",
+        wikiLink: "https://bg3.wiki/wiki/Relentless_Endurance",
+      },
+    ]);
+  });
+
+  it("finds a passive of our list by its english name too", () => {
+    renderForm();
+
+    // The mocked dictionary only translates Darkvision, to its key
+    searchBg3Passive("Darkvision");
+
+    expect(
+      screen.getByRole("option", { name: "darkvision.name" }),
+    ).toBeInTheDocument();
+  });
+
+  it("offers a passive added by hand again, for another character", () => {
+    renderForm();
+    fireEvent.change(screen.getByTestId("passiveName"), {
+      target: { value: "Rage" },
+    });
+    addPassive();
+    cleanup();
+
+    const onSubmit = renderForm();
+    searchBg3Passive("Rage");
+    fireEvent.click(screen.getByRole("option", { name: "Rage" }));
+
+    expect(savedPassives(onSubmit)).toEqual([{ name: "Rage" }]);
+  });
+
+  it("tells when the imported passive is already in the list, and adds it from there", async () => {
+    mockedCreatePassiveFromWiki.mockResolvedValue({
+      passive: { name: "Fey Ancestry", bg3PassiveId: "fey-ancestry" },
+    });
+    const onSubmit = renderForm();
+
+    await importFromWiki("https://bg3.wiki/wiki/Fey_Ancestry");
+    const dialog = await screen.findByRole("dialog", {
+      name: "form.existingPassive.title",
+    });
+
+    expect(within(dialog).getByTestId("passive-chip")).toHaveTextContent(
+      "Fey Ancestry",
+    );
+    expect(screen.getByTestId("passiveName")).toHaveValue("");
+    fireEvent.click(within(dialog).getByTestId("existing-passive-add"));
+
+    expect(savedPassives(onSubmit)).toEqual([
+      { name: "Fey Ancestry", bg3PassiveId: "fey-ancestry" },
+    ]);
+  });
+
+  it("doesn't offer to add an imported passive the character already has", async () => {
+    mockedCreatePassiveFromWiki.mockResolvedValue({
+      passive: { name: "Fey Ancestry", bg3PassiveId: "fey-ancestry" },
+    });
+    renderForm(
+      buildCharacter({
+        passives: [{ name: "Fey Ancestry", bg3PassiveId: "fey-ancestry" }],
+      }),
+    );
+
+    await importFromWiki("https://bg3.wiki/wiki/Fey_Ancestry");
+    const dialog = await screen.findByRole("dialog", {
+      name: "form.existingPassive.title",
+    });
+
+    expect(dialog).toHaveTextContent("form.existingPassive.onCharacter");
+    expect(
+      within(dialog).queryByTestId("existing-passive-add"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("tells why the import failed, and stays open", async () => {
+    mockedCreatePassiveFromWiki.mockResolvedValue({
+      error: Bg3WikiErrorEnum.NO_PASSIVE,
+    });
+    renderForm();
+
+    await importFromWiki("https://bg3.wiki/wiki/Kagha");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "wiki.error.noPassive",
+    );
+    expect(screen.getByTestId("wiki-url")).toBeInTheDocument();
   });
 });
 

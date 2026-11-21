@@ -2,18 +2,20 @@
 
 The combat tracker can fill a character from its [bg3.wiki](https://bg3.wiki) page: paste the page URL in the edit form, and the import fills its stats, resources, portrait, passives and actions. The game master then reviews the highlighted fields before saving.
 
+A single passive can also be imported from its page, in the passives of the edit form (see "How a passive import works").
+
 This folder holds everything that reads the wiki. The rest of the app only knows `CombatCharacter`, `CombatAction` and `CombatPassive`.
 
 ## Files
 
-| File                                | Role                                                                                                                                                                                       |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `bg3-wiki.actions.ts`               | **Server action** (`"use server"`): every request to the wiki. bg3.wiki doesn't allow cross-origin requests, so the browser can't call it. Entry point: `createCharacterFromWiki(url)`.    |
-| `bg3-wiki.parser.ts`                | Pure functions reading the character page: URL → title, the `{{Infobox creature}}` fields, abilities, saving throws, resources, portrait candidates, wiki links.                           |
-| `bg3-wiki-combat-actions.parser.ts` | Pure functions reading the actions: the feature boxes of the page, the rows of the `actions` and `weapons` Cargo tables, costs, damages, descriptions.                                     |
-| `bg3-wiki-passives.parser.ts`       | Pure functions turning the infobox's passives and resistances into `CombatPassive`s.                                                                                                       |
-| `bg3-wiki.images.ts`                | The wiki host and image path. Shared with `next.config.ts` (allowed image host), so **it keeps relative imports only**.                                                                    |
-| `merge-wiki-character.ts`           | Merges an imported character into the edited one, and lists the fields that changed, so the form can highlight them. Combat state (initiative, conditions, death saves…) is never touched. |
+| File                                | Role                                                                                                                                                                                                                   |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bg3-wiki.actions.ts`               | **Server action** (`"use server"`): every request to the wiki. bg3.wiki doesn't allow cross-origin requests, so the browser can't call it. Entry points: `createCharacterFromWiki(url)`, `createPassiveFromWiki(url)`. |
+| `bg3-wiki.parser.ts`                | Pure functions reading the character page: URL → title, the `{{Infobox creature}}` fields, abilities, saving throws, resources, portrait candidates, wiki links.                                                       |
+| `bg3-wiki-combat-actions.parser.ts` | Pure functions reading the actions: the feature boxes of the page, the rows of the `actions` and `weapons` Cargo tables, costs, damages, descriptions.                                                                 |
+| `bg3-wiki-passives.parser.ts`       | Pure functions turning the infobox's passives and resistances, or a passive's own page, into `CombatPassive`s.                                                                                                         |
+| `bg3-wiki.images.ts`                | The wiki host and image path. Shared with `next.config.ts` (allowed image host), so **it keeps relative imports only**.                                                                                                |
+| `merge-wiki-character.ts`           | Merges an imported character into the edited one, and lists the fields that changed, so the form can highlight them. Combat state (initiative, conditions, death saves…) is never touched.                             |
 
 Related data, outside this folder, in `app/combat-tracker/_lib/`:
 
@@ -40,6 +42,19 @@ Translations are in `app/_dictionaries/fr/`: `dnd-conditions.fr.json`, `dnd-acti
 7. **The portrait.** We try several image file names from the infobox, best first, and keep the first one that exists.
 
 **What may fail:** only the first step throws (page not found, no infobox, network). Everything after it never throws. A failed subpage, icon, weapon or actions request is logged, and the character is still imported without that part. The passives never depend on the wiki answering.
+
+## How a passive import works
+
+In the passives of the edit form, "Importer un passif depuis le wiki" opens the URL dialog (`WikiImportDialog`, shared with the character import). A new passive fills the form's passive fields for the game master to check; it's only added with the "+" button, and then joins the passives list of the form (see below).
+
+1. **The page,** like a character's (`action=parse&prop=wikitext`, following redirects).
+2. **The template.** Every passive page starts with `{{Passive feature page|…}}` (`parseTemplate`, the same reading as the infobox). Without it, the error is "noPassive".
+3. **A passive of our list** (matched by its page title, like the infobox's passives) only keeps its id, so it gets our French texts and icon.
+4. **Another passive** gets the page title as name, its `description` (or its `brief` when it has none), its wiki link, and the URL of its `icon` file. The icon request never makes the import fail. Its texts stay in English: there's no translation for it.
+
+Only the API is used: no Cargo request, so no rate limit (see the troubleshooting).
+
+**Already in the list.** The form's list offers our 200 passives, plus every passive the game master added by hand or from the wiki (kept in the local storage, `loadCustomPassives`). An imported passive already there (same id, or same wiki page: `isSamePassive`) doesn't fill the fields: a dialog shows its chip, with a button to add it to the character, unless the character already has it.
 
 ### Cargo tables
 
@@ -125,6 +140,7 @@ These all happened, and each one has a regression test in `__tests__/combat-trac
 
   When a description looks wrong, look at its raw export, then add the case to the `cleanDescription` tests.
 
+- **Templates written as words in passive pages.** Unlike the Cargo exports, the pages' wikitext keeps its templates. The generic cleaning keeps the last unnamed argument of a template (`{{Cond|Charmed}}` → `Charmed`), which drops or cuts some words: `{{Advantage}}` and `{{SavingThrow}}s` (no argument), `{{dist|m=3}}` (a named one), `{{DamageText|1|Healing}}` (two). `renderDescriptionTemplates` renders them first ("Advantage", "Saving Throws", "3 m", "1 Healing"), for the passive descriptions only, so the infobox isn't affected.
 - **Several rows for one page.** A page can store several rows (variants of the same action). We prefer the row named after the page.
 - **Feature boxes outside the actions.** A page may use feature boxes for other things (allies, summons). When it has an "Attacks and actions" section, only that section is read.
 - **Damage types.** Rows may use a type that isn't one: `"Weapon"` when the weapon's own damage applies. The Cargo `weapons` table only uses the 13 real types.

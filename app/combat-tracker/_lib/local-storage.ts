@@ -255,3 +255,29 @@ export function clearCombat(): void {
     console.error("Erreur suppression personnages:", error);
   }
 }
+
+const PASSIVES_STORAGE_KEY = `${STORAGE_KEY}-passives`;
+
+/**
+ * The passives added by hand or imported from the wiki, offered in the
+ * passives list of the form. An invalid one is left out.
+ */
+export function loadCustomPassives(): CombatPassive[] {
+  try {
+    const parsed: unknown = JSON.parse(
+      localStorage.getItem(PASSIVES_STORAGE_KEY) ?? "[]",
+    );
+    return Array.isArray(parsed) ? parsed.filter(isCombatPassive) : [];
+  } catch (error) {
+    console.error("Erreur chargement passifs:", error);
+    return [];
+  }
+}
+
+export function saveCustomPassives(passives: CombatPassive[]): void {
+  try {
+    localStorage.setItem(PASSIVES_STORAGE_KEY, JSON.stringify(passives));
+  } catch (error) {
+    console.error("Erreur sauvegarde passifs:", error);
+  }
+}

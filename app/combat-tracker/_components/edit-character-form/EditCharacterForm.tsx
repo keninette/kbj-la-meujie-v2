@@ -29,7 +29,7 @@ import AbilitiesFieldset from "./_components/AbilitiesFieldset";
 import ActionResourcesFieldset from "./_components/ActionResourcesFieldset";
 import TextListFieldset from "./_components/TextListFieldset";
 import ActionsFieldset from "./_components/ActionsFieldset";
-import PassivesFieldset from "./_components/PassivesFieldset";
+import PassivesFieldset from "./_components/passives-fieldset/PassivesFieldset";
 import ConditionsFieldset from "./_components/conditions-fieldset/ConditionsFieldset";
 import { createId } from "@/app/combat-tracker/_lib/create-id";
 import { getInitiativeBonus } from "@/app/combat-tracker/_lib/ability.helper";

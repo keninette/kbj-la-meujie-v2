@@ -24,6 +24,7 @@ export enum Bg3WikiErrorEnum {
   INVALID_URL = "invalidUrl",
   PAGE_NOT_FOUND = "pageNotFound",
   NO_INFOBOX = "noInfobox",
+  NO_PASSIVE = "noPassive",
   FETCH_FAILED = "fetchFailed",
 }
 
@@ -61,11 +62,14 @@ export const extractPageTitleFromUrl = (rawUrl: string): string => {
 };
 
 /**
- * Returns the content between "{{Infobox creature" and its matching "}}",
+ * Returns the content between "{{<template name>" and its matching "}}",
  * taking nested templates into account.
  */
-const extractInfoboxContent = (wikitext: string): string | null => {
-  const start = wikitext.search(/\{\{\s*Infobox creature/i);
+const extractTemplateContent = (
+  wikitext: string,
+  templateName: string,
+): string | null => {
+  const start = wikitext.search(new RegExp(`\\{\\{\\s*${templateName}`, "i"));
   if (start === -1) {
     return null;
   }
@@ -119,15 +123,22 @@ export const splitTopLevelParams = (content: string): string[] => {
   return params;
 };
 
-export const parseInfobox = (wikitext: string): Record<string, string> => {
-  const content = extractInfoboxContent(wikitext);
+/**
+ * The named fields of the first {{<template name>|…}} of the page, keys in
+ * lowercase. Null when the page doesn't use it.
+ */
+export const parseTemplate = (
+  wikitext: string,
+  templateName: string,
+): Record<string, string> | null => {
+  const content = extractTemplateContent(wikitext, templateName);
   if (content === null) {
-    throw new Bg3WikiError(Bg3WikiErrorEnum.NO_INFOBOX);
+    return null;
   }
 
-  const [templateName, ...params] = splitTopLevelParams(content);
-  if (templateName.trim().toLowerCase() !== INFOBOX_NAME.toLowerCase()) {
-    throw new Bg3WikiError(Bg3WikiErrorEnum.NO_INFOBOX);
+  const [name, ...params] = splitTopLevelParams(content);
+  if (name.trim().toLowerCase() !== templateName.toLowerCase()) {
+    return null;
   }
 
   const fields: Record<string, string> = {};
@@ -143,6 +154,14 @@ export const parseInfobox = (wikitext: string): Record<string, string> => {
     }
   }
 
+  return fields;
+};
+
+export const parseInfobox = (wikitext: string): Record<string, string> => {
+  const fields = parseTemplate(wikitext, INFOBOX_NAME);
+  if (!fields) {
+    throw new Bg3WikiError(Bg3WikiErrorEnum.NO_INFOBOX);
+  }
   return fields;
 };
 

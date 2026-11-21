@@ -1,51 +1,17 @@
-@use "app/mixins";
-
+/* The fields to override, below the URL of the import dialog */
 .wiki-character-dialog {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-layout-section-content-margin);
+  gap: var(--spacing-padding--button);
+  margin: 0;
+  padding: 0;
 
-  &__field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-padding--button);
-  }
+  border: none;
 
-  &__label {
+  &__legend {
     font-size: 0.8rem;
     letter-spacing: var(--letter-spacing--section-subtitle);
     text-transform: uppercase;
-  }
-
-  &__input {
-    box-sizing: border-box;
-    height: var(--button-height--regular);
-    padding: 0 var(--spacing-padding--text);
-
-    background-color: var(--color-surface--field);
-    border: 1px solid var(--color-border--light);
-    border-radius: var(--radius--button);
-    color: var(--color-text--dark);
-    font: inherit;
-
-    &:focus {
-      border-color: var(--color-border--dark);
-      outline: 2px solid var(--color-border--light);
-    }
-
-    &:disabled {
-      opacity: var(--opacity--disabled);
-    }
-  }
-
-  &__overrides {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-padding--button);
-    margin: 0;
-    padding: 0;
-
-    border: none;
   }
 
   &__hint {
@@ -72,30 +38,5 @@
     &--all {
       padding-bottom: var(--spacing-padding--button);
     }
-  }
-
-  &__error {
-    margin: 0;
-    padding: var(--spacing-padding--text);
-
-    background-color: var(--color-highlight);
-    border-left: 3px solid var(--color-border--dark);
-    border-radius: var(--radius--field);
-    color: var(--color-info);
-  }
-
-  &__loader {
-    align-items: center;
-    display: flex;
-    gap: var(--spacing-padding--text);
-
-    color: var(--color-info);
-  }
-
-  &__actions {
-    display: flex;
-    gap: var(--spacing-padding--text);
-    justify-content: flex-end;
-    padding-top: var(--spacing-layout-section-content-margin);
   }
 }

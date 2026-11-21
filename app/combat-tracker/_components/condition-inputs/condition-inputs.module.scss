@@ -1,12 +1,8 @@
 @use "app/mixins";
 
 .condition-inputs {
-  /* Between the search and the name, aligned with the inputs */
+  /* Between the search and the name */
   &__or {
-    align-items: center;
-    display: flex;
-    height: var(--button-height--regular);
-
-    @include mixins.form-label;
+    @include mixins.form-or;
   }
 }
