@@ -563,6 +563,36 @@ describe("EditCharacterForm conditions", () => {
     ]);
   });
 
+  it("keeps a condition picked in the list until it's added with the button", () => {
+    const onSubmit = jest.fn();
+    render(
+      <EditCharacterForm
+        {...drawerProps}
+        initialCharacter={buildCharacter()}
+        onSubmit={onSubmit}
+      />,
+    );
+    const search = screen.getByRole("combobox", { name: "form.condition" });
+
+    act(() => search.focus());
+    fireEvent.change(search, { target: { value: "Frigh" } });
+    fireEvent.click(screen.getByRole("option", { name: "Frightened" }));
+
+    // Its duration and saving throw are still to be filled in
+    expect(search).toHaveValue("Frightened");
+    expect(screen.queryByTestId("condition-item")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("addCondition"));
+    fireEvent.submit(screen.getByTestId("edit-character-form"));
+
+    expect(onSubmit.mock.calls[0][0].conditions).toEqual([
+      {
+        id: expect.any(String),
+        name: "Frightened",
+        bg3ConditionId: "frightened",
+      },
+    ]);
+  });
+
   it("adds a condition by name, with an id", () => {
     const onSubmit = jest.fn();
     render(

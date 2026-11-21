@@ -9,7 +9,7 @@ import {
 } from "@/app/combat-tracker/_lib/bg3-conditions";
 import { getConditionText } from "@/app/combat-tracker/_lib/condition-text.helper";
 import type { ConditionDraft } from "@/app/combat-tracker/_lib/combat-condition.helper";
-import CharacterPortrait from "@/app/combat-tracker/_components/character-portrait/CharacterPortrait";
+import ConditionChip from "@/app/combat-tracker/_components/condition-chip/ConditionChip";
 import styles from "./condition-inputs.module.scss";
 
 type ConditionInputsProps = {
@@ -20,16 +20,22 @@ type ConditionInputsProps = {
   children: React.ReactNode;
 };
 
+/**
+ * Our conditions, in french and searched in english too, shown like the
+ * character's own: a chip with its tooltip
+ */
 const getBg3ConditionOptions = () =>
   BG3_CONDITIONS.map((condition) => ({
     value: condition.id,
     label: getConditionText(condition).name,
-    icon: (
-      <CharacterPortrait
-        src={condition.iconUrl}
-        alt=""
-        width={24}
-        height={24}
+    keywords: condition.name,
+    display: (
+      <ConditionChip
+        condition={{
+          id: condition.id,
+          name: condition.name,
+          bg3ConditionId: condition.id,
+        }}
       />
     ),
   })).sort((a, b) => a.label.localeCompare(b.label, "fr"));
